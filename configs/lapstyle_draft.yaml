@@ -1,6 +1,6 @@
 total_iters: 100000
-output_dir: output_dir
-checkpoints_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/city_w_city_dataset/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/city_w_city_dataset
+checkpoints_dir: checkpoints
 min_max:
   (0., 1.)
 
@@ -61,7 +61,7 @@ validate:
 
 log_config:
   interval: 10
-  visiual_interval: 500
+  visiual_interval: 100
 
 snapshot_config:
   interval: 5000

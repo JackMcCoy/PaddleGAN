@@ -1,6 +1,6 @@
-total_iters: 30000
+total_iters: 100000
 output_dir: output_dir
-checkpoints_dir: checkpoints
+checkpoints_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/city_w_city_dataset/
 min_max:
   (0., 1.)
 
@@ -27,16 +27,16 @@ model:
 dataset:
   train:
     name: LapStyleDataset
-    content_root: data/coco/train2017/
-    style_root: data/starrynew.png
+    content_root: /content/gdrive/My Drive/img_style/cities_with_moon/
+    style_root: /content/gdrive/My Drive/img_style/washnight.jpg
     load_size: 136
     crop_size: 128
     num_workers: 16
     batch_size: 5
   test:
     name: LapStyleDataset
-    content_root: data/coco/test2017/
-    style_root: data/starrynew.png
+    content_root: /content/gdrive/My Drive/img_style/cities/
+    style_root: /content/gdrive/My Drive/img_style/washnight.jpg
     load_size: 128
     crop_size: 128
     num_workers: 0
@@ -56,8 +56,8 @@ optimizer:
     beta2: 0.999
 
 validate:
-  interval: 500
-  save_img: false
+  interval: 1500
+  save_img: true
 
 log_config:
   interval: 10

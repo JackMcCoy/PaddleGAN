@@ -20,10 +20,10 @@ from .builder import DISCRIMINATORS
 
 @DISCRIMINATORS.register()
 class LapStyleDiscriminator(nn.Layer):
-    def __init__(self):
+    def __init__(self, num_channels=32):
         super(LapStyleDiscriminator, self).__init__()
         num_layer = 3
-        num_channel = 32
+        num_channel = num_channels
         self.head = nn.Sequential(
             ('conv',
              nn.Conv2D(3, num_channel, kernel_size=3, stride=1, padding=1)),

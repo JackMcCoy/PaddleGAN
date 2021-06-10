@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7b6bfd74-3242-4eae-baa4-6c3ced6798f4" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/configs/lapstyle_rev_first.yaml" afterPath="$PROJECT_DIR$/configs/lapstyle_rev_first.yaml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py" afterPath="$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py" />
     </list>
     <ignored path="PaddleGAN.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -24,11 +24,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="lapstyle_dataset.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="lapstyle_dataset.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.48824593">
+              <caret line="72" column="56" selection-start-line="72" selection-start-column="56" selection-end-line="72" selection-end-column="56" />
               <folding />
             </state>
           </provider>
@@ -54,10 +54,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="lapstyle_rev_first.yaml" pinned="false" current-in-tab="true">
+      <file leaf-file-name="lapstyle_rev_first.yaml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_first.yaml">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.62068963">
+            <state vertical-scroll-proportion="0.0">
               <caret line="45" column="79" selection-start-line="45" selection-start-column="79" selection-end-line="45" selection-end-column="79" />
               <folding />
             </state>
@@ -84,6 +84,7 @@
       <list>
         <option value="$PROJECT_DIR$/ppgan/models/discriminators/discriminator_lapstyle.py" />
         <option value="$PROJECT_DIR$/configs/lapstyle_rev_first.yaml" />
+        <option value="$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py" />
       </list>
     </option>
   </component>
@@ -188,14 +189,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ppgan/engine/trainer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="41.666668">
@@ -256,8 +249,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_first.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.62068963">
+        <state vertical-scroll-proportion="0.0">
           <caret line="45" column="79" selection-start-line="45" selection-start-column="79" selection-end-line="45" selection-end-column="79" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.48824593">
+          <caret line="72" column="56" selection-start-line="72" selection-start-column="56" selection-end-line="72" selection-end-column="56" />
           <folding />
         </state>
       </provider>

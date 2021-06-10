@@ -60,13 +60,31 @@ class LapStyleDataset(Dataset):
         else:
             content_img = cv2.cvtColor(content_img, cv2.COLOR_BGR2RGB)
         content_img = Image.fromarray(content_img)
-        content_img = content_img.resize((self.load_size, self.load_size),
+        small_edge = min(content_img.width,content_img.height)
+        if small_edge==content_img.width:
+            intermediate_width = self.load_size
+            ratio = content_img.height/content_img.width
+            intermediate_height = math.floor(self.load_size*ratio)
+        else:
+            intermediate_height = self.load_size
+            ratio = content_img.width/content_img.height
+            intermediate_width = math.floor(self.load_size*ratio)
+        content_img = content_img.resize((intermediate_width, intermediate_height),
                                          Image.BILINEAR)
         content_img = np.array(content_img)
         style_img = cv2.imread(self.style_root)
         style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)
         style_img = Image.fromarray(style_img)
-        style_img = style_img.resize((self.load_size, self.load_size),
+        small_edge = min(style_img.width,style_img.height)
+        if small_edge==style_img.width:
+            intermediate_width = self.load_size
+            ratio = style_img.height/style_img.width
+            intermediate_height = math.floor(self.load_size*ratio)
+        else:
+            intermediate_height = self.load_size
+            ratio = style_img.width/style_img.height
+            intermediate_width = math.floor(self.load_size*ratio)
+        style_img = style_img.resize((intermediate_width, intermediate_height),
                                      Image.BILINEAR)
         style_img = np.array(style_img)
         content_img = self.transform(content_img)

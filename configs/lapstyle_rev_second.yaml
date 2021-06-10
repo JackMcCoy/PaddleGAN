@@ -10,6 +10,7 @@ model:
     name: RevisionNet
   revnet_discriminator:
     name: LapStyleDiscriminator
+    num_channels: 64
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -33,16 +34,16 @@ model:
 dataset:
   train:
     name: LapStyleDataset
-    content_root: data/coco/train2017/
-    style_root: data/starrynew.png
+    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
+    style_root: /content/gdrive/My Drive/img_style/PaddleGAN/data/starrynew.png
     load_size: 540
     crop_size: 512
     num_workers: 16
     batch_size: 2
   test:
     name: LapStyleDataset
-    content_root: data/coco/test2017/
-    style_root: data/starrynew.png
+    content_root: /content/gdrive/My Drive/img_style/pytorch-AdaIN/input/content/
+    style_root: /content/gdrive/My Drive/img_style/PaddleGAN/data/starrynew.png
     load_size: 512
     crop_size: 512
     num_workers: 0
@@ -68,12 +69,12 @@ optimizer:
     beta2: 0.999
 
 validate:
-  interval: 500
+  interval: 1500
   save_img: false
 
 log_config:
   interval: 10
-  visiual_interval: 500
+  visiual_interval: 100
 
 snapshot_config:
   interval: 5000

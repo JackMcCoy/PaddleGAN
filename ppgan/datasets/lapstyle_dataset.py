@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import logging
-import os
+import os, math
 import numpy as np
 from PIL import Image
 import paddle

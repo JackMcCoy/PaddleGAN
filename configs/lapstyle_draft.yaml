@@ -29,16 +29,16 @@ dataset:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
     style_root: steadman.png
-    load_size: 136
-    crop_size: 128
+    load_size: 106
+    crop_size: 96
     num_workers: 16
     batch_size: 5
   test:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/pytorch-AdaIN/input/content/
     style_root: steadman.png
-    load_size: 136
-    crop_size: 128
+    load_size: 106
+    crop_size: 96
     num_workers: 0
     batch_size: 1
 

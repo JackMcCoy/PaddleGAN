@@ -21,7 +21,7 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1.0
-  style_weight: 3.0
+  style_weight: 4.0
 
 
 dataset:
@@ -29,16 +29,16 @@ dataset:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
     style_root: revolver.png
-    load_size: 136
-    crop_size: 128
+    load_size: 112
+    crop_size: 96
     num_workers: 16
     batch_size: 5
   test:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/pytorch-AdaIN/input/content/
     style_root: revolver.png
-    load_size: 128
-    crop_size: 128
+    load_size: 112
+    crop_size: 96
     num_workers: 0
     batch_size: 1
 

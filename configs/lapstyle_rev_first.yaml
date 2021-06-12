@@ -34,7 +34,7 @@ model:
 dataset:
   train:
     name: LapStyleDataset
-    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
+    content_root: /content/gdrive/My Drive/img_style/cities_with_moon/
     style_root: /content/gdrive/My Drive/img_style/washnight.png
     load_size: 280
     crop_size: 256

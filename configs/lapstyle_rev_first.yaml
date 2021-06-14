@@ -29,7 +29,7 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1.0
-  style_weight: 4
+  style_weight: 3.4
 
 dataset:
   train:
@@ -69,7 +69,7 @@ optimizer:
     beta2: 0.999
 
 validate:
-  interval: 30000
+  interval: 5000
   save_img: false
 
 log_config:

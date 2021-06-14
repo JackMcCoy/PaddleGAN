@@ -10,7 +10,7 @@ model:
     name: RevisionNet
   revnet_discriminator:
     name: LapStyleDiscriminator
-    num_channels: 16
+    num_channels: 32
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -29,7 +29,7 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1.0
-  style_weight: 3.5
+  style_weight: 4.5
 
 dataset:
   train:

@@ -21,24 +21,24 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1.0
-  style_weight: 3.0
+  style_weight: 6.0
 
 
 dataset:
   train:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: steadman.png
-    load_size: 106
-    crop_size: 96
+    style_root: /content/gdrive/My Drive/img_style/PaddleGAN/data/starrynew.png
+    load_size: 132
+    crop_size: 128
     num_workers: 16
     batch_size: 5
   test:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/pytorch-AdaIN/input/content/
-    style_root: steadman.png
-    load_size: 106
-    crop_size: 96
+    style_root: /content/gdrive/My Drive/img_style/PaddleGAN/data/starrynew.png
+    load_size: 128
+    crop_size: 128
     num_workers: 0
     batch_size: 1
 
@@ -56,8 +56,8 @@ optimizer:
     beta2: 0.999
 
 validate:
-  interval: 5000
-  save_img: true
+  interval: 30000
+  save_img: false
 
 log_config:
   interval: 10

@@ -1,5 +1,5 @@
 total_iters: 100000
-output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/starry_24ch/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/
 checkpoints_dir: checkpoints
 min_max:
   (0., 1.)
@@ -10,7 +10,7 @@ model:
     name: RevisionNet
   revnet_discriminator:
     name: LapStyleDiscriminator
-    num_channels: 24
+    num_channels: 16
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -29,7 +29,7 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1.0
-  style_weight: 2
+  style_weight: 5
 
 dataset:
   train:

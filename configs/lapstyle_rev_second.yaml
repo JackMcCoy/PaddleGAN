@@ -42,8 +42,8 @@ dataset:
     batch_size: 2
   test:
     name: LapStyleDataset
-    content_root: /content/gdrive/My Drive/img_style/pytorch-AdaIN/input/content/
-    style_root: /content/gdrive/My Drive/img_style/PaddleGAN/data/starrynew.png
+    content_root: /content/gdrive/My Drive/img_style/washheights_tiles/
+    style_root: /content/gdrive/My Drive/img_style/washnight.png
     load_size: 512
     crop_size: 512
     num_workers: 0

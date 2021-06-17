@@ -1,5 +1,5 @@
 total_iters: 100000
-output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/steadman/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/city/
 checkpoints_dir: checkpoints
 min_max:
   (0., 1.)
@@ -21,7 +21,7 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1.0
-  style_weight: 5.0
+  style_weight: 3.5
 
 
 dataset:

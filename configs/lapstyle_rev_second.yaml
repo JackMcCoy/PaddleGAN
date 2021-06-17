@@ -1,5 +1,5 @@
 total_iters: 100000
-output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/starry_16ch/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/cities/
 checkpoints_dir: checkpoints
 min_max:
   (0., 1.)
@@ -34,8 +34,8 @@ model:
 dataset:
   train:
     name: LapStyleDataset
-    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/gdrive/My Drive/img_style/PaddleGAN/data/starrynew.png
+    content_root: /content/gdrive/My Drive/img_style/cities/
+    style_root: /content/gdrive/My Drive/img_style/washnight.png
     load_size: 540
     crop_size: 512
     num_workers: 16
@@ -69,7 +69,7 @@ optimizer:
     beta2: 0.999
 
 validate:
-  interval: 30000
+  interval: 10000
   save_img: false
 
 log_config:

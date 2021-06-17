@@ -57,10 +57,13 @@ class LapStyleDataset(Dataset):
         """
         path = self.paths[index]
         content_img = cv2.imread(os.path.join(self.content_root, path))
-        if content_img.ndim == 2:
-            content_img = cv2.cvtColor(content_img, cv2.COLOR_GRAY2RGB)
-        else:
-            content_img = cv2.cvtColor(content_img, cv2.COLOR_BGR2RGB)
+        try:
+            if content_img.ndim == 2:
+                content_img = cv2.cvtColor(content_img, cv2.COLOR_GRAY2RGB)
+            else:
+                content_img = cv2.cvtColor(content_img, cv2.COLOR_BGR2RGB)
+        except:
+            print(path)
         content_img = Image.fromarray(content_img)
         small_edge = min(content_img.width,content_img.height)
         if small_edge==content_img.width:

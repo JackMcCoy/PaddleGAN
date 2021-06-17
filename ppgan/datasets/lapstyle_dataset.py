@@ -15,6 +15,7 @@
 import logging
 import os, math
 import numpy as np
+import random
 from PIL import Image
 import paddle
 import paddle.vision.transforms as T
@@ -41,6 +42,7 @@ class LapStyleDataset(Dataset):
         self.content_root = content_root
         self.paths = os.listdir(self.content_root)
         self.style_root = style_root
+        self.style_paths = [os.path.join(self.style_root,i) for i in os.listdir(self.style_root)] if self.style_root[-1]=='/' else [self.style_root]
         self.load_size = load_size
         self.crop_size = crop_size
         self.transform = data_transform(self.crop_size)
@@ -72,7 +74,8 @@ class LapStyleDataset(Dataset):
         content_img = content_img.resize((intermediate_width, intermediate_height),
                                          Image.BILINEAR)
         content_img = np.array(content_img)
-        style_img = cv2.imread(self.style_root)
+        style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]
+        style_img = cv2.imread(style_path)
         style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)
         style_img = Image.fromarray(style_img)
         small_edge = min(style_img.width,style_img.height)

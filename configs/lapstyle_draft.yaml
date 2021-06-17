@@ -36,7 +36,7 @@ dataset:
   test:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/washheights_tiles/
-    style_root: /content/gdrive/My Drive/img_style/washnight/
+    style_root: /content/gdrive/My Drive/img_style/washnight/washnight.jpg
     load_size: 128
     crop_size: 128
     num_workers: 0

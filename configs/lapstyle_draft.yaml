@@ -20,7 +20,7 @@ model:
     name: CalcStyleLoss
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
-  content_weight: 2.217
+  content_weight: 2.45
   style_weight: 5
 
 

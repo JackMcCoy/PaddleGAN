@@ -29,7 +29,7 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1.0
-  style_weight: 2
+  style_weight: 3
 
 dataset:
   train:
@@ -51,7 +51,7 @@ dataset:
 
 lr_scheduler:
   name: NonLinearDecay
-  learning_rate: 1e-4
+  learning_rate: 2e-4
   lr_decay: 5e-5
 
 optimizer:

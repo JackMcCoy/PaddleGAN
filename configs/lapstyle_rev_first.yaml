@@ -28,7 +28,7 @@ model:
     gan_mode: vanilla
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
-  content_weight: 1.2
+  content_weight: 1.25
   style_weight: 3
 
 dataset:

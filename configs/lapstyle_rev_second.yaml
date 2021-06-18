@@ -29,7 +29,7 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1.0
-  style_weight: 5
+  style_weight: 3.2
 
 dataset:
   train:

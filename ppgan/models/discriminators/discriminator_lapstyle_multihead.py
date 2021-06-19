@@ -69,6 +69,6 @@ class LapStyleMultiresDiscriminator(nn.Layer):
         for i in range(len(self.resolutions)):
             if i>0:
                 x=F.interpolate(x,scale_factor=1 / (i + 1))
-            resolutions.append(i.forward(x))
+            resolutions.append(self.resolutions[i].forward(x))
         x = self.pooling(resolutions)
         return x

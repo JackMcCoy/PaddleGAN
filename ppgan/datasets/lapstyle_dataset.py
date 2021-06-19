@@ -41,6 +41,7 @@ class LapStyleDataset(Dataset):
         super(LapStyleDataset, self).__init__()
         self.content_root = content_root
         self.paths = os.listdir(self.content_root)
+        random.shuffle(self.paths)
         self.style_root = style_root
         self.style_paths = [os.path.join(self.style_root,i) for i in os.listdir(self.style_root)] if self.style_root[-1]=='/' else [self.style_root]
         self.load_size = load_size

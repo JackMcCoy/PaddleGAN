@@ -60,19 +60,15 @@ class LapStyleMultiresDiscriminator(nn.Layer):
         self.resolutions=[]
         num_channel = num_channels
         for i in range(3):
-            if i>0:
-                net_w_applicable_downsample=nn.Sequential(
-                    F.interpolate(scale_factor=1/(i+1)),
-                    LapStyleSingleDiscriminator(num_channels=num_channels)
-                )
-            else:
-                net_w_applicable_downsample=LapStyleSingleDiscriminator(num_channels=num_channels)
+            net_w_applicable_downsample=LapStyleSingleDiscriminator(num_channels=num_channels)
             self.resolutions.append(net_w_applicable_downsample)
         self.pooling = nn.AvgPool1d(3,stride=1,padding=1,)
 
     def forward(self, x):
         resolutions = []
-        for i in self.resolutions:
+        for i in range(self.resolutions):
+            if i>0:
+                x=F.interpolate(x,scale_factor=1 / (i + 1))
             resolutions.append(i.forward(x))
-        x = self.pooling(x)
+        x = self.pooling(resolutions)
         return x

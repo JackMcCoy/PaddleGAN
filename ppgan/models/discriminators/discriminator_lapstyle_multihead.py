@@ -58,9 +58,8 @@ class LapStyleMultiresDiscriminator(nn.Layer):
         super(LapStyleMultiresDiscriminator, self).__init__()
         num_layer = 3
         self.resolutions=[]
-        halving = [num_channels,num_channels/2,numchannels/4]
         num_channel = num_channels
-        for i in halving:
+        for i in range(3):
             if i>0:
                 net_w_applicable_downsample=nn.Sequential(
                     F.interpolate(scale_factor=1/(i+1)),

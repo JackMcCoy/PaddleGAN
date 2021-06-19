@@ -11,7 +11,7 @@ model:
   revnet_discriminator:
     name: LapStyleMultiresDiscriminator
     num_channels: 32
-    num_halvings: 2
+    num_halvings: 3
   draftnet_encode:
     name: Encoder
   draftnet_decode:

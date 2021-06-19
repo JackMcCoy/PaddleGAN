@@ -73,7 +73,5 @@ class LapStyleMultiresDiscriminator(nn.Layer):
                 self.output_resolutions.append(F.interpolate(self.resolutions[i](x.detach()),scale_factor=2**i))
             else:
                 self.output_resolutions.append(self.resolutions[i](x.detach()))
-        for i in self.output_resolutions:
-            print(i.shape)
         x = self.pooling(paddle.to_tensor(self.output_resolutions))
         return x

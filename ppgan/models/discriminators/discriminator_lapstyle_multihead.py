@@ -20,9 +20,9 @@ import paddle.nn.functional as F
 from .builder import DISCRIMINATORS
 
 @DISCRIMINATORS.register()
-class LapStyleMultiResDiscriminator(nn.Layer):
+class LapStyleMultiresDiscriminator(nn.Layer):
     def __init__(self, num_channels=32):
-        super(LapStyleDiscriminator, self).__init__()
+        super(LapStyleMultiresDiscriminator, self).__init__()
         num_layer = 3
         self.resolutions=[]
         halving = [num_channels,num_channels/2,numchannels/4]

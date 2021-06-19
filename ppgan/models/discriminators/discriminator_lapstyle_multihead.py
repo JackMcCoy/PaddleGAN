@@ -14,10 +14,43 @@
 
 import paddle
 import paddle.nn as nn
-from .discriminator_lapstyle import LapStyleDiscriminator
 import paddle.nn.functional as F
 
 from .builder import DISCRIMINATORS
+
+class LapStyleSingleDiscriminator(nn.Layer):
+    def __init__(self, num_channels=32):
+        super(LapStyleSingleDiscriminator, self).__init__()
+        num_layer = 3
+        num_channel = num_channels
+        self.head = nn.Sequential(
+            ('conv',
+             nn.Conv2D(3, num_channel, kernel_size=3, stride=1, padding=1)),
+            ('norm', nn.BatchNorm2D(num_channel)),
+            ('LeakyRelu', nn.LeakyReLU(0.2)))
+        self.body = nn.Sequential()
+        for i in range(num_layer - 2):
+            self.body.add_sublayer(
+                'conv%d' % (i + 1),
+                nn.Conv2D(num_channel,
+                          num_channel,
+                          kernel_size=3,
+                          stride=1,
+                          padding=1))
+            self.body.add_sublayer('norm%d' % (i + 1),
+                                   nn.BatchNorm2D(num_channel))
+            self.body.add_sublayer('LeakyRelu%d' % (i + 1), nn.LeakyReLU(0.2))
+        self.tail = nn.Conv2D(num_channel,
+                              1,
+                              kernel_size=3,
+                              stride=1,
+                              padding=1)
+
+    def forward(self, x):
+        x = self.head(x)
+        x = self.body(x)
+        x = self.tail(x)
+        return x
 
 @DISCRIMINATORS.register()
 class LapStyleMultiresDiscriminator(nn.Layer):
@@ -30,12 +63,12 @@ class LapStyleMultiresDiscriminator(nn.Layer):
         for i in halving:
             if i>0:
                 net_w_applicable_downsample=nn.Sequential(
-                    F.interpolate(scale_factor=1/(i+1))
-                    LapstyleDiscriminator(num_channels=num_channels)
+                    F.interpolate(scale_factor=1/(i+1)),
+                    LapStyleSingleDiscriminator(num_channels=num_channels)
                 )
             else:
-                net_w_applicable_downsample=LapstyleDiscriminator(num_channels=num_channels)
-            self.resolutions.append(LapstyleDiscriminator(num_channels=num_channels))
+                net_w_applicable_downsample=LapStyleSingleDiscriminator(num_channels=num_channels)
+            self.resolutions.append(net_w_applicable_downsample)
         self.pooling = nn.AvgPool1d(3,stride=1,padding=1,)
 
     def forward(self, x):

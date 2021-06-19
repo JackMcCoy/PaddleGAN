@@ -54,13 +54,13 @@ class LapStyleSingleDiscriminator(nn.Layer):
 
 @DISCRIMINATORS.register()
 class LapStyleMultiresDiscriminator(nn.Layer):
-    def __init__(self, num_channels=32):
+    def __init__(self, num_channels=32,num_halvings=2):
         super(LapStyleMultiresDiscriminator, self).__init__()
         num_layer = 3
         self.resolutions=[]
         self.output_resolutions=[]
         num_channel = num_channels
-        for i in range(3):
+        for i in range(num_halvings):
             net_w_applicable_downsample=LapStyleSingleDiscriminator(num_channels=num_channels)
             self.resolutions.append(net_w_applicable_downsample)
         self.pooling = nn.AvgPool3D(3,stride=1,padding=1,)

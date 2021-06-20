@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7b6bfd74-3242-4eae-baa4-6c3ced6798f4" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/configs/lapstyle_rev_first.yaml" afterPath="$PROJECT_DIR$/configs/lapstyle_rev_first.yaml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/configs/lapstyle_rev_second.yaml" afterPath="$PROJECT_DIR$/configs/lapstyle_rev_second.yaml" />
-    </list>
+    <list default="true" id="7b6bfd74-3242-4eae-baa4-6c3ced6798f4" name="Default" comment="" />
     <ignored path="PaddleGAN.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path=".idea/dataSources.local.xml" />
@@ -47,20 +44,20 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="lapstyle_rev_first.yaml" pinned="false" current-in-tab="false">
+      <file leaf-file-name="lapstyle_rev_first.yaml" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_first.yaml">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
+            <state vertical-scroll-proportion="-0.69827586">
               <caret line="1" column="89" selection-start-line="1" selection-start-column="68" selection-end-line="1" selection-end-column="89" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="lapstyle_rev_second.yaml" pinned="false" current-in-tab="true">
+      <file leaf-file-name="lapstyle_rev_second.yaml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_second.yaml">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.02586207">
+            <state vertical-scroll-proportion="0.0">
               <caret line="1" column="89" selection-start-line="1" selection-start-column="89" selection-end-line="1" selection-end-column="89" />
               <folding />
             </state>
@@ -964,18 +961,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_first.yaml">
+    <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_second.yaml">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="1" column="89" selection-start-line="1" selection-start-column="68" selection-end-line="1" selection-end-column="89" />
+          <caret line="1" column="89" selection-start-line="1" selection-start-column="89" selection-end-line="1" selection-end-column="89" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_second.yaml">
+    <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_first.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.02586207">
-          <caret line="1" column="89" selection-start-line="1" selection-start-column="89" selection-end-line="1" selection-end-column="89" />
+        <state vertical-scroll-proportion="-0.69827586">
+          <caret line="1" column="89" selection-start-line="1" selection-start-column="68" selection-end-line="1" selection-end-column="89" />
           <folding />
         </state>
       </provider>

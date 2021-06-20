@@ -72,7 +72,7 @@ class LapStyleMultiresDiscriminator(nn.Layer):
         self.output_resolutions = []
         for i,reso in enumerate(self.resolutions):
             if i>0:
-                self.output_resolutions.append(nn.functional.intepolate(reso(x),scale_factor=2*i))
+                self.output_resolutions.append(nn.functional.interpolate(reso(x),scale_factor=2*i))
             else:
                 self.output_resolutions.append(reso(x))
         #x = paddle.transpose(paddle.to_tensor(self.output_resolutions),(1,2,0,3,4))

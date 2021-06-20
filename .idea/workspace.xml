@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7b6bfd74-3242-4eae-baa4-6c3ced6798f4" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/configs/lapstyle_rev_first.yaml" afterPath="$PROJECT_DIR$/configs/lapstyle_rev_first.yaml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ppgan/models/discriminators/discriminator_lapstyle_multihead.py" afterPath="$PROJECT_DIR$/ppgan/models/discriminators/discriminator_lapstyle_multihead.py" />
     </list>
     <ignored path="PaddleGAN.iws" />
@@ -60,8 +59,8 @@
       <file leaf-file-name="discriminator_lapstyle_multihead.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ppgan/models/discriminators/discriminator_lapstyle_multihead.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.83725137">
-              <caret line="80" column="21" selection-start-line="80" selection-start-column="21" selection-end-line="80" selection-end-column="21" />
+            <state vertical-scroll-proportion="0.62025315">
+              <caret line="70" column="28" selection-start-line="70" selection-start-column="28" selection-end-line="70" selection-end-column="28" />
               <folding />
             </state>
           </provider>
@@ -975,8 +974,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ppgan/models/discriminators/discriminator_lapstyle_multihead.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.83725137">
-          <caret line="80" column="21" selection-start-line="80" selection-start-column="21" selection-end-line="80" selection-end-column="21" />
+        <state vertical-scroll-proportion="0.62025315">
+          <caret line="70" column="28" selection-start-line="70" selection-start-column="28" selection-end-line="70" selection-end-column="28" />
           <folding />
         </state>
       </provider>

@@ -68,7 +68,7 @@ class LapStyleMultiresDiscriminator(nn.Layer):
             self.resolutions.append(net)
         self.pooling = nn.Sequential(
             nn.Conv3D(num_halvings,1,1,stride=1,padding=1),
-            nn.BatchNorm3D(num_halvings),
+            nn.BatchNorm3D(1),
             nn.LeakyReLU(0.2))
 
     def forward(self, x):

@@ -11,7 +11,7 @@ model:
   revnet_discriminator:
     name: LapStyleMultiresDiscriminator
     num_channels: 64
-    num_halvings: 4
+    num_halvings: 3
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -30,13 +30,13 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
-  style_weight: 5
+  style_weight: 3
 
 dataset:
   train:
     name: LapStyleDataset
-    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/gdrive/My Drive/img_style/PaddleGAN/data/starrynew.png
+    content_root: /content/gdrive/My Drive/img_style/cities/
+    style_root: /content/gdrive/My Drive/img_style/washnight/
     load_size: 280
     crop_size: 256
     num_workers: 16
@@ -44,7 +44,7 @@ dataset:
   test:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/washheights_tiles/
-    style_root: /content/gdrive/My Drive/img_style/PaddleGAN/data/starrynew.png
+    style_root: /content/gdrive/My Drive/img_style/washnight.png
     load_size: 256
     crop_size: 256
     num_workers: 0

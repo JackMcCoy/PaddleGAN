@@ -1,5 +1,5 @@
 total_iters: 100000
-output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/city/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/starrynight_w_halving/
 checkpoints_dir: checkpoints
 min_max:
   (0., 1.)
@@ -10,8 +10,8 @@ model:
     name: RevisionNet
   revnet_discriminator:
     name: LapStyleMultiresDiscriminator
-    num_channels: 64
-    num_halvings: 3
+    num_channels: 128
+    num_halvings: 5
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -35,8 +35,8 @@ model:
 dataset:
   train:
     name: LapStyleDataset
-    content_root: /content/gdrive/My Drive/img_style/cities/
-    style_root: /content/gdrive/My Drive/img_style/washnight/
+    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
+    style_root: /content/gdrive/My Drive/img_style/PaddleGAN/data/starrynew.png
     load_size: 540
     crop_size: 512
     num_workers: 16
@@ -44,7 +44,7 @@ dataset:
   test:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/washheights_tiles/
-    style_root: /content/gdrive/My Drive/img_style/washnight.png
+    style_root: /content/gdrive/My Drive/img_style/PaddleGAN/data/starrynew.png
     load_size: 512
     crop_size: 512
     num_workers: 0
@@ -78,4 +78,4 @@ log_config:
   visiual_interval: 100
 
 snapshot_config:
-  interval: 1250
+  interval: 2500

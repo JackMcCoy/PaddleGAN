@@ -334,6 +334,11 @@ class RevisionNetDropout(nn.Layer):
             nn.Conv2D(64, 64, (3, 3), stride=2),
             nn.ReLU()
         ]
+        DownBlock += [
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(64, 64, (3, 3), stride=1),
+            nn.ReLU(),
+        ]
 
         self.resblock = ResnetBlock(64)
 
@@ -344,6 +349,11 @@ class RevisionNetDropout(nn.Layer):
             nn.Conv2D(64, 64, (3, 3)),
             nn.ReLU()
         ]
+        UpBlock += [
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(64, 64, (3, 3)),
+            nn.ReLU()
+        ]]
         UpBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(64, 3, (3, 3))

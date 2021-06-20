@@ -338,7 +338,6 @@ class RevisionNetDropout(nn.Layer):
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(64, 64, (3, 3), stride=2),
             nn.ReLU(),
-            nn.Dropout2D(p=dropout_rate)
         ]
 
         self.resblock = ResnetBlock(64)

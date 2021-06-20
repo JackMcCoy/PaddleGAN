@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="7b6bfd74-3242-4eae-baa4-6c3ced6798f4" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/configs/lapstyle_rev_first.yaml" afterPath="$PROJECT_DIR$/configs/lapstyle_rev_first.yaml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/configs/lapstyle_rev_second.yaml" afterPath="$PROJECT_DIR$/configs/lapstyle_rev_second.yaml" />
     </list>
     <ignored path="PaddleGAN.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -46,21 +47,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="lapstyle_rev_first.yaml" pinned="false" current-in-tab="true">
+      <file leaf-file-name="lapstyle_rev_first.yaml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_first.yaml">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.80172414">
-              <caret line="31" column="21" selection-start-line="31" selection-start-column="21" selection-end-line="31" selection-end-column="21" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="45" column="4" selection-start-line="45" selection-start-column="4" selection-end-line="46" selection-end-column="79" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="lapstyle_rev_second.yaml" pinned="false" current-in-tab="false">
+      <file leaf-file-name="lapstyle_rev_second.yaml" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_second.yaml">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="80" column="15" selection-start-line="80" selection-start-column="15" selection-end-line="80" selection-end-column="15" />
+            <state vertical-scroll-proportion="1.1896552">
+              <caret line="46" column="79" selection-start-line="46" selection-start-column="79" selection-end-line="46" selection-end-column="79" />
               <folding />
             </state>
           </provider>
@@ -140,8 +141,8 @@
         <option value="$PROJECT_DIR$/configs/lapstyle_draft.yaml" />
         <option value="$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py" />
         <option value="$PROJECT_DIR$/ppgan/models/discriminators/discriminator_lapstyle_multihead.py" />
-        <option value="$PROJECT_DIR$/configs/lapstyle_rev_second.yaml" />
         <option value="$PROJECT_DIR$/configs/lapstyle_rev_first.yaml" />
+        <option value="$PROJECT_DIR$/configs/lapstyle_rev_second.yaml" />
       </list>
     </option>
   </component>
@@ -963,18 +964,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_second.yaml">
+    <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_first.yaml">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="80" column="15" selection-start-line="80" selection-start-column="15" selection-end-line="80" selection-end-column="15" />
+          <caret line="45" column="4" selection-start-line="45" selection-start-column="4" selection-end-line="46" selection-end-column="79" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_first.yaml">
+    <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_second.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.80172414">
-          <caret line="31" column="21" selection-start-line="31" selection-start-column="21" selection-end-line="31" selection-end-column="21" />
+        <state vertical-scroll-proportion="1.1896552">
+          <caret line="46" column="79" selection-start-line="46" selection-start-column="79" selection-end-line="46" selection-end-column="79" />
           <folding />
         </state>
       </provider>

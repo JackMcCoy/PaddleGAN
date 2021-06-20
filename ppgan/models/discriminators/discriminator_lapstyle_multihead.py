@@ -40,11 +40,16 @@ class LapStyleSingleDiscriminator(nn.Layer):
             self.body.add_sublayer('norm%d' % (i + 1),
                                    nn.BatchNorm2D(num_channel))
             self.body.add_sublayer('LeakyRelu%d' % (i + 1), nn.LeakyReLU(0.2))
-
+        self.tail = nn.Conv2D(num_channel,
+                              1,
+                              kernel_size=3,
+                              stride=1,
+                              padding=1)
 
     def forward(self, x):
         x = self.head(x)
         x = self.body(x)
+        x = self.tail(x)
         return x
 
 @DISCRIMINATORS.register()
@@ -62,26 +67,14 @@ class LapStyleMultiresDiscriminator(nn.Layer):
                 net=LapStyleSingleDiscriminator(num_channels=num_channels)
             resolutions.append(net)
         self.resolutions = nn.LayerList(resolutions)
-        self.pooling = nn.Sequential(
-            nn.Conv3D(num_halvings,1,3,stride=1,padding=1),
-            nn.LeakyReLU(0.2),
-            nn.Conv3D(1,1,3,stride=1,padding=1)
-        )
+        self.pooling = nn.AvgPool1D()
 
     def forward(self, x):
         self.output_resolutions = []
-        counter=0
         for reso in self.resolutions:
-            if counter>0:
-                self.output_resolutions.append(nn.functional.interpolate(reso(x),scale_factor=2*counter))
-            else:
-                self.output_resolutions.append(reso(x))
-            counter+=1
-        for i in self.output_resolutions:
-            print(i.shape)
+            self.output_resolutions.append(reso(x))
         #x = paddle.transpose(paddle.to_tensor(self.output_resolutions),(1,2,0,3,4))
-        self.output_resolutions=paddle.to_tensor(self.output_resolutions)
-        x = paddle.transpose(self.output_resolutions,(1,0,2,3))
-        x = self.pooling(x)
-        x = x.squeeze(1)
+        x = self.output_resolutions[0]
+        for i in self.output_resolutions[1:]:
+            x+=i
         return x

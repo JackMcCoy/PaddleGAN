@@ -57,7 +57,10 @@ class LapStyleDataset(Dataset):
             ci_path: str
         """
         path = self.paths[index]
-        content_img = cv2.imread(os.path.join(self.content_root, path))
+        try:
+            content_img = cv2.imread(os.path.join(self.content_root, path))
+        except Exception as e:
+            print(e)
         try:
             if content_img.ndim == 2:
                 content_img = cv2.cvtColor(content_img, cv2.COLOR_GRAY2RGB)
@@ -79,7 +82,10 @@ class LapStyleDataset(Dataset):
                                          Image.BILINEAR)
         content_img = np.array(content_img)
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]
-        style_img = cv2.imread(style_path)
+        try:
+            style_img = cv2.imread(style_path)
+        except Exception as e:
+            print(e)
         style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)
         style_img = Image.fromarray(style_img)
         small_edge = min(style_img.width,style_img.height)

@@ -12,6 +12,7 @@ model:
     name: LapStyleMultiresDiscriminator
     num_channels: 128
     num_halvings: 5
+    dropout_rate: .5
   draftnet_encode:
     name: Encoder
   draftnet_decode:

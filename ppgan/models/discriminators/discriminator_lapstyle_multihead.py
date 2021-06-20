@@ -62,9 +62,9 @@ class LapStyleMultiresDiscriminator(nn.Layer):
         num_channel = num_channels
         for i in range(num_halvings):
             if i>0:
-                net=LapStyleSingleDiscriminator(num_channels=num_channels/(2*i))
+                net=LapStyleSingleDiscriminator(num_channels=num_channel/(2*i))
             else:
-                net=LapStyleSingleDiscriminator(num_channels=num_channels)
+                net=LapStyleSingleDiscriminator(num_channels=num_channel)
             self.resolutions.append(net)
         self.pooling = nn.MaxPool3D((num_halvings,1,1),stride=1,padding=0)
 
@@ -72,7 +72,7 @@ class LapStyleMultiresDiscriminator(nn.Layer):
         self.output_resolutions = []
         for i in range(len(self.resolutions)):
             self.output_resolutions.append(self.resolutions[i](x.detach()))
-        x = paddle.transpose(paddle.to_tensor(self.output_resolutions),(1,2,0,3,4))
-        x = self.pooling(x)
+        self.resolutions = paddle.transpose(paddle.to_tensor(self.output_resolutions),(1,2,0,3,4))
+        x = self.pooling(self.resolutions)
         x = x.squeeze(1)
         return x

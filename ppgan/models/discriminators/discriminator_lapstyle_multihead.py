@@ -73,7 +73,7 @@ class LapStyleMultiresDiscriminator(nn.Layer):
         counter=0
         for reso in self.resolutions:
             if counter>0:
-                self.output_resolutions.append(nn.functional.interpolate(reso(x),scale_factor=2*i))
+                self.output_resolutions.append(nn.functional.interpolate(reso(x),scale_factor=2*counter))
             else:
                 self.output_resolutions.append(reso(x))
             counter+=1

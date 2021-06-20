@@ -337,7 +337,7 @@ class RevisionNetDropout(nn.Layer):
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(64, 64, (3, 3), stride=2),
-            nn.ReLU()
+            nn.ReLU(),
             nn.Dropout2D(p=dropout_rate)
         ]
 
@@ -345,7 +345,7 @@ class RevisionNetDropout(nn.Layer):
 
         UpBlock = []
         UpBlock += [
-            nn.Dropout2D(p=dropout_rate)
+            nn.Dropout2D(p=dropout_rate),
             nn.Upsample(scale_factor=2, mode='nearest'),
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(64, 64, (3, 3)),

@@ -70,11 +70,11 @@ class LapStyleMultiresDiscriminator(nn.Layer):
         self.pooling = nn.Conv3D(num_halvings,1,1,stride=1,padding=0)
 
     def forward(self, x):
-        output_resolutions = []
+        self.output_resolutions = []
         for reso in self.resolutions:
             self.output_resolutions.append(reso(x))
-        x = paddle.transpose(paddle.to_tensor(self.output_resolutions),(1,2,0,3,4))
-        #x = paddle.transpose(paddle.to_tensor(self.output_resolutions),(1,0,2,3,4))
+        #x = paddle.transpose(paddle.to_tensor(self.output_resolutions),(1,2,0,3,4))
+        x = paddle.transpose(paddle.to_tensor(self.output_resolutions),(1,0,2,3,4))
         x = self.pooling(x)
         x = x.squeeze(1)
         return x

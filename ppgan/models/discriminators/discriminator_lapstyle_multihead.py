@@ -78,4 +78,5 @@ class LapStyleMultiresDiscriminator(nn.Layer):
         print(x.shape)
         x = self.pooling(x)
         x = x.squeeze(1)
+        print(x.shape)
         return x

@@ -66,13 +66,17 @@ class LapStyleMultiresDiscriminator(nn.Layer):
             else:
                 net=LapStyleSingleDiscriminator(num_channels=num_channels)
             self.resolutions.append(net)
-        self.pooling = nn.AvgPool3D((num_halvings,3,3),stride=1,padding=1)
+        self.pooling = nn.Sequential(
+            nn.Conv3d((num_halvings,3,3),stride=1,padding=1),
+            nn.BatchNorm3D(num_halvings),
+            nn.LeakyReLU(0.2))
 
     def forward(self, x):
         self.output_resolutions = []
         for i in range(len(self.resolutions)):
             self.output_resolutions.append(self.resolutions[i](x.detach()))
-        x = paddle.transpose(paddle.to_tensor(self.output_resolutions),(1,2,0,3,4))
+        #x = paddle.transpose(paddle.to_tensor(self.output_resolutions),(1,2,0,3,4))
+        x = paddle.transpose(paddle.to_tensor(self.output_resolutions),(1,0,2,3,4))
         x = self.pooling(x)
         x = x.squeeze(1)
         return x

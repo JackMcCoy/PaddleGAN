@@ -62,7 +62,7 @@ class LapStyleMultiresDiscriminator(nn.Layer):
         num_channel = num_channels
         for i in range(num_halvings):
             if i>0:
-                net=LapStyleSingleDiscriminator(num_channels=num_channel/(2*i))
+                net=LapStyleSingleDiscriminator(num_channels=int(num_channel/(2*i)))
             else:
                 net=LapStyleSingleDiscriminator(num_channels=num_channel)
             self.resolutions.append(net)

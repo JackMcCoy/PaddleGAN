@@ -67,7 +67,7 @@ class LapStyleMultiresDiscriminator(nn.Layer):
                 net=LapStyleSingleDiscriminator(num_channels=num_channels)
             self.resolutions.append(net)
         self.pooling = nn.Sequential(
-            nn.Conv3D((num_halvings,3,3),stride=1,padding=1),
+            nn.Conv3D(num_halvings,1,1,stride=1,padding=1),
             nn.BatchNorm3D(num_halvings),
             nn.LeakyReLU(0.2))
 

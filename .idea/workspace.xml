@@ -70,7 +70,7 @@
         <entry file="file://$PROJECT_DIR$/ppgan/models/discriminators/discriminator_lapstyle_multihead.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.72875226">
-              <caret line="76" column="83" selection-start-line="76" selection-start-column="83" selection-end-line="76" selection-end-column="83" />
+              <caret line="76" column="52" selection-start-line="76" selection-start-column="52" selection-end-line="76" selection-end-column="52" />
               <folding />
             </state>
           </provider>
@@ -951,7 +951,7 @@
     <entry file="file://$PROJECT_DIR$/ppgan/models/discriminators/discriminator_lapstyle_multihead.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.72875226">
-          <caret line="76" column="83" selection-start-line="76" selection-start-column="83" selection-end-line="76" selection-end-column="83" />
+          <caret line="76" column="52" selection-start-line="76" selection-start-column="52" selection-end-line="76" selection-end-column="52" />
           <folding />
         </state>
       </provider>

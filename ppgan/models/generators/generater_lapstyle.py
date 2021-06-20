@@ -322,7 +322,7 @@ class RevisionNetDropout(nn.Layer):
         Artistic Style Transfer.
     """
     def __init__(self, input_nc=6,dropout_rate=.5):
-        super(RevisionNet, self).__init__()
+        super(RevisionNetDropout, self).__init__()
         DownBlock = []
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),

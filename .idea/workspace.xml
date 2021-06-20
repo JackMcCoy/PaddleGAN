@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7b6bfd74-3242-4eae-baa4-6c3ced6798f4" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ppgan/models/discriminators/discriminator_lapstyle_multihead.py" afterPath="$PROJECT_DIR$/ppgan/models/discriminators/discriminator_lapstyle_multihead.py" />
     </list>
     <ignored path="PaddleGAN.iws" />
@@ -60,7 +61,7 @@
         <entry file="file://$PROJECT_DIR$/ppgan/models/discriminators/discriminator_lapstyle_multihead.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.5117541">
-              <caret line="65" column="79" selection-start-line="65" selection-start-column="79" selection-end-line="65" selection-end-column="79" />
+              <caret line="65" column="32" selection-start-line="65" selection-start-column="32" selection-end-line="65" selection-end-column="32" />
               <folding />
             </state>
           </provider>
@@ -941,7 +942,7 @@
     <entry file="file://$PROJECT_DIR$/ppgan/models/discriminators/discriminator_lapstyle_multihead.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.5117541">
-          <caret line="65" column="79" selection-start-line="65" selection-start-column="79" selection-end-line="65" selection-end-column="79" />
+          <caret line="65" column="32" selection-start-line="65" selection-start-column="32" selection-end-line="65" selection-end-column="32" />
           <folding />
         </state>
       </provider>

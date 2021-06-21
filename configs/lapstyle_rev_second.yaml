@@ -7,7 +7,7 @@ min_max:
 model:
   name: LapStyleRevSecondModel
   revnet_generator:
-    name: RevisionNet
+    name: RevisionNetDropout
   revnet_discriminator:
     name: LapStyleMultiresDiscriminator
     num_channels: 64

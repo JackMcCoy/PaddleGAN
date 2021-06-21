@@ -326,12 +326,17 @@ class RevisionNetDropout(nn.Layer):
         DownBlock = []
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(input_nc, 64, (3, 3)),
+            nn.Conv2D(input_nc, 128, (3, 3)),
             nn.ReLU()
         ]
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(64, 64, (3, 3), stride=2),
+            nn.Conv2D(128, 128, (3, 3), stride=1),
+            nn.ReLU()
+        ]
+        DownBlock += [
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(128, 64, (3, 3), stride=2),
             nn.ReLU()
         ]
         DownBlock += [
@@ -352,12 +357,17 @@ class RevisionNetDropout(nn.Layer):
         ]
         UpBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(64, 64, (3, 3)),
+            nn.Conv2D(64, 128, (3, 3)),
             nn.ReLU()
         ]
         UpBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(64, 3, (3, 3))
+            nn.Conv2D(128, 128, (3, 3)),
+            nn.ReLU()
+        ]
+        UpBlock += [
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(128, 3, (3, 3))
         ]
 
         self.DownBlock = nn.Sequential(*DownBlock)

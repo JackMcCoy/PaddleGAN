@@ -306,7 +306,6 @@ class LapStyleRevSecondModel(BaseModel):
                  revnet_discriminator,
                  draftnet_encode,
                  draftnet_decode,
-                 first_revnet,
                  calc_style_emd_loss=None,
                  calc_content_relt_loss=None,
                  calc_content_loss=None,
@@ -326,7 +325,7 @@ class LapStyleRevSecondModel(BaseModel):
         self.set_requires_grad([self.nets['net_enc']], False)
 
         # define the first revnet params
-        self.nets['net_rev'] = build_generator(first_revnet)
+        self.nets['net_rev'] = build_generator(revnet_generator)
         self.set_requires_grad([self.nets['net_rev']], False)
 
         # define the second revnet params

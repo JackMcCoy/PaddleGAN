@@ -321,7 +321,7 @@ class RevisionNetDropout(nn.Layer):
         Drafting and Revision: Laplacian Pyramid Network for Fast High-Quality
         Artistic Style Transfer.
     """
-    def __init__(self, input_nc=6,dropout_rate=.5):
+    def __init__(self, input_nc=6):
         super(RevisionNetDropout, self).__init__()
         DownBlock = []
         DownBlock += [
@@ -343,7 +343,6 @@ class RevisionNetDropout(nn.Layer):
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(64, 64, (3, 3), stride=1),
             nn.ReLU(),
-            nn.Dropout2D(p=dropout_rate)
         ]
 
         self.resblock = ResnetBlock(64)

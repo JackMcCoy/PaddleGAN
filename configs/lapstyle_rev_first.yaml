@@ -8,7 +8,6 @@ model:
   name: LapStyleRevFirstModel
   revnet_generator:
     name: RevisionNetDropout
-    dropout_rate: 0
   revnet_discriminator:
     name: LapStyleMultiresDiscriminator
     num_channels: 64

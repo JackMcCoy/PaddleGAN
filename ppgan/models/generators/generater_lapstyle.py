@@ -393,7 +393,7 @@ class RevisionNet32Feats(nn.Layer):
         Artistic Style Transfer.
     """
     def __init__(self, input_nc=6):
-        super(RevisionNetDropout, self).__init__()
+        super(RevisionNet32Feats, self).__init__()
         DownBlock = []
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),

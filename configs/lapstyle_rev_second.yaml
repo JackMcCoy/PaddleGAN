@@ -10,8 +10,8 @@ model:
     name: RevisionNet
   revnet_discriminator:
     name: LapStyleMultiresDiscriminator
-    num_channels: 128
-    num_halvings: 5
+    num_channels: 64
+    num_halvings: 4
     dropout_rate: .5
   draftnet_encode:
     name: Encoder

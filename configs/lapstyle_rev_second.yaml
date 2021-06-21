@@ -6,6 +6,8 @@ min_max:
 
 model:
   name: LapStyleRevSecondModel
+  first_revnet:
+    name: RevisionNet
   revnet_generator:
     name: RevisionNetDropout
     dropout_rate: .5

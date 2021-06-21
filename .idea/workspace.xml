@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="7b6bfd74-3242-4eae-baa4-6c3ced6798f4" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/configs/lapstyle_rev_second.yaml" afterPath="$PROJECT_DIR$/configs/lapstyle_rev_second.yaml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ppgan/models/discriminators/discriminator_lapstyle_multihead.py" afterPath="$PROJECT_DIR$/ppgan/models/discriminators/discriminator_lapstyle_multihead.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ppgan/models/lapstyle_model.py" afterPath="$PROJECT_DIR$/ppgan/models/lapstyle_model.py" />
     </list>
     <ignored path="PaddleGAN.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -35,11 +35,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="lapstyle_rev_second.yaml" pinned="false" current-in-tab="true">
+      <file leaf-file-name="lapstyle_rev_second.yaml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_second.yaml">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.25862068">
-              <caret line="10" column="20" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="9" column="21" selection-start-line="9" selection-start-column="21" selection-end-line="9" selection-end-column="21" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="lapstyle_model.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.641953">
+              <caret line="328" column="59" selection-start-line="328" selection-start-column="59" selection-end-line="328" selection-end-column="59" />
               <folding />
             </state>
           </provider>
@@ -73,16 +83,6 @@
               <folding>
                 <element signature="e#610#645#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="discriminator_firstorder.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ppgan/models/discriminators/discriminator_firstorder.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-15.574074">
-              <caret line="139" column="36" selection-start-line="139" selection-start-column="30" selection-end-line="139" selection-end-column="36" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -144,6 +144,7 @@
         <option value="$PROJECT_DIR$/configs/lapstyle_rev_first.yaml" />
         <option value="$PROJECT_DIR$/ppgan/models/generators/generater_lapstyle.py" />
         <option value="$PROJECT_DIR$/ppgan/models/discriminators/discriminator_lapstyle_multihead.py" />
+        <option value="$PROJECT_DIR$/ppgan/models/lapstyle_model.py" />
         <option value="$PROJECT_DIR$/configs/lapstyle_rev_second.yaml" />
       </list>
     </option>
@@ -866,14 +867,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="47.77778">
-          <caret line="158" column="63" selection-start-line="158" selection-start-column="62" selection-end-line="158" selection-end-column="63" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-6.6666665">
@@ -978,8 +971,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_second.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.25862068">
-          <caret line="10" column="20" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="9" column="21" selection-start-line="9" selection-start-column="21" selection-end-line="9" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.641953">
+          <caret line="328" column="59" selection-start-line="328" selection-start-column="59" selection-end-line="328" selection-end-column="59" />
           <folding />
         </state>
       </provider>

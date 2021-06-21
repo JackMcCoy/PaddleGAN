@@ -40,7 +40,6 @@ class LapStyleSingleDiscriminator(nn.Layer):
             self.body.add_sublayer('norm%d' % (i + 1),
                                    nn.BatchNorm2D(num_channel))
             self.body.add_sublayer('LeakyRelu%d' % (i + 1), nn.LeakyReLU(0.2))
-        self.body.add_sublayer('Dropout',nn.Dropout2D(p=dropout_rate))
         self.tail = nn.Conv2D(num_channel,
                               1,
                               kernel_size=3,
@@ -55,7 +54,7 @@ class LapStyleSingleDiscriminator(nn.Layer):
 
 @DISCRIMINATORS.register()
 class LapStyleMultiresDiscriminator(nn.Layer):
-    def __init__(self, num_channels=32,num_halvings=2,dropout_rate=.5):
+    def __init__(self, num_channels=32,num_halvings=2):
         super(LapStyleMultiresDiscriminator, self).__init__()
         num_layer = 3
         resolutions=[]

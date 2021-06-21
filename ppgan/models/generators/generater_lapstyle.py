@@ -407,41 +407,41 @@ class RevisionNet32Feats(nn.Layer):
         ]
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(128, 64, (3, 3), stride=1),
+            nn.Conv2D(128, 128, (3, 3), stride=1),
             nn.ReLU()
+        ]
+        DownBlock += [
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(128, 64, (3, 3), stride=1),
+            nn.ReLU(),
         ]
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(64, 64, (3, 3), stride=1),
             nn.ReLU(),
-        ]
-        DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(64, 32, (3, 3), stride=1),
-            nn.ReLU(),
-            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(32, 32, (3, 3), stride=2),
+            nn.Conv2D(64, 64, (3, 3), stride=2),
             nn.ReLU(),
         ]
 
-        self.resblock = ResnetBlock(32)
+        self.resblock = ResnetBlock(64)
 
         UpBlock = []
         UpBlock += [
             nn.Upsample(scale_factor=2, mode='nearest'),
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(32, 32, (3, 3)),
-            nn.ReLU(),
-            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(32, 64, (3, 3)),
+            nn.Conv2D(64, 64, (3, 3)),
             nn.ReLU(),
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(64, 64, (3, 3)),
+            nn.ReLU(),
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(64, 128, (3, 3)),
             nn.ReLU()
         ]
         UpBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(64, 128, (3, 3)),
+            nn.Conv2D(128, 128, (3, 3)),
             nn.ReLU()
         ]
         UpBlock += [

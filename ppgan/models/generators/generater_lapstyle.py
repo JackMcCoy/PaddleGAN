@@ -331,7 +331,7 @@ class RevisionNetDropout(nn.Layer):
         ]
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(128, 128, (3, 3), stride=2),
+            nn.Conv2D(128, 128, (3, 3), stride=1),
             nn.ReLU()
         ]
         DownBlock += [

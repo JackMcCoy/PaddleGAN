@@ -26,8 +26,8 @@
       <file leaf-file-name="lapstyle_rev_second.yaml" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_second.yaml">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.31484795">
-              <caret line="38" column="16" selection-start-line="38" selection-start-column="16" selection-end-line="38" selection-end-column="79" />
+            <state vertical-scroll-proportion="0.026833631">
+              <caret line="1" column="89" selection-start-line="1" selection-start-column="89" selection-end-line="1" selection-end-column="89" />
               <folding />
             </state>
           </provider>
@@ -37,7 +37,7 @@
         <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_first.yaml">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="9" column="28" selection-start-line="9" selection-start-column="10" selection-end-line="9" selection-end-column="28" />
+              <caret line="1" column="89" selection-start-line="1" selection-start-column="68" selection-end-line="1" selection-end-column="89" />
               <folding />
             </state>
           </provider>
@@ -819,15 +819,15 @@
     <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_first.yaml">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="9" column="28" selection-start-line="9" selection-start-column="10" selection-end-line="9" selection-end-column="28" />
+          <caret line="1" column="89" selection-start-line="1" selection-start-column="68" selection-end-line="1" selection-end-column="89" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_second.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.31484795">
-          <caret line="38" column="16" selection-start-line="38" selection-start-column="16" selection-end-line="38" selection-end-column="79" />
+        <state vertical-scroll-proportion="0.026833631">
+          <caret line="1" column="89" selection-start-line="1" selection-start-column="89" selection-end-line="1" selection-end-column="89" />
           <folding />
         </state>
       </provider>

@@ -1,5 +1,5 @@
 total_iters: 100000
-output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/starrynight_w_halving/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/city/
 checkpoints_dir: checkpoints
 min_max:
   (0., 1.)
@@ -7,7 +7,7 @@ min_max:
 model:
   name: LapStyleRevSecondModel
   revnet_generator:
-    name: RevisionNet32Feats
+    name: RevisionNet
   revnet_discriminator:
     name: LapStyleMultiresDiscriminator
     num_channels: 64
@@ -43,8 +43,8 @@ dataset:
     batch_size: 2
   test:
     name: LapStyleDataset
-    content_root: /content/gdrive/My Drive/img_style/pytorch-AdaIN/input/content/
-    style_root: /content/gdrive/My Drive/img_style/PaddleGAN/data/starrynew.png
+    content_root: /content/gdrive/My Drive/img_style/washheights_tiles/
+    style_root: /content/gdrive/My Drive/img_style/washnight/washnightflipped.png
     load_size: 512
     crop_size: 512
     num_workers: 0

@@ -44,7 +44,7 @@ dataset:
   test:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/content/
-    style_root: /content/gdrive/My Drive/img_style/washnight/starrynew.png
+    style_root: /content/gdrive/My Drive/img_style/PaddleGAN/data/starrynew.png
     load_size: 512
     crop_size: 512
     num_workers: 0

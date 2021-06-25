@@ -221,8 +221,8 @@ class DecoderThumbNet(nn.Layer):
 
     def forward(self, cF, sF, cpF, thumb_or_patch='thumb'):
 
-        out = thumb_adaptive_instance_normalization(cF['r51'], cpF['r51'], sF['r51'], thumb_or_patch=thumb_or_patch)
-        out += thumb_adaptive_instance_normalization(cF['r41'], cpF['r41'], sF['r41'], thumb_or_patch=thumb_or_patch)
+        #out = thumb_adaptive_instance_normalization(cF['r51'], cpF['r51'], sF['r51'], thumb_or_patch=thumb_or_patch)
+        out = thumb_adaptive_instance_normalization(cF['r41'], cpF['r41'], sF['r41'], thumb_or_patch=thumb_or_patch)
         out = self.resblock_41(out)
         out = self.convblock_41(out)
 

@@ -160,38 +160,37 @@ class LapStyleThumbset(Dataset):
         content_img = Image.fromarray(content_img)
         small_edge = min(content_img.width,content_img.height)
         if small_edge==content_img.width:
+            small_edge='width'
             intermediate_width = self.load_size
             final_width = self.thumb_size
             ratio = content_img.height/content_img.width
             intermediate_height = math.ceil(self.load_size*ratio)
             final_height = math.ceil(self.thumb_size*ratio)
         else:
+            small_edge='height'
             final_height = self.thumb_size
             intermediate_height = self.load_size
             ratio = content_img.width/content_img.height
             intermediate_width = math.ceil(self.load_size*ratio)
             final_width = math.ceil(self.thumb_size*ratio)
         load_thumb_diff=self.thumb_size/self.load_size
-        randx = np.random.randint(0, self.load_size - self.thumb_size)
-        randy = np.random.randint(0, self.load_size - self.thumb_size)
-        position = [randx, randx+self.thumb_size, randy, randy+self.thumb_size]
         content_img = content_img.resize((intermediate_width, intermediate_height),
                                          Image.BILINEAR)
         content_patches = np.array(content_img)
-
+        if small_edge=='width':
+            randy = np.random.randint(0, content_img.height - self.thumb_size/load_thumb_diff)
+            content_patches = content_patches[:,randy+self.thumb_size/load_thumb_diff]
+        else:
+            randx = np.random.randint(0, content_img.width - self.thumb_size/load_thumb_diff)
+            content_patches = content_patches[randx :randx+ self.thumb_size / load_thumb_diff,:]
+        randx = random.choice(list(range(0, self.load_size - self.thumb_size,2)))
+        randy = random.choice(list(range(0, self.load_size - self.thumb_size,2)))
+        position = [(randx)*load_thumb_diff, (randx + self.thumb_size)*load_thumb_diff, (randy)*load_thumb_diff, (randy + self.thumb_size)*load_thumb_diff]
         content_patches = content_patches[randx:randx + self.thumb_size,
                           randy:randy+self.thumb_size] # [8, 3, 256, 256]
         content_img = content_img.resize((final_width, final_height),
                                          Image.BILINEAR)
         content_img = np.array(content_img)
-        x_1=max(0,math.floor(randx*load_thumb_diff-self.thumb_size))
-        x_2=math.ceil(randx*load_thumb_diff+self.thumb_size)
-        y_1=max(0,math.floor(randy*load_thumb_diff-self.thumb_size))
-        y_2=math.ceil(randy*load_thumb_diff+self.thumb_size)
-        content_img = content_img[max(0,math.floor(randx*load_thumb_diff-self.thumb_size)):math.ceil(randx*load_thumb_diff+self.thumb_size),
-                                    max(0,math.floor(randy*load_thumb_diff-self.thumb_size)):math.ceil(randy*load_thumb_diff+self.thumb_size)]
-        print(load_thumb_diff)
-        print(content_img.shape)
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]
         style_img = cv2.imread(style_path)
         style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)

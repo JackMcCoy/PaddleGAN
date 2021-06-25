@@ -26,8 +26,8 @@
       <file leaf-file-name="lapstyle_dataset.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.67901236">
-              <caret line="201" column="52" selection-start-line="201" selection-start-column="52" selection-end-line="201" selection-end-column="52" />
+            <state vertical-scroll-proportion="0.3580247">
+              <caret line="201" column="34" selection-start-line="201" selection-start-column="34" selection-end-line="201" selection-end-column="34" />
               <folding />
             </state>
           </provider>
@@ -812,8 +812,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.67901236">
-          <caret line="201" column="52" selection-start-line="201" selection-start-column="52" selection-end-line="201" selection-end-column="52" />
+        <state vertical-scroll-proportion="0.3580247">
+          <caret line="201" column="34" selection-start-line="201" selection-start-column="34" selection-end-line="201" selection-end-column="34" />
           <folding />
         </state>
       </provider>

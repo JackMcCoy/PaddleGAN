@@ -184,8 +184,8 @@ class LapStyleThumbset(Dataset):
         content_img = content_img.resize((final_width, final_height),
                                          Image.BILINEAR)
         content_img = np.array(content_img)
-        content_img = content_img[max(0,math.floor(randx*load_thumb_diff-self.thumb_size)):math.ceil(randx*load_thumb_diff+self.thumb_size*load_thumb_diff),
-                                    max(0,math.floor(randy*load_thumb_diff-self.thumb_size)):math.ceil(randy*load_thumb_diff+self.thumb_size*load_thumb_diff)]
+        content_img = content_img[max(0,math.floor(randx*load_thumb_diff-self.thumb_size)):math.ceil(randx*load_thumb_diff+self.thumb_size),
+                                    max(0,math.floor(randy*load_thumb_diff-self.thumb_size)):math.ceil(randy*load_thumb_diff+self.thumb_size)]
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]
         style_img = cv2.imread(style_path)
         style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)

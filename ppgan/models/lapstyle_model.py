@@ -484,7 +484,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.visual_items['si'] = self.si
         self.cp = paddle.to_tensor(input['cp'])
         self.visual_items['cp'] = self.cp
-        self.position = paddle.to_tensor(input['position'])
+        self.position = input['position']
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""

@@ -500,7 +500,7 @@ class LapStyleDraThumbModel(BaseModel):
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized_thumb'], scale_factor=4, mode='bilinear', align_corners=False)
             print(g_t_thumb_up.shape)
-            g_t_thumb_crop = g_t_thumb_up[self.position[0]:self.position[1], self.position[2]:self.position[3]]
+            g_t_thumb_crop = g_t_thumb_up[[:,:,self.position[0]:self.position[1], self.position[2]:self.position[3]]]
             self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
         self.ttF = self.nets['net_enc'](self.stylized_thumb)
         self.tpF = self.nets['net_enc'](self.stylized_patch)

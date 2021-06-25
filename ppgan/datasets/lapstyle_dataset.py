@@ -171,7 +171,7 @@ class LapStyleThumbset(Dataset):
             ratio = content_img.width/content_img.height
             intermediate_width = math.ceil(self.load_size*ratio)
             final_width = math.ceil(self.thumb_size*ratio)
-        load_thumb_diff=self.load_size/self.thumb_size
+        load_thumb_diff=self.thumb_size/self.load_size
         randx = np.random.randint(0, self.load_size - self.thumb_size)
         randy = np.random.randint(0, self.load_size - self.thumb_size)
         position = [randx, randx+self.thumb_size, randy, randy+self.thumb_size]

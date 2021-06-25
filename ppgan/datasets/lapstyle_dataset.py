@@ -167,8 +167,8 @@ class LapStyleThumbset(Dataset):
             intermediate_height = self.load_size
             ratio = content_img.width/content_img.height
             intermediate_width = math.floor(self.load_size*ratio)
-        randx = np.random.randint(0, content_img.width - self.thumb_size)
-        randy = np.random.randint(0, content_img.height - self.thumb_size)
+        randx = np.random.randint(0, self.load_size - self.thumb_size)
+        randy = np.random.randint(0, self.load_size - self.thumb_size)
         position = [randx, randx+self.thumb_size, randy, randy+self.thumb_size]
         content_img = content_img.resize((intermediate_width, intermediate_height),
                                          Image.BILINEAR)
@@ -221,4 +221,4 @@ class LapStyleThumbset(Dataset):
         return len(self.paths)
 
     def name(self):
-        return 'LapStyleDataset'
+        return 'LapStyleThumbset'

@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="7b6bfd74-3242-4eae-baa4-6c3ced6798f4" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/configs/lapstyle_draft_thumb.yaml" afterPath="$PROJECT_DIR$/configs/lapstyle_draft_thumb.yaml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ppgan/models/lapstyle_model.py" afterPath="$PROJECT_DIR$/ppgan/models/lapstyle_model.py" />
     </list>
     <ignored path=".idea/dataSources.local.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -33,11 +33,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="lapstyle_model.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="lapstyle_model.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.94736844">
-              <caret line="507" column="44" selection-start-line="507" selection-start-column="44" selection-end-line="507" selection-end-column="44" />
+            <state vertical-scroll-proportion="-0.26845637">
+              <caret line="509" column="68" selection-start-line="509" selection-start-column="68" selection-end-line="509" selection-end-column="68" />
               <folding />
             </state>
           </provider>
@@ -87,10 +87,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="lapstyle_draft_thumb.yaml" pinned="false" current-in-tab="true">
+      <file leaf-file-name="lapstyle_draft_thumb.yaml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/configs/lapstyle_draft_thumb.yaml">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.41300192">
+            <state vertical-scroll-proportion="0.0">
               <caret line="23" column="17" selection-start-line="23" selection-start-column="17" selection-end-line="23" selection-end-column="17" />
               <folding />
             </state>
@@ -145,8 +145,8 @@
         <option value="$PROJECT_DIR$/ppgan/models/generators/__init__.py" />
         <option value="$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py" />
         <option value="$PROJECT_DIR$/ppgan/models/generators/generater_lapstyle.py" />
-        <option value="$PROJECT_DIR$/ppgan/models/lapstyle_model.py" />
         <option value="$PROJECT_DIR$/configs/lapstyle_draft_thumb.yaml" />
+        <option value="$PROJECT_DIR$/ppgan/models/lapstyle_model.py" />
       </list>
     </option>
   </component>
@@ -839,18 +839,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
+    <entry file="file://$PROJECT_DIR$/configs/lapstyle_draft_thumb.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.94736844">
-          <caret line="507" column="44" selection-start-line="507" selection-start-column="44" selection-end-line="507" selection-end-column="44" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="23" column="17" selection-start-line="23" selection-start-column="17" selection-end-line="23" selection-end-column="17" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/configs/lapstyle_draft_thumb.yaml">
+    <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.41300192">
-          <caret line="23" column="17" selection-start-line="23" selection-start-column="17" selection-end-line="23" selection-end-column="17" />
+        <state vertical-scroll-proportion="-0.26845637">
+          <caret line="509" column="68" selection-start-line="509" selection-start-column="68" selection-end-line="509" selection-end-column="68" />
           <folding />
         </state>
       </provider>

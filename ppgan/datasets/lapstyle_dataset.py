@@ -161,12 +161,16 @@ class LapStyleThumbset(Dataset):
         small_edge = min(content_img.width,content_img.height)
         if small_edge==content_img.width:
             intermediate_width = self.load_size
+            final_width = self.crop_size
             ratio = content_img.height/content_img.width
             intermediate_height = math.floor(self.load_size*ratio)
+            final_height = math.floor(self.crop_size*ratio)
         else:
             intermediate_height = self.load_size
+            final_height = self.crop_size
             ratio = content_img.width/content_img.height
             intermediate_width = math.floor(self.load_size*ratio)
+            final_width = math.floor(self.crop_size*ratio)
         randx = np.random.randint(0, self.load_size - self.thumb_size)
         randy = np.random.randint(0, self.load_size - self.thumb_size)
         position = [randx, randx+self.thumb_size, randy, randy+self.thumb_size]
@@ -175,7 +179,7 @@ class LapStyleThumbset(Dataset):
         content_patches = np.array(content_img)
         content_patches = content_patches[randx:randx + self.thumb_size,
                           randy:randy+self.thumb_size] # [8, 3, 256, 256]
-        content_img = content_img.resize((self.thumb_size, self.thumb_size),
+        content_img = content_img.resize((final_width, final_height),
                                          Image.BILINEAR)
         content_img = np.array(content_img)
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]

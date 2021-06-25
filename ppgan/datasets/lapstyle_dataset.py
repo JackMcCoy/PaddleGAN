@@ -161,16 +161,16 @@ class LapStyleThumbset(Dataset):
         small_edge = min(content_img.width,content_img.height)
         if small_edge==content_img.width:
             intermediate_width = self.load_size
-            final_width = self.crop_size
+            final_width = self.thumb_size
             ratio = content_img.height/content_img.width
             intermediate_height = math.floor(self.load_size*ratio)
-            final_height = math.floor(self.crop_size*ratio)
+            final_height = math.floor(self.thumb_size*ratio)
         else:
             intermediate_height = self.load_size
-            final_height = self.crop_size
+            final_height = self.thumb_size
             ratio = content_img.width/content_img.height
             intermediate_width = math.floor(self.load_size*ratio)
-            final_width = math.floor(self.crop_size*ratio)
+            final_width = math.floor(self.thumb_size*ratio)
         randx = np.random.randint(0,intermediate_width - self.thumb_size)
         randy = np.random.randint(0, intermediate_height - self.thumb_size)
         position = [randx, randx+self.thumb_size, randy, randy+self.thumb_size]

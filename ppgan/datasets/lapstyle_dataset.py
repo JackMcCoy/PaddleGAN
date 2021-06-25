@@ -175,9 +175,7 @@ class LapStyleThumbset(Dataset):
         content_patches = np.array(content_img)
         content_patches = content_patches[..., randx:randx + self.thumb_size,
                           randy:randy+self.thumb_size] # [8, 3, 256, 256]
-
-        thumb_ratio=self.load_size/self.thumb_size
-        content_img = content_img.resize((intermediate_width*thumb_ratio, intermediate_height*thumb_ratio),
+        content_img = content_img.resize((self.thumb_size, self.thumb_size),
                                          Image.BILINEAR)
         content_img = np.array(content_img)
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]

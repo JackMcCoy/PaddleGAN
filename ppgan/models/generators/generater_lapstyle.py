@@ -226,7 +226,7 @@ class DecoderThumbNet(nn.Layer):
         out = self.convblock_41(out)
 
         out = self.upsample(out)
-        out += thumb_adaptive_instance_normalization(cpF['r31'], cpF['r41'], sF['r31'], thumb_or_patch=thumb_or_patch)
+        out += thumb_adaptive_instance_normalization(cpF['r31'], cpF['r31'], sF['r31'], thumb_or_patch=thumb_or_patch)
         out = self.resblock_31(out)
         out = self.convblock_31(out)
 

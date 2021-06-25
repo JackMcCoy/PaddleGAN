@@ -172,8 +172,8 @@ class LapStyleThumbset(Dataset):
             intermediate_width = math.ceil(self.load_size*ratio)
             final_width = math.ceil(self.thumb_size*ratio)
         load_thumb_diff=self.load_size/self.thumb_size
-        randx = np.random.randint(0, final_width - self.thumb_size)
-        randy = np.random.randint(0, final_height - self.thumb_size)
+        randx = np.random.randint(0, self.load_size - self.thumb_size)
+        randy = np.random.randint(0, self.load_size - self.thumb_size)
         position = [randx, randx+self.thumb_size, randy, randy+self.thumb_size]
         content_img = content_img.resize((intermediate_width, intermediate_height),
                                          Image.BILINEAR)
@@ -184,7 +184,8 @@ class LapStyleThumbset(Dataset):
         content_img = content_img.resize((final_width, final_height),
                                          Image.BILINEAR)
         content_img = np.array(content_img)
-
+        content_img = content_img[max(0,math.floor(randx*load_thumb_diff-self.thumb_size*load_thumb_diff)):math.ceil(randx*load_thumb_diff+self.thumb_size*load_thumb_diff),
+                                    max(0,math.floor(randy*load_thumb_diff-self.thumb_size*load_thumb_diff)):math.ceil(randy*load_thumb_diff+self.thumb_size*load_thumb_diff)]
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]
         style_img = cv2.imread(style_path)
         style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)

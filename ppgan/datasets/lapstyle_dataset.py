@@ -172,9 +172,10 @@ class LapStyleThumbset(Dataset):
         position = [randx, randx+self.thumb_size, randy, randy+self.thumb_size]
         content_img = content_img.resize((intermediate_width, intermediate_height),
                                          Image.BILINEAR)
-        content_patches = content_img[..., randx:randx + self.thumb_size,
+        content_patches = np.array(content_img)
+        content_patches = content_patches[..., randx:randx + self.thumb_size,
                           randy:randy+self.thumb_size] # [8, 3, 256, 256]
-        content_patches = np.array(content_patches)
+
         thumb_ratio=self.load_size/self.thumb_size
         content_img = content_img.resize((intermediate_width*thumb_ratio, intermediate_height*thumb_ratio),
                                          Image.BILINEAR)

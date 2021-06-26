@@ -197,6 +197,12 @@ class LapStyleThumbset(Dataset):
             else:
                 bottommost = 0
                 topmost = content_img.shape[1]
+        print(leftmost)
+        print(rightmost)
+        print(bottommost)
+        print(topmost)
+        print(topmost-bottommost)
+        print(rightmost-leftmost)
         content_img =content_img[bottommost:topmost,leftmost:rightmost]
         content_patches = content_patches[bottommost*2:topmost*2,leftmost*2:rightmost*2]
         randx = random.choice(list(range(0, 128,2)))

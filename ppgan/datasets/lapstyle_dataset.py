@@ -190,8 +190,8 @@ class LapStyleThumbset(Dataset):
             leftmost=0
             bottommost = random.choice(list(range(0, intermediate_height - self.thumb_size*2,2)))
             topmost=bottommost+self.thumbsize*2
-        content_img =content_img[math.floor(leftmost/2):math.floor(rightmost/2),math.floor(bottommost/2):math.floor(topmost/2)]
-        content_patches = content_patches[leftmost:rightmost,bottommost:topmost]
+        content_img =content_img[leftmost:rightmost,bottommost:topmost]
+        content_patches = content_patches[leftmost*2:rightmost*2,bottommost*2:topmost*2]
         randx = random.choice(list(range(0, self.load_size - self.thumb_size,2)))
         randy = random.choice(list(range(0, self.load_size - self.thumb_size,2)))
         position = [math.floor(randx/2), math.floor((randx + self.thumb_size)/2), math.floor(randy/2), math.floor((randy + self.thumb_size)/2)]

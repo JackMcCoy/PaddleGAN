@@ -217,9 +217,7 @@ class LapStyleThumbset(Dataset):
         content_img = self.img(content_img)
         style_img = self.img(style_img)
         content_patches = self.img(content_patches)
-        print(style_img.shape)
         print(content_img.shape)
-        print(content_patches.shape)
         return {'ci': content_img, 'si': style_img, 'ci_path': path,'cp':content_patches,'position':position}
 
     def img(self, img):

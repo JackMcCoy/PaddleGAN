@@ -36,8 +36,8 @@
       <file leaf-file-name="lapstyle_model.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.16049382">
-              <caret line="529" column="8" selection-start-line="529" selection-start-column="8" selection-end-line="529" selection-end-column="8" />
+            <state vertical-scroll-proportion="-1.5185186">
+              <caret line="529" column="28" selection-start-line="529" selection-start-column="13" selection-end-line="529" selection-end-column="28" />
               <folding />
             </state>
           </provider>
@@ -750,10 +750,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/configs/lapstyle_draft.yaml">
+    <entry file="file://$PROJECT_DIR$/ppgan/models/generators/generater_lapstyle.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="23" column="20" selection-start-line="0" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
+        <state vertical-scroll-proportion="2.4605262">
+          <caret line="225" column="29" selection-start-line="225" selection-start-column="29" selection-end-line="225" selection-end-column="29" />
           <folding />
         </state>
       </provider>
@@ -766,18 +766,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ppgan/models/generators/generater_lapstyle.py">
+    <entry file="file://$PROJECT_DIR$/configs/lapstyle_draft.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="2.4605262">
-          <caret line="225" column="29" selection-start-line="225" selection-start-column="29" selection-end-line="225" selection-end-column="29" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="23" column="20" selection-start-line="0" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.16049382">
-          <caret line="529" column="8" selection-start-line="529" selection-start-column="8" selection-end-line="529" selection-end-column="8" />
+        <state vertical-scroll-proportion="-1.5185186">
+          <caret line="529" column="28" selection-start-line="529" selection-start-column="13" selection-end-line="529" selection-end-column="28" />
           <folding />
         </state>
       </provider>

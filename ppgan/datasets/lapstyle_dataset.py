@@ -184,7 +184,7 @@ class LapStyleThumbset(Dataset):
             bottommost=0
             if content_img.shape[0]<self.thumb_size-1:
                 leftmost= random.choice(list(range(0, content_img.shape[0] - self.thumb_size,2)))
-                rightmost=leftmost+self.thumb_size
+                rightmost=leftmost+128
             else:
                 leftmost=0
                 rightmost=content_img.shape[1]
@@ -193,17 +193,17 @@ class LapStyleThumbset(Dataset):
             leftmost=0
             if content_img.shape[1]<self.thumb_size-1:
                 bottommost = random.choice(list(range(0, content_img.shape[1] - self.thumb_size,2)))
-                topmost=bottommost+self.thumb_size
+                topmost=bottommost+128
             else:
                 bottommost = 0
                 topmost = content_img.shape[1]
         content_img =content_img[bottommost:topmost,leftmost:rightmost]
         content_patches = content_patches[bottommost*2:topmost*2,leftmost*2:rightmost*2]
-        randx = random.choice(list(range(0, self.load_size - self.thumb_size,2)))
-        randy = random.choice(list(range(0, self.load_size - self.thumb_size,2)))
-        position = [math.floor(randx/2), math.floor((randx + self.thumb_size)/2), math.floor(randy/2), math.floor((randy + self.thumb_size)/2)]
-        content_patches = content_patches[randx:randx + self.thumb_size,
-                          randy:randy+self.thumb_size] # [8, 3, 256, 256]
+        randx = random.choice(list(range(0, 128,2)))
+        randy = random.choice(list(range(0, 128,2)))
+        position = [math.floor(randx/2), math.floor(randx/2 + 64), math.floor(randy/2), math.floor(randy/2)+ 64]
+        content_patches = content_patches[randx:randx + 128,
+                          randy:randy+128]
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]
         style_img = cv2.imread(style_path)
         style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)

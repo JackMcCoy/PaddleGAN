@@ -491,8 +491,8 @@ class LapStyleDraThumbModel(BaseModel):
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
         self.cpF = self.nets['net_enc'](self.cp)
-        self.stylized_thumb = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'thumb')
-        self.stylized_patch = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'patch')
+        self.stylized_thumb,self.stylized_thumb_feat = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'thumb')
+        self.stylized_patch,self.stylized_patch_feat = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'patch')
         self.visual_items['stylized_thumb'] = self.stylized_thumb
         self.visual_items['stylized_patch'] = self.stylized_patch
 
@@ -507,11 +507,9 @@ class LapStyleDraThumbModel(BaseModel):
         self.ttF = self.nets['net_enc'](self.stylized_thumb)
         self.tpF = self.nets['net_enc'](self.stylized_patch)
         """content loss"""
-        self.loss_c = 0
-        #self.loss_c =self.calc_content_loss(self.ttF['r41'],self.cF['r41'])
-        for layer in [self.content_layers[-2]]:
-            self.loss_c += self.calc_content_loss(self.ttF[layer],
-                                                  self.cF[layer])
+        #self.loss_c = 0
+        self.loss_c =self.calc_content_loss(self.ttF['r41'],self.stylized_thumb_feat)
+                                               
         self.losses['loss_c'] = self.loss_c
         """patch loss"""
         self.loss_patch = 0
@@ -550,10 +548,8 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['l_identity2'] = self.l_identity2
 
         """relative loss"""
-        self.loss_style_remd = self.calc_style_emd_loss(
-                self.ttF['r41'], self.sF['r41'])
-        self.loss_content_relt = self.calc_content_relt_loss(
-                self.ttF['r41'], self.cF['r41'])
+        self.loss_style_remd = self.calc_style_emd_loss(self.ttF['r41'], self.sF['r41'])
+        self.loss_content_relt = self.calc_content_relt_loss(self.ttF['r41'], self.cF['r41'])
         self.losses['loss_style_remd'] = self.loss_style_remd
         self.losses['loss_content_relt'] = self.loss_content_relt
         #self.loss_patch_content =  self.calc_content_relt_loss(self.tpF['r41'], self.cpF['r41'])

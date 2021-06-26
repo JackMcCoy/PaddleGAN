@@ -223,6 +223,7 @@ class DecoderThumbNet(nn.Layer):
 
         #out = thumb_adaptive_instance_normalization(cF['r51'], cpF['r51'], sF['r51'], thumb_or_patch=thumb_or_patch)
         out = thumb_adaptive_instance_normalization(cF['r41'], cpF['r41'], sF['r41'], thumb_or_patch=thumb_or_patch)
+        thumb_ada = out.copy()
         out = self.resblock_41(out)
         out = self.convblock_41(out)
 
@@ -245,7 +246,7 @@ class DecoderThumbNet(nn.Layer):
         out = self.upsample(out)
         out = self.convblock_11(out)
         out = self.final_conv(out)
-        return out
+        return out,thumb_ada
 
 
 @GENERATORS.register()

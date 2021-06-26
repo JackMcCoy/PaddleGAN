@@ -187,7 +187,7 @@ class LapStyleThumbset(Dataset):
                 rightmost=leftmost+self.thumb_size
             else:
                 leftmost=0
-                rightmost=_img.shape[1]
+                rightmost=img.shape[1]
         else:
             rightmost=content_img.shape[0]
             leftmost=0

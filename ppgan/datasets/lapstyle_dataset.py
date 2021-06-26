@@ -207,7 +207,7 @@ class LapStyleThumbset(Dataset):
         content_patches = content_patches[bottommost*2:topmost*2,leftmost*2:rightmost*2]
         randx = random.choice(list(range(0, 128,2)))
         randy = random.choice(list(range(0, 128,2)))
-        position = [math.floor(randx/2), math.floor(randx/2 + 64), math.floor(randy/2), math.floor(randy/2)+ 64]
+        position = [randx, randx + 128, randy, randy+128]
         content_patches = content_patches[randx:randx + 128,
                           randy:randy+128]
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]

@@ -531,8 +531,8 @@ class LapStyleDraThumbModel(BaseModel):
         self.loss_style_remd = self.calc_style_emd_loss(
             self.ttF['r31'], self.sF['r31']) + self.calc_style_emd_loss(
                 self.ttF['r41'], self.sF['r41']) + self.calc_style_emd_loss(
-            self.tpF['r31'], self.sF['r31']) + self.calc_style_emd_loss(
-                self.tpF['r41'], self.sF['r41'])
+            self.tpF['r31'], self.spCrop['r31']) + self.calc_style_emd_loss(
+                self.tpF['r41'], self.spCrop['r41'])
         '''
         """IDENTITY LOSSES"""
         self.Icc,_ = self.nets['net_dec'](self.cF, self.cF, self.cF,'thumb')

@@ -180,18 +180,21 @@ class LapStyleThumbset(Dataset):
         content_img = content_img.resize((final_width, final_height),
                                          Image.BILINEAR)
         content_img = np.array(content_img)
-        if intermediate_height!=intermediate_width:
-            if small_edge=='width':
-                randy = np.random.randint(0, intermediate_height - math.floor(self.thumb_size*load_thumb_diff))
-                content_patches = content_patches[:,randy:randy+int(self.thumb_size*load_thumb_diff)]
-                content_img = content_img[:,math.floor(randy/load_thumb_diff):self.thumb_size+math.floor(randy / load_thumb_diff)]
-            else:
-                randx = np.random.randint(0, intermediate_width+ - math.floor(self.thumb_size*load_thumb_diff))
-                content_patches = content_patches[randx :randx+ math.floor(self.thumb_size * load_thumb_diff),:]
-                content_img = content_img[math.floor(randx / load_thumb_diff):math.floor(randx / load_thumb_diff)+self.thumb_size,:]
+        if small_edge=='height':
+            topmost=content_patches.shape[1] #will be divided by content_img
+            bottommost=0
+            leftmost= random.choice(list(range(0, intermediate_width - self.thumb_size*2,2)))
+            rightmost=leftmost+self.thumb_size*2
+        else:
+            rightmost=content_patches.shape[0]
+            leftmost=0
+            bottommost = random.choice(list(range(0, intermediate_height - self.thumb_size*2,2)))
+            topmost=bottommost+self.thumbsize*2
+        content_img =content_img[math.floor(leftmost/2):math.floor(rightmost/2),math.floor(bottommost/2):math.floor(topmost/2)]
+        content_patches = content_patches[leftmost:rightmost,bottommost:topmost]
         randx = random.choice(list(range(0, self.load_size - self.thumb_size,2)))
         randy = random.choice(list(range(0, self.load_size - self.thumb_size,2)))
-        position = [math.floor(randx/load_thumb_diff), math.floor((randx + self.thumb_size)/load_thumb_diff), math.floor(randy/load_thumb_diff), math.floor((randy + self.thumb_size)/load_thumb_diff)]
+        position = [math.floor(randx/2), math.floor((randx + self.thumb_size)/2), math.floor(randy/2), math.floor((randy + self.thumb_size)/2)]
         content_patches = content_patches[randx:randx + self.thumb_size,
                           randy:randy+self.thumb_size] # [8, 3, 256, 256]
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]

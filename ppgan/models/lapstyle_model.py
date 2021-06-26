@@ -505,7 +505,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.tpF = self.nets['net_enc'](self.stylized_patch)
         """content loss"""
         self.loss_c = 0
-        for layer in [self.content_layers[-2:]]:
+        for layer in self.content_layers:
             self.loss_c += self.calc_content_loss(self.ttF[layer],
                                                       self.cF[layer])
         self.losses['loss_c'] = self.loss_c

@@ -191,7 +191,7 @@ class LapStyleThumbset(Dataset):
                 rightmost=topmost
         else:
             rightmost=content_img.shape[0]
-            leftmost=
+            leftmost=0
             if content_img.shape[0] != content_img.shape[1]:
                 bottommost = random.choice(list(range(0, content_img.shape[1] - self.thumb_size,2)))
                 topmost=bottommost+self.thumb_size

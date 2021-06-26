@@ -173,7 +173,6 @@ class LapStyleThumbset(Dataset):
             ratio = content_img.width/content_img.height
             intermediate_width = math.ceil(self.load_size*ratio)
             final_width = math.ceil(self.thumb_size*ratio)
-        load_thumb_diff=self.load_size/self.thumb_size
         content_img = content_img.resize((intermediate_width, intermediate_height),
                                          Image.BILINEAR)
         content_patches = np.array(content_img)
@@ -188,11 +187,11 @@ class LapStyleThumbset(Dataset):
                 rightmost=leftmost+self.thumb_size
             else:
                 leftmost=0
-                rightmost=topmost
+                rightmost=_img.shape[1]
         else:
             rightmost=content_img.shape[0]
             leftmost=0
-            if content_img.shape[0]<self.thumb_size-1:
+            if content_img.shape[1]<self.thumb_size-1:
                 bottommost = random.choice(list(range(0, content_img.shape[1] - self.thumb_size,2)))
                 topmost=bottommost+self.thumb_size
             else:

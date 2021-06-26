@@ -197,12 +197,6 @@ class LapStyleThumbset(Dataset):
             else:
                 bottommost = 0
                 topmost = 128
-        print(leftmost)
-        print(rightmost)
-        print(bottommost)
-        print(topmost)
-        print(topmost-bottommost)
-        print(rightmost-leftmost)
         content_img =content_img[bottommost:topmost,leftmost:rightmost]
         content_patches = content_patches[bottommost*2:topmost*2,leftmost*2:rightmost*2]
         randx = random.choice(list(range(0, 128,2)))
@@ -230,7 +224,6 @@ class LapStyleThumbset(Dataset):
         content_img = self.img(content_img)
         style_img = self.img(style_img)
         content_patches = self.img(content_patches)
-        print(content_img.shape)
         return {'ci': content_img, 'si': style_img, 'ci_path': path,'cp':content_patches,'position':position}
 
     def img(self, img):

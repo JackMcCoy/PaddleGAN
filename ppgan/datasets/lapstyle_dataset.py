@@ -183,7 +183,7 @@ class LapStyleThumbset(Dataset):
         if small_edge=='height':
             topmost=content_img.shape[1] #will be divided by content_img
             bottommost=0
-            if content_img.shape[0]!=content_img.shape[1]:
+            if content_img.shape[1]<self.thumb_size-1:
                 leftmost= random.choice(list(range(0, content_img.shape[0] - self.thumb_size,2)))
                 rightmost=leftmost+self.thumb_size
             else:
@@ -192,7 +192,7 @@ class LapStyleThumbset(Dataset):
         else:
             rightmost=content_img.shape[0]
             leftmost=0
-            if content_img.shape[0] != content_img.shape[1]:
+            if content_img.shape[0]<self.thumb_size-1:
                 bottommost = random.choice(list(range(0, content_img.shape[1] - self.thumb_size,2)))
                 topmost=bottommost+self.thumb_size
             else:

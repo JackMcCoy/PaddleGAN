@@ -178,10 +178,10 @@ class LapStyleThumbset(Dataset):
                                          Image.BILINEAR)
         content_patches = np.array(content_img)
         if small_edge=='width':
-            randy = np.random.randint(0, self.load_size - self.thumb_size*load_thumb_diff)
+            randy = np.random.randint(0, intermediate_height - math.floor(self.thumb_size*load_thumb_diff))
             content_patches = content_patches[:,randy:randy+int(self.thumb_size*load_thumb_diff)]
         else:
-            randx = np.random.randint(0, self.load_size - self.thumb_size*load_thumb_diff)
+            randx = np.random.randint(0, intermediate_width - math.floor(self.thumb_size*load_thumb_diff))
             content_patches = content_patches[randx :randx+ math.floor(self.thumb_size * load_thumb_diff),:]
         randx = random.choice(list(range(0, self.load_size - self.thumb_size,2)))
         randy = random.choice(list(range(0, self.load_size - self.thumb_size,2)))

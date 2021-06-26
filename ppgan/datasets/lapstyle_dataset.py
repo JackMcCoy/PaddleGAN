@@ -180,23 +180,23 @@ class LapStyleThumbset(Dataset):
                                          Image.BILINEAR)
         content_img = np.array(content_img)
         if small_edge=='height':
-            topmost=content_img.shape[1] #will be divided by content_img
+            topmost=128 #will be divided by content_img
             bottommost=0
             if content_img.shape[0]<self.thumb_size-1:
                 leftmost= random.choice(list(range(0, content_img.shape[0] - self.thumb_size,2)))
                 rightmost=leftmost+128
             else:
                 leftmost=0
-                rightmost=content_img.shape[1]
+                rightmost=128
         else:
-            rightmost=content_img.shape[0]
+            rightmost=128
             leftmost=0
             if content_img.shape[1]<self.thumb_size-1:
                 bottommost = random.choice(list(range(0, content_img.shape[1] - self.thumb_size,2)))
                 topmost=bottommost+128
             else:
                 bottommost = 0
-                topmost = content_img.shape[1]
+                topmost = 128
         print(leftmost)
         print(rightmost)
         print(bottommost)

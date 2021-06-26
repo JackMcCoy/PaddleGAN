@@ -562,14 +562,11 @@ class LapStyleDraThumbModel(BaseModel):
         self.loss_style_patch_stroke = self.calc_content_relt_loss(
             self.tpF['r31'], self.cpF['r31']) + self.calc_content_relt_loss(
             self.tpF['r41'], self.cpF['r41'])
-        self.loss_style_patch_remd = self.calc_style_emd_loss(
-            self.tpF['r31'], self.spCrop['r31']) + self.calc_style_emd_loss(
-                self.tpF['r41'], self.spCrop['r41'])
 
         self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
                     self.loss_patch * self.content_weight +\
                     self.l_identity1 * 25 + self.l_identity2 * 1 +\
-                    self.loss_content_relt * 16 + self.loss_style_patch_stroke*10 + self.loss_style_patch_remd*16
+                    self.loss_content_relt * 16 + self.loss_style_patch_stroke*10
         self.loss.backward()
 
         return self.loss

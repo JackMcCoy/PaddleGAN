@@ -524,6 +524,7 @@ class LapStyleDraThumbModel(BaseModel):
         for layer in self.style_layers:
             self.loss_s += self.calc_style_loss(self.ttF[layer], self.sF[layer])
         self.losses['loss_s'] = self.loss_s
+        '''
         """IDENTITY LOSSES"""
         self.Icc,_ = self.nets['net_dec'](self.cF, self.cF, self.cF,'thumb')
         self.l_identity1 = self.calc_content_loss(self.Icc, self.ci)
@@ -556,11 +557,11 @@ class LapStyleDraThumbModel(BaseModel):
         #self.loss_style_patch_remd = self.calc_style_loss(self.tpF['r41'], self.spCrop['r41'])
         #self.losses['loss_patch_content'] = self.loss_patch_content
         #self.losses['loss_style_patch_remd'] = self.loss_style_patch_remd
-
+        '''
         self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
                     self.loss_patch * self.style_weight +\
-                    self.l_identity1 * 50 + self.l_identity2 * 1 +self.l_identity3 * 25 + self.l_identity4 * 1 +\
-                    self.loss_content_relt * 16# + self.loss_patch_content*10 + self.loss_style_patch_remd
+                    #self.l_identity1 * 50 + self.l_identity2 * 1 +self.l_identity3 * 25 + self.l_identity4 * 1 +\
+                    #self.loss_content_relt * 16# + self.loss_patch_content*10 + self.loss_style_patch_remd
         self.loss.backward()
 
         return self.loss

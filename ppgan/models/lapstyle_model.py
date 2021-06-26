@@ -542,6 +542,8 @@ class LapStyleDraThumbModel(BaseModel):
         for layer in self.content_layers:
             self.l_identity4 += self.calc_content_loss(self.Fpcc[layer],
                                                         self.cpF[layer])
+        self.visual_items['content_identity']=Icc
+        self.visual_items['patch_identity']=Ipcc
         self.losses['l_identity3'] = self.l_identity3
         self.losses['l_identity4'] = self.l_identity4
 

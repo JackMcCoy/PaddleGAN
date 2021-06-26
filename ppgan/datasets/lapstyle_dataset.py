@@ -173,16 +173,16 @@ class LapStyleThumbset(Dataset):
             ratio = content_img.width/content_img.height
             intermediate_width = math.ceil(self.load_size*ratio)
             final_width = math.ceil(self.thumb_size*ratio)
-        load_thumb_diff=self.thumb_size/self.load_size
+        load_thumb_diff=self.load_size/self.thumb_size
         content_img = content_img.resize((intermediate_width, intermediate_height),
                                          Image.BILINEAR)
         content_patches = np.array(content_img)
         if small_edge=='width':
-            randy = np.random.randint(0, content_img.height - self.thumb_size/load_thumb_diff)
-            content_patches = content_patches[:,randy+math.floor(self.thumb_size/load_thumb_diff)]
+            randy = np.random.randint(0, content_img.height - self.thumb_size*load_thumb_diff)
+            content_patches = content_patches[:,randy:randy+int(self.thumb_size*load_thumb_diff)]
         else:
-            randx = np.random.randint(0, content_img.width - self.thumb_size/load_thumb_diff)
-            content_patches = content_patches[randx :randx+ math.floor(self.thumb_size / load_thumb_diff),:]
+            randx = np.random.randint(0, content_img.width - self.thumb_size*load_thumb_diff)
+            content_patches = content_patches[randx :randx+ math.floor(self.thumb_size * load_thumb_diff),:]
         randx = random.choice(list(range(0, self.load_size - self.thumb_size,2)))
         randy = random.choice(list(range(0, self.load_size - self.thumb_size,2)))
         position = [math.floor(randx*load_thumb_diff), math.floor((randx + self.thumb_size)*load_thumb_diff), math.floor(randy*load_thumb_diff), math.floor((randy + self.thumb_size)*load_thumb_diff)]

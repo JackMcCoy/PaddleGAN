@@ -194,7 +194,6 @@ class DecoderThumbNet(nn.Layer):
     def forward(self, cF, sF, thumb_ADA):
 
         out = thumb_ADA
-        out += adaptive_instance_normalization(cF['r41'], sF['r41'])
         out = self.resblock_41(out)
         out = self.convblock_41(out)
 

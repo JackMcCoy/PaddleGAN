@@ -685,7 +685,7 @@ class LapStyleRevFirstThumb(BaseModel):
             g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
             self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
         self.ttF = self.nets['net_enc'](self.stylized)
-        self.tpF = self.nets['net_enc'](self.stylized_p)
+        self.tpF = self.nets['net_enc'](self.p_stylized)
         """content loss"""
         self.loss_c = 0
         for layer in [self.content_layers[-2]]:

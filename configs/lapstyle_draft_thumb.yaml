@@ -36,7 +36,7 @@ dataset:
     batch_size: 5
   test:
     name: LapStyleThumbset
-    content_root: /content/gdrive/My Drive/img_style/washnight.png
+    content_root: /content/gdrive/My Drive/img_style/content/
     style_root: /content/gdrive/My Drive/img_style/starrynew.png
     load_size: 256
     thumb_size: 128

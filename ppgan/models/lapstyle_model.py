@@ -18,12 +18,57 @@ from .base_model import BaseModel
 
 from .builder import MODELS
 from .generators.builder import build_generator
-from .generators import generator_lapstyle
 from .criterions import build_criterion
 from .discriminators.builder import build_discriminator
 
 from ..modules.init import init_weights
 
+def thumb_adaptive_instance_normalization(content_feat, content_patch_feat, style_feat):
+    """adaptive_instance_normalization.
+
+    Args:
+        content_feat (Tensor): Tensor with shape (N, C, H, W).
+        content_patch_feat (Tensor): Tensor with shape (N, C, H, W).
+        style_feat (Tensor): Tensor with shape (N, C, H, W).
+
+    Return:
+        Normalized content_feat with shape (N, C, H, W)
+    """
+    assert (content_feat.shape[:2] == style_feat.shape[:2])
+    size = content_feat.shape
+    style_mean, style_std = calc_mean_std(style_feat)
+    content_mean, content_std = calc_mean_std(content_feat)
+
+    content_thumb_feat = (content_feat -content_mean.expand(size)) / content_std.expand(size)
+    content_thumb_feat = content_thumb_feat * style_std.expand(size) + style_mean.expand(size)
+
+    content_patch_feat = (content_patch_feat - content_mean.expand(size)) / content_std.expand(size)
+    content_patch_feat = content_patch_feat * style_std.expand(size) + style_mean.expand(size)
+
+    return content_thumb_feat, content_patch_feat
+
+def calc_mean_std(feat, eps=1e-5):
+    """calculate mean and standard deviation.
+
+    Args:
+        feat (Tensor): Tensor with shape (N, C, H, W).
+        eps (float): Default: 1e-5.
+
+    Return:
+        mean and std of feat
+        shape: [N, C, 1, 1]
+    """
+    size = feat.shape
+    assert (len(size) == 4)
+    N, C = size[:2]
+    feat_var = feat.reshape([N, C, -1])
+    feat_var = paddle.var(feat_var, axis=2) + eps
+    feat_std = paddle.sqrt(feat_var)
+    feat_std = feat_std.reshape([N, C, 1, 1])
+    feat_mean = feat.reshape([N, C, -1])
+    feat_mean = paddle.mean(feat_mean, axis=2)
+    feat_mean = feat_mean.reshape([N, C, 1, 1])
+    return feat_mean, feat_std
 
 @MODELS.register()
 class LapStyleDraModel(BaseModel):
@@ -492,7 +537,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
         self.cpF = self.nets['net_enc'](self.cp)
-        self.stylized_thumb_feat,self.stylized_patch_feat = generator_lapstyle.thumb_adaptive_instance_normalization(self.cF['r41'], self.sF['r41'], self.cpF['r41'])
+        self.stylized_thumb_feat,self.stylized_patch_feat = thumb_adaptive_instance_normalization(self.cF['r41'], self.sF['r41'], self.cpF['r41'])
         self.stylized_thumb, = self.nets['net_dec'](self.cF, self.sF,self.stylized_thumb_feat)
         self.stylized_patch, = self.nets['net_dec'](self.cF, self.sF,self.stylized_patch_feat)
         self.visual_items['stylized_thumb'] = self.stylized_thumb

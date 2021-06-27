@@ -139,6 +139,7 @@ class LapStyleThumbset(Dataset):
         self.crop_size = crop_size
         self.thumb_size = thumb_size
         self.transform = data_transform(self.crop_size)
+        self.transform_patch = data_transform(self.load_size)
 
     def __getitem__(self, index):
         """Get training sample
@@ -210,21 +211,29 @@ class LapStyleThumbset(Dataset):
         style_img = Image.fromarray(style_img)
         small_edge = min(style_img.width,style_img.height)
         if small_edge==style_img.width:
-            intermediate_width = self.thumb_size
+            intermediate_width = self.load_size
+            final_width = self.thumb_size
             ratio = style_img.height/style_img.width
-            intermediate_height = math.floor(self.thumb_size*ratio)
+            intermediate_height = math.floor(self.load_size*ratio)
+            final_height = math.ceil(self.thumb_size*ratio)
         else:
-            intermediate_height = self.thumb_size
+            intermediate_height = self.load_size
+            final_height = self.thumb_size
             ratio = style_img.width/style_img.height
-            intermediate_width = math.floor(self.thumb_size*ratio)
-        style_img = style_img.resize((intermediate_width, intermediate_height),
+            intermediate_width = math.floor(self.load_size*ratio)
+            final_width = math.ceil(self.thumb_size*ratio)
+        style_patch = style_img.resize((intermediate_width, intermediate_height),
                                      Image.BILINEAR)
+        style_img = style_patch.resize((final_width,final_height),Image.BILINEAR)
         style_img = np.array(style_img)
+        style_patch = np.array(style_patch)
         style_img = self.transform(style_img)
+        style_patch = self.transform_patch(style_patch)
+        style_patch = style_patch[bottommost*2:topmost*2,leftmost*2:rightmost*2]
         content_img = self.img(content_img)
         style_img = self.img(style_img)
         content_patches = self.img(content_patches)
-        return {'ci': content_img, 'si': style_img, 'ci_path': path,'cp':content_patches,'position':position}
+        return {'ci': content_img, 'si': style_img, 'sp':style_patch 'ci_path': path,'cp':content_patches,'position':position}
 
     def img(self, img):
         """make image with [0,255] and HWC to [0,1] and CHW

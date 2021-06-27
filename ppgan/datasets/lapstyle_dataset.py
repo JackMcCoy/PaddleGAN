@@ -184,26 +184,26 @@ class LapStyleThumbset(Dataset):
             bottommost=0
             if content_img.shape[0]<self.thumb_size-1:
                 leftmost= random.choice(list(range(0, content_img.shape[0] - self.thumb_size,2)))
-                rightmost=leftmost+128
+                rightmost=leftmost+self.crop_size
             else:
                 leftmost=0
-                rightmost=128
+                rightmost=self.crop_size
         else:
-            rightmost=128
+            rightmost=self.crop_size
             leftmost=0
             if content_img.shape[1]<self.thumb_size-1:
                 bottommost = random.choice(list(range(0, content_img.shape[1] - self.thumb_size,2)))
-                topmost=bottommost+128
+                topmost=bottommost+self.crop_size
             else:
                 bottommost = 0
-                topmost = 128
+                topmost = self.crop_size
         content_img =content_img[bottommost:topmost,leftmost:rightmost]
         content_patches = content_patches[bottommost*2:topmost*2,leftmost*2:rightmost*2]
-        randx = random.choice(list(range(0, 128,2)))
-        randy = random.choice(list(range(0, 128,2)))
-        position = [randx, randx + 128, randy, randy+128]
-        content_patches = content_patches[randx:randx + 128,
-                          randy:randy+128]
+        randx = random.choice(list(range(0, self.crop_size,2)))
+        randy = random.choice(list(range(0, self.crop_size,2)))
+        position = [randx, randx + self.crop_size, randy, randy+self.crop_size]
+        content_patches = content_patches[randx:randx + self.crop_size,
+                          randy:randy+self.crop_size]
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]
         style_img = cv2.imread(style_path)
         style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)

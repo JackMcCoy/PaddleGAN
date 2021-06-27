@@ -500,15 +500,16 @@ class LapStyleDraThumbModel(BaseModel):
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized_thumb'], scale_factor=2, mode='bilinear', align_corners=False)
             g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-            style_patch = F.interpolate(self.visual_items['si'], scale_factor=2, mode='bilinear', align_corners=False)
-            style_patch_crop = paddle.slice(style_patch,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-            self.spCrop = self.nets['net_enc'](style_patch_crop)
             self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
+            #style_patch = F.interpolate(self.visual_items['si'], scale_factor=2, mode='bilinear', align_corners=False)
+            #style_patch_crop = paddle.slice(style_patch,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
+            #self.spCrop = self.nets['net_enc'](style_patch_crop)
+        self.visual_items['g_t_thumb_crop']=g_t_thumb_crop
         self.ttF = self.nets['net_enc'](self.stylized_thumb)
         self.tpF = self.nets['net_enc'](self.stylized_patch)
         """content loss"""
         self.loss_c = 0
-        for layer in self.content_layers[1:-1]:
+        for [layer in self.content_layers[-2]]:
             self.loss_c +=self.calc_content_loss(self.ttF[layer],self.stylized_thumb_feat[layer])
 
         self.losses['loss_c'] = self.loss_c

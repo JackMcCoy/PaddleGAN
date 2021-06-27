@@ -78,6 +78,34 @@ def adaptive_instance_normalization(content_feat, style_feat):
     return normalized_feat * style_std.expand(size) + style_mean.expand(size)
 
 
+def thumb_adaptive_instance_normalization(content_feat, content_patch_feat, style_feat, thumb_or_patch='thumb'):
+    """adaptive_instance_normalization.
+
+    Args:
+        content_feat (Tensor): Tensor with shape (N, C, H, W).
+        content_patch_feat (Tensor): Tensor with shape (N, C, H, W).
+        style_feat (Tensor): Tensor with shape (N, C, H, W).
+
+    Return:
+        Normalized content_feat with shape (N, C, H, W)
+    """
+    assert (content_feat.shape[:2] == style_feat.shape[:2])
+    size = content_feat.shape
+    style_mean, style_std = calc_mean_std(style_feat)
+    content_mean, content_std = calc_mean_std(content_feat)
+
+    content_thumb_feat = (content_feat -content_mean.expand(size)) / content_std.expand(size)
+    content_thumb_feat = content_thumb_feat * style_std.expand(size) + style_mean.expand(size)
+
+    if thumb_or_patch == 'thumb':
+        return content_thumb_feat
+
+    elif thumb_or_patch == 'patch':
+        content_patch_feat = (content_patch_feat - content_mean.expand(size)) / content_std.expand(size)
+        content_patch_feat = content_patch_feat * style_std.expand(size) + style_mean.expand(size)
+
+        return content_patch_feat
+
 class ResnetBlock(nn.Layer):
     """Residual block.
 
@@ -191,26 +219,31 @@ class DecoderThumbNet(nn.Layer):
         self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(64, 3, (3, 3)))
 
-    def forward(self, cF, sF, thumb_ADA):
+    def forward(self, cF, sF, cpF, thumb_or_patch='thumb'):
 
-        out = thumb_ADA
+        #out = thumb_adaptive_instance_normalization(cF['r51'], cpF['r51'], sF['r51'], thumb_or_patch=thumb_or_patch)
+        out = thumb_adaptive_instance_normalization(cF['r41'], cpF['r41'], sF['r41'], thumb_or_patch=thumb_or_patch)
+        thumb_ada = {'r41':out.clone()}
         out = self.resblock_41(out)
         out = self.convblock_41(out)
 
         out = self.upsample(out)
-        out += adaptive_instance_normalization(cF['r31'], sF['r31'])
+
+        thumb_ada['r31']=thumb_adaptive_instance_normalization(cF['r31'], cpF['r31'], sF['r31'], thumb_or_patch=thumb_or_patch)
+        out += thumb_ada['r31']
         out = self.resblock_31(out)
         out = self.convblock_31(out)
 
         out = self.upsample(out)
-        out += adaptive_instance_normalization(cF['r21'], sF['r21'])
+        thumb_ada['r21']=thumb_adaptive_instance_normalization(cF['r21'], cpF['r21'], sF['r21'], thumb_or_patch=thumb_or_patch)
+        out += thumb_ada['r21']
         out = self.convblock_21(out)
         out = self.convblock_22(out)
 
         out = self.upsample(out)
         out = self.convblock_11(out)
         out = self.final_conv(out)
-        return out
+        return out,thumb_ada
 
 
 @GENERATORS.register()

@@ -230,6 +230,7 @@ class LapStyleThumbset(Dataset):
         style_img = self.transform(style_img)
         style_patch = self.transform_patch(style_patch)
         style_patch = style_patch[bottommost*2:topmost*2,leftmost*2:rightmost*2]
+        style_patch = self.img(style_patch)
         content_img = self.img(content_img)
         style_img = self.img(style_img)
         content_patches = self.img(content_patches)

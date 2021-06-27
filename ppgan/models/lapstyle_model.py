@@ -765,7 +765,7 @@ class LapStyleRevFirstThumb(BaseModel):
     def backward_D(self):
         """Calculate GAN loss for the discriminator"""
         with paddle.no_grad():
-            style_patch = F.interpolate(self.visual_items['si'], scale_factor=2, mode='bilinear', align_corners=False)
+            style_patch = F.interpolate(self.si, scale_factor=2, mode='bilinear', align_corners=False)
             style_patch_crop = paddle.slice(style_patch,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
             spCrop = self.nets['net_enc'](style_patch_crop)
         pred_fake = self.nets['netD'](self.stylized.detach())

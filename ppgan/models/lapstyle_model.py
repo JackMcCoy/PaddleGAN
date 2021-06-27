@@ -508,7 +508,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.tpF = self.nets['net_enc'](self.stylized_patch)
         """content loss"""
         #self.loss_c = 0
-        self.loss_c =self.calc_content_loss(self.ttF['r41'],self.stylized_thumb_feat)
+        self.loss_c =self.calc_content_loss(self.ttF['r41'],self.stylized_thumb_feat, norm=True)
 
         self.losses['loss_c'] = self.loss_c
         """patch loss"""

@@ -18,7 +18,7 @@ from .base_model import BaseModel
 
 from .builder import MODELS
 from .generators.builder import build_generator
-from .generators.generator_lapstyle import thumb_adaptive_normalization
+from .generators import generator_lapstyle
 from .criterions import build_criterion
 from .discriminators.builder import build_discriminator
 
@@ -492,7 +492,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
         self.cpF = self.nets['net_enc'](self.cp)
-        self.stylized_thumb_feat,self.stylized_patch_feat = thumb_adaptive_instance_normalization(self.cF['r41'], self.sF['r41'], self.cpF['r41'])
+        self.stylized_thumb_feat,self.stylized_patch_feat = generator_lapstyle.thumb_adaptive_instance_normalization(self.cF['r41'], self.sF['r41'], self.cpF['r41'])
         self.stylized_thumb, = self.nets['net_dec'](self.cF, self.sF,self.stylized_thumb_feat)
         self.stylized_patch, = self.nets['net_dec'](self.cF, self.sF,self.stylized_patch_feat)
         self.visual_items['stylized_thumb'] = self.stylized_thumb

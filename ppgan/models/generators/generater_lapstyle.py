@@ -191,32 +191,27 @@ class DecoderThumbNet(nn.Layer):
         self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(64, 3, (3, 3)))
 
-    def forward(self, cF, sF, cpF, thumb_or_patch='thumb'):
+    def forward(self, cF, sF, thumb_ADA):
 
-        #out = thumb_adaptive_instance_normalization(cF['r51'], cpF['r51'], sF['r51'], thumb_or_patch=thumb_or_patch)
-        out = thumb_adaptive_instance_normalization(cF['r41'], cpF['r41'], sF['r41'], thumb_or_patch=thumb_or_patch)
-        thumb_ada = out.clone()
+        out = thumb_ADA
+        out += adaptive_instance_normalization(cF['r41'], sF['r41'])
         out = self.resblock_41(out)
         out = self.convblock_41(out)
 
         out = self.upsample(out)
-
-        out += thumb_adaptive_instance_normalization(cF['r31'], cpF['r31'], sF['r31'], thumb_or_patch=thumb_or_patch)
+        out += adaptive_instance_normalization(cF['r31'], sF['r31'])
         out = self.resblock_31(out)
         out = self.convblock_31(out)
 
         out = self.upsample(out)
-        if thumb_or_patch == 'thumb':
-            out += adaptive_instance_normalization(cF['r21'], sF['r21'])
-        else:
-            out += adaptive_instance_normalization(cpF['r21'], sF['r21'])
+        out += adaptive_instance_normalization(cF['r21'], sF['r21'])
         out = self.convblock_21(out)
         out = self.convblock_22(out)
 
         out = self.upsample(out)
         out = self.convblock_11(out)
         out = self.final_conv(out)
-        return out,thumb_ada
+        return out
 
 
 @GENERATORS.register()

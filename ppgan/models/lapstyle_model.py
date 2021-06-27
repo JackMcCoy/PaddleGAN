@@ -515,9 +515,9 @@ class LapStyleDraThumbModel(BaseModel):
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
         self.cpF = self.nets['net_enc'](self.cp)
-        self.stylized_thumb_feat,self.stylized_patch_feat = thumb_adaptive_instance_normalization(self.cF, self.sF, self.cpF)
-        self.stylized_thumb, = self.nets['net_dec'](self.cF+self.stylized_thumb_feat, self.sF+self.stylized_thumb_feat)
-        self.stylized_patch, = self.nets['net_dec'](self.cF+self.stylized_patch_feat, self.sF+self.stylized_patch_feat)
+        self.stylized_thumb_feat,self.stylized_patch_feat = thumb_adaptive_instance_normalization(self.cF['r41'], self.sF['r41'], self.cpF['r41'])
+        self.stylized_thumb, = self.nets['net_dec'](self.cF, self.sF,self.stylized_thumb_feat)
+        self.stylized_patch, = self.nets['net_dec'](self.cF, self.sF,self.stylized_patch_feat)
         self.visual_items['stylized_thumb'] = self.stylized_thumb
         self.visual_items['stylized_patch'] = self.stylized_patch
 

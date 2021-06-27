@@ -89,8 +89,8 @@ def thumb_adaptive_instance_normalization(content_thumb_feat, content_patch_feat
     Return:
         Normalized content_feat with shape (N, C, H, W)
     """
-    assert (content_feat.shape[:2] == style_feat.shape[:2])
-    size = content_feat.shape
+    assert (content_thumb_feat.shape[:2] == style_feat.shape[:2])
+    size = content_thumb_feat.shape
     style_mean, style_std = calc_mean_std(style_feat)
     content_thumb_mean, content_thumb_std = calc_mean_std(content_thumb_feat)
 

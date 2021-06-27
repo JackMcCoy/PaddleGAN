@@ -18,35 +18,12 @@ from .base_model import BaseModel
 
 from .builder import MODELS
 from .generators.builder import build_generator
+from .generators.generator_lapstyle import thumb_adaptive_normalization
 from .criterions import build_criterion
 from .discriminators.builder import build_discriminator
 
 from ..modules.init import init_weights
 
-
-def thumb_adaptive_instance_normalization(content_feat, content_patch_feat, style_feat):
-    """adaptive_instance_normalization.
-
-    Args:
-        content_feat (Tensor): Tensor with shape (N, C, H, W).
-        content_patch_feat (Tensor): Tensor with shape (N, C, H, W).
-        style_feat (Tensor): Tensor with shape (N, C, H, W).
-
-    Return:
-        Normalized content_feat with shape (N, C, H, W)
-    """
-    assert (content_feat.shape[:2] == style_feat.shape[:2])
-    size = content_feat.shape
-    style_mean, style_std = calc_mean_std(style_feat)
-    content_mean, content_std = calc_mean_std(content_feat)
-
-    content_thumb_feat = (content_feat -content_mean.expand(size)) / content_std.expand(size)
-    content_thumb_feat = content_thumb_feat * style_std.expand(size) + style_mean.expand(size)
-
-    content_patch_feat = (content_patch_feat - content_mean.expand(size)) / content_std.expand(size)
-    content_patch_feat = content_patch_feat * style_std.expand(size) + style_mean.expand(size)
-
-    return content_thumb_feat, content_patch_feat
 
 @MODELS.register()
 class LapStyleDraModel(BaseModel):

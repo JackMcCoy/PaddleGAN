@@ -749,12 +749,12 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)
         self.losses['loss_gan_G'] = self.loss_G_GAN
 
-        self.loss = self.loss_G_GAN + + self.loss_s * self.style_weight +\
+        self.loss = self.loss_G_GAN + self.loss_s * self.style_weight +\
                     self.loss_ps * self.style_weight +\
                     self.loss_patch * self.content_weight +\
                     self.l_identity1 * 50 + self.l_identity2 * 1 +\
                     self.loss_content * self.content_weight+ self.loss_style_remd * 10 + \
-                    self.loss_content_relt * 16 +self.p_loss_style_remd * 10 + self.p_loss_content_relt * 16
+                    self.loss_content_relt * 16 + self.p_loss_style_remd * 10 + self.p_loss_content_relt * 16
 
         self.loss.backward()
 

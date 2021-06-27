@@ -24,6 +24,30 @@ from .discriminators.builder import build_discriminator
 from ..modules.init import init_weights
 
 
+def thumb_adaptive_instance_normalization(content_feat, content_patch_feat, style_feat):
+    """adaptive_instance_normalization.
+
+    Args:
+        content_feat (Tensor): Tensor with shape (N, C, H, W).
+        content_patch_feat (Tensor): Tensor with shape (N, C, H, W).
+        style_feat (Tensor): Tensor with shape (N, C, H, W).
+
+    Return:
+        Normalized content_feat with shape (N, C, H, W)
+    """
+    assert (content_feat.shape[:2] == style_feat.shape[:2])
+    size = content_feat.shape
+    style_mean, style_std = calc_mean_std(style_feat)
+    content_mean, content_std = calc_mean_std(content_feat)
+
+    content_thumb_feat = (content_feat -content_mean.expand(size)) / content_std.expand(size)
+    content_thumb_feat = content_thumb_feat * style_std.expand(size) + style_mean.expand(size)
+
+    content_patch_feat = (content_patch_feat - content_mean.expand(size)) / content_std.expand(size)
+    content_patch_feat = content_patch_feat * style_std.expand(size) + style_mean.expand(size)
+
+    return content_thumb_feat, content_patch_feat
+
 @MODELS.register()
 class LapStyleDraModel(BaseModel):
     def __init__(self,
@@ -491,8 +515,9 @@ class LapStyleDraThumbModel(BaseModel):
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
         self.cpF = self.nets['net_enc'](self.cp)
-        self.stylized_thumb,self.stylized_thumb_feat = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'thumb')
-        self.stylized_patch,self.stylized_patch_feat = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'patch')
+        self.stylized_thumb_feat,self.stylized_patch_feat = thumb_adaptive_instance_normalization(self.cF, self.sF, self.cpF)
+        self.stylized_thumb, = self.nets['net_dec'](self.cF+self.stylized_thumb_feat, self.sF+self.stylized_thumb_feat)
+        self.stylized_patch, = self.nets['net_dec'](self.cF+self.stylized_patch_feat, self.sF+self.stylized_patch_feat)
         self.visual_items['stylized_thumb'] = self.stylized_thumb
         self.visual_items['stylized_patch'] = self.stylized_patch
 

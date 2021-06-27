@@ -78,34 +78,6 @@ def adaptive_instance_normalization(content_feat, style_feat):
     return normalized_feat * style_std.expand(size) + style_mean.expand(size)
 
 
-def thumb_adaptive_instance_normalization(content_feat, content_patch_feat, style_feat, thumb_or_patch='thumb'):
-    """adaptive_instance_normalization.
-
-    Args:
-        content_feat (Tensor): Tensor with shape (N, C, H, W).
-        content_patch_feat (Tensor): Tensor with shape (N, C, H, W).
-        style_feat (Tensor): Tensor with shape (N, C, H, W).
-
-    Return:
-        Normalized content_feat with shape (N, C, H, W)
-    """
-    assert (content_feat.shape[:2] == style_feat.shape[:2])
-    size = content_feat.shape
-    style_mean, style_std = calc_mean_std(style_feat)
-    content_mean, content_std = calc_mean_std(content_feat)
-
-    content_thumb_feat = (content_feat -content_mean.expand(size)) / content_std.expand(size)
-    content_thumb_feat = content_thumb_feat * style_std.expand(size) + style_mean.expand(size)
-
-    if thumb_or_patch == 'thumb':
-        return content_thumb_feat
-
-    elif thumb_or_patch == 'patch':
-        content_patch_feat = (content_patch_feat - content_mean.expand(size)) / content_std.expand(size)
-        content_patch_feat = content_patch_feat * style_std.expand(size) + style_mean.expand(size)
-
-        return content_patch_feat
-
 class ResnetBlock(nn.Layer):
     """Residual block.
 

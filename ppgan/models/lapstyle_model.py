@@ -674,20 +674,19 @@ class LapStyleRevFirstThumb(BaseModel):
         cpF = self.nets['net_enc'](self.pyr_cp[1])
         self.spCrop = self.nets['net_enc'](self.sp)
 
-        stylized_small,self.stylized_thumb_feat = self.nets['net_dec'](cF, sF, cpF,'thumb')
+        stylized_small,_ = self.nets['net_dec'](cF, sF, cpF,'thumb')
         self.visual_items['stylized_small'] = stylized_small
-        stylized_up = F.interpolate(stylized_small, scale_factor=2)
-        self.stylized_thumb_feat['r41'] = F.interpolate(self.stylized_thumb_feat['r41'], scale_factor=2)
+        stylized_up = F.interpolate(stylized_small, scale_factor=2)'], scale_factor=2)
 
         p_stylized_small,_ = self.nets['net_dec'](cF, sF, cpF,'patch')
         self.visual_items['p_stylized_small'] = p_stylized_small
         p_stylized_up = F.interpolate(p_stylized_small, scale_factor=2)
 
-        revnet_input = paddle.concat(x=[self.pyr_ci[0], stylized_up], axis=1)
+        revnet_input,self.stylized_thumb_feat = paddle.concat(x=[self.pyr_ci[0], stylized_up], axis=1)
         stylized_rev_lap,_ = self.nets['net_rev'](revnet_input)
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
 
-        p_revnet_input = paddle.concat(x=[self.pyr_cp[0], p_stylized_up], axis=1)
+        p_revnet_input,_ = paddle.concat(x=[self.pyr_cp[0], p_stylized_up], axis=1)
         p_stylized_rev_lap,_ = self.nets['net_rev'](p_revnet_input,_)
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_small])
 

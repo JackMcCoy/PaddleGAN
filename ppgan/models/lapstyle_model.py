@@ -708,13 +708,6 @@ class LapStyleRevFirstThumb(BaseModel):
         self.ttF = self.nets['net_enc'](self.stylized)
         self.tpF = self.nets['net_enc'](self.p_stylized)
 
-        """content loss"""
-        self.loss_c = 0
-        for layer in [self.content_layers[-2]]:
-            self.loss_c += self.calc_content_loss(self.ttF[layer], self.stylized_thumb_feat)
-
-        self.losses['loss_c'] = self.loss_c
-
         self.loss_content = 0
         for layer in self.content_layers:
             self.loss_content += self.calc_content_loss(self.ttF[layer],
@@ -794,7 +787,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_gan_G'] = self.loss_G_GAN
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
-        self.loss = self.loss_G_GAN + self.losses['loss_gan_Gp'] +self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
+        self.loss = self.loss_G_GAN + self.losses['loss_gan_Gp'] + self.loss_s * self.style_weight +\
                     self.loss_ps * self.style_weight +\
                     self.loss_patch * self.content_weight * 10 +\
                     self.l_identity1 * 50 + self.l_identity2 * 1 +\

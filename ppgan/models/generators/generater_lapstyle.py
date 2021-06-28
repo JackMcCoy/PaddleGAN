@@ -234,9 +234,10 @@ class DecoderThumbNet(nn.Layer):
             thumb_ada['r31']=adaptive_instance_normalization(cF['r31'], sF['r31'])
         else:
             thumb_ada['r31']=adaptive_instance_normalization(cpF['r31'], sF['r31'])
-        out += thumb_ada['r31']
+        
         '''
-        out = thumb_adaptive_instance_normalization(cF['r31'], cpF['r31'], sF['r31'], thumb_or_patch=thumb_or_patch)
+        ada['r31'] = thumb_adaptive_instance_normalization(cF['r31'], cpF['r31'],sF['r31'], thumb_or_patch=thumb_or_patch)
+        out += thumb_ada['r31']
         out = self.resblock_31(out)
         out = self.convblock_31(out)
 
@@ -247,7 +248,8 @@ class DecoderThumbNet(nn.Layer):
         else:
             thumb_ada['r21']=adaptive_instance_normalization(cpF['r21'], sF['r21'])
         '''
-        out = thumb_adaptive_instance_normalization(cF['r21'], cpF['r21'], sF['r21'], thumb_or_patch=thumb_or_patch)
+        ada['r21'] = thumb_adaptive_instance_normalization(cF['r21'], cpF['r21'], sF['r21'],
+                                                           thumb_or_patch=thumb_or_patch)
         out += thumb_ada['r21']
         out = self.convblock_21(out)
         out = self.convblock_22(out)

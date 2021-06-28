@@ -677,6 +677,7 @@ class LapStyleRevFirstThumb(BaseModel):
         stylized_small,self.stylized_thumb_feat = self.nets['net_dec'](cF, sF, cpF,'thumb')
         self.visual_items['stylized_small'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
+        self.stylized_thumb_feat = F.interpolate(self.stylized_thumb_feat, scale_factor=2)
 
         p_stylized_small,_ = self.nets['net_dec'](cF, sF, cpF,'patch')
         self.visual_items['p_stylized_small'] = p_stylized_small

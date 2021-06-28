@@ -401,8 +401,8 @@ class RevisionNet(nn.Layer):
             Tensor: (b, 3, 256, 256).
         """
         out = self.DownBlock(input)
-        out = self.resblock(out
-        res_block = out.clone())
+        out = self.resblock(out)
+        res_block = out.clone()
         out = self.UpBlock(out)
         return out, res_block
 

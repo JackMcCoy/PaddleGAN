@@ -481,7 +481,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.ci = paddle.to_tensor(input['ci'])
         self.visual_items['ci'] = self.ci
         self.si = paddle.to_tensor(input['si'])
-        self.cp = paddle.to_tensor(input['cp']
+        self.cp = paddle.to_tensor(input['cp'])
         self.sp = paddle.to_tensor(input['sp'])
         self.visual_items['cp'] = self.cp
         self.position = input['position']

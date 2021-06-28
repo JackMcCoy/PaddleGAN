@@ -21,7 +21,7 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
-  style_weight: 5
+  style_weight: 10
 
 
 dataset:
@@ -58,7 +58,7 @@ optimizer:
     beta2: 0.999
 
 validate:
-  interval: 40000
+  interval: 100000
   save_img: false
 
 log_config:

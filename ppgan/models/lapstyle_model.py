@@ -703,6 +703,13 @@ class LapStyleRevFirstThumb(BaseModel):
                                                       self.cF[layer],
                                                       norm=True)
         self.losses['loss_content'] = self.loss_content
+
+        self.loss_p_content = 0
+        for layer in self.content_layers:
+            self.loss_p_content += self.calc_content_loss(self.tpF[layer],
+                                                        self.cpF[layer],
+                                                        norm=True)
+        self.losses['loss_p_content'] = self.loss_p_content
         """patch loss"""
         self.loss_patch = 0
         #self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
@@ -761,8 +768,8 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
         self.loss = self.loss_G_GAN + self.losses['loss_gan_Gp'] + self.loss_s * self.style_weight +\
-                    self.loss_ps * self.style_weight +\
-                    self.loss_patch * self.content_weight +\
+                    self.loss_ps * self.style_weight + self.loss_p_content * self.content_weight+\
+                    self.loss_patch * self.content_weight * 4 +\
                     self.l_identity1 * 50 + self.l_identity2 * 1 +\
                     self.loss_content * self.content_weight+ self.loss_style_remd * 10 + \
                     self.loss_content_relt * 16 + self.p_loss_style_remd * 10 + self.p_loss_content_relt * 16

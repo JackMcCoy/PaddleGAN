@@ -650,6 +650,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
     def setup_input(self, input):
 
+        self.sp = paddle.to_tensor(input['sp'])
         self.ci = paddle.to_tensor(input['ci'])
         self.visual_items['ci'] = self.ci
         self.si = paddle.to_tensor(input['si'])
@@ -702,6 +703,7 @@ class LapStyleRevFirstThumb(BaseModel):
             g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear', align_corners=False)
             g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
             self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
+        self.spCrop = self.nets['net_enc'](self.sp)
         self.ttF = self.nets['net_enc'](self.stylized)
         self.tpF = self.nets['net_enc'](self.p_stylized)
 

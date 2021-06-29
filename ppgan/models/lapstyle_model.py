@@ -503,31 +503,31 @@ class LapStyleDraThumbModel(BaseModel):
             self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
             #style_patch = F.interpolate(self.visual_items['si'], scale_factor=2, mode='bilinear', align_corners=False)
             #style_patch_crop = paddle.slice(style_patch,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-            #self.spCrop = self.nets['net_enc'](self.sp)
+            self.spCrop = self.nets['net_enc'](self.sp)
         self.ttF = self.nets['net_enc'](self.stylized_thumb)
         self.tpF = self.nets['net_enc'](self.stylized_patch)
         """content loss"""
+        '''
         self.loss_c = 0
         for layer in [self.content_layers[-2]]:
             self.loss_c +=self.calc_content_loss(self.ttF[layer],self.stylized_thumb_feat[layer])
-        self.loss_c=paddle.clip(self.loss_c, 1e-5, 1e5)
-        self.losses['loss_c'] = self.loss_c
 
+        self.losses['loss_c'] = self.loss_c
+        '''
         self.loss_content = 0
         for layer in self.content_layers:
             self.loss_content += self.calc_content_loss(self.ttF[layer],
                                                       self.cF[layer],
                                                       norm=True)
-        self.loss_content=paddle.clip(self.loss_content, 1e-5, 1e5)
         self.losses['loss_content'] = self.loss_content
-
+        '''
         self.loss_p_content = 0
         for layer in self.content_layers:
             self.loss_p_content += self.calc_content_loss(self.tpF[layer],
                                                         self.cpF[layer],
                                                         norm=True)
-        self.loss_p_content=paddle.clip(self.loss_p_content, 1e-5, 1e5)
         self.losses['loss_p_content'] = self.loss_p_content
+        '''
         """patch loss"""
         self.loss_patch = 0
         #self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
@@ -541,19 +541,18 @@ class LapStyleDraThumbModel(BaseModel):
         self.loss_s = 0
         for layer in self.style_layers:
             self.loss_s += self.calc_style_loss(self.ttF[layer], self.sF[layer])
-        self.loss_s = paddle.clip(self.loss_s, 1e-5, 1e5)
         self.losses['loss_s'] = self.loss_s
-
+        '''
         self.loss_ps = 0
         for layer in self.style_layers:
             self.loss_ps += self.calc_style_loss(self.tpF[layer], self.tt_cropF[layer])
-        self.loss_ps = paddle.clip(self.loss_ps, 1e-5, 1e5)
         self.losses['loss_ps'] = self.loss_ps
-
+        '''
         """IDENTITY LOSSES"""
         self.Icc,_ = self.nets['net_dec'](self.cF, self.cF, self.cpF,'thumb')
         self.l_identity1 = self.calc_content_loss(self.Icc, self.ci)
         self.Fcc = self.nets['net_enc'](self.Icc)
+        '''
         self.l_identity2 = 0
         for layer in self.content_layers:
             self.l_identity2 += self.calc_content_loss(self.Fcc[layer],
@@ -565,16 +564,12 @@ class LapStyleDraThumbModel(BaseModel):
         for layer in self.content_layers:
             self.l_identity4 += self.calc_content_loss(self.Fpcc[layer],
                                                        self.cpF[layer])
-        self.visual_items['content_identity']=self.Icc
-        self.l_identity1=paddle.clip(self.l_identity1, 1e-5, 1e5)
-        self.l_identity2=paddle.clip(self.l_identity2, 1e-5, 1e5)
-        self.l_identity3=paddle.clip(self.l_identity3, 1e-5, 1e5)
-        self.l_identity4=paddle.clip(self.l_identity4, 1e-5, 1e5)
-        self.losses['l_identity1'] = self.l_identity1
-        self.losses['l_identity2'] = self.l_identity2
         self.losses['l_identity3'] = self.l_identity3
         self.losses['l_identity4'] = self.l_identity4
-
+        '''
+        self.losses['l_identity1'] = self.l_identity1
+        self.losses['l_identity2'] = self.l_identity2
+        self.visual_items['content_identity']=self.Icc
         """relative loss"""
         self.loss_style_remd = self.calc_style_emd_loss(
             self.ttF['r31'], self.sF['r31']) + self.calc_style_emd_loss(
@@ -582,29 +577,28 @@ class LapStyleDraThumbModel(BaseModel):
         self.loss_content_relt = self.calc_content_relt_loss(
             self.ttF['r31'], self.cF['r31']) + self.calc_content_relt_loss(
                 self.ttF['r41'], self.cF['r41'])
-        self.loss_style_remd=paddle.clip(self.loss_style_remd, 1e-5, 1e5)
-        self.content_relt=paddle.clip(self.loss_content_relt, 1e-5, 1e5)
         self.losses['loss_style_remd'] = self.loss_style_remd
         self.losses['loss_content_relt'] = self.loss_content_relt
-
+        '''
         self.p_loss_style_remd = self.calc_style_emd_loss(
             self.tpF['r31'], self.tt_cropF['r31']) + self.calc_style_emd_loss(self.tpF['r41'], self.tt_cropF['r41'])
-        self.p_loss_style_remd=paddle.clip(self.p_loss_style_remd, 1e-5, 1e5)
+        self.p_loss_style_orig_remd = self.calc_style_emd_loss(
+            self.tpF['r31'], self.spCrop['r31']) + self.calc_style_emd_loss(self.tpF['r41'], self.spCrop['r41'])
+        self.p_loss_style_orig_remd = paddle.clip(self.p_loss_style_orig_remd, 1e-5, 1e5)
         self.p_loss_content_relt = self.calc_content_relt_loss(
             self.tpF['r31'], self.cpF['r31']) + self.calc_content_relt_loss(
                 self.tpF['r41'], self.cpF['r41'])
-        self.p_loss_content_relt=paddle.clip(self.p_loss_content_relt, 1e-5, 1e5)
         self.losses['p_loss_style_remd'] = self.p_loss_style_remd
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
+        self.losses['p_loss_style_orig_remd'] = self.p_loss_style_orig_remd
+        '''
 
-        self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
-                    self.loss_ps * self.style_weight +\
-                    self.loss_patch * self.content_weight * 5 +\
+        self.loss = self.loss_s * self.style_weight +\
+                    self.loss_patch * self.content_weight * 1 +\
                     self.l_identity1 * 50 + self.l_identity2 * 1 +\
-                    self.l_identity3 * 50 + self.l_identity4 * 1 +\
-                    self.loss_content * self.content_weight+ self.loss_p_content * self.content_weight +\
+                    self.loss_content * self.content_weight+\
                     self.loss_style_remd * 10 +\
-                    self.loss_content_relt * 16 + self.p_loss_style_remd * 10 + self.p_loss_content_relt * 16
+                    self.loss_content_relt * 16
         self.loss.backward()
 
         return self.loss

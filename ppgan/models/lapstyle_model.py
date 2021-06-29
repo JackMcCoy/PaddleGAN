@@ -530,7 +530,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.loss_patch = 0
         #self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
         #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
-        for layer in [self.content_layers[3]]:
+        for layer in self.content_layers:
             self.loss_patch += self.calc_content_loss(self.tpF[layer],
                                                       self.tt_cropF[layer])
         self.losses['loss_patch'] =  self.loss_patch

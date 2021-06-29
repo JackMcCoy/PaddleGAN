@@ -46,8 +46,8 @@
       <file leaf-file-name="lapstyle_model.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.781893">
-              <caret line="599" column="50" selection-start-line="599" selection-start-column="50" selection-end-line="599" selection-end-column="50" />
+            <state vertical-scroll-proportion="-0.2345679">
+              <caret line="591" column="65" selection-start-line="591" selection-start-column="65" selection-end-line="591" selection-end-column="65" />
               <folding />
             </state>
           </provider>
@@ -875,8 +875,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.781893">
-          <caret line="599" column="50" selection-start-line="599" selection-start-column="50" selection-end-line="599" selection-end-column="50" />
+        <state vertical-scroll-proportion="-0.2345679">
+          <caret line="591" column="65" selection-start-line="591" selection-start-column="65" selection-end-line="591" selection-end-column="65" />
           <folding />
         </state>
       </provider>

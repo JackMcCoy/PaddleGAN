@@ -46,11 +46,11 @@
       <file leaf-file-name="lapstyle_model.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.60493827">
-              <caret line="574" column="116" selection-start-line="574" selection-start-column="116" selection-end-line="574" selection-end-column="116" />
+            <state vertical-scroll-proportion="0.5555556">
+              <caret line="505" column="13" selection-start-line="505" selection-start-column="13" selection-end-line="505" selection-end-column="13" />
               <folding>
-                <marker date="1624986180123" expanded="true" signature="35836:36015" placeholder="update D sel... " />
-                <marker date="1624986180123" expanded="true" signature="36016:36185" placeholder="update G sel... " />
+                <marker date="1624986211903" expanded="true" signature="35837:36016" placeholder="update D sel... " />
+                <marker date="1624986211903" expanded="true" signature="36017:36186" placeholder="update G sel... " />
               </folding>
             </state>
           </provider>
@@ -878,11 +878,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.60493827">
-          <caret line="574" column="116" selection-start-line="574" selection-start-column="116" selection-end-line="574" selection-end-column="116" />
+        <state vertical-scroll-proportion="0.5555556">
+          <caret line="505" column="13" selection-start-line="505" selection-start-column="13" selection-end-line="505" selection-end-column="13" />
           <folding>
-            <marker date="1624986180123" expanded="true" signature="35836:36015" placeholder="update D sel... " />
-            <marker date="1624986180123" expanded="true" signature="36016:36185" placeholder="update G sel... " />
+            <marker date="1624986211903" expanded="true" signature="35837:36016" placeholder="update D sel... " />
+            <marker date="1624986211903" expanded="true" signature="36017:36186" placeholder="update G sel... " />
           </folding>
         </state>
       </provider>

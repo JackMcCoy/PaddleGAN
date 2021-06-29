@@ -503,7 +503,7 @@ class LapStyleDraThumbModel(BaseModel):
             self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
             #style_patch = F.interpolate(self.visual_items['si'], scale_factor=2, mode='bilinear', align_corners=False)
             #style_patch_crop = paddle.slice(style_patch,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-            self.spCrop = self.nets['net_enc'](self.sp)
+            #self.spCrop = self.nets['net_enc'](self.sp)
         self.ttF = self.nets['net_enc'](self.stylized_thumb)
         self.tpF = self.nets['net_enc'](self.stylized_patch)
         """content loss"""

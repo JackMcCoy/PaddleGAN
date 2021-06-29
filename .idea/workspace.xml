@@ -47,10 +47,10 @@
         <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.79012346">
-              <caret line="534" column="44" selection-start-line="534" selection-start-column="44" selection-end-line="534" selection-end-column="44" />
+              <caret line="534" column="43" selection-start-line="534" selection-start-column="43" selection-end-line="534" selection-end-column="43" />
               <folding>
-                <marker date="1624982211398" expanded="true" signature="36349:36528" placeholder="update D sel... " />
-                <marker date="1624982211398" expanded="true" signature="36529:36698" placeholder="update G sel... " />
+                <marker date="1624983506310" expanded="true" signature="36348:36527" placeholder="update D sel... " />
+                <marker date="1624983506310" expanded="true" signature="36528:36697" placeholder="update G sel... " />
               </folding>
             </state>
           </provider>
@@ -879,10 +879,10 @@
     <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.79012346">
-          <caret line="534" column="44" selection-start-line="534" selection-start-column="44" selection-end-line="534" selection-end-column="44" />
+          <caret line="534" column="43" selection-start-line="534" selection-start-column="43" selection-end-line="534" selection-end-column="43" />
           <folding>
-            <marker date="1624982211398" expanded="true" signature="36349:36528" placeholder="update D sel... " />
-            <marker date="1624982211398" expanded="true" signature="36529:36698" placeholder="update G sel... " />
+            <marker date="1624983506310" expanded="true" signature="36348:36527" placeholder="update D sel... " />
+            <marker date="1624983506310" expanded="true" signature="36528:36697" placeholder="update G sel... " />
           </folding>
         </state>
       </provider>

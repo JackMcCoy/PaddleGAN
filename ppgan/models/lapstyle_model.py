@@ -573,9 +573,6 @@ class LapStyleDraThumbModel(BaseModel):
 
         self.p_loss_style_remd = self.calc_style_emd_loss(
             self.tpF['r31'], self.tt_cropF['r31']) + self.calc_style_emd_loss(self.tpF['r41'], self.tt_cropF['r41'])
-        self.p_loss_style_orig_remd = self.calc_style_emd_loss(
-            self.tpF['r31'], self.spCrop['r31']) + self.calc_style_emd_loss(self.tpF['r41'], self.spCrop['r41'])
-        self.p_loss_style_orig_remd = paddle.clip(self.p_loss_style_orig_remd, 1e-5, 1e5)
         self.p_loss_content_relt = self.calc_content_relt_loss(
             self.tpF['r31'], self.cpF['r31']) + self.calc_content_relt_loss(
                 self.tpF['r41'], self.cpF['r41'])

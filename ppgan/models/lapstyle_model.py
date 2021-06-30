@@ -1027,7 +1027,7 @@ class LapStyleRevSecondThumb(BaseModel):
         pred_real = self.nets['netD'](self.pyr_si[3])
         loss_D_real = self.gan_criterion(pred_real, True)
         pred_p_real = self.nets['netD'](self.sp)
-        self.loss_Dp_real = self.gan_criterion(pred_p_real, True)
+        loss_Dp_real = self.gan_criterion(pred_p_real, True)
         self.loss_D = (loss_D_fake + loss_Dp_fake + loss_Dp_real + loss_D_real) * 0.5
 
         self.loss_D.backward()

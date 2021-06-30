@@ -26,8 +26,18 @@
       <file leaf-file-name="lapstyle_model.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.7962963">
-              <caret line="792" column="77" selection-start-line="792" selection-start-column="77" selection-end-line="792" selection-end-column="77" />
+            <state vertical-scroll-proportion="0.39506173">
+              <caret line="768" column="65" selection-start-line="768" selection-start-column="65" selection-end-line="768" selection-end-column="65" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="lapstyle_rev_first.yaml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_first.yaml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="1" column="89" selection-start-line="1" selection-start-column="68" selection-end-line="1" selection-end-column="89" />
               <folding />
             </state>
           </provider>
@@ -777,14 +787,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_first.yaml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.045889102">
-          <caret line="1" column="89" selection-start-line="1" selection-start-column="68" selection-end-line="1" selection-end-column="89" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ppgan/models/discriminators/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="6.972973">
@@ -863,10 +865,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/configs/lapstyle_rev_first.yaml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="1" column="89" selection-start-line="1" selection-start-column="68" selection-end-line="1" selection-end-column="89" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7962963">
-          <caret line="792" column="77" selection-start-line="792" selection-start-column="77" selection-end-line="792" selection-end-column="77" />
+        <state vertical-scroll-proportion="0.39506173">
+          <caret line="768" column="65" selection-start-line="768" selection-start-column="65" selection-end-line="768" selection-end-column="65" />
           <folding />
         </state>
       </provider>

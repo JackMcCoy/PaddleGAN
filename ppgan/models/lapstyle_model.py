@@ -736,25 +736,6 @@ class LapStyleRevFirstThumb(BaseModel):
             self.loss_ps += self.calc_style_loss(self.tpF[layer], self.tt_cropF[layer])
         self.losses['loss_ps'] = self.loss_ps
 
-        """IDENTITY LOSSES"""
-        self.Icc,_ = self.nets['net_dec'](self.cF, self.cF, self.cpF,'thumb')
-        self.l_identity1 = self.calc_content_loss(self.Icc, self.ci)
-        self.Fcc = self.nets['net_enc'](self.Icc)
-        self.l_identity2 = 0
-        for layer in self.content_layers:
-            self.l_identity2 += self.calc_content_loss(self.Fcc[layer],
-                                                       self.cF[layer])
-        self.Ipcc, _ = self.nets['net_dec'](self.cpF, self.cpF, self.cpF, 'thumb')
-        self.l_identity3 = self.calc_content_loss(self.Ipcc, self.cp)
-        self.Fpcc = self.nets['net_enc'](self.Ipcc)
-        self.l_identity4 = 0
-        for layer in self.content_layers:
-            self.l_identity4 += self.calc_content_loss(self.Fpcc[layer],
-                                                       self.cpF[layer])
-        self.losses['l_identity1'] = self.l_identity1
-        self.losses['l_identity2'] = self.l_identity2
-        self.losses['l_identity3'] = self.l_identity3
-        self.losses['l_identity4'] = self.l_identity4
 
         """relative loss"""
         self.loss_style_remd = self.calc_style_emd_loss(
@@ -786,8 +767,6 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss = self.loss_G_GAN + self.loss_Gp_GAN + self.loss_s * self.style_weight +\
                     self.loss_ps * self.style_weight +\
                     self.loss_patch * self.content_weight * 15 +\
-                    self.l_identity1 * 50 + self.l_identity2 * 1 +\
-                    self.l_identity3 * 50 + self.l_identity4 * 1 +\
                     self.loss_content * self.content_weight+\
                     self.loss_style_remd * 10 +\
                     self.loss_content_relt * 16 + self.p_loss_style_remd * 25 + self.p_loss_content_relt * 32

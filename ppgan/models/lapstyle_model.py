@@ -1046,12 +1046,12 @@ class LapStyleRevSecondThumb(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-
+        '''
         self.set_requires_grad(self.nets['netD'], True)
         optimizers['optimD'].clear_grad()
         self.backward_D()
         optimizers['optimD'].step()
-
+        '''
         # update G
         self.set_requires_grad(self.nets['netD'], False)
         optimizers['optimG'].clear_grad()

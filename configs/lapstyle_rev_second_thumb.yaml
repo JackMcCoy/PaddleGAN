@@ -40,7 +40,7 @@ dataset:
     crop_size: 384
     thumb_size: 384
     num_workers: 4
-    batch_size: 3
+    batch_size: 2
   test:
     name: LapStyleThumbset
     content_root: /content/gdrive/My Drive/img_style/content/

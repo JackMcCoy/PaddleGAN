@@ -978,7 +978,7 @@ class LapStyleRevSecondThumb(BaseModel):
         loss.backward()
         return loss
 
-    def backward_G_p(self)
+    def backward_G_p(self):
         spCrop = self.nets['net_enc'](self.sp)
         tpF = self.nets['net_enc'](self.p_stylized)
         cpF = self.nets['net_enc'](self.cp)

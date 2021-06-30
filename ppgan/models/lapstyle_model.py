@@ -935,8 +935,8 @@ class LapStyleRevSecondThumb(BaseModel):
         stylized_rev_second = fold_laplace_pyramid(
             [stylized_rev_lap_second, stylized_rev_lap, stylized_small])
 
-        self.stylized = stylized_rev_second
-        self.visual_items['p_stylized'] = self.stylized
+        self.p_stylized = stylized_rev_second
+        self.visual_items['p_stylized'] = self.p_stylized
 
     def backward_G(self,optimizer):
         self.cF = self.nets['net_enc'](self.ci)

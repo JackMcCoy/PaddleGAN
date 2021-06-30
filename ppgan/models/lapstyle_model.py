@@ -828,5 +828,6 @@ class LapStyleRevFirstThumb(BaseModel):
         optimizers['optimG'].clear_grad()
         self.backward_G()
         optimizers['optimG'].step()
+        optimizers['optimG'].clear_grad()
         self.backward_G_p()
         optimizers['optimG'].step()

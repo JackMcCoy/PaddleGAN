@@ -709,7 +709,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.ttF = self.nets['net_enc'](self.stylized)
         self.tpF = self.nets['net_enc'](self.p_stylized)
 
-    def backward_G(self):
+    def backward_G(self, optimizer):
 
 
         with paddle.no_grad():
@@ -752,7 +752,7 @@ class LapStyleRevFirstThumb(BaseModel):
                     self.loss_style_remd * 10 +\
                     self.loss_content_relt * 16
         self.loss.backward()
-        self.optimizers['optimG'].step()
+        optimizer['optimG'].step()
 
         """patch loss"""
         self.loss_patch = 0
@@ -826,5 +826,5 @@ class LapStyleRevFirstThumb(BaseModel):
         # update G
         self.set_requires_grad(self.nets['netD'], False)
         optimizers['optimG'].clear_grad()
-        self.backward_G()
+        self.backward_G(optimizers['optimG'])
         optimizers['optimG'].step()

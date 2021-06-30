@@ -787,7 +787,11 @@ class LapStyleRevFirstThumb(BaseModel):
 
         """gan loss"""
 
-        print(dir(self.loss_ps))
+        print(self.loss_ps.dtype)
+        print(self.loss_content_p.dtype)
+        print(self.loss_patch.dtype)
+        print(self.p_loss_style_remd.dtype)
+        print(self.p_loss_content_relt.dtype)
 
         self.loss = self.loss_ps * self.style_weight *1.5 +\
                     self.loss_content_p * self.content_weight +\

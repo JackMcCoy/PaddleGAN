@@ -963,7 +963,7 @@ class LapStyleRevSecondThumb(BaseModel):
         loss_s = 0
         for layer in self.style_layers:
             loss_s += self.calc_style_loss(ttF[layer], sF[layer])
-        self.losses['loss_s'] = self.loss_s
+        self.losses['loss_s'] = loss_s
 
         """relative loss"""
         loss_style_remd = self.calc_style_emd_loss(
@@ -1013,7 +1013,7 @@ class LapStyleRevSecondThumb(BaseModel):
         patch_loss = loss_ps * self.style_weight * 2 + \
                           loss_content_p * self.content_weight + \
                           loss_patch * self.content_weight * 40 + \
-                          p_loss_style_remd * 12 + self.p_loss_content_relt * 16
+                          p_loss_style_remd * 12 + p_loss_content_relt * 16
         patch_loss.backward()
         return patch_loss
 

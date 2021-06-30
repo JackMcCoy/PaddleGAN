@@ -1019,7 +1019,7 @@ class LapStyleRevSecondThumb(BaseModel):
         patch_loss = loss_ps * self.style_weight * 2 + \
                           loss_content_p * self.content_weight + \
                           loss_patch * self.content_weight * 40 + \
-                          p_loss_style_remd * 12
+                          p_loss_content_relt * 16
         patch_loss.backward()
         return patch_loss
 

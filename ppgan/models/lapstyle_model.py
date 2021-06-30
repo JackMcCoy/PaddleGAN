@@ -926,7 +926,7 @@ class LapStyleRevSecondThumb(BaseModel):
 
         revnet_input = paddle.concat(x=[self.pyr_cp[1], stylized_up], axis=1)
         stylized_rev_lap, _ = self.nets['net_rev'](revnet_input, self.stylized_thumb_feat)
-        stylized_rev = fold_laplace_pyramid([stylized_rev_lap, p_stylized_small])
+        stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
         self.visual_items['p_stylized_rev_first'] = stylized_rev
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
 

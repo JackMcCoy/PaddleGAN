@@ -887,8 +887,10 @@ class LapStyleRevSecondThumb(BaseModel):
 
         self.pyr_ci = make_laplace_pyramid(self.ci, 2)
         self.pyr_si = make_laplace_pyramid(self.si, 2)
+        self.pyr_cp = make_laplace_pyramid(self.cp, 2)
         self.pyr_ci.append(self.ci)
         self.pyr_si.append(self.si)
+        self.pyr_cp.append(self.cp)
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""

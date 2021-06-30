@@ -783,7 +783,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_gan_G'] = self.loss_G_GAN
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
-        self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
+        self.loss = self.loss_G_GAN + self.loss_Gp_GAN + self.loss_s * self.style_weight +\
                     self.loss_ps * self.style_weight +\
                     self.loss_patch * self.content_weight * 15 +\
                     self.l_identity1 * 50 + self.l_identity2 * 1 +\

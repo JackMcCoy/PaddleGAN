@@ -952,7 +952,7 @@ class LapStyleRevSecondThumb(BaseModel):
         ttF = self.nets['net_enc'](self.stylized)
         tpF = self.nets['net_enc'](self.p_stylized)
 
-        self.loss_content = 0
+        loss_content = 0
         for layer in self.content_layers:
             loss_content += self.calc_content_loss(ttF[layer],
                                                         cF[layer],

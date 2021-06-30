@@ -977,7 +977,7 @@ class LapStyleRevSecondThumb(BaseModel):
 
         pred_fake = self.nets['netD'](self.stylized)
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)
-        self.losses['loss_gan_G'] = self.
+        self.losses['loss_gan_G'] = self.loss_G_GAN
 
         self.loss_patch = 0
         # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\

@@ -644,6 +644,8 @@ class LapStyleRevFirstThumb(BaseModel):
         init_weights(self.nets['net_rev'])
         self.nets['netD'] = build_discriminator(revnet_discriminator)
         init_weights(self.nets['netD'])
+        self.nets['netD_patch'] = build_discriminator(revnet_discriminator)
+        init_weights(self.nets['netD_patch'])
 
         # define loss functions
         self.calc_style_emd_loss = build_criterion(calc_style_emd_loss)
@@ -782,7 +784,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
         """gan loss"""
-        pred_fake_p = self.nets['netD'](self.p_stylized)
+        pred_fake_p = self.nets['netD_patch'](self.p_stylized)
         self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
@@ -798,19 +800,29 @@ class LapStyleRevFirstThumb(BaseModel):
         """Calculate GAN loss for the discriminator"""
         pred_fake = self.nets['netD'](self.stylized.detach())
         self.loss_D_fake = self.gan_criterion(pred_fake, False)
-        pred_p_fake = self.nets['netD'](self.p_stylized.detach())
-        self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
         pred_real = self.nets['netD'](self.pyr_si[2])
         self.loss_D_real = self.gan_criterion(pred_real, True)
-        pred_p_real = self.nets['netD'](self.sp)
-        self.loss_Dp_real = self.gan_criterion(pred_p_real, True)
-        self.loss_D = (self.loss_D_fake + self.loss_Dp_fake + self.loss_Dp_real + self.loss_D_real) * 0.5
+        self.loss_D = (self.loss_D_fake + self.loss_D_real) * 0.5
 
         self.loss_D.backward()
 
         self.losses['D_fake_loss'] = self.loss_D_fake
         self.losses['D_real_loss'] = self.loss_D_real
+
+    def backward_Dpatch(self):
+        """Calculate GAN loss for the patch discriminator"""
+        pred_p_fake = self.nets['netD_patch'](self.p_stylized.detach())
+        self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
+
+        pred_p_real = self.nets['netD_patch'](self.sp)
+        self.loss_Dp_real = self.gan_criterion(pred_p_real, True)
+        self.loss_D_patch = (self.loss_Dp_fake + self.loss_Dp_real) * 0.5
+
+        self.loss_D_patch.backward()
+
+        self.losses['Dp_fake_loss'] = self.loss_Dp_fake
+        self.losses['Dp_real_loss'] = self.loss_Dp_real
 
     def train_iter(self, optimizers=None):
         # compute fake images: G(A)
@@ -821,8 +833,14 @@ class LapStyleRevFirstThumb(BaseModel):
         self.backward_D()
         optimizers['optimD'].step()
 
+        self.set_requires_grad(self.nets['netD_patch'], True)
+        optimizers['optimD_patch'].clear_grad()
+        self.backward_D()
+        optimizers['optimD_patch'].step()
+
         # update G
         self.set_requires_grad(self.nets['netD'], False)
+        self.set_requires_grad(self.nets['netD_patch'], False)
         optimizers['optimG'].clear_grad()
         self.backward_G(optimizers['optimG'])
         optimizers['optimG'].step()

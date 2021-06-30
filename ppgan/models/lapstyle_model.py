@@ -895,6 +895,8 @@ class LapStyleRevSecondThumb(BaseModel):
 
         cF = self.nets['net_enc'](self.pyr_ci[2])
         sF = self.nets['net_enc'](self.pyr_si[2])
+        cpF = self.nets['net_enc'](self.pyr_cp[2])
+        self.spCrop = self.nets['net_enc'](self.sp)
 
         stylized_small, _ = self.nets['net_dec'](cF, sF, cpF, 'thumb')
         self.visual_items['stylized_small'] = stylized_small

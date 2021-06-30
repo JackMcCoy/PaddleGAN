@@ -752,7 +752,7 @@ class LapStyleRevFirstThumb(BaseModel):
                     self.loss_style_remd * 10 +\
                     self.loss_content_relt * 16
         self.loss.backward()
-        optimizer['optimG'].step()
+        optimizer.step()
 
         """patch loss"""
         self.loss_patch = 0

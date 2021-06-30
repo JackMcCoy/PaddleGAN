@@ -9,9 +9,8 @@ model:
   revnet_generator:
     name: RevisionNetThumb
   revnet_discriminator:
-    name: LapStyleMultiresDiscriminator
-    num_channels: 64
-    num_halvings: 3
+    name: LapStyleDiscriminator
+    num_channels: 32
   draftnet_encode:
     name: Encoder
   draftnet_decode:

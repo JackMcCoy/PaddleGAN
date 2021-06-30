@@ -744,12 +744,8 @@ class LapStyleRevFirstThumb(BaseModel):
         pred_fake = self.nets['netD'](self.stylized)
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)
         self.losses['loss_gan_G'] = self.loss_G_GAN
-        with paddle.no_grad():
-            pred_fake_p = self.nets['netD'](self.p_stylized)
-            self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
-            self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
-        self.loss = self.loss_G_GAN + self.loss_Gp_GAN+self.loss_s * self.style_weight +\
+        self.loss = self.loss_G_GAN + self.loss_s * self.style_weight +\
                     self.loss_content * self.content_weight+\
                     self.loss_style_remd * 10 +\
                     self.loss_content_relt * 16
@@ -787,8 +783,11 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
         """gan loss"""
+        pred_fake_p = self.nets['netD'](self.p_stylized)
+        self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
+        self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
-        self.patch_loss = self.loss_ps * self.style_weight *2 +\
+        self.patch_loss = self.loss_Gp_GAN+ self.loss_ps * self.style_weight *2 +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight * 40 +\
                     self.p_loss_style_remd * 12 + self.p_loss_content_relt * 16

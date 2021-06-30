@@ -880,6 +880,7 @@ class LapStyleRevSecondThumb(BaseModel):
         self.visual_items['ci'] = self.ci
         self.si = paddle.to_tensor(input['si'])
         self.visual_items['si'] = self.si
+        self.sp = paddle.to_tensor(input['sp'])
         self.image_paths = input['ci_path']
         self.cp = paddle.to_tensor(input['cp'])
         self.visual_items['cp'] = self.cp

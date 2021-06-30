@@ -748,6 +748,17 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss.backward()
         optimizer.step()
 
+        self.cF = self.nets['net_enc'](self.ci)
+        self.sF = self.nets['net_enc'](self.si)
+        self.cpF = self.nets['net_enc'](self.cp)
+
+        with paddle.no_grad():
+            g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear', align_corners=False)
+            g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
+            self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
+
+        self.ttF = self.nets['net_enc'](self.stylized)
+        self.tpF = self.nets['net_enc'](self.p_stylized)
         """patch loss"""
         self.loss_patch = 0
         # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\

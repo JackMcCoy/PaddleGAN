@@ -748,15 +748,6 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
-        print(self.loss_Gp_GAN.dtype)
-
-        self.loss = self.loss_G_GAN +self.losses['loss_gan_Gp']+self.loss_s * self.style_weight +\
-                    self.loss_content * self.content_weight+\
-                    self.loss_style_remd * 10 +\
-                    self.loss_content_relt * 16
-        self.loss.backward(retain_graph=True)
-        optimizer.step()
-
         """patch loss"""
         self.loss_patch = 0
         # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
@@ -789,7 +780,10 @@ class LapStyleRevFirstThumb(BaseModel):
 
         """gan loss"""
 
-        self.loss = self.loss_ps * self.style_weight *1.5 +\
+        self.loss = self.loss_G_GAN +self.losses['loss_gan_Gp']+self.loss_s * self.style_weight +\
+                    self.loss_content * self.content_weight+\
+                    self.loss_style_remd * 10 +\
+                    self.loss_content_relt * 16 + self.loss_ps * self.style_weight *1.5 +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight * 40 +\
                     self.p_loss_style_remd * 25 + self.p_loss_content_relt * 32

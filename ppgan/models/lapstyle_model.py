@@ -940,9 +940,7 @@ class LapStyleRevSecondThumb(BaseModel):
     def backward_G(self):
         cF = self.nets['net_enc'](self.ci)
         sF = self.nets['net_enc'](self.si)
-
         ttF = self.nets['net_enc'](self.stylized)
-
 
         loss_content = 0
         for layer in self.content_layers:
@@ -1018,8 +1016,7 @@ class LapStyleRevSecondThumb(BaseModel):
         self.losses['p_loss_style_remd'] = p_loss_style_remd
         self.losses['p_loss_content_relt'] = p_loss_content_relt
 
-        patch_loss = loss_ps * self.style_weight * 2 + \
-                          loss_content_p * self.content_weight + \
+        patch_loss = loss_content_p * self.content_weight + \
                           loss_patch * self.content_weight * 40 + \
                           p_loss_style_remd * 12 + p_loss_content_relt * 16
         patch_loss.backward()

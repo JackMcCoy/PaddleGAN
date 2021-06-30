@@ -709,7 +709,48 @@ class LapStyleRevFirstThumb(BaseModel):
         self.ttF = self.nets['net_enc'](self.stylized)
         self.tpF = self.nets['net_enc'](self.p_stylized)
 
-    def backward_G(self, optimizer):
+    def backward_G_p(self):
+        """patch loss"""
+        self.loss_patch = 0
+        # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
+        #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
+        for layer in [self.content_layers[3]]:
+            self.loss_patch += self.calc_content_loss(self.tpF[layer],
+                                                      self.tt_cropF[layer])
+        self.losses['loss_patch'] = self.loss_patch
+
+        self.loss_content_p = 0
+        for layer in self.content_layers:
+            self.loss_content_p += self.calc_content_loss(self.tpF[layer],
+                                                      self.cpF[layer],
+                                                      norm=True)
+        self.losses['loss_content_p'] = self.loss_content_p
+
+        self.loss_ps = 0
+        for layer in self.style_layers:
+            self.loss_ps += self.calc_style_loss(self.tpF[layer], self.spCrop[layer])
+        self.losses['loss_ps'] = self.loss_ps
+
+        self.p_loss_style_remd = self.calc_style_emd_loss(
+            self.tpF['r31'], self.tt_cropF['r31']) + self.calc_style_emd_loss(
+            self.tpF['r41'], self.tt_cropF['r41'])
+        self.p_loss_content_relt = self.calc_content_relt_loss(
+            self.tpF['r31'], self.cpF['r31']) + self.calc_content_relt_loss(
+            self.tpF['r41'], self.cpF['r41'])
+        self.losses['p_loss_style_remd'] = self.p_loss_style_remd
+        self.losses['p_loss_content_relt'] = self.p_loss_content_relt
+
+        """gan loss"""
+
+        self.loss = self.loss_ps * self.style_weight *1.5 +\
+                    self.loss_content_p * self.content_weight +\
+                    self.loss_patch * self.content_weight * 40 +\
+                    self.p_loss_style_remd * 25 + self.p_loss_content_relt * 32
+        self.loss.backward()
+
+        return self.loss
+
+    def backward_G(self):
 
 
         with paddle.no_grad():
@@ -752,47 +793,6 @@ class LapStyleRevFirstThumb(BaseModel):
                     self.loss_style_remd * 10 +\
                     self.loss_content_relt * 16
         self.loss.backward()
-        optimizer.step()
-
-        """patch loss"""
-        self.loss_patch = 0
-        # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
-        #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
-        for layer in [self.content_layers[3]]:
-            self.loss_patch += self.calc_content_loss(self.tpF[layer],
-                                                      self.tt_cropF[layer])
-        self.losses['loss_patch'] = self.loss_patch
-
-        self.loss_content_p = 0
-        for layer in self.content_layers:
-            self.loss_content_p += self.calc_content_loss(self.tpF[layer],
-                                                      self.cpF[layer],
-                                                      norm=True)
-        self.losses['loss_content_p'] = self.loss_content_p
-
-        self.loss_ps = 0
-        for layer in self.style_layers:
-            self.loss_ps += self.calc_style_loss(self.tpF[layer], self.spCrop[layer])
-        self.losses['loss_ps'] = self.loss_ps
-
-        self.p_loss_style_remd = self.calc_style_emd_loss(
-            self.tpF['r31'], self.tt_cropF['r31']) + self.calc_style_emd_loss(
-            self.tpF['r41'], self.tt_cropF['r41'])
-        self.p_loss_content_relt = self.calc_content_relt_loss(
-            self.tpF['r31'], self.cpF['r31']) + self.calc_content_relt_loss(
-            self.tpF['r41'], self.cpF['r41'])
-        self.losses['p_loss_style_remd'] = self.p_loss_style_remd
-        self.losses['p_loss_content_relt'] = self.p_loss_content_relt
-
-        """gan loss"""
-
-
-
-        self.loss = self.loss_ps * self.style_weight *1.5 +\
-                    self.loss_content_p * self.content_weight +\
-                    self.loss_patch * self.content_weight * 40 +\
-                    self.p_loss_style_remd * 25 + self.p_loss_content_relt * 32
-        self.loss.backward()
 
         return self.loss
 
@@ -826,5 +826,7 @@ class LapStyleRevFirstThumb(BaseModel):
         # update G
         self.set_requires_grad(self.nets['netD'], False)
         optimizers['optimG'].clear_grad()
-        self.backward_G(optimizers['optimG'])
+        self.backward_G()
+        optimizers['optimG'].step()
+        self.backward_G_p()
         optimizers['optimG'].step()

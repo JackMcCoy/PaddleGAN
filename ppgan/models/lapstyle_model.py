@@ -937,21 +937,12 @@ class LapStyleRevSecondThumb(BaseModel):
         self.p_stylized = stylized_rev_second
         self.visual_items['p_stylized'] = self.p_stylized
 
-    def backward_G(self,optimizer):
+    def backward_G(self):
         cF = self.nets['net_enc'](self.ci)
         sF = self.nets['net_enc'](self.si)
-        cpF = self.nets['net_enc'](self.cp)
-
-        with paddle.no_grad():
-            g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear',
-                                         align_corners=False)
-            g_t_thumb_crop = paddle.slice(g_t_thumb_up, axes=[2, 3], starts=[self.position[0], self.position[2]],
-                                          ends=[self.position[1], self.position[3]])
-            tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
-        spCrop = self.nets['net_enc'](self.sp)
 
         ttF = self.nets['net_enc'](self.stylized)
-        tpF = self.nets['net_enc'](self.p_stylized)
+
 
         loss_content = 0
         for layer in self.content_layers:
@@ -985,8 +976,18 @@ class LapStyleRevSecondThumb(BaseModel):
                     loss_style_remd * 10 + \
                     loss_content_relt * 16
         loss.backward()
-        optimizer.step()
+        return loss
 
+    def backward_G_p(self)
+        spCrop = self.nets['net_enc'](self.sp)
+        tpF = self.nets['net_enc'](self.p_stylized)
+        cpF = self.nets['net_enc'](self.cp)
+        with paddle.no_grad():
+            g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear',
+                                         align_corners=False)
+            g_t_thumb_crop = paddle.slice(g_t_thumb_up, axes=[2, 3], starts=[self.position[0], self.position[2]],
+                                          ends=[self.position[1], self.position[3]])
+            tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
         """patch loss"""
         loss_patch = 0
         # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
@@ -1046,14 +1047,18 @@ class LapStyleRevSecondThumb(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        '''
+
         self.set_requires_grad(self.nets['netD'], True)
         optimizers['optimD'].clear_grad()
         self.backward_D()
         optimizers['optimD'].step()
-        '''
+
         # update G
         self.set_requires_grad(self.nets['netD'], False)
         optimizers['optimG'].clear_grad()
-        self.backward_G(optimizers['optimG'])
+        self.backward_G()
+        optimizers['optimG'].step()
+        self.set_requires_grad(self.nets['netD'], False)
+        optimizers['optimG'].clear_grad()
+        self.backward_G_p()
         optimizers['optimG'].step()

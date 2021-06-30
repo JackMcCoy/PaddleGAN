@@ -741,24 +741,20 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_style_remd'] = self.loss_style_remd
         self.losses['loss_content_relt'] = self.loss_content_relt
 
-        self.loss = self.loss_s * self.style_weight +\
+        pred_fake = self.nets['netD'](self.stylized)
+        self.loss_G_GAN = self.gan_criterion(pred_fake, True)
+        self.losses['loss_gan_G'] = self.loss_G_GAN
+        pred_fake_p = self.nets['netD'](self.p_stylized)
+        self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
+        self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
+
+        self.loss = self.loss_G_GAN +self.loss_Gp_GAN+self.loss_s * self.style_weight +\
                     self.loss_content * self.content_weight+\
                     self.loss_style_remd * 10 +\
                     self.loss_content_relt * 16
-        self.loss.backward()
+        self.loss.backward(retain_graph=True)
         optimizer.step()
 
-        self.cF = self.nets['net_enc'](self.ci)
-        self.sF = self.nets['net_enc'](self.si)
-        self.cpF = self.nets['net_enc'](self.cp)
-
-        with paddle.no_grad():
-            g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear', align_corners=False)
-            g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-            self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
-
-        self.ttF = self.nets['net_enc'](self.stylized)
-        self.tpF = self.nets['net_enc'](self.p_stylized)
         """patch loss"""
         self.loss_patch = 0
         # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
@@ -789,6 +785,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['p_loss_style_remd'] = self.p_loss_style_remd
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
+        """gan loss"""
 
         self.loss = self.loss_ps * self.style_weight *1.5 +\
                     self.loss_content_p * self.content_weight +\

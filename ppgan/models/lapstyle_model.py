@@ -703,11 +703,12 @@ class LapStyleRevFirstThumb(BaseModel):
         self.p_stylized = p_stylized_rev
         self.visual_items['stylized'] = self.stylized
         self.visual_items['p_stylized'] = self.p_stylized
-
-    def backward_G(self):
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
         self.cpF = self.nets['net_enc'](self.cp)
+
+    def backward_G(self):
+
 
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear', align_corners=False)

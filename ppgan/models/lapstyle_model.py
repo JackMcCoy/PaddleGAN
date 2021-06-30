@@ -744,9 +744,6 @@ class LapStyleRevFirstThumb(BaseModel):
         pred_fake = self.nets['netD'](self.stylized)
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)
         self.losses['loss_gan_G'] = self.loss_G_GAN
-        pred_fake_p = self.nets['netD'](self.p_stylized)
-        self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
-        self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
         self.loss = self.loss_G_GAN +self.loss_Gp_GAN+self.loss_s * self.style_weight +\
                     self.loss_content * self.content_weight+\

@@ -992,7 +992,7 @@ class LapStyleRevSecondThumb(BaseModel):
         # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
         #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
         for layer in [self.content_layers[3]]:
-            self.loss_patch += self.calc_content_loss(tpF[layer],
+            loss_patch += self.calc_content_loss(tpF[layer],
                                                       tt_cropF[layer])
         self.losses['loss_patch'] = loss_patch
 

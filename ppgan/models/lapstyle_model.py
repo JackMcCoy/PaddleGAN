@@ -938,105 +938,102 @@ class LapStyleRevSecondThumb(BaseModel):
         self.visual_items['p_stylized'] = self.p_stylized
 
     def backward_G(self,optimizer):
-        self.cF = self.nets['net_enc'](self.ci)
-        self.sF = self.nets['net_enc'](self.si)
-        self.cpF = self.nets['net_enc'](self.cp)
+        cF = self.nets['net_enc'](self.ci)
+        sF = self.nets['net_enc'](self.si)
+        cpF = self.nets['net_enc'](self.cp)
 
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear',
                                          align_corners=False)
             g_t_thumb_crop = paddle.slice(g_t_thumb_up, axes=[2, 3], starts=[self.position[0], self.position[2]],
                                           ends=[self.position[1], self.position[3]])
-            self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
+            tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
 
-        self.ttF = self.nets['net_enc'](self.stylized)
-        self.tpF = self.nets['net_enc'](self.p_stylized)
+        ttF = self.nets['net_enc'](self.stylized)
+        tpF = self.nets['net_enc'](self.p_stylized)
 
         self.loss_content = 0
         for layer in self.content_layers:
-            self.loss_content += self.calc_content_loss(self.ttF[layer],
-                                                        self.cF[layer],
+            loss_content += self.calc_content_loss(ttF[layer],
+                                                        cF[layer],
                                                         norm=True)
-        self.losses['loss_content'] = self.loss_content
+        self.losses['loss_content'] = loss_content
 
         """style loss"""
-        self.loss_s = 0
+        loss_s = 0
         for layer in self.style_layers:
-            self.loss_s += self.calc_style_loss(self.ttF[layer], self.sF[layer])
+            loss_s += self.calc_style_loss(ttF[layer], sF[layer])
         self.losses['loss_s'] = self.loss_s
 
         """relative loss"""
-        self.loss_style_remd = self.calc_style_emd_loss(
-            self.ttF['r31'], self.sF['r31']) + self.calc_style_emd_loss(
-            self.ttF['r41'], self.sF['r41'])
-        self.loss_content_relt = self.calc_content_relt_loss(
-            self.ttF['r31'], self.cF['r31']) + self.calc_content_relt_loss(
-            self.ttF['r41'], self.cF['r41'])
-        self.losses['loss_style_remd'] = self.loss_style_remd
-        self.losses['loss_content_relt'] = self.loss_content_relt
+        loss_style_remd = self.calc_style_emd_loss(
+            ttF['r31'], sF['r31']) + self.calc_style_emd_loss(
+            ttF['r41'], sF['r41'])
+        loss_content_relt = self.calc_content_relt_loss(
+            ttF['r31'], cF['r31']) + self.calc_content_relt_loss(
+            ttF['r41'], cF['r41'])
+        self.losses['loss_style_remd'] = loss_style_remd
+        self.losses['loss_content_relt'] = loss_content_relt
 
-        self.loss = self.loss_s * self.style_weight + \
-                    self.loss_content * self.content_weight + \
-                    self.loss_style_remd * 10 + \
-                    self.loss_content_relt * 16
-        self.loss.backward()
+        pred_fake = self.nets['netD'](self.stylized)
+        loss_G_GAN = self.gan_criterion(pred_fake, True)
+        self.losses['loss_gan_G'] = loss_G_GAN
+
+        loss = loss_G_GAN + loss_s * self.style_weight + \
+                    loss_content * self.content_weight + \
+                    loss_style_remd * 10 + \
+                    loss_content_relt * 16
+        loss.backward()
         optimizer.step()
 
         """patch loss"""
 
 
-        self.loss_content_p = 0
+        loss_content_p = 0
         for layer in self.content_layers:
-            self.loss_content_p += self.calc_content_loss(self.tpF[layer],
-                                                          self.cpF[layer],
+            loss_content_p += self.calc_content_loss(tpF[layer],
+                                                          cpF[layer],
                                                           norm=True)
-        self.losses['loss_content_p'] = self.loss_content_p
+        self.losses['loss_content_p'] = loss_content_p
 
-        self.loss_ps = 0
+        loss_ps = 0
         for layer in self.style_layers:
-            self.loss_ps += self.calc_style_loss(self.tpF[layer], self.spCrop[layer])
-        self.losses['loss_ps'] = self.loss_ps
+            loss_ps += self.calc_style_loss(tpF[layer], spCrop[layer])
+        self.losses['loss_ps'] = loss_ps
 
-        self.p_loss_style_remd = self.calc_style_emd_loss(
-            self.tpF['r31'], self.tt_cropF['r31']) + self.calc_style_emd_loss(
-            self.tpF['r41'], self.tt_cropF['r41'])
-        self.p_loss_content_relt = self.calc_content_relt_loss(
-            self.tpF['r31'], self.cpF['r31']) + self.calc_content_relt_loss(
-            self.tpF['r41'], self.cpF['r41'])
-        self.losses['p_loss_style_remd'] = self.p_loss_style_remd
-        self.losses['p_loss_content_relt'] = self.p_loss_content_relt
-        self.loss_patch = 0
-        # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
-        #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
-        for layer in [self.content_layers[3]]:
-            self.loss_patch += self.calc_content_loss(self.tpF[layer],
-                                                      self.tt_cropF[layer])
-        self.losses['loss_patch'] = self.loss_patch
+        p_loss_style_remd = self.calc_style_emd_loss(
+            tpF['r31'], tt_cropF['r31']) + self.calc_style_emd_loss(
+            tpF['r41'], tt_cropF['r41'])
+        p_loss_content_relt = self.calc_content_relt_loss(
+            tpF['r31'], cpF['r31']) + self.calc_content_relt_loss(
+            tpF['r41'], cpF['r41'])
+        self.losses['p_loss_style_remd'] = p_loss_style_remd
+        self.losses['p_loss_content_relt'] = p_loss_content_relt
 
-        self.patch_loss = self.loss_ps * self.style_weight * 2 + \
-                          self.loss_content_p * self.content_weight + \
-                          self.loss_patch * self.content_weight * 40 + \
-                          self.p_loss_style_remd * 12 + self.p_loss_content_relt * 16
-        self.patch_loss.backward()
-        return self.loss
+        patch_loss = loss_ps * self.style_weight * 2 + \
+                          loss_content_p * self.content_weight + \
+                          loss_patch * self.content_weight * 40 + \
+                          p_loss_style_remd * 12 + self.p_loss_content_relt * 16
+        patch_loss.backward()
+        return patch_loss
 
     def backward_D(self):
         """Calculate GAN loss for the discriminator"""
         pred_fake = self.nets['netD'](self.stylized.detach())
-        self.loss_D_fake = self.gan_criterion(pred_fake, False)
+        loss_D_fake = self.gan_criterion(pred_fake, False)
         pred_p_fake = self.nets['netD'](self.p_stylized.detach())
-        self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
+        loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
         pred_real = self.nets['netD'](self.pyr_si[3])
-        self.loss_D_real = self.gan_criterion(pred_real, True)
+        loss_D_real = self.gan_criterion(pred_real, True)
         pred_p_real = self.nets['netD'](self.sp)
         self.loss_Dp_real = self.gan_criterion(pred_p_real, True)
-        self.loss_D = (self.loss_D_fake + self.loss_Dp_fake + self.loss_Dp_real + self.loss_D_real) * 0.5
+        self.loss_D = (loss_D_fake + loss_Dp_fake + loss_Dp_real + loss_D_real) * 0.5
 
         self.loss_D.backward()
 
-        self.losses['D_fake_loss'] = self.loss_D_fake
-        self.losses['D_real_loss'] = self.loss_D_real
+        self.losses['D_fake_loss'] = loss_D_fake
+        self.losses['D_real_loss'] = loss_D_real
 
     def train_iter(self, optimizers=None):
         # compute fake images: G(A)

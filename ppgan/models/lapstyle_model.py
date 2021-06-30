@@ -773,12 +773,6 @@ class LapStyleRevFirstThumb(BaseModel):
             self.loss_ps += self.calc_style_loss(self.tpF[layer], self.spCrop[layer])
         self.losses['loss_ps'] = self.loss_ps
 
-        self.loss_ps = 0
-        for layer in self.style_layers:
-            self.loss_ps += self.calc_style_loss(self.tpF[layer], self.tt_cropF[layer])
-        self.losses['loss_ps'] = self.loss_ps
-
-
         self.p_loss_style_remd = self.calc_style_emd_loss(
             self.tpF['r31'], self.tt_cropF['r31']) + self.calc_style_emd_loss(
             self.tpF['r41'], self.tt_cropF['r41'])

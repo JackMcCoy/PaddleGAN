@@ -948,6 +948,7 @@ class LapStyleRevSecondThumb(BaseModel):
             g_t_thumb_crop = paddle.slice(g_t_thumb_up, axes=[2, 3], starts=[self.position[0], self.position[2]],
                                           ends=[self.position[1], self.position[3]])
             tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
+        spCrop = self.nets['net_enc'](self.sp)
 
         ttF = self.nets['net_enc'](self.stylized)
         tpF = self.nets['net_enc'](self.p_stylized)

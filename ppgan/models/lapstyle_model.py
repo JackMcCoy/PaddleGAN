@@ -784,14 +784,14 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
         """gan loss"""
-        pred_fake_p = self.nets['netD_patch'](self.p_stylized)
-        self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
-        self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
+        #pred_fake_p = self.nets['netD_patch'](self.p_stylized)
+        #self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
+        #self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
-        self.patch_loss = self.loss_Gp_GAN+ self.loss_ps * self.style_weight *2 +\
+        self.patch_loss = self.loss_ps * self.style_weight *2 +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight * 40 +\
-                    self.p_loss_style_remd * 12 + self.p_loss_content_relt * 16
+                    self.p_loss_style_remd * 12 + self.p_loss_content_relt * 16 #+self.loss_Gp_GAN
         self.patch_loss.backward()
 
         return self.patch_loss
@@ -810,6 +810,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['D_fake_loss'] = self.loss_D_fake
         self.losses['D_real_loss'] = self.loss_D_real
 
+    '''
     def backward_Dpatch(self):
         """Calculate GAN loss for the patch discriminator"""
         pred_p_fake = self.nets['netD_patch'](self.p_stylized.detach())
@@ -823,6 +824,8 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.losses['Dp_fake_loss'] = self.loss_Dp_fake
         self.losses['Dp_real_loss'] = self.loss_Dp_real
+        
+    '''
 
     def train_iter(self, optimizers=None):
         # compute fake images: G(A)
@@ -832,15 +835,15 @@ class LapStyleRevFirstThumb(BaseModel):
         optimizers['optimD'].clear_grad()
         self.backward_D()
         optimizers['optimD'].step()
-
+        '''
         self.set_requires_grad(self.nets['netD_patch'], True)
         optimizers['optimD_patch'].clear_grad()
         self.backward_Dpatch()
         optimizers['optimD_patch'].step()
-
+        '''
         # update G
         self.set_requires_grad(self.nets['netD'], False)
-        self.set_requires_grad(self.nets['netD_patch'], False)
+        #self.set_requires_grad(self.nets['netD_patch'], False)
         optimizers['optimG'].clear_grad()
         self.backward_G(optimizers['optimG'])
         optimizers['optimG'].step()

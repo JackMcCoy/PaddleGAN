@@ -835,7 +835,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.set_requires_grad(self.nets['netD_patch'], True)
         optimizers['optimD_patch'].clear_grad()
-        self.backward_D()
+        self.backward_Dpatch()
         optimizers['optimD_patch'].step()
 
         # update G

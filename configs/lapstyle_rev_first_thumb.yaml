@@ -69,6 +69,12 @@ optimizer:
       - netD
     beta1: 0.9
     beta2: 0.999
+  optimD_patch:
+    name: Adam
+    net_names:
+      - netD
+    beta1: 0.9
+    beta2: 0.999
 
 validate:
   interval: 100000

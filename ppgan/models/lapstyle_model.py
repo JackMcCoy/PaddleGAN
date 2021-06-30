@@ -559,6 +559,13 @@ class LapStyleDraThumbModel(BaseModel):
                                                       self.tt_cropF[layer])
         self.loss_patch = paddle.clip(self.loss_patch, 1e-5, 1e5)
         self.losses['loss_patch'] =  self.loss_patch
+
+        self.loss_content_p = 0
+        for layer in self.content_layers:
+            self.loss_content_p += self.calc_content_loss(self.tpF[layer],
+                                                      self.cpF[layer],
+                                                      norm=True)
+        self.losses['loss_content_p'] = self.loss_content_p
         """style loss"""
 
         self.loss_ps = 0
@@ -591,7 +598,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
-        self.loss = self.loss_ps * self.style_weight +\
+        self.loss = self.loss_ps * self.style_weight + self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight * 15 +\
                     self.l_identity3 * 55 + self.l_identity4 * 1 +\
                     self.p_loss_style_remd * 20 + self.p_loss_content_relt * 32

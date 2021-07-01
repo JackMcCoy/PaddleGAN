@@ -670,10 +670,11 @@ class LapStyleRevFirstThumb(BaseModel):
         self.ci = paddle.to_tensor(input['ci'])
         self.visual_items['ci'] = self.ci
         self.si = paddle.to_tensor(input['si'])
+        self.position = input['position']
         self.sp = paddle.to_tensor(input['sp'])
+        self.sp = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
         self.cp = paddle.to_tensor(input['cp'])
         self.visual_items['cp'] = self.cp
-        self.position = input['position']
 
         self.pyr_ci = make_laplace_pyramid(self.ci, 1)
         self.pyr_si = make_laplace_pyramid(self.si, 1)
@@ -715,6 +716,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
         self.cpF = self.nets['net_enc'](self.cp)
+        sP = self.nets['net_enc'](self.sp)
 
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear', align_corners=False)
@@ -776,10 +778,9 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.loss_ps = 0
 
-        reshaped = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-        encode_s = self.nets['net_enc'](reshaped)
+
         for layer in self.style_layers:
-            self.loss_ps += self.calc_style_loss(self.tpF[layer], encode_s[layer])
+            self.loss_ps += self.calc_style_loss(self.tpF[layer], sP[layer])
         self.losses['loss_ps'] = self.loss_ps
 
         self.p_loss_style_remd = self.calc_style_emd_loss(
@@ -826,11 +827,8 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
         self.loss_Dp_real = 0
-        reshaped = paddle.split(self.sp,2,2)
-        for i in reshaped:
-            for j in paddle.split(i,2,3):
-                pred_Dp_real = self.nets['netD_patch'](j.detach())
-                self.loss_Dp_real += self.gan_criterion(pred_Dp_real, True)
+        pred_Dp_real = self.nets['netD_patch'](self.sp.detach())
+        self.loss_Dp_real += self.gan_criterion(pred_Dp_real, True)
         self.loss_D_patch = (self.loss_Dp_fake + self.loss_Dp_real/4) * 0.5
 
         self.loss_D_patch.backward()

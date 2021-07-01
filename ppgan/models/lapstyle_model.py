@@ -779,7 +779,7 @@ class LapStyleRevFirstThumb(BaseModel):
         encode_s = self.nets['net_enc'](j)
         for layer in self.style_layers:
             self.loss_ps += self.calc_style_loss(self.tpF[layer], encode_s[layer])
-        self.losses['loss_ps'] = self.loss_ps/4
+        self.losses['loss_ps'] = self.loss_ps
 
         self.p_loss_style_remd = self.calc_style_emd_loss(
             self.tpF['r31'], self.tt_cropF['r31']) + self.calc_style_emd_loss(

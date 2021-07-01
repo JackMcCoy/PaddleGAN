@@ -208,7 +208,7 @@ class DecoderThumbDeep(nn.Layer):
         self.convblock_411 = ConvBlock(512,512)
         self.convblock_41 = ConvBlock(512, 256)
         self.resblock_31 = ResnetBlock(256)
-        self.convblock311 = ConvBlock(256,256)
+        self.convblock_311 = ConvBlock(256,256)
         self.convblock_31 = ConvBlock(256, 128)
 
         self.convblock_211 = ConvBlock(128, 128)

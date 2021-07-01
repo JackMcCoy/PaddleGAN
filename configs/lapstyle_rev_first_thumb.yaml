@@ -34,8 +34,8 @@ model:
 dataset:
   train:
     name: LapStyleThumbset
-    content_root: /content/gdrive/My Drive/img_style/cities/
-    style_root: /content/gdrive/My Drive/img_style/washnight/
+    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
+    style_root: /content/gdrive/My Drive/img_style/starrynew.png
     load_size: 384
     crop_size: 192
     thumb_size: 192
@@ -43,8 +43,8 @@ dataset:
     batch_size: 5
   test:
     name: LapStyleThumbset
-    content_root: /content/gdrive/My Drive/img_style/cities/
-    style_root: /content/gdrive/My Drive/img_style/washnight/
+    content_root: /content/gdrive/My Drive/img_style/content/
+    style_root: /content/gdrive/My Drive/img_style/starrynew.png
     load_size: 384
     crop_size: 192
     thumb_size: 192
@@ -77,7 +77,7 @@ optimizer:
     beta2: 0.999
 
 validate:
-  interval: 100000
+  interval: 30000
   save_img: false
 
 log_config:

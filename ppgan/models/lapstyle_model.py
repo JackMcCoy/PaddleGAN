@@ -569,15 +569,15 @@ class LapStyleDraThumbModel(BaseModel):
         """style loss"""
 
         self.loss_ps = 0
-        spshape = self.sp.shape
-        reshaped = self.sp.reshape((4, int(spshape[0]), int(spshape[1]), int(spshape[2] / 2), int(spshape[3] / 2)))
-        for i in range(4):
-            s = self.nets['net_enc'](reshaped[i,:,:,:,:])
-            for layer in self.style_layers:
-                self.loss_ps += self.calc_style_loss(self.tpF[layer], s[layer])
+        reshaped = paddle.split(self.sp,2,2)
+        for i in reshaped:
+            for j in paddle.split(self.sp,2,3):
+                s = self.nets['net_enc'](j)
+                for layer in self.style_layers:
+                    self.loss_ps += self.calc_style_loss(self.tpF[layer], s[layer])
         self.loss_ps = self.loss_ps/4
         self.losses['loss_ps'] = self.loss_ps
-        self.visual_items['stylized_chunk'] = reshaped[i,:,:,:,:]
+        self.visual_items['stylized_chunk'] = j
 
         """IDENTITY LOSSES"""
         self.Ipcc,_ = self.nets['net_dec'](self.cpF, self.cpF, self.cpF,'thumb')

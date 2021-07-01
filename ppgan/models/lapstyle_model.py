@@ -571,7 +571,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.loss_ps = 0
         reshaped = paddle.split(self.sp,2,2)
         for i in reshaped:
-            for j in paddle.split(self.sp,2,3):
+            for j in paddle.split(i,2,3):
                 s = self.nets['net_enc'](j)
                 for layer in self.style_layers:
                     self.loss_ps += self.calc_style_loss(self.tpF[layer], s[layer])

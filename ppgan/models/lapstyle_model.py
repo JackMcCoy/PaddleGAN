@@ -569,8 +569,13 @@ class LapStyleDraThumbModel(BaseModel):
         """style loss"""
 
         self.loss_ps = 0
-        for layer in self.style_layers:
-            self.loss_ps += self.calc_style_loss(self.tpF[layer], self.spCrop[layer])
+        spshape = self.sp.shape
+        reshaped = self.sp.reshape((4, int(spshape[0]), int(spshape[1]), int(spshape[2] / 2), int(spshape[3] / 2)))
+        for i in range(4):
+            s = self.nets['net_enc'](reshaped[i,:,:,:,:])
+            for layer in self.style_layers:
+                self.loss_ps += self.calc_style_loss(self.tpF[layer], s[layer])
+        self.loss_ps = self.loss_ps/4
         self.losses['loss_ps'] = self.loss_ps
 
         """IDENTITY LOSSES"""
@@ -598,7 +603,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
-        self.loss = self.loss_ps * self.style_weight*1.5 + self.loss_content_p * self.content_weight +\
+        self.loss = self.loss_ps * self.style_weight + self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight * 40 +\
                     self.l_identity3 * 55 + self.l_identity4 * 1 +\
                     self.p_loss_style_remd * 20 + self.p_loss_content_relt * 32
@@ -749,7 +754,7 @@ class LapStyleRevFirstThumb(BaseModel):
                     self.loss_content * self.content_weight+\
                     self.loss_style_remd * 10 +\
                     self.loss_content_relt * 16
-        self.loss.backward()
+        self.loss.backward(dr
         optimizer.step()
 
         """patch loss"""

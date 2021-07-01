@@ -772,10 +772,10 @@ class LapStyleRevFirstThumb(BaseModel):
         spshape = self.sp.shape
         reshaped = self.sp.reshape((4, int(spshape[0]), int(spshape[1]), int(spshape[2] / 2), int(spshape[3] / 2)))
         for i in range(4):
-            s = self.nets['net_enc'](reshaped[i])
+            s = self.nets['net_enc'](reshaped[i,:,:,:,:])
             for layer in self.style_layers:
                 self.loss_ps += self.calc_style_loss(self.tpF[layer], s[layer])
-        self.visual_items['style_chunk'] = reshaped[i]
+        self.visual_items['style_chunk'] = reshaped[i,0,:,:,:]
         self.losses['loss_ps'] = self.loss_ps/4
 
         self.p_loss_style_remd = self.calc_style_emd_loss(

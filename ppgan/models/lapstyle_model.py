@@ -577,6 +577,7 @@ class LapStyleDraThumbModel(BaseModel):
                 self.loss_ps += self.calc_style_loss(self.tpF[layer], s[layer])
         self.loss_ps = self.loss_ps/4
         self.losses['loss_ps'] = self.loss_ps
+        self.visual_items['stylized_patch'] = reshaped[i,0,:,:,:]
 
         """IDENTITY LOSSES"""
         self.Ipcc,_ = self.nets['net_dec'](self.cpF, self.cpF, self.cpF,'thumb')

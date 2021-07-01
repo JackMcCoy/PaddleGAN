@@ -682,9 +682,6 @@ class LapStyleRevFirstThumb(BaseModel):
         cF = self.nets['net_enc'](self.pyr_ci[1])
         sF = self.nets['net_enc'](self.pyr_si[1])
         cpF = self.nets['net_enc'](self.pyr_cp[1])
-        self.spCrop = paddle.slice(self.sp, axes=[2, 3], starts=[self.position[0], self.position[2]],
-                                          ends=[self.position[1], self.position[3]])
-        self.spCrop = self.nets['net_enc'](self.spCrop)
 
         stylized_small,_ = self.nets['net_dec'](cF, sF, cpF,'thumb')
         self.visual_items['stylized_small'] = stylized_small
@@ -772,9 +769,13 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_content_p'] = self.loss_content_p
 
         self.loss_ps = 0
-        for layer in self.style_layers:
-            self.loss_ps += self.calc_style_loss(self.tpF[layer], self.spCrop[layer])
-        self.losses['loss_ps'] = self.loss_ps
+        spshape = self.sp.shape
+        reshaped = self.sp.reshape((4, int(spshape[0]), int(spshape[1]), int(spshape[2] / 2), int(spshape[3] / 2)))
+        for i in range(4):
+            s = self.nets['net_enc'](reshaped[i])
+            for layer in self.style_layers:
+                self.loss_ps += self.calc_style_loss(self.tpF[layer], s[layer])
+        self.losses['loss_ps'] = self.loss_ps/4
 
         self.p_loss_style_remd = self.calc_style_emd_loss(
             self.tpF['r31'], self.tt_cropF['r31']) + self.calc_style_emd_loss(

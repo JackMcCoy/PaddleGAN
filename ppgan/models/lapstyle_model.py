@@ -775,6 +775,7 @@ class LapStyleRevFirstThumb(BaseModel):
             s = self.nets['net_enc'](reshaped[i])
             for layer in self.style_layers:
                 self.loss_ps += self.calc_style_loss(self.tpF[layer], s[layer])
+        self.visual_items['style_chunk'] = reshaped[i]
         self.losses['loss_ps'] = self.loss_ps/4
 
         self.p_loss_style_remd = self.calc_style_emd_loss(

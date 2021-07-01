@@ -775,7 +775,9 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_content_p'] = self.loss_content_p
 
         self.loss_ps = 0
-        encode_s = self.nets['net_enc'](self.cp[:,:,self.position[0]:self.position[1],self.position[2]:self.position[3]])
+
+        reshaped = paddle.slice(self.cp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
+        encode_s = self.nets['net_enc'](reshaped)
         for layer in self.style_layers:
             self.loss_ps += self.calc_style_loss(self.tpF[layer], encode_s[layer])
         self.losses['loss_ps'] = self.loss_ps

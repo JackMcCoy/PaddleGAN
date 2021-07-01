@@ -194,6 +194,63 @@ class DecoderNet(nn.Layer):
         out = self.final_conv(out)
         return out
 
+@GENERATORS.register()
+class DecoderThumbDeep(nn.Layer):
+    """Decoder of Drafting module.
+    Paper:
+        Drafting and Revision: Laplacian Pyramid Network for Fast High-Quality
+        Artistic Style Transfer.
+    """
+    def __init__(self):
+        super(DecoderThumbDeep, self).__init__()
+
+        self.resblock_41 = ResnetBlock(512)
+        self.convblock_411 = ConvBlock(512,512)
+        self.convblock_41 = ConvBlock(512, 256)
+        self.resblock_31 = ResnetBlock(256)
+        self.convblock_311 = ConvBlock(256,256)
+        self.convblock_31 = ConvBlock(256, 128)
+
+        self.convblock_211 = ConvBlock(128, 128)
+        self.convblock_21 = ConvBlock(128, 128)
+        self.convblock_22 = ConvBlock(128, 64)
+        self.convblock_111 = ConvBlock(64, 64)
+        self.convblock_11 = ConvBlock(64, 64)
+        self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
+
+        self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                        nn.Conv2D(64, 3, (3, 3)))
+
+    def forward(self, cF, sF, cpF, thumb_or_patch='thumb'):
+
+        #out = thumb_adaptive_instance_normalization(cF['r51'], cpF['r51'], sF['r51'], thumb_or_patch=thumb_or_patch)
+        out = thumb_adaptive_instance_normalization(cF['r41'], cpF['r41'], sF['r41'], thumb_or_patch=thumb_or_patch)
+        thumb_ada = {'r41':out.clone()}
+        out = self.resblock_41(out)
+        out = self.convblock_411(out)
+        out = self.convblock_41(out)
+
+        out = self.upsample(out)
+
+        thumb_ada['r31'] = thumb_adaptive_instance_normalization(cF['r31'], cpF['r31'],sF['r31'], thumb_or_patch=thumb_or_patch)
+        out += thumb_ada['r31']
+        out = self.resblock_31(out)
+        out = self.convblock_311(out)
+        out = self.convblock_31(out)
+
+        out = self.upsample(out)
+        thumb_ada['r21'] = thumb_adaptive_instance_normalization(cF['r21'], cpF['r21'], sF['r21'],
+                                                           thumb_or_patch=thumb_or_patch)
+        out += thumb_ada['r21']
+        out = self.convblock_211(out)
+        out = self.convblock_21(out)
+        out = self.convblock_22(out)
+
+        out = self.upsample(out)
+        out = self.convblock_111(out)
+        out = self.convblock_11(out)
+        out = self.final_conv(out)
+        return out,thumb_ada
 
 @GENERATORS.register()
 class DecoderThumbNet(nn.Layer):

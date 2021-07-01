@@ -772,23 +772,12 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_content_p'] = self.loss_content_p
 
         self.loss_ps = 0
-<<<<<<< HEAD
-        reshaped = paddle.split(self.sp, 2, 2)
-        for i in reshaped:
-            for j in paddle.split(i, 2, 3):
-                s = self.nets['net_enc'](j)
-                for layer in self.style_layers:
-                    self.loss_ps += self.calc_style_loss(self.tpF[layer], s[layer])
-        self.visual_items['style_chunk'] = reshaped[i,0,:,:,:]
-        self.losses['loss_ps'] = self.loss_ps/4
-=======
 
         reshaped = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
         encode_s = self.nets['net_enc'](reshaped)
         for layer in self.style_layers:
             self.loss_ps += self.calc_style_loss(self.tpF[layer], encode_s[layer])
         self.losses['loss_ps'] = self.loss_ps
->>>>>>> 2976688390b365f01f783d8a7bf70984db8ecb22
 
         self.p_loss_style_remd = self.calc_style_emd_loss(
             self.tpF['r31'], self.tt_cropF['r31']) + self.calc_style_emd_loss(
@@ -839,7 +828,6 @@ class LapStyleRevFirstThumb(BaseModel):
             for j in paddle.split(i,2,3):
                 pred_Dp_real = self.nets['netD_patch'](j.detach())
                 self.loss_Dp_real += self.gan_criterion(pred_Dp_real, True)
-
         self.loss_D_patch = (self.loss_Dp_fake + self.loss_Dp_real/4) * 0.5
 
         self.loss_D_patch.backward()

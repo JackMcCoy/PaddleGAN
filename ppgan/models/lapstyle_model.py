@@ -556,7 +556,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
                     self.l_identity1 * 50 + self.l_identity2 * 1 +\
                     self.loss_content * self.content_weight+\
-                    self.loss_style_remd * 22 +\
+                    self.loss_style_remd * 18 +\
                     self.loss_content_relt * 24
         self.loss.backward()
         self.optimizers['optimG'].step()
@@ -572,7 +572,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['loss_patch'] =  self.loss_patch
 
         self.loss_content_p = 0
-        for layer in self.content_layers:
+        for layer in [self.content_layers[-2]]:
             self.loss_content_p += self.calc_content_loss(self.tpF[layer],
                                                       self.cpF[layer],
                                                       norm=True)
@@ -606,9 +606,9 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
         self.loss = self.loss_ps * self.style_weight  + self.loss_content_p * self.content_weight +\
-                    self.loss_patch * self.content_weight * 1.5 +\
+                    self.loss_patch * self.content_weight * 30 +\
                     self.l_identity3 * 50 + self.l_identity4 * 1 +\
-                    self.p_loss_style_remd * 10 + self.p_loss_content_relt * 16
+                    self.p_loss_style_remd * 18 + self.p_loss_content_relt * 24
         self.loss.backward()
 
         return self.loss

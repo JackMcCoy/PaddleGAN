@@ -509,6 +509,14 @@ class LapStyleDraThumbModel(BaseModel):
             self.spCrop = self.nets['net_enc'](self.sp)
         self.ttF = self.nets['net_enc'](self.stylized_thumb)
         self.tpF = self.nets['net_enc'](self.stylized_patch)
+        self.loss_ps = 0
+        reshaped = paddle.split(self.spF,2,2)
+        for i in reshaped:
+            for j in paddle.split(i,2,3):
+                encoded_layer = self.nets['net_enc'](j)
+                for layer in self.style_layers:
+                    self.loss_ps += self.calc_style_loss(self.tpF[layer], self.encoded_layer[layer])
+        self.losses['loss_ps'] = self.loss_ps
         """content loss"""
         self.loss_c = 0
         for layer in [self.content_layers[-2]]:
@@ -569,12 +577,8 @@ class LapStyleDraThumbModel(BaseModel):
                                                       self.cpF[layer],
                                                       norm=True)
         self.losses['loss_content_p'] = self.loss_content_p
-        """style loss"""
+        """style loss --moved to before first step"""
 
-        self.loss_ps = 0
-        for layer in self.style_layers:
-            self.loss_ps += self.calc_style_loss(self.tpF[layer], self.spF[layer])
-        self.losses['loss_ps'] = self.loss_ps
 
         """IDENTITY LOSSES"""
         self.Ipcc,_ = self.nets['net_dec'](self.cpF, self.cpF, self.cpF,'thumb')
@@ -601,8 +605,8 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
-        self.loss = self.loss_ps * self.style_weight  + self.loss_content_p*1.2 * self.content_weight +\
-                    self.loss_patch * self.content_weight * 10 +\
+        self.loss = self.loss_ps * self.style_weight  + self.loss_content_p * self.content_weight +\
+                    self.loss_patch * self.content_weight * 20 +\
                     self.l_identity3 * 50 + self.l_identity4 * 1 +\
                     self.p_loss_style_remd * 20 + self.p_loss_content_relt * 14
         self.loss.backward()

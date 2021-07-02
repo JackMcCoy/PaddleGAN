@@ -212,16 +212,16 @@ class LapStyleThumbset(Dataset):
         style_img = Image.fromarray(style_img)
         small_edge = min(style_img.width,style_img.height)
         if small_edge==style_img.width:
-            intermediate_width = self.load_size
+            intermediate_width = math.floor(self.load_size* self.style_upsize)
             final_width = math.ceil(self.thumb_size*self.style_upsize)
             ratio = style_img.height/style_img.width
-            intermediate_height = math.floor(self.load_size*ratio)
+            intermediate_height = math.floor(self.load_size*ratio* self.style_upsize)
             final_height = math.ceil(self.thumb_size*ratio* self.style_upsize)
         else:
-            intermediate_height = self.load_size
+            intermediate_height = math.floor(self.load_size* self.style_upsize)
             final_height = math.ceil(self.thumb_size * self.style_upsize)
             ratio = style_img.width/style_img.height
-            intermediate_width = math.floor(self.load_size* ratio)
+            intermediate_width = math.floor(self.load_size* ratio* self.style_upsize)
             final_width = math.ceil(self.thumb_size*ratio* self.style_upsize)
         style_patch = style_img.resize((intermediate_width, intermediate_height),
                                      Image.BILINEAR)

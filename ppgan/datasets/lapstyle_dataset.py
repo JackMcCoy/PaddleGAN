@@ -215,13 +215,13 @@ class LapStyleThumbset(Dataset):
             intermediate_width = self.load_size
             final_width = self.thumb_size
             ratio = style_img.height/style_img.width
-            intermediate_height = math.floor(self.load_size* self.style_upsize*ratio)
+            intermediate_height = math.floor(self.load_size*ratio)
             final_height = math.ceil(self.thumb_size*ratio* self.style_upsize)
         else:
             intermediate_height = math.floor(self.load_size)
             final_height = self.thumb_size
             ratio = style_img.width/style_img.height
-            intermediate_width = math.floor(self.load_size* self.style_upsize*ratio)
+            intermediate_width = math.floor(self.load_size* ratio)
             final_width = self.thumb_size*ratio* self.style_upsize
         style_patch = style_img.resize((intermediate_width, intermediate_height),
                                      Image.BILINEAR)

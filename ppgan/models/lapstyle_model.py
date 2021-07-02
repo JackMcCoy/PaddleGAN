@@ -699,11 +699,11 @@ class LapStyleRevFirstThumb(BaseModel):
         p_stylized_up = F.interpolate(p_stylized_small, scale_factor=2)
 
         revnet_input = paddle.concat(x=[self.pyr_ci[0], stylized_up], axis=1)
-        stylized_rev_lap,self.stylized_thumb_feat = self.nets['net_rev'](revnet_input.detach())
+        stylized_rev_lap,self.ttF_res = self.nets['net_rev'](revnet_input.detach())
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
 
         p_revnet_input = paddle.concat(x=[self.pyr_cp[0], p_stylized_up], axis=1)
-        p_stylized_rev_lap,_ = self.nets['net_rev'](p_revnet_input.detach(),self.stylized_thumb_feat)
+        p_stylized_rev_lap,self.stylized_thumb_res = self.nets['net_rev'](p_revnet_input.detach(),self.ttF_res)
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_small])
 
         self.stylized = stylized_rev
@@ -772,7 +772,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.loss_c = 0
         for layer in [self.content_layers[-2]]:
-            self.loss_c +=self.calc_content_loss(self.ttF[layer],self.stylized_thumb_feat[layer])
+            self.loss_c +=self.calc_content_loss(self.ttF_res,self.stylized_thumb_res)
 
         self.losses['loss_c'] = self.loss_c
 

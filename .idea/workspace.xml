@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7b6bfd74-3242-4eae-baa4-6c3ced6798f4" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ppgan/models/lapstyle_model.py" afterPath="$PROJECT_DIR$/ppgan/models/lapstyle_model.py" />
     </list>
     <ignored path=".idea/dataSources.local.xml" />
@@ -26,8 +25,8 @@
       <file leaf-file-name="lapstyle_model.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.8161435">
-              <caret line="517" column="74" selection-start-line="517" selection-start-column="74" selection-end-line="517" selection-end-column="74" />
+            <state vertical-scroll-proportion="0.49327356">
+              <caret line="608" column="62" selection-start-line="608" selection-start-column="62" selection-end-line="608" selection-end-column="62" />
               <folding>
                 <element signature="e#612#625#0" expanded="true" />
               </folding>
@@ -787,8 +786,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.8161435">
-          <caret line="517" column="74" selection-start-line="517" selection-start-column="74" selection-end-line="517" selection-end-column="74" />
+        <state vertical-scroll-proportion="0.49327356">
+          <caret line="608" column="62" selection-start-line="608" selection-start-column="62" selection-end-line="608" selection-end-column="62" />
           <folding>
             <element signature="e#612#625#0" expanded="true" />
           </folding>

@@ -7,7 +7,7 @@ min_max:
 model:
   name: LapStyleRevFirstThumb
   revnet_generator:
-    name: RevisionNet32Feats
+    name: RevisionNetDeepThumb
   revnet_discriminator:
     name: LapStyleDiscriminator
     num_channels: 16

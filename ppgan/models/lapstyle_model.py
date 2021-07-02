@@ -765,7 +765,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.loss = self.loss_G_GAN*5 + self.loss_s * self.style_weight +\
                     self.loss_content * self.content_weight+\
-                    self.loss_style_remd * 18 +\
+                    self.loss_style_remd * 12 +\
                     self.loss_content_relt * 24
         self.loss.backward()
         optimizer.step()

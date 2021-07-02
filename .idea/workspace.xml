@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="7b6bfd74-3242-4eae-baa4-6c3ced6798f4" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/configs/lapstyle_draft_thumb.yaml" afterPath="$PROJECT_DIR$/configs/lapstyle_draft_thumb.yaml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py" afterPath="$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ppgan/models/lapstyle_model.py" afterPath="$PROJECT_DIR$/ppgan/models/lapstyle_model.py" />
     </list>
     <ignored path=".idea/dataSources.local.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -25,10 +23,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="lapstyle_model.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="lapstyle_model.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.67713004">
+            <state vertical-scroll-proportion="13.078947">
               <caret line="499" column="42" selection-start-line="499" selection-start-column="42" selection-end-line="499" selection-end-column="42" />
               <folding>
                 <element signature="e#612#625#0" expanded="true" />
@@ -47,11 +45,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="lapstyle_dataset.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="lapstyle_dataset.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="52.18919">
-              <caret line="130" column="97" selection-start-line="130" selection-start-column="97" selection-end-line="130" selection-end-column="97" />
+            <state vertical-scroll-proportion="0.7525773">
+              <caret line="220" column="80" selection-start-line="220" selection-start-column="80" selection-end-line="220" selection-end-column="80" />
               <folding />
             </state>
           </provider>
@@ -85,9 +83,9 @@
         <option value="$PROJECT_DIR$/ppgan/models/__init__.py" />
         <option value="$PROJECT_DIR$/ppgan/models/generators/__init__.py" />
         <option value="$PROJECT_DIR$/ppgan/models/generators/generater_lapstyle.py" />
-        <option value="$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py" />
         <option value="$PROJECT_DIR$/configs/lapstyle_draft_thumb.yaml" />
         <option value="$PROJECT_DIR$/ppgan/models/lapstyle_model.py" />
+        <option value="$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py" />
       </list>
     </option>
   </component>
@@ -771,14 +769,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="52.18919">
-          <caret line="130" column="97" selection-start-line="130" selection-start-column="97" selection-end-line="130" selection-end-column="97" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/configs/lapstyle_draft_thumb.yaml">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -789,11 +779,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.67713004">
+        <state vertical-scroll-proportion="13.078947">
           <caret line="499" column="42" selection-start-line="499" selection-start-column="42" selection-end-line="499" selection-end-column="42" />
           <folding>
             <element signature="e#612#625#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppgan/datasets/lapstyle_dataset.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7525773">
+          <caret line="220" column="80" selection-start-line="220" selection-start-column="80" selection-end-line="220" selection-end-column="80" />
+          <folding />
         </state>
       </provider>
     </entry>

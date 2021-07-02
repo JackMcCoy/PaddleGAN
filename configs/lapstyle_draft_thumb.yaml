@@ -31,7 +31,7 @@ dataset:
     style_root: /content/gdrive/My Drive/img_style/starrynew.png
     load_size: 256
     thumb_size: 128
-    style_upsize: 1.15
+    style_upsize: 1.2
     crop_size: 128
     num_workers: 16
     batch_size: 5

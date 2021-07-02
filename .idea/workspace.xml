@@ -27,9 +27,11 @@
         <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.24663678">
-              <caret line="729" column="32" selection-start-line="729" selection-start-column="32" selection-end-line="729" selection-end-column="32" />
+              <caret line="729" column="20" selection-start-line="729" selection-start-column="20" selection-end-line="729" selection-end-column="20" />
               <folding>
                 <element signature="e#612#625#0" expanded="true" />
+                <marker date="1625254270808" expanded="true" signature="26551:32425" placeholder="..." />
+                <marker date="1625254270808" expanded="true" signature="30405:32241" placeholder="..." />
               </folding>
             </state>
           </provider>
@@ -798,9 +800,11 @@
     <entry file="file://$PROJECT_DIR$/ppgan/models/lapstyle_model.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.24663678">
-          <caret line="729" column="32" selection-start-line="729" selection-start-column="32" selection-end-line="729" selection-end-column="32" />
+          <caret line="729" column="20" selection-start-line="729" selection-start-column="20" selection-end-line="729" selection-end-column="20" />
           <folding>
             <element signature="e#612#625#0" expanded="true" />
+            <marker date="1625254270808" expanded="true" signature="26551:32425" placeholder="..." />
+            <marker date="1625254270808" expanded="true" signature="30405:32241" placeholder="..." />
           </folding>
         </state>
       </provider>

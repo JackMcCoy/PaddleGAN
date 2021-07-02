@@ -497,6 +497,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.stylized_patch,self.stylized_patch_feat = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'patch')
         self.visual_items['stylized_thumb'] = self.stylized_thumb
         self.visual_items['stylized_patch'] = self.stylized_patch
+        self.visual_items['style']=self.si
 
     def backward_Dec(self):
         with paddle.no_grad():
@@ -545,7 +546,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['loss_content_relt'] = self.loss_content_relt
 
         self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
-                    self.l_identity1 * 55 + self.l_identity2 * 1 +\
+                    self.l_identity1 * 50 + self.l_identity2 * 1 +\
                     self.loss_content * self.content_weight+\
                     self.loss_style_remd * 35 +\
                     self.loss_content_relt * 28
@@ -583,7 +584,7 @@ class LapStyleDraThumbModel(BaseModel):
         for layer in self.content_layers:
             self.l_identity4 += self.calc_content_loss(self.Fpcc[layer],
                                                        self.cpF[layer])
-        self.visual_items['content_identity']=self.Icc
+
         self.losses['l_identity1'] = self.l_identity1
         self.losses['l_identity2'] = self.l_identity2
         self.losses['l_identity3'] = self.l_identity3

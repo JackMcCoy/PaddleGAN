@@ -128,7 +128,7 @@ class LapStyleThumbset(Dataset):
     """
     coco2017 dataset for LapStyle model
     """
-    def __init__(self, content_root, style_root, load_size, crop_size, thumb_size):
+    def __init__(self, content_root, style_root, load_size, crop_size, thumb_size, style_upsize=1):
         super(LapStyleThumbset, self).__init__()
         self.content_root = content_root
         self.paths = os.listdir(self.content_root)
@@ -138,6 +138,7 @@ class LapStyleThumbset(Dataset):
         self.load_size = load_size
         self.crop_size = crop_size
         self.thumb_size = thumb_size
+        self.style_upsize = style_upsize
         self.transform = data_transform(self.crop_size)
         self.transform_patch = data_transform(self.load_size)
 
@@ -211,13 +212,13 @@ class LapStyleThumbset(Dataset):
         style_img = Image.fromarray(style_img)
         small_edge = min(style_img.width,style_img.height)
         if small_edge==style_img.width:
-            intermediate_width = self.load_size
+            intermediate_width = self.load_size * self.style_upsize
             final_width = self.thumb_size
             ratio = style_img.height/style_img.width
             intermediate_height = math.floor(self.load_size*ratio)
             final_height = math.ceil(self.thumb_size*ratio)
         else:
-            intermediate_height = self.load_size
+            intermediate_height = self.load_size * self.style_upsize
             final_height = self.thumb_size
             ratio = style_img.width/style_img.height
             intermediate_width = math.floor(self.load_size*ratio)

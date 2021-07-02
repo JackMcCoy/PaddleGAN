@@ -515,7 +515,7 @@ class LapStyleDraThumbModel(BaseModel):
             for j in paddle.split(i,2,3):
                 encoded_layer = self.nets['net_enc'](j)
                 for layer in self.style_layers:
-                    self.loss_ps += self.calc_style_loss(self.tpF[layer], self.encoded_layer[layer])
+                    self.loss_ps += self.calc_style_loss(self.tpF[layer], encoded_layer[layer])
         self.losses['loss_ps'] = self.loss_ps
         """content loss"""
         self.loss_c = 0

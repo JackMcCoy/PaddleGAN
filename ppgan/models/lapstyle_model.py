@@ -700,10 +700,11 @@ class LapStyleRevFirstThumb(BaseModel):
 
         revnet_input = paddle.concat(x=[self.pyr_ci[0], stylized_up], axis=1)
         stylized_rev_lap,self.ttF_res = self.nets['net_rev'](revnet_input.detach())
+        self.ttF_res=self.ttF_res.detach()
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
 
         p_revnet_input = paddle.concat(x=[self.pyr_cp[0], p_stylized_up], axis=1)
-        p_stylized_rev_lap,self.stylized_thumb_res = self.nets['net_rev'](p_revnet_input.detach(),self.ttF_res.detach())
+        p_stylized_rev_lap,self.stylized_thumb_res = self.nets['net_rev'](p_revnet_input.detach(),self.ttF_res)
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_small])
 
         self.stylized = stylized_rev

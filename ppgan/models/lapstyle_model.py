@@ -573,7 +573,7 @@ class LapStyleDraThumbModel(BaseModel):
 
         self.loss_ps = 0
         for layer in self.style_layers:
-            self.loss_ps += self.calc_style_loss(self.tpF[layer], self.sF[layer])
+            self.loss_ps += self.calc_style_loss(self.tpF[layer], self.spF[layer])
         self.losses['loss_ps'] = self.loss_ps
 
         """IDENTITY LOSSES"""

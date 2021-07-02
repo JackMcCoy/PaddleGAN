@@ -770,9 +770,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss.backward()
         optimizer.step()
 
-        self.loss_c = 0
-        for layer in [self.content_layers[-2]]:
-            self.loss_c +=self.calc_content_loss(self.ttF_res,self.stylized_thumb_res)
+        self.loss_c =self.calc_content_loss(self.stylized_thumb_res,self.ttF_res)
 
         self.losses['loss_c'] = self.loss_c
 

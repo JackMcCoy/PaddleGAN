@@ -516,9 +516,9 @@ class LapStyleDraThumbModel(BaseModel):
                 for layer in self.style_layers:
                     patch_sl += self.calc_style_loss(self.tpF[layer], encoded_layer[layer])
                 patch_sl_sum = paddle.sum(patch_sl)
-                if paddle.any(paddle.cast(patch_sl_sum!=patch_sl_sum,'bool'):
+                if paddle.any(paddle.cast(patch_sl_sum!=patch_sl_sum,'bool')):
                     print('has NaNs')
-                else self.loss_ps == 0 patch_sl_sum < self.loss_ps.sum():
+                else self.loss_ps == 0 patch_sl_sum < paddle.sum(self.loss_ps):
                     self.loss_ps = paddle.clip(patch_sl, 1e-5, 1e5)
                     self.spF = encoded_layer
         self.losses['loss_ps'] = self.loss_ps

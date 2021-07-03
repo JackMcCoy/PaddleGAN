@@ -515,7 +515,7 @@ class LapStyleDraThumbModel(BaseModel):
                 encoded_layer = self.nets['net_enc'](j)
                 for layer in self.style_layers:
                     patch_sl += self.calc_style_loss(self.tpF[layer], encoded_layer[layer])
-                if self.loss_ps == 0 or patch_sl.sum() < self.loss_ps.sum():
+                if self.loss_ps == 0 or patch_sl.sum() > self.loss_ps.sum():
                     self.loss_ps = patch_sl
                     self.spF = encoded_layer
         self.losses['loss_ps'] = self.loss_ps

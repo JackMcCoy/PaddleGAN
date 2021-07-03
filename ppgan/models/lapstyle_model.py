@@ -517,7 +517,7 @@ class LapStyleDraThumbModel(BaseModel):
                     patch_sl += self.calc_style_loss(self.tpF[layer], encoded_layer[layer])
                 patch_sl_sum = patch_sl.sum()
                 if self.loss_ps == 0 or (patch_sl.sum() < self.loss_ps.sum() and not paddle.any(paddle.cast(patch_sl_sum!=patch_sl_sum,'bool'))):
-                    self.loss_ps = patch_sl
+                    self.loss_ps = paddle.clip(patch_sl, 1e-5, 1e5)
                     self.spF = encoded_layer
         self.losses['loss_ps'] = self.loss_ps
         """content loss"""

@@ -491,8 +491,6 @@ class LapStyleDraThumbModel(BaseModel):
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
         self.cpF = self.nets['net_enc'](self.cp)
-        reshaped = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-        self.spF = self.nets['net_enc'](reshaped)
         self.stylized_thumb,self.stylized_thumb_feat = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'thumb')
         self.stylized_patch,self.stylized_patch_feat = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'patch')
         self.visual_items['stylized_thumb'] = self.stylized_thumb
@@ -519,6 +517,7 @@ class LapStyleDraThumbModel(BaseModel):
                     patch_sl += self.calc_style_loss(self.tpF[layer], encoded_layer[layer])
                 if self.loss_ps == 0 or patch_sl.sum() < self.loss_ps.sum():
                     self.loss_ps = patch_sl
+                    self.spF = encoded_layer
         self.losses['loss_ps'] = self.loss_ps
         """content loss"""
         self.loss_c = 0
@@ -609,7 +608,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
         self.loss = self.loss_ps * self.style_weight  + self.loss_content_p * self.content_weight +\
-                    self.loss_patch * self.content_weight * 1 +\
+                    self.loss_patch * self.content_weight * 2 +\
                     self.l_identity3 * 50 + self.l_identity4 * 1 +\
                     self.p_loss_style_remd * 10 + self.p_loss_content_relt * 16
         self.loss.backward()

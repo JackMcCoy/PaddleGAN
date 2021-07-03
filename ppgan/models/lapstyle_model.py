@@ -577,7 +577,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['loss_content_p'] = self.loss_content_p
         """style loss --moved to before first step"""
 
-        '''
+
         """IDENTITY LOSSES"""
         self.Ipcc,_ = self.nets['net_dec'](self.cpF, self.cpF, self.cpF,'thumb')
         self.l_identity3 = self.calc_content_loss(self.Ipcc, self.cp)
@@ -586,12 +586,12 @@ class LapStyleDraThumbModel(BaseModel):
         for layer in self.content_layers:
             self.l_identity4 += self.calc_content_loss(self.Fpcc[layer],
                                                        self.cpF[layer])
-        '''
+
 
         self.losses['l_identity1'] = self.l_identity1
         self.losses['l_identity2'] = self.l_identity2
-        #self.losses['l_identity3'] = self.l_identity3
-        #self.losses['l_identity4'] = self.l_identity4
+        self.losses['l_identity3'] = self.l_identity3
+        self.losses['l_identity4'] = self.l_identity4
 
         """relative loss"""
         '''
@@ -606,8 +606,8 @@ class LapStyleDraThumbModel(BaseModel):
         '''
 
         self.loss = self.loss_ps * self.style_weight *.225 + self.loss_content_p * self.content_weight +\
-                    self.loss_patch * self.content_weight * 1 #+\
-                    #self.l_identity3 * 1 + self.l_identity4 * 1 +\
+                    self.loss_patch * self.content_weight * 1 +\
+                    self.l_identity3 * 1 + self.l_identity4 * 1 +\
                     #self.p_loss_style_remd * 18 + self.p_loss_content_relt * 24
         self.loss.backward()
 

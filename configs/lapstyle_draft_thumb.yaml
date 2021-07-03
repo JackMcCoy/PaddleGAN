@@ -1,4 +1,4 @@
-total_iters: 100000
+total_iters: 35000
 output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/starry_patch/
 checkpoints_dir: checkpoints
 min_max:

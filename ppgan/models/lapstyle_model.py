@@ -814,7 +814,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.patch_loss = self.loss_Gp_GAN +self.loss_ps * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight * 2 +\
-                    self.p_loss_style_remd * 24 + self.p_loss_content_relt * 16
+                    self.p_loss_style_remd * 5 + self.p_loss_content_relt * 8
         self.patch_loss.backward()
 
         return self.patch_loss

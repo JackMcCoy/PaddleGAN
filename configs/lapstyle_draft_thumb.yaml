@@ -28,7 +28,7 @@ dataset:
   train:
     name: LapStyleThumbset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/gdrive/My Drive/img_style/silenus.jpg
+    style_root: /content/gdrive/My Drive/img_style/starrynew.png
     load_size: 256
     thumb_size: 128
     style_upsize: 1.15
@@ -38,7 +38,7 @@ dataset:
   test:
     name: LapStyleThumbset
     content_root: /content/gdrive/My Drive/img_style/content/
-    style_root: /content/gdrive/My Drive/img_style/silenus.jpg
+    style_root: /content/gdrive/My Drive/img_style/starrynew.png
     load_size: 256
     thumb_size: 128
     crop_size: 128

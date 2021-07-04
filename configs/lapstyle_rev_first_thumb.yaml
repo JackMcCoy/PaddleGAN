@@ -1,5 +1,5 @@
 total_iters: 100000
-output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/starry_patch/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/silenus/
 checkpoints_dir: checkpoints
 min_max:
   (0., 1.)
@@ -35,7 +35,7 @@ dataset:
   train:
     name: LapStyleThumbset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/gdrive/My Drive/img_style/starrynew.png
+    style_root: /content/gdrive/My Drive/img_style/silenus.jpg
     load_size: 512
     crop_size: 256
     thumb_size: 256
@@ -45,7 +45,7 @@ dataset:
   test:
     name: LapStyleThumbset
     content_root: /content/gdrive/My Drive/img_style/content/
-    style_root: /content/gdrive/My Drive/img_style/starrynew.png
+    style_root: /content/gdrive/My Drive/img_style/silenus.jpg
     load_size: 512
     crop_size: 256
     thumb_size: 256

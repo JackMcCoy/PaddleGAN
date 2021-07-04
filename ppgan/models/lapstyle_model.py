@@ -683,6 +683,8 @@ class LapStyleRevFirstThumb(BaseModel):
         cF = self.nets['net_enc'](self.pyr_ci[1])
         sF = self.nets['net_enc'](self.pyr_si[1])
         cpF = self.nets['net_enc'](self.pyr_cp[1])
+        transformed = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
+        self.spF = self.nets['net_enc'](transformed)
 
         stylized_small,_ = self.nets['net_dec'](cF, sF, cpF,'thumb')
         self.visual_items['stylized_small'] = stylized_small
@@ -722,17 +724,6 @@ class LapStyleRevFirstThumb(BaseModel):
         self.ttF = self.nets['net_enc'](self.stylized)
         self.tpF = self.nets['net_enc'](self.p_stylized)
 
-        self.loss_ps=0
-        reshaped = paddle.split(self.sp,2,2)
-        for i in reshaped:
-            for j in paddle.split(i,2,3):
-                patch_sl = 0
-                encoded_layer = self.nets['net_enc'](j)
-                for layer in self.style_layer[-2]:
-                    patch_sl += self.calc_style_loss(self.tpF[layer], encoded_layer[layer])
-                if self.loss_ps==0 or patch_sl.sum()<self.loss_ps.sum():
-                    self.loss_ps=patch_sl
-        self.losses['loss_ps'] = self.loss_ps
 
         self.loss_content = 0
         for layer in self.content_layers:
@@ -761,10 +752,10 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)
         self.losses['loss_gan_G'] = self.loss_G_GAN
 
-        self.loss = self.loss_G_GAN + self.loss_s * self.style_weight * .5 +\
+        self.loss = self.loss_G_GAN + self.loss_s * self.style_weight +\
                     self.loss_content * self.content_weight+\
-                    self.loss_style_remd * 10 +\
-                    self.loss_content_relt * 16
+                    self.loss_style_remd * 18 +\
+                    self.loss_content_relt * 24
         self.loss.backward()
         optimizer.step()
 
@@ -778,12 +769,17 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_patch'] = self.loss_patch
 
         self.loss_content_p = 0
-        for layer in [self.content_layers[3]]:
+        for layer in self.content_layers:
             self.loss_content_p += self.calc_content_loss(self.tpF[layer],
                                                       self.cpF[layer],
                                                       norm=True)
         self.losses['loss_content_p'] = self.loss_content_p
 
+        self.loss_ps = 0
+        for layer in self.content_layers:
+            self.loss_ps += self.calc_style_loss(self.tpF[layer],
+                                                          self.spF[layer])
+        self.losses['loss_ps'] = self.loss_ps
 
         self.p_loss_style_remd = self.calc_style_emd_loss(
             self.tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
@@ -802,8 +798,8 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.patch_loss = self.loss_Gp_GAN +self.loss_ps * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
-                    self.loss_patch * self.content_weight * 2 +\
-                    self.p_loss_style_remd * 8 + self.p_loss_content_relt * 8
+                    self.loss_patch * self.content_weight +\
+                    self.p_loss_style_remd * 18 + self.p_loss_content_relt * 24
         self.patch_loss.backward()
 
         return self.patch_loss

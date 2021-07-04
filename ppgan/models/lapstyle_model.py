@@ -666,9 +666,11 @@ class LapStyleRevFirstThumb(BaseModel):
         self.ci = paddle.to_tensor(input['ci'])
         self.visual_items['ci'] = self.ci
         self.si = paddle.to_tensor(input['si'])
-        self.sp = paddle.slice(paddle.to_tensor(input['sp']),axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
+        self.sp = paddle.to_tensor(input['sp'])
+        self.sp = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
         self.cp = paddle.to_tensor(input['cp'])
         self.visual_items['cp'] = self.cp
+
 
         self.pyr_ci = make_laplace_pyramid(self.ci, 1)
         self.pyr_si = make_laplace_pyramid(self.si, 1)

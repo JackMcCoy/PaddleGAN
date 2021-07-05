@@ -599,7 +599,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
 
-        self.loss = self.loss_ps * self.style_weight *.55 + self.loss_content_p * self.content_weight*.55 +\
+        self.loss = self.loss_ps * self.style_weight *.55 + self.loss_content_p * self.content_weight*.4 +\
                     self.loss_patch * self.content_weight * 7 +\
                     self.l_identity3 * 50 + self.l_identity4 * 1 +\
                     self.p_loss_style_remd * 18 + self.p_loss_content_relt * 24

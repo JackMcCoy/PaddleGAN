@@ -1,5 +1,5 @@
 total_iters: 30000
-output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/starry_patch/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/city/
 checkpoints_dir: checkpoints
 min_max:
   (0., 1.)
@@ -9,7 +9,7 @@ model:
   generator_encode:
     name: Encoder
   generator_decode:
-    name: DecoderThumb
+    name: DecoderThumbDeep
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:
@@ -27,8 +27,8 @@ model:
 dataset:
   train:
     name: LapStyleThumbset
-    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/gdrive/My Drive/img_style/starrynew.png
+    content_root: /content/gdrive/My Drive/img_style/cities/
+    style_root: /content/gdrive/My Drive/img_style/washnight/
     load_size: 256
     thumb_size: 128
     style_upsize: 1.15
@@ -37,8 +37,8 @@ dataset:
     batch_size: 3
   test:
     name: LapStyleThumbset
-    content_root: /content/gdrive/My Drive/img_style/content/
-    style_root: /content/gdrive/My Drive/img_style/starrynew.png
+    content_root: /content/gdrive/My Drive/img_style/washheights_tiles/
+    style_root: /content/gdrive/My Drive/img_style/washnight/washnight.jpg
     load_size: 256
     thumb_size: 128
     crop_size: 128

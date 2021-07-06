@@ -619,8 +619,6 @@ class LapStyleRevFirstThumb(BaseModel):
         self.visual_items['ci'] = self.ci
         self.si = paddle.to_tensor(input['si'])
         self.sp = paddle.to_tensor(input['sp'])
-        self.sp = paddle.slice(self.sp, axes=[2, 3], starts=[self.position[0], self.position[2]],
-                                   ends=[self.position[1], self.position[3]])
         self.cp = paddle.to_tensor(input['cp'])
         self.visual_items['cp'] = self.cp
 
@@ -636,7 +634,9 @@ class LapStyleRevFirstThumb(BaseModel):
 
         cF = self.nets['net_enc'](self.pyr_ci[1])
         sF = self.nets['net_enc'](self.pyr_si[1])
-        self.spF = self.nets['net_enc'](self.sp)
+        transformed = paddle.slice(self.sp, axes=[2, 3], starts=[self.position[0], self.position[2]],
+                                   ends=[self.position[1], self.position[3]])
+        self.spF = self.nets['net_enc'](transformed)
         self.cpF = self.nets['net_enc'](self.cp)
 
         stylized_small,_ = self.nets['net_dec'](cF, sF,self.cpF,'thumb')
@@ -776,7 +776,12 @@ class LapStyleRevFirstThumb(BaseModel):
         pred_p_fake = self.nets['netD_patch'](self.p_stylized.detach())
         self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
-        self.loss_Dp_real = 0
+        pred_Dp_real = 0
+        reshaped = paddle.split(self.sp, 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                self.loss_Dp_real = self.nets['netD_patch'](j.detach())
+                pred_Dp_real += self.nets['netD_patch'](self.loss_Dp_real)
         pred_Dp_real = self.nets['netD_patch'](self.sp.detach())
         self.loss_Dp_real += self.gan_criterion(pred_Dp_real, True)
         self.loss_D_patch = (self.loss_Dp_fake + self.loss_Dp_real) * 0.5

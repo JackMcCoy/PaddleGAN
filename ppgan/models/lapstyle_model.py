@@ -656,6 +656,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.stylized = stylized_rev
         self.p_stylized = p_stylized_rev
         self.visual_items['stylized'] = self.stylized
+        self.visual_items['stylized_patch'] = self.p_stylized
 
     def backward_G(self, optimizer):
 

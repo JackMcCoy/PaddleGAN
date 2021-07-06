@@ -779,7 +779,7 @@ class LapStyleRevFirstThumb(BaseModel):
         pred_Dp_real = 0
         print(self.sp.shape)
         reshaped = paddle.split(self.sp, 2, 2)
-        print(reshaped.shape)
+        print(reshaped[0].shape)
         for i in reshaped:
             for j in paddle.split(i, 2, 3):
                 self.loss_Dp_real = self.nets['netD_patch'](j.detach())

@@ -695,12 +695,12 @@ class LapStyleRevFirstThumb(BaseModel):
         p_stylized_up = F.interpolate(p_stylized_small, scale_factor=2)
 
         revnet_input = paddle.concat(x=[self.pyr_ci[0], stylized_up], axis=1)
-        stylized_rev_lap,self.ttF_res = self.nets['net_rev'](revnet_input.detach())
+        stylized_rev_lap = self.nets['net_rev'](revnet_input.detach())
         self.ttF_res=self.ttF_res.detach()
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
 
         p_revnet_input = paddle.concat(x=[self.pyr_cp[0], p_stylized_up], axis=1)
-        p_stylized_rev_lap,_ = self.nets['net_rev'](p_revnet_input.detach(),self.ttF_res)
+        p_stylized_rev_lap = self.nets['net_rev'](p_revnet_input.detach())
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_small])
 
         self.stylized = stylized_rev
@@ -754,8 +754,8 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.loss = self.loss_G_GAN + self.loss_s * self.style_weight +\
                     self.loss_content * self.content_weight+\
-                    self.loss_style_remd * 18 +\
-                    self.loss_content_relt * 24
+                    self.loss_style_remd * 10 +\
+                    self.loss_content_relt * 16
         self.loss.backward()
         optimizer.step()
 
@@ -796,11 +796,11 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
 
-        self.patch_loss = self.loss_Gp_GAN +self.loss_ps * self.style_weight *.55 +\
-                          self.loss_content_p * self.content_weight*.4 +\
-                    self.loss_content_p * self.content_weight *7 +\
-                    self.loss_patch * self.content_weight*3 +\
-                    self.p_loss_style_remd * 18 + self.p_loss_content_relt * 24
+        self.patch_loss = self.loss_Gp_GAN +self.loss_ps * self.style_weight +\
+                          self.loss_content_p * self.content_weight +\
+                    self.loss_content_p * self.content_weight +\
+                    self.loss_patch * self.content_weight*5 +\
+                    self.p_loss_style_remd * 10 + self.p_loss_content_relt * 16
         self.patch_loss.backward()
 
         return self.patch_loss

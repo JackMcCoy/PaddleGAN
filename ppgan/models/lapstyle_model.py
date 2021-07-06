@@ -743,14 +743,14 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
 
-        self.patch_loss += self.loss_Gp_GAN +self.loss_ps * self.style_weight +\
+        self.loss += self.loss_Gp_GAN +self.loss_ps * self.style_weight +\
                           self.loss_content_p * self.content_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight*5 +\
                     self.p_loss_style_remd * 10 + self.p_loss_content_relt * 16
-        self.patch_loss.backward()
+        self.loss.backward()
 
-        return self.patch_loss
+        return self.loss
 
     def backward_D(self):
         """Calculate GAN loss for the discriminator"""

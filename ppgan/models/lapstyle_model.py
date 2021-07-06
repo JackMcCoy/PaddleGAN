@@ -634,6 +634,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
         cF = self.nets['net_enc'](self.pyr_ci[1])
         sF = self.nets['net_enc'](self.pyr_si[1])
+        cpF = self.nets['net_enc'](self.pyr_cp[1])
         transformed = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
         self.spF = self.nets['net_enc'](transformed)
 

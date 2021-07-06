@@ -7,14 +7,14 @@ min_max:
 model:
   name: LapStyleRevFirstThumb
   revnet_generator:
-    name: RevisionNet32Feats
+    name: RevisionNetDeepThumb
   revnet_discriminator:
     name: LapStyleDiscriminator
     num_channels: 64
   draftnet_encode:
     name: Encoder
   draftnet_decode:
-    name: DecoderThumbDeep
+    name: DecoderThumb
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:

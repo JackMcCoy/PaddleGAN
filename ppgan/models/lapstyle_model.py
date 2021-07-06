@@ -642,17 +642,15 @@ class LapStyleRevFirstThumb(BaseModel):
         self.visual_items['stylized_small'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
 
-        p_stylized_small,_ = self.nets['net_dec'](cF, sF, cpF,'patch')
-        self.visual_items['p_stylized_small'] = p_stylized_small
-        p_stylized_up = F.interpolate(p_stylized_small, scale_factor=2)
-
         revnet_input = paddle.concat(x=[self.pyr_ci[0], stylized_up], axis=1)
-        stylized_rev_lap = self.nets['net_rev'](revnet_input.detach())
+        stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input)
         #self.ttF_res=self.ttF_res.detach()
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
 
+        stylized_up = F.interpolate(stylized_rev, scale_factor=2)
+        p_stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
         p_revnet_input = paddle.concat(x=[self.pyr_cp[0], p_stylized_up], axis=1)
-        p_stylized_rev_lap = self.nets['net_rev'](p_revnet_input.detach())
+        p_stylized_rev_lap = self.nets['net_rev'](p_revnet_input,stylized_feats)
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_small])
 
         self.stylized = stylized_rev
@@ -708,8 +706,6 @@ class LapStyleRevFirstThumb(BaseModel):
                     self.loss_content * self.content_weight+\
                     self.loss_style_remd * 10 +\
                     self.loss_content_relt * 16
-        self.loss.backward()
-        optimizer.step()
 
         """patch loss"""
         self.loss_patch = 0
@@ -748,7 +744,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
 
-        self.patch_loss = self.loss_Gp_GAN +self.loss_ps * self.style_weight +\
+        self.patch_loss += self.loss_Gp_GAN +self.loss_ps * self.style_weight +\
                           self.loss_content_p * self.content_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight*5 +\

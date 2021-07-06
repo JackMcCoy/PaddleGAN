@@ -632,13 +632,13 @@ class LapStyleRevFirstThumb(BaseModel):
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
 
-        cF = self.nets['net_enc'](self.pyr_ci[1])
-        sF = self.nets['net_enc'](self.pyr_si[1])
-        cpF = self.nets['net_enc'](self.pyr_cp[1])
+        self.cF = self.nets['net_enc'](self.pyr_ci[1])
+        self.sF = self.nets['net_enc'](self.pyr_si[1])
+        self.cpF = self.nets['net_enc'](self.cp)
         transformed = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
         self.spF = self.nets['net_enc'](transformed)
 
-        stylized_small = self.nets['net_dec'](cF, sF)
+        stylized_small = self.nets['net_dec'](self.cF, self.sF)
         self.visual_items['stylized_small'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
 
@@ -660,12 +660,6 @@ class LapStyleRevFirstThumb(BaseModel):
         self.visual_items['stylized_patch'] = self.p_stylized
 
     def backward_G(self, optimizer):
-
-        self.cF = self.nets['net_enc'](self.ci)
-        self.sF = self.nets['net_enc'](self.si)
-        self.cpF = self.nets['net_enc'](self.cp)
-        reshaped = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-        spF = self.nets['net_enc'](reshaped)
 
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear', align_corners=False)

@@ -74,7 +74,7 @@ optimizer:
   optimD_patch:
     name: Adam
     net_names:
-      - netD
+      - netD_patch
     beta1: 0.9
     beta2: 0.999
 

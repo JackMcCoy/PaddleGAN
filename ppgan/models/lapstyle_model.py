@@ -777,7 +777,8 @@ class LapStyleRevFirstThumb(BaseModel):
         """Calculate GAN loss for the patch discriminator"""
         pred_p_fake = self.nets['netD_patch'](self.p_stylized.detach())
         self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
-
+        print(self.p_stylized.shape)
+        print(self.sp.shape)
         self.loss_Dp_real = 0
         pred_Dp_real = self.nets['netD_patch'](self.sp.detach())
         self.loss_Dp_real += self.gan_criterion(pred_Dp_real, True)

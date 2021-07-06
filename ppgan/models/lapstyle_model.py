@@ -732,8 +732,8 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_ps'] = self.loss_ps
 
         self.p_loss_style_remd = self.calc_style_emd_loss(
-            self.tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
-            self.tpF['r41'], spF['r41'])
+            self.tpF['r31'], self.spF['r31']) + self.calc_style_emd_loss(
+            self.tpF['r41'], self.spF['r41'])
         self.p_loss_content_relt = self.calc_content_relt_loss(
             self.tpF['r31'], self.cpF['r31']) + self.calc_content_relt_loss(
             self.tpF['r41'], self.cpF['r41'])

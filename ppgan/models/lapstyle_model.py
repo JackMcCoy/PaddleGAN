@@ -618,6 +618,8 @@ class LapStyleRevFirstThumb(BaseModel):
         self.visual_items['ci'] = self.ci
         self.si = paddle.to_tensor(input['si'])
         self.sp = paddle.to_tensor(input['sp'])
+        self.sp = paddle.slice(self.sp, axes=[2, 3], starts=[self.position[0], self.position[2]],
+                                   ends=[self.position[1], self.position[3]])
         self.cp = paddle.to_tensor(input['cp'])
         self.visual_items['cp'] = self.cp
         self.position = input['position']
@@ -634,9 +636,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
         cF = self.nets['net_enc'](self.pyr_ci[1])
         sF = self.nets['net_enc'](self.pyr_si[1])
-        cpF = self.nets['net_enc'](self.pyr_cp[1])
-        transformed = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-        self.spF = self.nets['net_enc'](transformed)
+        self.spF = self.nets['net_enc'](self.sp)
 
         stylized_small = self.nets['net_dec'](cF, sF)
         self.visual_items['stylized_small'] = stylized_small
@@ -664,8 +664,6 @@ class LapStyleRevFirstThumb(BaseModel):
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
         self.cpF = self.nets['net_enc'](self.cp)
-        reshaped = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-        spF = self.nets['net_enc'](reshaped)
 
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear', align_corners=False)
@@ -777,8 +775,7 @@ class LapStyleRevFirstThumb(BaseModel):
         """Calculate GAN loss for the patch discriminator"""
         pred_p_fake = self.nets['netD_patch'](self.p_stylized.detach())
         self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
-        print(self.p_stylized.shape)
-        print(self.sp.shape)
+
         self.loss_Dp_real = 0
         pred_Dp_real = self.nets['netD_patch'](self.sp.detach())
         self.loss_Dp_real += self.gan_criterion(pred_Dp_real, True)

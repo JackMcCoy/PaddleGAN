@@ -784,7 +784,7 @@ class LapStyleRevFirstThumb(BaseModel):
             print(i.shape)
             for j in paddle.split(i, 2, 3):
                 print(j.shape)
-                self.loss_Dp_real = self.nets['netD_patch'](j.detach())
+                self.loss_Dp_real = self.nets['netD_patch'](j)
                 pred_Dp_real += self.nets['netD_patch'](self.loss_Dp_real)
         self.loss_Dp_real = self.gan_criterion(pred_Dp_real, True)
         self.loss_D_patch = (self.loss_Dp_fake + self.loss_Dp_real/4) * 0.5

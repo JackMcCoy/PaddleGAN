@@ -1370,26 +1370,22 @@ class LapStyleRevFirstPatch(BaseModel):
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach())
         #self.ttF_res=self.ttF_res.detach()
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
-        stylized_med = F.interpolate(stylized_small, scale_factor=2)
-        stylized_med = paddle.slice(stylized_med,axes=[2,3],starts=[self.half_position[0],self.half_position[2]],ends=[self.half_position[1],self.half_position[3]])
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
         p_stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.half_position[0],self.half_position[2]],ends=[self.half_position[1],self.half_position[3]])
         p_revnet_input = paddle.concat(x=[self.pyr_cp[1], p_stylized_up], axis=1)
         p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach())
-        p_stylized_rev = fold_laplace_patch([p_stylized_rev_lap, p_stylized_up.detach()],[stylized_med])
+        p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_up.detach()])
 
         stylized_up = F.interpolate(p_stylized_rev, scale_factor=2)
 
         patch_origin_size = 512
         i = random_crop_coords(patch_origin_size)
-        stylized_large = F.interpolate(stylized_med, scale_factor=2)
-        stylized_large = paddle.slice(stylized_large.detach(),axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         input_crop = paddle.slice(stylized_up.detach(),axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         self.cp_crop = paddle.slice(self.pyr_cp[0],axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
         self.cp_crop = paddle.slice(self.pyr_cp[0],axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         p_revnet_input = paddle.concat(x=[self.cp_crop, input_crop], axis=1)
         p_stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](p_revnet_input.detach(),stylized_feats.detach())
-        p_stylized_rev_patch = fold_laplace_patch([p_stylized_rev_lap.detach(), p_stylized_up.detach()],[p_stylized_rev_patch,stylized_large])
+        p_stylized_rev_patch = fold_laplace_patch([p_stylized_rev_patch.detach(), input_crop.detach()])
 
         stylized = stylized_rev
         self.p_stylized = p_stylized_rev_patch

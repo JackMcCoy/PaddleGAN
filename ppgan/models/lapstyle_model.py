@@ -14,6 +14,7 @@
 
 import paddle
 import paddle.nn.functional as F
+import math
 from .base_model import BaseModel
 
 from .builder import MODELS

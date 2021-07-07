@@ -1375,7 +1375,6 @@ class LapStyleRevFirstPatch(BaseModel):
         p_revnet_input = paddle.concat(x=[self.pyr_cp[1], p_stylized_up], axis=1)
         p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach())
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_up.detach()])
-        stylized_up = F.interpolate(stylized_rev, scale_factor=2)
 
         patch_origin_size = 256
         i = random_crop_coords(patch_origin_size)

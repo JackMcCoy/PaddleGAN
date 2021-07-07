@@ -1076,7 +1076,7 @@ class LapStyleRevSecondPatch(BaseModel):
 
         super(LapStyleRevSecondPatch, self).__init__()
 
-        paddle.enable_static()
+        scaler = paddle.amp.GradScaler(init_loss_scaling=1024)
         # define draftnet params
         self.nets['net_enc'] = build_generator(draftnet_encode)
         self.nets['net_dec'] = build_generator(draftnet_decode)
@@ -1104,8 +1104,6 @@ class LapStyleRevSecondPatch(BaseModel):
         self.style_layers = style_layers
         self.content_weight = content_weight
         self.style_weight = style_weight
-        self.optimG = paddle.static.amp.decorate(optimizers['optimG'])
-        self.optimD = paddle.static.amp.decorate(optimizers['optimD'])
 
     def setup_input(self, input):
         self.ci = paddle.to_tensor(input['ci'])
@@ -1192,7 +1190,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     loss_content * self.content_weight + \
                     loss_style_remd * 10 + \
                     loss_content_relt * 16
-        loss.backward()
+
         return loss
 
     def backward_G_p(self):
@@ -1242,7 +1240,6 @@ class LapStyleRevSecondPatch(BaseModel):
                           loss_content_p * self.content_weight + \
                           loss_patch * self.content_weight + \
                           p_loss_style_remd * 10 + p_loss_content_relt * 16
-        patch_loss.backward()
         return patch_loss
 
     def backward_D(self):
@@ -1252,28 +1249,35 @@ class LapStyleRevSecondPatch(BaseModel):
 
         pred_p_real = self.nets['netD'](self.thumb_crop.detach())
         loss_Dp_real = self.gan_criterion(pred_p_real, True)
-        self.loss_D = (loss_Dp_fake + loss_Dp_real) * 0.5
+        loss_D = (loss_Dp_fake + loss_Dp_real) * 0.5
 
-        self.loss_D.backward()
 
         self.losses['Dp_fake_loss'] = loss_Dp_fake
         self.losses['Dp_real_loss'] = loss_Dp_real
+        return loss_d
 
     def train_iter(self, optimizers=None):
-        # compute fake images: G(A)
-        self.forward()
-        # update D
+        with paddle.amp.auto_cast():
+            # compute fake images: G(A)
+            self.forward()
+            # update D
 
-        self.set_requires_grad(self.nets['netD'], True)
-        self.optimD.clear_grad()
-        self.backward_D()
-        self.optimD.step()
+            self.set_requires_grad(self.nets['netD'], True)
+            optimizers['optimD'].clear_grad()
+            loss = self.backward_D()
+            scaled = self.scaler.scale(loss)
+            scaled.backward()
+            scaler.minimize(optimizers['optimD'], scaled)
 
-        # update G
-        self.set_requires_grad(self.nets['netD'], False)
-        self.optimG.clear_grad()
-        self.backward_G()
-        self.optimG.step()
-        self.optimG.clear_grad()
-        self.backward_G_p()
-        self.optimG.step()
+            # update G
+            self.set_requires_grad(self.nets['netD'], False)
+            optimizers['optimG'].clear_grad()
+            loss = self.backward_G()
+            scaled = self.scaler.scale(loss)
+            scaled.backward()
+            scaler.minimize(optimizers['optimG'], scaled)
+            optimizers['optimG'].clear_grad()
+            loss = self.backward_G_p()
+            scaled = self.scaler.scale(loss)
+            scaled.backward()
+            scaler.minimize(optimizers['optimG'], scaled)

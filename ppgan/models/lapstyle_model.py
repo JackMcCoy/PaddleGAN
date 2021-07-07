@@ -159,7 +159,7 @@ def fold_laplace_pyramid(pyramid,patch=False):
     for i in range(len(pyramid) - 2, -1, -1):  # iterate from len-2 to 0
         up_h, up_w = pyramid[i].shape[2], pyramid[i].shape[3]
         current = pyramid[i] + tensor_resample(current, (up_h, up_w))
-    if not type(patch)==bool
+    if not type(patch)==bool:
         current = current+patch
     return current
 

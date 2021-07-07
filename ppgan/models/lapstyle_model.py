@@ -1254,7 +1254,7 @@ class LapStyleRevSecondPatch(BaseModel):
 
         self.losses['Dp_fake_loss'] = loss_Dp_fake
         self.losses['Dp_real_loss'] = loss_Dp_real
-        return loss_d
+        return loss_D
 
     def train_iter(self, optimizers=None):
         with paddle.amp.auto_cast():

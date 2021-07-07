@@ -1382,7 +1382,7 @@ class LapStyleRevFirstPatch(BaseModel):
         self.sp = F.interpolate(stylized_rev, scale_factor=2)
         p_stylized_up = paddle.slice(self.sp,axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         self.cp_crop = paddle.slice(self.pyr_cp[0],axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
-        p_revnet_input = paddle.concat(x=[cp_crop, p_stylized_up], axis=1)
+        p_revnet_input = paddle.concat(x=[self.cp_crop, p_stylized_up], axis=1)
         p_stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](p_revnet_input.detach(),stylized_feats.detach())
         p_stylized_rev_patch = fold_laplace_patch([p_stylized_rev_lap, p_stylized_up.detach()],p_stylized_rev_patch)
 

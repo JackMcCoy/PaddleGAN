@@ -1320,7 +1320,7 @@ class LapStyleRevFirstPatch(BaseModel):
         self.nets['net_rev'] = build_generator(revnet_generator)
         self.set_requires_grad([self.nets['net_rev']], False)
         self.nets['net_rev_2'] = build_generator(revnet_generator)
-        self.set_requires_grad([self.nets['net_rev_2']], False)
+        init_weights(self.nets['net_rev_2'])
         self.nets['netD_patch'] = build_discriminator(revnet_discriminator)
         init_weights(self.nets['netD_patch'])
 
@@ -1382,7 +1382,7 @@ class LapStyleRevFirstPatch(BaseModel):
         cp_crop = paddle.slice(self.pyr_cp[0],axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         p_revnet_input = paddle.concat(x=[cp_crop, self.input_crop], axis=1)
         p_stylized_rev_patch,_ = self.nets['net_rev_2'](p_revnet_input)
-        p_stylized_rev_patch = fold_laplace_pyramid([p_stylized_rev_patch, self.input_crop])
+        p_stylized_rev_patch = p_stylized_rev_patch+ self.input_crop.detach()
 
         stylized = stylized_rev
         self.p_stylized = p_stylized_rev_patch

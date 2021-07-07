@@ -1399,7 +1399,6 @@ class LapStyleRevFirstPatch(BaseModel):
     def backward_G(self, optimizer):
 
         self.cF = self.nets['net_enc'](self.content_patch)
-        self.spF = self.nets['net_enc'](self.style_patch)
 
         with paddle.no_grad():
             self.tt_cropF = self.nets['net_enc'](self.input_crop)
@@ -1423,17 +1422,22 @@ class LapStyleRevFirstPatch(BaseModel):
         self.losses['loss_content_p'] = self.loss_content_p
 
         self.loss_ps = 0
-        for layer in self.content_layers:
-            self.loss_ps += self.calc_style_loss(self.tpF[layer],
-                                                          self.spF[layer])
+        style_patches = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
+        reshaped = paddle.split(style_patches, 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                spF = self.nets['net_enc'](j)
+                for layer in self.content_layers:
+                    self.loss_ps += self.calc_style_loss(self.tpF[layer],
+                                                                  spF[layer])
         self.losses['loss_ps'] = self.loss_ps
 
         self.p_loss_style_remd = self.calc_style_emd_loss(
-            self.tpF['r31'], self.spF['r31']) + self.calc_style_emd_loss(
-            self.tpF['r41'], self.spF['r41'])
+            self.tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
+            self.tpF['r41'], spF['r41'])
         self.p_loss_content_relt = self.calc_content_relt_loss(
-            self.tpF['r31'], self.cF['r31']) + self.calc_content_relt_loss(
-            self.tpF['r41'], self.cF['r41'])
+            self.tpF['r31'], cF['r31']) + self.calc_content_relt_loss(
+            self.tpF['r41'], cF['r41'])
         self.losses['p_loss_style_remd'] = self.p_loss_style_remd
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
@@ -1443,8 +1447,7 @@ class LapStyleRevFirstPatch(BaseModel):
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
 
-        self.loss = self.loss_Gp_GAN +self.loss_ps * self.style_weight +\
-                          self.loss_content_p * self.content_weight +\
+        self.loss = self.loss_Gp_GAN +self.loss_ps * self.style_weight *.25 +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight * 10 +\
                     self.p_loss_style_remd * 10 + self.p_loss_content_relt * 16

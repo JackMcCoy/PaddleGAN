@@ -1125,8 +1125,8 @@ class LapStyleRevSecondPatch(BaseModel):
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
 
-        cF = self.nets['net_enc'](self.pyr_ci[2])
-        sF = self.nets['net_enc'](self.pyr_si[2])
+        self.cF = self.nets['net_enc'](self.pyr_ci[2])
+        self.sF = self.nets['net_enc'](self.pyr_si[2])
 
         stylized_small= self.nets['net_dec'](cF, sF)
         self.visual_items['stylized_small'] = stylized_small
@@ -1156,45 +1156,6 @@ class LapStyleRevSecondPatch(BaseModel):
 
         self.p_stylized = stylized_rev_patch
         self.visual_items['p_stylized'] = self.p_stylized
-
-    def backward_G(self):
-        cF = self.nets['net_enc'](self.ci)
-        sF = self.nets['net_enc'](self.si)
-        ttF = self.nets['net_enc'](self.stylized)
-
-        loss_content = 0
-        for layer in self.content_layers:
-            loss_content += self.calc_content_loss(ttF[layer],
-                                                        cF[layer],
-                                                        norm=True)
-        self.losses['loss_content'] = loss_content
-
-        """style loss"""
-        loss_s = 0
-        for layer in self.style_layers:
-            loss_s += self.calc_style_loss(ttF[layer], sF[layer])
-        self.losses['loss_s'] = loss_s
-
-        """relative loss"""
-        loss_style_remd = self.calc_style_emd_loss(
-            ttF['r31'], sF['r31']) + self.calc_style_emd_loss(
-            ttF['r41'], sF['r41'])
-        loss_content_relt = self.calc_content_relt_loss(
-            ttF['r31'], cF['r31']) + self.calc_content_relt_loss(
-            ttF['r41'], cF['r41'])
-        self.losses['loss_style_remd'] = loss_style_remd
-        self.losses['loss_content_relt'] = loss_content_relt
-
-        pred_fake = self.nets['netD'](self.stylized)
-        loss_G_GAN = self.gan_criterion(pred_fake, True)
-        self.losses['loss_gan_G'] = loss_G_GAN
-
-        loss = loss_G_GAN + loss_s * self.style_weight + \
-                    loss_content * self.content_weight + \
-                    loss_style_remd * 10 + \
-                    loss_content_relt * 16
-        loss.backward()
-        return loss
 
     def backward_G(self):
         cF = self.nets['net_enc'](self.ci)
@@ -1310,5 +1271,6 @@ class LapStyleRevSecondPatch(BaseModel):
         optimizers['optimG'].clear_grad()
         self.backward_G()
         optimizers['optimG'].step()
+        optimizers['optimG'].clear_grad()
         self.backward_G_p()
         optimizers['optimG'].step()

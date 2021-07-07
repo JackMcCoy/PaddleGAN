@@ -39,12 +39,13 @@ class LapStyleDataset(Dataset):
     """
     coco2017 dataset for LapStyle model
     """
-    def __init__(self, content_root, style_root, load_size, crop_size):
+    def __init__(self, content_root, style_root, load_size, crop_size, style_upsize=1):
         super(LapStyleDataset, self).__init__()
         self.content_root = content_root
         self.paths = os.listdir(self.content_root)
         random.shuffle(self.paths)
         self.style_root = style_root
+        self.style_upsize = style_upsize
         self.style_paths = [os.path.join(self.style_root,i) for i in os.listdir(self.style_root)] if self.style_root[-1]=='/' else [self.style_root]
         self.load_size = load_size
         self.crop_size = crop_size
@@ -86,15 +87,20 @@ class LapStyleDataset(Dataset):
         style_img = Image.fromarray(style_img)
         small_edge = min(style_img.width,style_img.height)
         if small_edge==style_img.width:
-            intermediate_width = self.load_size
+            intermediate_width = math.floor(self.load_size* self.style_upsize)
+            final_width = math.ceil(self.thumb_size*self.style_upsize)
             ratio = style_img.height/style_img.width
-            intermediate_height = math.floor(self.load_size*ratio)
+            intermediate_height = math.floor(self.load_size*ratio* self.style_upsize)
+            final_height = math.ceil(self.thumb_size*ratio* self.style_upsize)
         else:
-            intermediate_height = self.load_size
+            intermediate_height = math.floor(self.load_size* self.style_upsize)
+            final_height = math.ceil(self.thumb_size * self.style_upsize)
             ratio = style_img.width/style_img.height
-            intermediate_width = math.floor(self.load_size*ratio)
+            intermediate_width = math.floor(self.load_size* ratio* self.style_upsize)
+            final_width = math.ceil(self.thumb_size*ratio* self.style_upsize)
         style_img = style_img.resize((intermediate_width, intermediate_height),
                                      Image.BILINEAR)
+        style_img = style_img.resize((final_width,final_height),Image.BILINEAR)
         style_img = np.array(style_img)
         content_img = self.transform(content_img)
         style_img = self.transform(style_img)

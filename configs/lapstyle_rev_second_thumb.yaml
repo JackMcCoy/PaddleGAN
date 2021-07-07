@@ -1,11 +1,13 @@
 total_iters: 100000
-output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/starry_patch/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/city/
 checkpoints_dir: checkpoints
 min_max:
   (0., 1.)
 
 model:
-  name: LapStyleRevSecondThumb
+  name: LapStyleRevSecondPatch
+  revnet_generator:
+    name: RevisionNet
   revnet_generator:
     name: RevisionNetThumb
   revnet_discriminator:
@@ -28,26 +30,26 @@ model:
     gan_mode: vanilla
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
-  content_weight: 1
-  style_weight: 4
+  content_weight: 1.44
+  style_weight: 3.25
 
 dataset:
   train:
     name: LapStyleThumbset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
     style_root: /content/gdrive/My Drive/img_style/PaddleGAN/data/starrynew.png
-    load_size: 768
-    crop_size: 384
-    thumb_size: 384
+    load_size: 1024
+    crop_size: 512
+    thumb_size: 512
     num_workers: 4
     batch_size: 2
   test:
     name: LapStyleThumbset
     content_root: /content/gdrive/My Drive/img_style/content/
     style_root: /content/gdrive/My Drive/img_style/PaddleGAN/data/starrynew.png
-    load_size: 768
-    crop_size: 384
-    thumb_size: 384
+    load_size: 1024
+    crop_size: 512
+    thumb_size: 512
     num_workers: 0
     batch_size: 1
 
@@ -60,7 +62,7 @@ optimizer:
   optimG:
     name: Adam
     net_names:
-      - net_rev_2
+      - net_rev_patch
     beta1: 0.9
     beta2: 0.999
   optimD:

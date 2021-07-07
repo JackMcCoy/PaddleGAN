@@ -35,16 +35,16 @@ model:
 dataset:
   train:
     name: LapStyleDataset
-    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/gdrive/My Drive/img_style/PaddleGAN/data/starrynew.png
+    content_root: /content/gdrive/My Drive/img_style/cities/
+    style_root: /content/gdrive/My Drive/img_style/washnight/
     load_size: 560
     crop_size: 512
     num_workers: 16
     batch_size: 2
   test:
     name: LapStyleDataset
-    content_root: /content/gdrive/My Drive/img_style/content/
-    style_root: /content/gdrive/My Drive/img_style/PaddleGAN/data/starrynew.png
+    content_root: /content/gdrive/My Drive/img_style/washheights_tiles/
+    style_root: /content/gdrive/My Drive/img_style/washnight/washnight.jpg
     load_size: 512
     crop_size: 512
     num_workers: 0
@@ -59,7 +59,7 @@ optimizer:
   optimG:
     name: Adam
     net_names:
-      - net_rev_2
+      - net_rev_patch
     beta1: 0.9
     beta2: 0.999
   optimD:

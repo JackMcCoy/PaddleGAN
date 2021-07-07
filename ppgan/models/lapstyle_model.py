@@ -1216,7 +1216,7 @@ class LapStyleRevSecondPatch(BaseModel):
         pred_p_fake = self.nets['netD'](self.p_stylized.detach())
         loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
-        pred_p_real = self.nets['netD'](self.thumb_crop)
+        pred_p_real = self.nets['netD'](self.thumb_crop.detach())
         loss_Dp_real = self.gan_criterion(pred_p_real, True)
         self.loss_D = (loss_Dp_fake + loss_Dp_real) * 0.5
 

@@ -202,7 +202,7 @@ class LapStyleThumbset(Dataset):
                 bottommost = 0
                 topmost = self.crop_size
         content_img =content_img[bottommost:topmost,leftmost:rightmost]
-        content_patches = content_patches[bottommost*2:topmost*2,leftmost*2:rightmost*2]
+        content_patches = content_patches[bottommost*2:topmost*2,leftmost:rightmost]
         randx = random.choice(list(range(0, self.crop_size,2)))
         randy = random.choice(list(range(0, self.crop_size,2)))
         position = [randx, randx + self.crop_size, randy, randy+self.crop_size]

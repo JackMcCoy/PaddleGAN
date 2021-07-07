@@ -1337,7 +1337,7 @@ class LapStyleRevFirstPatch(BaseModel):
     def setup_input(self, input):
 
         self.position = input['position']
-        print(type(position[0]))
+        print(type(self.position[0]))
         self.half_position = [int(math.floor(i/2)) for i in self.position]
         self.ci = paddle.to_tensor(input['ci'])
         self.visual_items['ci'] = self.ci

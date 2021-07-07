@@ -1076,7 +1076,7 @@ class LapStyleRevSecondPatch(BaseModel):
 
         super(LapStyleRevSecondPatch, self).__init__()
 
-        scaler = paddle.amp.GradScaler(init_loss_scaling=1024)
+        self.scaler = paddle.amp.GradScaler(init_loss_scaling=1024)
         # define draftnet params
         self.nets['net_enc'] = build_generator(draftnet_encode)
         self.nets['net_dec'] = build_generator(draftnet_decode)

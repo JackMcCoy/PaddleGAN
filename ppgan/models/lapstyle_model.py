@@ -1394,7 +1394,8 @@ class LapStyleRevFirstPatch(BaseModel):
         self.crop_marks = i
         self.style_patch = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
         self.style_patch = paddle.slice(self.style_patch,axes=[2,3],starts=[self.crop_marks[0],self.crop_marks[2]],ends=[self.crop_marks[1],self.crop_marks[3]])
-        self.visual_items['stylized_med'] = stylized_med
+        self.visual_items['input_crop'] = self.input_crop
+        self.visual_items['cp_crop']=cp_crop
 
 
     def backward_G(self, optimizer):

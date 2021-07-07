@@ -1390,8 +1390,9 @@ class LapStyleRevFirstPatch(BaseModel):
         stylized = stylized_rev
         self.p_stylized = p_stylized_rev_patch
         self.visual_items['stylized'] = stylized
-        self.visual_items['input_crop'] = self.input_crop
         self.visual_items['stylized_patch'] = p_stylized_rev
+        self.visual_items['input_crop'] = self.input_crop
+        self.visual_items['cp_crop'] = self.cp_crop
         self.visual_items['stylized_patch_2'] = p_stylized_rev_patch
         self.crop_marks = i
         self.style_patch = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])

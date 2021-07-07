@@ -1400,7 +1400,7 @@ class LapStyleRevFirstPatch(BaseModel):
 
     def backward_G(self, optimizer):
 
-        self.cF = self.nets['net_enc'](paddle.slice(self.content_patch)
+        self.cF = self.nets['net_enc'](self.content_patch)
         self.spF = self.nets['net_enc'](self.style_patch)
 
         with paddle.no_grad():

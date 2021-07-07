@@ -1460,7 +1460,7 @@ class LapStyleRevFirstPatch(BaseModel):
 
         pred_Dp_real = 0
 
-        self.loss_Dp_real = self.nets['netD_patch'](self.style_patch)
+        self.loss_Dp_real = self.nets['netD_patch'](self.style_patch.detach())
         pred_Dp_real += self.gan_criterion(self.loss_Dp_real, True)
         self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real/4) * 0.5
 

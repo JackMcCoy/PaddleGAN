@@ -1104,8 +1104,8 @@ class LapStyleRevSecondPatch(BaseModel):
         self.style_layers = style_layers
         self.content_weight = content_weight
         self.style_weight = style_weight
-        self.optimG= static.amp.decorate(optimizers['optimG'])
-        self.optimD =static.amp.decorate(optimizers['optimD'])
+        self.optimG = paddle.static.amp.decorate(optimizers['optimG'])
+        self.optimD = paddle.static.amp.decorate(optimizers['optimD'])
 
     def setup_input(self, input):
         self.ci = paddle.to_tensor(input['ci'])

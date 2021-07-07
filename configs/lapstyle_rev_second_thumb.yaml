@@ -8,7 +8,7 @@ model:
   name: LapStyleRevSecondPatch
   revnet_generator:
     name: RevisionNet
-  revnet_generator:
+  revnet_patch_generator:
     name: RevisionNetThumb
   revnet_discriminator:
     name: LapStyleDiscriminator

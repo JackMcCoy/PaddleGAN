@@ -151,7 +151,17 @@ def make_laplace_pyramid(x, levels):
     return pyramid
 
 
-def fold_laplace_pyramid(pyramid,patch=False):
+def fold_laplace_pyramid(pyramid):
+    """
+    Fold Laplacian Pyramid
+    """
+    current = pyramid[-1]
+    for i in range(len(pyramid) - 2, -1, -1):  # iterate from len-2 to 0
+        up_h, up_w = pyramid[i].shape[2], pyramid[i].shape[3]
+        current = pyramid[i] + tensor_resample(current, (up_h, up_w))
+    return current
+
+def fold_laplace_patch(pyramid,patch=False):
     """
     Fold Laplacian Pyramid
     """
@@ -1145,7 +1155,7 @@ class LapStyleRevSecondPatch(BaseModel):
 
         revnet_input = paddle.concat(x=[self.pyr_cp[0], self.thumb_crop], axis=1)
         stylized_rev_patch,_ = self.nets['net_rev_patch'](revnet_input.detach(),self.stylized_thumb_large.detach())
-        stylized_rev_patch = fold_laplace_pyramid(
+        stylized_rev_patch = fold_laplace_patch(
             [stylized_rev_second, stylized_rev_lap, stylized_small],stylized_rev_patch)
 
         self.p_stylized = stylized_rev_patch

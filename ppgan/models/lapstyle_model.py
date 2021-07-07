@@ -1386,9 +1386,7 @@ class LapStyleRevFirstPatch(BaseModel):
 
         stylized = stylized_rev
         self.p_stylized = p_stylized_rev_patch
-        self.content_patch = paddle.slice(self.cp,axes=[2,3],starts=[self.half_position[0],self.half_position[2]],ends=[self.half_position[1],self.half_position[3]])
-        self.content_patch = paddle.slice(self.content_patch,axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
-        self.visual_items['content_patch']=self.content_patch
+        self.content_patch = paddle.slice(self.cp,axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         self.visual_items['stylized'] = stylized
         self.visual_items['stylized_patch'] = p_stylized_rev
         self.visual_items['stylized_patch_2'] = p_stylized_rev_patch

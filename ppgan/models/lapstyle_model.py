@@ -1356,10 +1356,10 @@ class LapStyleRevFirstPatch(BaseModel):
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
 
-        cF = self.nets['net_enc'](self.pyr_ci[2])
-        sF = self.nets['net_enc'](self.pyr_si[2])
+        cF = self.nets['net_enc'](self.pyr_ci[3])
+        sF = self.nets['net_enc'](self.pyr_si[3])
 
-        cpF = self.nets['net_enc'](self.pyr_cp[2])
+        cpF = self.nets['net_enc'](self.pyr_cp[3])
 
         stylized_small,_ = self.nets['net_dec'](cF, sF,cpF,'thumb')
         self.visual_items['stylized_small'] = stylized_small

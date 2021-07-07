@@ -1076,6 +1076,7 @@ class LapStyleRevSecondPatch(BaseModel):
 
         super(LapStyleRevSecondPatch, self).__init__()
 
+        paddle.enable_static()
         # define draftnet params
         self.nets['net_enc'] = build_generator(draftnet_encode)
         self.nets['net_dec'] = build_generator(draftnet_decode)
@@ -1103,6 +1104,8 @@ class LapStyleRevSecondPatch(BaseModel):
         self.style_layers = style_layers
         self.content_weight = content_weight
         self.style_weight = style_weight
+        self.optimG= static.amp.decorate(optimizers['optimG'])
+        self.optimD =static.amp.decorate(optimizers['optimD'])
 
     def setup_input(self, input):
         self.ci = paddle.to_tensor(input['ci'])
@@ -1262,15 +1265,15 @@ class LapStyleRevSecondPatch(BaseModel):
         # update D
 
         self.set_requires_grad(self.nets['netD'], True)
-        optimizers['optimD'].clear_grad()
+        self.optimD.clear_grad()
         self.backward_D()
-        optimizers['optimD'].step()
+        self.optimD.step()
 
         # update G
         self.set_requires_grad(self.nets['netD'], False)
-        optimizers['optimG'].clear_grad()
+        self.optimG.clear_grad()
         self.backward_G()
-        optimizers['optimG'].step()
-        optimizers['optimG'].clear_grad()
+        self.optimG.step()
+        self.optimG.clear_grad()
         self.backward_G_p()
-        optimizers['optimG'].step()
+        self.optimG.step()

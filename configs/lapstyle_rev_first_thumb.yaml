@@ -1,5 +1,5 @@
 total_iters: 100000
-output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/starry_patch/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/city/
 checkpoints_dir: checkpoints
 min_max:
   (0., 1.)
@@ -10,7 +10,7 @@ model:
     name: RevisionNetThumb
   revnet_discriminator:
     name: LapStyleDiscriminator
-    num_channels: 32
+    num_channels: 16
   draftnet_encode:
     name: Encoder
   draftnet_decode:

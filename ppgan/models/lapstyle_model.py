@@ -1436,8 +1436,8 @@ class LapStyleRevFirstPatch(BaseModel):
             self.tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
             self.tpF['r41'], spF['r41'])
         self.p_loss_content_relt = self.calc_content_relt_loss(
-            self.tpF['r31'], cF['r31']) + self.calc_content_relt_loss(
-            self.tpF['r41'], cF['r41'])
+            self.tpF['r31'], self.cF['r31']) + self.calc_content_relt_loss(
+            self.tpF['r41'], self.cF['r41'])
         self.losses['p_loss_style_remd'] = self.p_loss_style_remd
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 

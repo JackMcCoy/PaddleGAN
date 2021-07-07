@@ -1371,8 +1371,6 @@ class LapStyleRevFirstPatch(BaseModel):
 
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
         p_stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.half_position[0],self.half_position[2]],ends=[self.half_position[1],self.half_position[3]])
-        print(self.pyr_cp[1].shape)
-        print(p_stylized_up.shape)
         p_revnet_input = paddle.concat(x=[self.pyr_cp[1], p_stylized_up], axis=1)
         p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach())
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_up.detach()])
@@ -1384,7 +1382,7 @@ class LapStyleRevFirstPatch(BaseModel):
         self.cp_crop = paddle.slice(self.pyr_cp[0],axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         p_revnet_input = paddle.concat(x=[self.cp_crop, p_stylized_up], axis=1)
         p_stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](p_revnet_input.detach(),stylized_feats.detach())
-        p_stylized_rev_patch = fold_laplace_patch([p_stylized_rev_lap, p_stylized_up.detach()],p_stylized_rev_patch)
+        p_stylized_rev_patch = fold_laplace_patch([p_stylized_rev_lap.detach(), p_stylized_up.detach()],p_stylized_rev_patch)
 
         stylized = stylized_rev
         self.p_stylized = p_stylized_rev_patch

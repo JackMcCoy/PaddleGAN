@@ -1134,14 +1134,13 @@ class LapStyleRevSecondPatch(BaseModel):
 
         revnet_input = paddle.concat(x=[self.pyr_ci[1], stylized_up], axis=1)
         #rev_net thumb only calcs as patch if second parameter is passed
-        stylized_rev_lap = self.nets['net_rev'](revnet_input)
-        print(stylized_rev_lap)
+        stylized_rev_lap,_ = self.nets['net_rev'](revnet_input)
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
         self.visual_items['stylized_rev_first'] = stylized_rev
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
 
         revnet_input = paddle.concat(x=[self.pyr_ci[0], stylized_up], axis=1)
-        stylized_rev_lap_second = self.nets['net_rev_2'](revnet_input.detach())
+        stylized_rev_lap_second,_ = self.nets['net_rev_2'](revnet_input.detach())
         stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_rev_lap, stylized_small])
 
         self.visual_items['stylized_rev_second'] = stylized_rev_second
@@ -1150,7 +1149,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.thumb_crop = paddle.slice(stylized_up, axes=[2, 3], starts=[self.position[0], self.position[2]],ends=[self.position[1], self.position[3]])
 
         revnet_input = paddle.concat(x=[self.pyr_cp[0], self.thumb_crop], axis=1)
-        stylized_rev_patch = self.nets['net_rev_2'](revnet_input.detach())
+        stylized_rev_patch,_ = self.nets['net_rev_2'](revnet_input.detach())
         stylized_rev_patch = fold_laplace_patch(
             [stylized_rev_second, stylized_rev_lap, stylized_small],stylized_rev_patch)
 

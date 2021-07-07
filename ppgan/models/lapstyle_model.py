@@ -1087,7 +1087,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.set_requires_grad([self.nets['net_rev']], False)
 
         # define the second revnet params
-        self.nets['net_rev_2'] = build_generator(revnet_patch_generator)
+        self.nets['net_rev_2'] = build_generator(revnet_generator)
         init_weights(self.nets['net_rev_2'])
         self.nets['netD'] = build_discriminator(revnet_discriminator)
         init_weights(self.nets['netD'])

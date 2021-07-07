@@ -1,0 +1,84 @@
+total_iters: 100000
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/starry/
+checkpoints_dir: checkpoints
+min_max:
+  (0., 1.)
+
+model:
+  name: LapStyleRevFirstPatch
+  revnet_generator:
+    name: RevisionNetThumb
+  revnet_discriminator:
+    name: LapStyleDiscriminator
+    num_channels: 32
+  draftnet_encode:
+    name: Encoder
+  draftnet_decode:
+    name: DecoderThumbDeep
+  calc_style_emd_loss:
+    name: CalcStyleEmdLoss
+  calc_content_relt_loss:
+    name: CalcContentReltLoss
+  calc_content_loss:
+    name: CalcContentLoss
+  calc_style_loss:
+    name: CalcStyleLoss
+  gan_criterion:
+    name: GANLoss
+    gan_mode: vanilla
+  content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
+  style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
+  content_weight: 1
+  style_weight: 6
+
+dataset:
+  train:
+    name: LapStyleThumbset
+    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
+    style_root: /content/gdrive/My Drive/img_style/starrynew.png
+    load_size: 1024
+    crop_size: 512
+    thumb_size: 512
+    num_workers: 16
+    style_upsize: 1
+    batch_size: 5
+  test:
+    name: LapStyleThumbset
+    content_root: /content/gdrive/My Drive/img_style/content/
+    style_root: /content/gdrive/My Drive/img_style/starrynew.png
+    load_size: 1024
+    crop_size: 512
+    thumb_size: 512
+    style_upsize: 1
+    num_workers: 0
+    batch_size: 1
+
+lr_scheduler:
+  name: NonLinearDecay
+  learning_rate: 1e-4
+  lr_decay: 5e-5
+
+optimizer:
+  optimG:
+    name: Adam
+    net_names:
+      - net_rev_2
+    beta1: 0.9
+    beta2: 0.999
+  optimD_patch:
+    name: Adam
+    net_names:
+      - netD_patch
+    beta1: 0.9
+    beta2: 0.999
+
+validate:
+  interval: 100000
+  save_img: false
+
+log_config:
+  interval: 10
+  visiual_interval: 100
+
+snapshot_config:
+  interval: 2500

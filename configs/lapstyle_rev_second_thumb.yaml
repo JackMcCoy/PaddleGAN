@@ -36,7 +36,7 @@ model:
 dataset:
   train:
     name: LapStyleThumbset
-    content_root: /content/gdrive/My Drive/img_style/city/
+    content_root: /content/gdrive/My Drive/img_style/cities/
     style_root: /content/gdrive/My Drive/img_style/washnight/washnight.jpg
     load_size: 1024
     crop_size: 512

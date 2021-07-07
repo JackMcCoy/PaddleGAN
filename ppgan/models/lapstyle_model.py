@@ -1360,8 +1360,6 @@ class LapStyleRevFirstPatch(BaseModel):
         cF = self.nets['net_enc'](self.pyr_ci[2])
         sF = self.nets['net_enc'](self.pyr_si[2])
 
-        cpF = self.nets['net_enc'](self.pyr_cp[2])
-
         stylized_small = self.nets['net_dec'](cF, sF)
         self.visual_items['stylized_small'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
@@ -1381,14 +1379,10 @@ class LapStyleRevFirstPatch(BaseModel):
         patch_origin_size = 512
         i = random_crop_coords(patch_origin_size)
         self.input_crop = paddle.slice(stylized_up.detach(),axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
-        print(self.pyr_cp[0].shape)
-        print(self.pyr_cp[1].shape)
-        print(self.pyr_cp[2].shape)
-        print(self.pyr_cp[3].shape)
         cp_crop = paddle.slice(self.pyr_cp[0],axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         p_revnet_input = paddle.concat(x=[cp_crop, self.input_crop], axis=1)
         p_stylized_rev_patch,_ = self.nets['net_rev_2'](p_revnet_input.detach())
-        p_stylized_rev_patch = p_stylized_rev_patch + self.input_crop.detach()
+        p_stylized_rev_patch = fold_laplace_patch([stylized_rev_lap, stylized_small],p_stylized_rev_patch)
 
         stylized = stylized_rev
         self.p_stylized = p_stylized_rev_patch
@@ -1400,10 +1394,11 @@ class LapStyleRevFirstPatch(BaseModel):
         self.crop_marks = i
         self.style_patch = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
         self.style_patch = paddle.slice(self.style_patch,axes=[2,3],starts=[self.crop_marks[0],self.crop_marks[2]],ends=[self.crop_marks[1],self.crop_marks[3]])
+        self.visual_items['style_patch'] = self.style_patch
 
     def backward_G(self, optimizer):
 
-        self.cF = self.nets['net_enc'](paddle.slice(self.pyr_cp[-1],axes=[2,3],starts=[self.crop_marks[0],self.crop_marks[2]],ends=[self.crop_marks[1],self.crop_marks[3]]))
+        self.cF = self.nets['net_enc'](paddle.slice(self.cp,axes=[2,3],starts=[self.crop_marks[0],self.crop_marks[2]],ends=[self.crop_marks[1],self.crop_marks[3]]))
         self.spF = self.nets['net_enc'](self.style_patch)
 
         with paddle.no_grad():

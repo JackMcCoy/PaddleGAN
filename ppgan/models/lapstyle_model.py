@@ -1361,7 +1361,7 @@ class LapStyleRevFirstPatch(BaseModel):
 
         cpF = self.nets['net_enc'](self.pyr_cp[2])
 
-        stylized_small,_ = self.nets['net_dec'](cF, sF,cpF,'thumb')
+        stylized_small = self.nets['net_dec'](cF, sF)
         self.visual_items['stylized_small'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
 

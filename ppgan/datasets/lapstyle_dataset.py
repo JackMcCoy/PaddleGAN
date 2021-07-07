@@ -237,7 +237,7 @@ class LapStyleThumbset(Dataset):
         content_img = self.img(content_img)
         style_img = self.img(style_img)
         content_patches = self.img(content_patches)
-        return {'ci': content_img, 'si': style_img, 'sp':style_patch, 'ci_path': path,'cp':content_patches,'position':position}
+        return {'ci': content_img, 'si': style_img, 'sp':style_patch, 'ci_path': path,'cp':content_patches,'position':position,'half_position':half_position}
 
     def img(self, img):
         """make image with [0,255] and HWC to [0,1] and CHW

@@ -1061,10 +1061,10 @@ class LapStyleRevSecondThumb(BaseModel):
 class LapStyleRevSecondPatch(BaseModel):
     def __init__(self,
                  revnet_generator,
-                 revnet_patch_generator,
                  revnet_discriminator,
                  draftnet_encode,
                  draftnet_decode,
+                 revnet_patch_generator,
                  calc_style_emd_loss=None,
                  calc_content_relt_loss=None,
                  calc_content_loss=None,

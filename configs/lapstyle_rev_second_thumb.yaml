@@ -8,8 +8,6 @@ model:
   name: LapStyleRevSecondPatch
   revnet_generator:
     name: RevisionNet
-  revnet_patch_generator:
-    name: RevisionNetThumb
   revnet_discriminator:
     name: LapStyleDiscriminator
     num_channels: 32
@@ -17,6 +15,8 @@ model:
     name: Encoder
   draftnet_decode:
     name: DecoderNet
+  revnet_patch_generator:
+    name: RevisionNetThumb
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:

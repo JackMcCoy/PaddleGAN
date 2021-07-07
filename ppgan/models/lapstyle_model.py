@@ -1378,6 +1378,8 @@ class LapStyleRevFirstPatch(BaseModel):
         patch_origin_size = 512
         i = random_crop_coords(patch_origin_size)
         stylized_med = F.interpolate(stylized_small, scale_factor=4)
+        p_stylized_up = F.interpolate(p_stylized_up, scale_factor=2)
+        p_stylized_up = paddle.slice(p_stylized_up,axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         stylized_med = paddle.slice(stylized_med,axes=[2,3],starts=[self.half_position[0],self.half_position[2]],ends=[self.half_position[1],self.half_position[3]])
         sylized_med = paddle.slice(stylized_med,axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         p_stylized_rev_lap = F.interpolate(p_stylized_rev_lap, scale_factor=2)
@@ -1386,7 +1388,7 @@ class LapStyleRevFirstPatch(BaseModel):
         cp_crop = paddle.slice(self.pyr_cp[0],axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         p_revnet_input = paddle.concat(x=[cp_crop, self.input_crop], axis=1)
         p_stylized_rev_patch,_ = self.nets['net_rev_2'](p_revnet_input)
-        p_stylized_rev_patch = fold_laplace_pyramid([p_stylized_rev_patch, p_stylized_rev_lap,sylized_med])
+        p_stylized_rev_patch = fold_laplace_pyramid([p_stylized_rev_patch, p_stylized_rev_lap,p_stylized_up,sylized_med])
 
         stylized = stylized_rev
         self.p_stylized = p_stylized_rev_patch
@@ -1398,7 +1400,7 @@ class LapStyleRevFirstPatch(BaseModel):
         self.crop_marks = i
         self.style_patch = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
         self.style_patch = paddle.slice(self.style_patch,axes=[2,3],starts=[self.crop_marks[0],self.crop_marks[2]],ends=[self.crop_marks[1],self.crop_marks[3]])
-        self.visual_items['style_patch'] = self.style_patch
+        self.visual_items['stylized_med'] = stylized_med
 
 
     def backward_G(self, optimizer):

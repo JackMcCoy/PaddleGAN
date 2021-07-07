@@ -1385,7 +1385,7 @@ class LapStyleRevFirstPatch(BaseModel):
         self.cp_crop = paddle.slice(self.pyr_cp[0],axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         p_revnet_input = paddle.concat(x=[self.cp_crop, self.input_crop], axis=1)
         p_stylized_rev_patch,_ = self.nets['net_rev_2'](p_revnet_input.detach())
-        p_stylized_rev_patch = p_stylized_rev_patch.detach() + self.input_crop.detach()
+        p_stylized_rev_patch = p_stylized_rev_patch + self.input_crop.detach()
 
         stylized = stylized_rev
         self.p_stylized = p_stylized_rev_patch

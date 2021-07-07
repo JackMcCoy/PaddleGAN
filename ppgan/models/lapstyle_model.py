@@ -1480,7 +1480,7 @@ class LapStyleRevFirstPatch(BaseModel):
         optimizers['optimD_patch'].step()
 
         # update G
-        self.set_requires_grad(self.nets['netD'], False)
+
         self.set_requires_grad(self.nets['netD_patch'], False)
         optimizers['optimG'].clear_grad()
         self.backward_G(optimizers['optimG'])

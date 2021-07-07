@@ -653,7 +653,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.spF = self.nets['net_enc'](transformed)
         self.cpF = self.nets['net_enc'](self.cp)
 
-        stylized_small = self.nets['net_dec'](cF, sF)
+        stylized_small,_ = self.nets['net_dec'](cF, sF,self.cpF,'thumb')
         self.visual_items['stylized_small'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
 
@@ -1382,7 +1382,7 @@ class LapStyleRevFirstPatch(BaseModel):
         cp_crop = paddle.slice(self.pyr_cp[0],axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         p_revnet_input = paddle.concat(x=[cp_crop, self.input_crop], axis=1)
         p_stylized_rev_patch,_ = self.nets['net_rev_2'](p_revnet_input)
-        p_stylized_rev_patch = fold_laplace_pyramid([p_stylized_rev_patch, self.input_crop.detach()])
+        p_stylized_rev_patch = fold_laplace_pyramid([p_stylized_rev_patch, self.input_crop])
 
         stylized = stylized_rev
         self.p_stylized = p_stylized_rev_patch

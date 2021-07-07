@@ -1381,7 +1381,7 @@ class LapStyleRevFirstPatch(BaseModel):
         self.input_crop = paddle.slice(stylized_up.detach(),axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         cp_crop = paddle.slice(self.pyr_cp[0],axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         p_revnet_input = paddle.concat(x=[cp_crop, self.input_crop], axis=1)
-        p_stylized_rev_patch,_ = self.nets['net_rev_2'](p_revnet_input)
+        p_stylized_rev_patch,_ = self.nets['net_rev_2'](p_revnet_input,stylized_feats)
         p_stylized_rev_patch = p_stylized_rev_patch+ self.input_crop.detach()
 
         stylized = stylized_rev
@@ -1447,7 +1447,7 @@ class LapStyleRevFirstPatch(BaseModel):
         self.loss = self.loss_Gp_GAN +self.loss_ps * self.style_weight +\
                           self.loss_content_p * self.content_weight +\
                     self.loss_content_p * self.content_weight +\
-                    self.loss_patch * self.content_weight +\
+                    self.loss_patch * self.content_weight * 10 +\
                     self.p_loss_style_remd * 10 + self.p_loss_content_relt * 16
         self.loss.backward()
 

@@ -1381,6 +1381,10 @@ class LapStyleRevFirstPatch(BaseModel):
         patch_origin_size = 512
         i = random_crop_coords(patch_origin_size)
         self.input_crop = paddle.slice(stylized_up.detach(),axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
+        print(self.pyr_cp[0].shape)
+        print(self.pyr_cp[1].shape)
+        print(self.pyr_cp[2].shape)
+        print(self.pyr_cp[3].shape)
         cp_crop = paddle.slice(self.pyr_cp[0],axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         p_revnet_input = paddle.concat(x=[cp_crop, self.input_crop], axis=1)
         p_stylized_rev_patch,_ = self.nets['net_rev_2'](p_revnet_input.detach())

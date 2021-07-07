@@ -206,7 +206,7 @@ class LapStyleThumbset(Dataset):
         randx = random.choice(list(range(0, self.crop_size,2)))
         randy = random.choice(list(range(0, self.crop_size,2)))
         position = [randx, randx + self.crop_size, randy, randy+self.crop_size]
-        half_position = [math.floor(randx*.25), math.floor((randx + self.crop_size)*.25), math.floor(randy*.25), math.floor((randy+self.crop_size)*.25)]
+        half_position = [math.floor(randx*.5), math.floor((randx + self.crop_size)*.5), math.floor(randy*.5), math.floor((randy+self.crop_size)*.5)]
         content_patches = content_patches[randx:randx + self.crop_size,
                           randy:randy+self.crop_size]
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]

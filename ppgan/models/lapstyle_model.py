@@ -1336,6 +1336,9 @@ class LapStyleRevFirstPatch(BaseModel):
     def setup_input(self, input):
 
         self.position = input['position']
+        self.half_position = []
+        for i in self.position:
+            self.half_position.append(math.floor(i/2))
         self.ci = paddle.to_tensor(input['ci'])
         self.visual_items['ci'] = self.ci
         self.si = paddle.to_tensor(input['si'])
@@ -1368,7 +1371,7 @@ class LapStyleRevFirstPatch(BaseModel):
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
 
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
-        p_stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
+        p_stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.half_position[0],self.half_position[2]],ends=[self.half_position[1],self.half_position[3]])
         print(self.pyr_cp[1].shape)
         print(p_stylized_up.shape)
         p_revnet_input = paddle.concat(x=[self.pyr_cp[1], p_stylized_up], axis=1)

@@ -1267,7 +1267,7 @@ class LapStyleRevSecondPatch(BaseModel):
             loss = self.backward_D()
             scaled = self.scaler.scale(loss)
             scaled.backward()
-            scaler.minimize(optimizers['optimD'], scaled)
+            self.scaler.minimize(optimizers['optimD'], scaled)
 
             # update G
             self.set_requires_grad(self.nets['netD'], False)
@@ -1275,9 +1275,9 @@ class LapStyleRevSecondPatch(BaseModel):
             loss = self.backward_G()
             scaled = self.scaler.scale(loss)
             scaled.backward()
-            scaler.minimize(optimizers['optimG'], scaled)
+            self.scaler.minimize(optimizers['optimG'], scaled)
             optimizers['optimG'].clear_grad()
             loss = self.backward_G_p()
             scaled = self.scaler.scale(loss)
             scaled.backward()
-            scaler.minimize(optimizers['optimG'], scaled)
+            self.scaler.minimize(optimizers['optimG'], scaled)

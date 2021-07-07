@@ -1356,23 +1356,23 @@ class LapStyleRevFirstPatch(BaseModel):
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
 
-        cF = self.nets['net_enc'](self.pyr_ci[3])
-        sF = self.nets['net_enc'](self.pyr_si[3])
+        cF = self.nets['net_enc'](self.pyr_ci[2])
+        sF = self.nets['net_enc'](self.pyr_si[2])
 
-        cpF = self.nets['net_enc'](self.pyr_cp[3])
+        cpF = self.nets['net_enc'](self.pyr_cp[2])
 
         stylized_small,_ = self.nets['net_dec'](cF, sF,cpF,'thumb')
         self.visual_items['stylized_small'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
 
-        revnet_input = paddle.concat(x=[self.pyr_ci[2], stylized_up], axis=1)
+        revnet_input = paddle.concat(x=[self.pyr_ci[1], stylized_up], axis=1)
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach())
         #self.ttF_res=self.ttF_res.detach()
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
 
         p_stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
         stylized_up = F.interpolate(p_stylized_, scale_factor=2)
-        p_revnet_input = paddle.concat(x=[self.pyr_cp[1], stylized_up], axis=1)
+        p_revnet_input = paddle.concat(x=[self.pyr_cp[0], stylized_up], axis=1)
         p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach())
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_up.detach()])
 
@@ -1394,7 +1394,8 @@ class LapStyleRevFirstPatch(BaseModel):
     def backward_G(self, optimizer):
 
         self.cF = self.nets['net_enc'](self.cp_crop)
-        self.spF = self.nets['net_enc'](paddle.slice(self.sp,axes=[2,3],starts=[self.crop_marks[0],self.crop_marks[2]],ends=[self.crop_marks[1],self.crop_marks[3]]))
+        self.style_patch = paddle.slice(self.sp,axes=[2,3],starts=[self.crop_marks[0],self.crop_marks[2]],ends=[self.crop_marks[1],self.crop_marks[3]])
+        self.spF = self.nets['net_enc'](self.style_patch)
 
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized_patch'], scale_factor=2, mode='bilinear', align_corners=False)
@@ -1456,7 +1457,7 @@ class LapStyleRevFirstPatch(BaseModel):
         self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
         pred_Dp_real = 0
-        reshaped = paddle.split(self.sp, 2, 2)
+        reshaped = paddle.split(self.style_patch, 2, 2)
         for i in reshaped:
             for j in paddle.split(i, 2, 3):
                 self.loss_Dp_real = self.nets['netD_patch'](j)

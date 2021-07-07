@@ -1287,7 +1287,7 @@ def random_crop_coords(size):
     halfsize=math.floor(size/2)
     bottommost = random.choice(list(range(0, size - halfsize,2)))
     leftmost = random.choice(list(range(0, size - halfsize,2)))
-    return (bottommost,bottommost+size,leftmost,leftmost+size)
+    return (bottommost,bottommost+halfsize,leftmost,leftmost+halfsize)
 
 @MODELS.register()
 class LapStyleRevFirstPatch(BaseModel):

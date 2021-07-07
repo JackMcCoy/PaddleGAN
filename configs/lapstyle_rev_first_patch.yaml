@@ -39,7 +39,7 @@ dataset:
     load_size: 1024
     crop_size: 512
     thumb_size: 512
-    num_workers: 8
+    num_workers: 5
     style_upsize: 1
     batch_size: 5
   test:

@@ -88,19 +88,15 @@ class LapStyleDataset(Dataset):
         small_edge = min(style_img.width,style_img.height)
         if small_edge==style_img.width:
             intermediate_width = math.floor(self.load_size* self.style_upsize)
-            final_width = math.ceil(self.thumb_size*self.style_upsize)
             ratio = style_img.height/style_img.width
             intermediate_height = math.floor(self.load_size*ratio* self.style_upsize)
-            final_height = math.ceil(self.thumb_size*ratio* self.style_upsize)
         else:
             intermediate_height = math.floor(self.load_size* self.style_upsize)
-            final_height = math.ceil(self.thumb_size * self.style_upsize)
             ratio = style_img.width/style_img.height
             intermediate_width = math.floor(self.load_size* ratio* self.style_upsize)
-            final_width = math.ceil(self.thumb_size*ratio* self.style_upsize)
         style_img = style_img.resize((intermediate_width, intermediate_height),
                                      Image.BILINEAR)
-        style_img = style_img.resize((final_width,final_height),Image.BILINEAR)
+        style_img = style_img.resize((intermediate_width,intermediate_height),Image.BILINEAR)
         style_img = np.array(style_img)
         content_img = self.transform(content_img)
         style_img = self.transform(style_img)

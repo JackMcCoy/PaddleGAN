@@ -1380,10 +1380,10 @@ class LapStyleRevFirstPatch(BaseModel):
 
         patch_origin_size = 512
         i = random_crop_coords(patch_origin_size)
-        input_crop = paddle.slice(stylized_up.detach(),axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
+        self.input_crop = paddle.slice(stylized_up.detach(),axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         self.cp_crop = paddle.slice(self.pyr_cp[0],axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
         self.cp_crop = paddle.slice(self.pyr_cp[0],axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
-        p_revnet_input = paddle.concat(x=[self.cp_crop, input_crop], axis=1)
+        p_revnet_input = paddle.concat(x=[self.cp_crop, self.input_crop], axis=1)
         p_stylized_rev_patch,_ = self.nets['net_rev_2'](p_revnet_input.detach())
         p_stylized_rev_patch = p_stylized_rev_patch.detach() + input_crop.detach()
 
@@ -1402,9 +1402,8 @@ class LapStyleRevFirstPatch(BaseModel):
         self.spF = self.nets['net_enc'](self.style_patch)
 
         with paddle.no_grad():
-            g_t_thumb_up = F.interpolate(self.visual_items['stylized_patch'], scale_factor=2, mode='bilinear', align_corners=False)
-            g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.crop_marks[0],self.crop_marks[2]],ends=[self.crop_marks[1],self.crop_marks[3]])
-            self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
+            g_t_thumb_up = F.interpolate(self.input_crop, scale_factor=2, mode='bilinear', align_corners=False)
+            self.tt_cropF = self.nets['net_enc'](g_t_thumb_up)
 
         self.tpF = self.nets['net_enc'](self.p_stylized)
 

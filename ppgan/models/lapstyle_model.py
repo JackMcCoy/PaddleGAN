@@ -1459,11 +1459,9 @@ class LapStyleRevFirstPatch(BaseModel):
         self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
         pred_Dp_real = 0
-        reshaped = paddle.split(self.style_patch, 2, 2)
-        for i in reshaped:
-            for j in paddle.split(i, 2, 3):
-                self.loss_Dp_real = self.nets['netD_patch'](j)
-                pred_Dp_real += self.gan_criterion(self.loss_Dp_real, True)
+
+        self.loss_Dp_real = self.nets['netD_patch'](self.style_patch)
+        pred_Dp_real += self.gan_criterion(self.loss_Dp_real, True)
         self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real/4) * 0.5
 
         self.loss_D_patch.backward()

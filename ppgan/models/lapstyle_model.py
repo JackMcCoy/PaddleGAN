@@ -1381,22 +1381,21 @@ class LapStyleRevFirstPatch(BaseModel):
         self.input_crop = paddle.slice(stylized_up.detach(),axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         cp_crop = paddle.slice(self.pyr_cp[0],axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         p_revnet_input = paddle.concat(x=[cp_crop, self.input_crop], axis=1)
-        p_stylized_rev_patch,_ = self.nets['net_rev_2'](p_revnet_input.detach())
+        p_stylized_rev_patch,_ = self.nets['net_rev_2'](p_revnet_input)
         p_stylized_rev_patch = self.input_crop+p_stylized_rev_patch
 
         stylized = stylized_rev
         self.p_stylized = p_stylized_rev_patch
+        self.content_patch = paddle.slice(self.cp,axes=[2,3],starts=[self.crop_marks[0],self.crop_marks[2]],ends=[self.crop_marks[1],self.crop_marks[3]])
+        self.visual_items['content_patch']=self.content_patch
         self.visual_items['stylized'] = stylized
-        self.visual_items['input_crop'] = self.input_crop
-        self.visual_items['cp_crop'] = cp_crop
         self.visual_items['stylized_patch'] = p_stylized_rev
         self.visual_items['stylized_patch_2'] = p_stylized_rev_patch
         self.crop_marks = i
         self.style_patch = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
         self.style_patch = paddle.slice(self.style_patch,axes=[2,3],starts=[self.crop_marks[0],self.crop_marks[2]],ends=[self.crop_marks[1],self.crop_marks[3]])
         self.visual_items['style_patch'] = self.style_patch
-        self.content_patch = paddle.slice(self.cp,axes=[2,3],starts=[self.crop_marks[0],self.crop_marks[2]],ends=[self.crop_marks[1],self.crop_marks[3]])
-        self.visual_items['content_patch']=self.content_patch
+
 
     def backward_G(self, optimizer):
 

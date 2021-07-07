@@ -1370,18 +1370,17 @@ class LapStyleRevFirstPatch(BaseModel):
         #self.ttF_res=self.ttF_res.detach()
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
 
-        stylized_up = F.interpolate(stylized_rev, scale_factor=2)
-        p_stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.half_position[0],self.half_position[2]],ends=[self.half_position[1],self.half_position[3]])
-        p_revnet_input = paddle.concat(x=[self.pyr_cp[1], p_stylized_up], axis=1)
+        p_stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
+        stylized_up = F.interpolate(p_stylized_, scale_factor=2)
+        p_revnet_input = paddle.concat(x=[self.pyr_cp[1], stylized_up], axis=1)
         p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach())
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_up.detach()])
 
         patch_origin_size = p_stylized_rev.shape[-1]
         i = random_crop_coords(patch_origin_size)
-        self.sp = F.interpolate(stylized_rev.detach(), scale_factor=2)
-        p_stylized_up = paddle.slice(self.sp,axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
+        input_crop = paddle.slice(stylized_rev.detach(),axes=[2,3],starts=[i[0],i[2]],ends=[i[1]*2,i[3]*2])
         self.cp_crop = paddle.slice(self.pyr_cp[0],axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
-        p_revnet_input = paddle.concat(x=[self.cp_crop, p_stylized_up], axis=1)
+        p_revnet_input = paddle.concat(x=[self.cp_crop, input_crop], axis=1)
         p_stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](p_revnet_input.detach(),stylized_feats.detach())
         p_stylized_rev_patch = fold_laplace_patch([p_stylized_rev_lap.detach(), p_stylized_up.detach()],p_stylized_rev_patch)
 

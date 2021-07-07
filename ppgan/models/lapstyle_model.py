@@ -1142,7 +1142,7 @@ class LapStyleRevSecondPatch(BaseModel):
         revnet_input = paddle.concat(x=[self.pyr_ci[0], stylized_up], axis=1)
         stylized_rev_lap_second = self.nets['net_rev_2'](revnet_input.detach())
         stylized_rev_second = fold_laplace_pyramid(
-            [stylized_rev_lap_second, stylized_rev_lap, stylized_rev])
+            [stylized_rev_lap_second, stylized_rev_lap, stylized_small])
 
         self.visual_items['stylized_rev_second'] = stylized_rev_second
 

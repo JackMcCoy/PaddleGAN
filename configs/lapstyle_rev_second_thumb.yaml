@@ -15,8 +15,6 @@ model:
     name: Encoder
   draftnet_decode:
     name: DecoderNet
-  revnet_patch_generator:
-    name: RevisionNetThumb
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:
@@ -62,7 +60,7 @@ optimizer:
   optimG:
     name: Adam
     net_names:
-      - net_rev_patch
+      - net_rev_2
     beta1: 0.9
     beta2: 0.999
   optimD:

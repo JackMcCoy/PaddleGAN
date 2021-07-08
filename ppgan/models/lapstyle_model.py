@@ -1367,12 +1367,12 @@ class LapStyleRevFirstPatch(BaseModel):
         revnet_input = paddle.concat(x=[self.pyr_ci[1], stylized_up], axis=1)
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach())
         #self.ttF_res=self.ttF_res.detach()
-        stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
+        stylized_rev = fold_laplace_pyramid([stylized_rev_lap.detach(), stylized_small.detach()])
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
         p_stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.half_position[0],self.half_position[2]],ends=[self.half_position[1],self.half_position[3]])
         p_revnet_input = paddle.concat(x=[self.pyr_cp[1], p_stylized_up], axis=1)
         p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach())
-        p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_up.detach()])
+        p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap.detach(), p_stylized_up.detach()])
 
         stylized_up = F.interpolate(p_stylized_rev, scale_factor=2)
         patch_origin_size = 512
@@ -1448,7 +1448,7 @@ class LapStyleRevFirstPatch(BaseModel):
         self.loss = self.loss_Gp_GAN*2.5 +self.loss_ps * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight * 50 +\
-                    self.p_loss_style_remd * 16 + self.p_loss_content_relt * 6
+                    self.p_loss_style_remd * 16 + self.p_loss_content_relt * 10
         self.loss.backward()
 
         return self.loss

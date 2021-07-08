@@ -35,21 +35,21 @@ dataset:
   train:
     name: LapStyleThumbset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/gdrive/My Drive/img_style/starry1600.png
+    style_root: /content/PaddleGAN/starry1600.png
     load_size: 1024
     crop_size: 512
     thumb_size: 512
     num_workers: 20
-    style_upsize: 1.
+    style_upsize: 1.2
     batch_size: 5
   test:
     name: LapStyleThumbset
     content_root: /content/gdrive/My Drive/img_style/content/
-    style_root: /content/gdrive/My Drive/img_style/starry1600.png
+    style_root: /content/PaddleGAN/starry1600.png
     load_size: 1024
     crop_size: 512
     thumb_size: 512
-    style_upsize: 1
+    style_upsize: 1.2
     num_workers: 0
     batch_size: 1
 

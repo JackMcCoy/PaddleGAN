@@ -1411,21 +1411,21 @@ class LapStyleRevFirstPatch(BaseModel):
         # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
         #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
         for layer in [self.content_layers[-2]]:
-            self.loss_patch += self.calc_content_loss(self.tpF[layer],
-                                                      self.tt_cropF[layer])
+            self.loss_patch += paddle.clip(self.calc_content_loss(self.tpF[layer],
+                                                      self.tt_cropF[layer]), 1e-5, 1e5)
         self.losses['loss_patch'] = self.loss_patch
 
         self.loss_content_p = 0
         for layer in self.content_layers:
-            self.loss_content_p += self.calc_content_loss(self.tpF[layer],
+            self.loss_content_p += paddle.clip(self.calc_content_loss(self.tpF[layer],
                                                       self.cF[layer],
-                                                      norm=True)
+                                                      norm=True), 1e-5, 1e5)
         self.losses['loss_content_p'] = self.loss_content_p
 
         self.loss_ps = 0
         for layer in self.content_layers:
-            self.loss_ps += self.calc_style_loss(self.tpF[layer],
-                                                          self.spF[layer])
+            self.loss_ps += paddle.clip(self.calc_style_loss(self.tpF[layer],
+                                                          self.spF[layer]), 1e-5, 1e5)
         self.losses['loss_ps'] = self.loss_ps
 
         self.p_loss_style_remd = self.calc_style_emd_loss(
@@ -1434,12 +1434,14 @@ class LapStyleRevFirstPatch(BaseModel):
         self.p_loss_content_relt = self.calc_content_relt_loss(
             self.tpF['r31'], self.cF['r31']) + self.calc_content_relt_loss(
             self.tpF['r41'], self.cF['r41'])
+        self.p_loss_style_remd = paddle.clip(self.p_loss_style_remd, 1e-5, 1e5)
+        self.p_loss_content_relt = paddle.clip(self.p_loss_content_relt, 1e-5, 1e5)
         self.losses['p_loss_style_remd'] = self.p_loss_style_remd
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
         """gan loss"""
         pred_fake_p = self.nets['netD_patch'](self.p_stylized)
-        self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
+        self.loss_Gp_GAN = paddle.clip(self.gan_criterion(pred_fake_p, True), 1e-5, 1e5)
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
 
@@ -1455,7 +1457,7 @@ class LapStyleRevFirstPatch(BaseModel):
     def backward_Dpatch(self):
         """Calculate GAN loss for the patch discriminator"""
         pred_p_fake = self.nets['netD_patch'](self.p_stylized.detach())
-        self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
+        self.loss_Dp_fake = paddle.clip(self.gan_criterion(pred_p_fake, False), 1e-5, 1e5)
 
         pred_Dp_real = 0
         style_patches = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
@@ -1463,7 +1465,7 @@ class LapStyleRevFirstPatch(BaseModel):
         for i in reshaped:
             for j in paddle.split(i, 2, 3):
                 self.loss_Dp_real = self.nets['netD_patch'](j)
-                pred_Dp_real += self.gan_criterion(self.loss_Dp_real, True)
+                pred_Dp_real += paddle.clip(patch_sl,self.gan_criterion(self.loss_Dp_real, True), 1e-5, 1e5)
         self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real/4) * 0.5
 
         self.loss_D_patch.backward()

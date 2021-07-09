@@ -10,7 +10,7 @@ model:
     name: RevisionNetThumb
   revnet_discriminator:
     name: LapStyleDiscriminator
-    num_channels: 32
+    num_channels: 16
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -55,7 +55,7 @@ dataset:
 
 lr_scheduler:
   name: NonLinearDecay
-  learning_rate: 1e-4
+  learning_rate: 3e-4
   lr_decay: 5e-5
 
 optimizer:

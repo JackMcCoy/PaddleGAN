@@ -10,7 +10,7 @@ model:
     name: RevisionNetThumb
   revnet_discriminator:
     name: LapStyleDiscriminator
-    num_channels: 16
+    num_channels: 32
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -28,8 +28,8 @@ model:
     gan_mode: vanilla
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
-  content_weight: 1
-  style_weight: 6
+  content_weight: 1.44
+  style_weight: 3.25
 
 dataset:
   train:

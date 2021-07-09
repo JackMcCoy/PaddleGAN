@@ -1,5 +1,5 @@
 total_iters: 100000
-output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/starry/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/city/
 checkpoints_dir: checkpoints
 min_max:
   (0., 1.)
@@ -28,28 +28,28 @@ model:
     gan_mode: vanilla
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
-  content_weight: 1
-  style_weight: 6
+  content_weight: 1.44
+  style_weight: 3.25
 
 dataset:
   train:
     name: LapStyleThumbset
-    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/PaddleGAN/starry1600.png
+    content_root: /content/gdrive/My Drive/img_style/cities/
+    style_root: /content/gdrive/My Drive/img_style/washnight/
     load_size: 1024
     crop_size: 512
     thumb_size: 512
     num_workers: 20
-    style_upsize: 1.2
+    style_upsize: 1
     batch_size: 5
   test:
     name: LapStyleThumbset
-    content_root: /content/gdrive/My Drive/img_style/content/
-    style_root: /content/PaddleGAN/starry1600.png
+    content_root: /content/gdrive/My Drive/img_style/cities/
+    style_root: /content/gdrive/My Drive/img_style/washnight/
     load_size: 1024
     crop_size: 512
     thumb_size: 512
-    style_upsize: 1.2
+    style_upsize: 1
     num_workers: 0
     batch_size: 1
 

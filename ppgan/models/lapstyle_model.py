@@ -1319,8 +1319,8 @@ class LapStyleRevFirstPatch(BaseModel):
         # define revision-net params
         self.nets['net_rev'] = build_generator(revnet_generator)
         self.set_requires_grad([self.nets['net_rev']], False)
-        self.nets['net_rev_2'] = build_generator(revnet_generator)
-        init_weights(self.nets['net_rev_2'])
+        self.nets['net_rev_2'] = self.nets['net_rev_2']
+        self.set_requires_grad([self.nets['net_rev']], True)
         self.nets['netD_patch'] = build_discriminator(revnet_discriminator)
         init_weights(self.nets['netD_patch'])
 
@@ -1381,7 +1381,7 @@ class LapStyleRevFirstPatch(BaseModel):
         self.input_crop = paddle.slice(stylized_up.detach(),axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         cp_crop = paddle.slice(self.pyr_cp[0],axes=[2,3],starts=[i[0],i[2]],ends=[i[1],i[3]])
         p_revnet_input = paddle.concat(x=[cp_crop, self.input_crop], axis=1)
-        p_stylized_rev_patch,_ = self.nets['net_rev_2'](p_revnet_input.detach())
+        p_stylized_rev_patch,_ = self.nets['net_rev_2'](p_revnet_input.detach(),stylized_feats.detach())
         p_stylized_rev_patch = p_stylized_rev_patch+ self.input_crop.detach()
 
         stylized = stylized_rev
@@ -1448,7 +1448,7 @@ class LapStyleRevFirstPatch(BaseModel):
         self.loss = self.loss_Gp_GAN +self.loss_ps * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight +\
-                    self.p_loss_style_remd * 16 +   self.p_loss_content_relt * 10
+                    self.p_loss_style_remd * 16 + self.p_loss_content_relt * 10
         self.loss.backward()
 
         return self.loss

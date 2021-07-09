@@ -10,11 +10,11 @@ model:
     name: RevisionNetThumb
   revnet_discriminator:
     name: LapStyleDiscriminator
-    num_channels: 32
+    num_channels: 16
   draftnet_encode:
     name: Encoder
   draftnet_decode:
-    name: DecoderThumbDeep
+    name: DecoderNet
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:

@@ -1319,8 +1319,8 @@ class LapStyleRevFirstPatch(BaseModel):
         # define revision-net params
         self.nets['net_rev'] = build_generator(revnet_generator)
         self.set_requires_grad([self.nets['net_rev']], False)
-        self.nets['net_rev_2'] = self.nets['net_rev_2']
-        self.set_requires_grad([self.nets['net_rev']], True)
+        self.nets['net_rev_2'] = self.nets['net_rev']
+        self.set_requires_grad([self.nets['net_rev_2']], True)
         self.nets['netD_patch'] = build_discriminator(revnet_discriminator)
         init_weights(self.nets['netD_patch'])
 

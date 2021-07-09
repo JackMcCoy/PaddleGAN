@@ -1448,7 +1448,7 @@ class LapStyleRevFirstPatch(BaseModel):
         self.loss = self.loss_Gp_GAN +self.loss_ps * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight +\
-                    self.p_loss_style_remd * 16 + self.p_loss_content_relt * 10
+                    self.p_loss_style_remd * 16 +   self.p_loss_content_relt * 10
         self.loss.backward()
 
         return self.loss

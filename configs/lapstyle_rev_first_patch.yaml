@@ -43,13 +43,14 @@ dataset:
     style_upsize: 1.2
     batch_size: 5
   test:
-    name: LapStyleThumbset
+    name: LapStyleThumbsetInference
     content_root: /content/gdrive/My Drive/img_style/content/
     style_root: /content/PaddleGAN/starrypatched1024.png
     load_size: 1024
     crop_size: 512
     thumb_size: 512
     style_upsize: 1.2
+    max_eval_steps: 1
     num_workers: 0
     batch_size: 1
 

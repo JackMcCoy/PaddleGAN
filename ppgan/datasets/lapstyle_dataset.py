@@ -260,10 +260,10 @@ class LapStyleThumbset(Dataset):
     def name(self):
         return 'LapStyleThumbset'
 
-def get_crop_bounds(thumb_size,img_shape):
-    leftmost= random.choice(list(range(0, img_shape - thumb_size,2)))
+def get_crop_bounds(thumb_size,img_width,img_height):
+    leftmost= random.choice(list(range(0, img_width - thumb_size,2)))
     rightmost=leftmost+thumb_size
-    bottommost = random.choice(list(range(0, img_shape - thumb_size,2)))
+    bottommost = random.choice(list(range(0, img_height - thumb_size,2)))
     topmost=bottommost+thumb_size
     return [leftmost,bottommost,rightmost,topmost]
 
@@ -344,11 +344,12 @@ class MultiPatchSet(Dataset):
             final_width = math.ceil(self.thumb_size*ratio* self.style_upsize)
         style_img = style_img.resize((intermediate_width, intermediate_height),
                                      Image.BILINEAR)
+        style_img = style_img.crop(box=get_crop_bounds(self.load_size,style_img.width,style_img.height))
         style_patch = style_img.resize((self.crop_size,self.crop_size))
-        style_patch = style_patch.resize((self.crop_size,self.crop_size))
         style_patch = np.array(style_patch)
         style_patch = self.img(style_patch)
         style_stack.append(style_patch)
+        content_img = content_img.crop(box=get_crop_bounds(self.load_size,content_img.width,content_img.height))
         content_patch = content_img.resize((self.crop_size,self.crop_size))
         content_patch = np.array(content_patch)
         content_patch = self.img(content_patch)
@@ -358,7 +359,7 @@ class MultiPatchSet(Dataset):
             for c in position_stack:
                 content_patch=content_patch.crop(box=(c[0],c[1],c[2],c[3]))
             size_stack.append(content_patch.width)
-            position_stack.append(get_crop_bounds(self.crop_size*(self.patch_depth-i),content_patch.width))
+            position_stack.append(get_crop_bounds(self.crop_size*(self.patch_depth-i),content_patch.width,content_patch.height))
             content_patch=content_patch.crop(box=(position_stack[-1][0],position_stack[-1][1],position_stack[-1][2],position_stack[-1][3]))
             content_patch = content_patch.resize((self.crop_size,self.crop_size),
                                                  Image.BILINEAR)
@@ -367,7 +368,7 @@ class MultiPatchSet(Dataset):
             content_stack.append(content_patch)
 
         style_patch = style_img
-        pos=get_crop_bounds(self.crop_size*2,style_patch.width)
+        pos=get_crop_bounds(self.crop_size*2,style_patch.width,style_patch.height)
         style_patch = np.array(style_patch.crop(box=(pos[0],pos[1],pos[2],pos[3])))
         style_stack.append(self.img(style_patch))
         style_patch = style_img.resize((math.floor((self.load_size/2)*self.style_upsize),math.floor((self.load_size/2)*self.style_upsize)),Image.BILINEAR)

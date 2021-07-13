@@ -261,7 +261,8 @@ class LapStyleThumbset(Dataset):
         return 'LapStyleThumbset'
 
 def get_crop_bounds(thumb_size,img_shape):
-
+    if img_shape==thumb_size:
+        return [0,-1,-1,0]
     leftmost= random.choice(list(range(0, img_shape - thumb_size,2)))
     rightmost=leftmost+thumb_size
     bottommost = random.choice(list(range(0, img_shape - thumb_size,2)))

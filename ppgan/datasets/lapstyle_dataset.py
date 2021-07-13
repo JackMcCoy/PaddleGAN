@@ -298,6 +298,7 @@ class MultiPatchSet(Dataset):
         content_stack=[]
         style_stack= []
         position_stack = []
+        size_stack = []
         path = self.paths[index]
         content_img = cv2.imread(os.path.join(self.content_root, path))
         try:
@@ -356,6 +357,7 @@ class MultiPatchSet(Dataset):
             content_patch = content_img
             for c in position_stack:
                 content_patch=content_patch.crop(box=(c[0],c[1],c[2],c[3]))
+            size_stack.append(content_patch.width)
             position_stack.append(get_crop_bounds(self.crop_size*(self.patch_depth-i),content_patch.width))
             content_patch=content_patch.crop(box=(position_stack[-1][0],position_stack[-1][1],position_stack[-1][2],position_stack[-1][3]))
             content_patch = content_patch.resize((self.crop_size,self.crop_size),
@@ -378,6 +380,7 @@ class MultiPatchSet(Dataset):
         for idx,i in enumerate(style_stack):
             output['style_stack_'+str(idx+1)]=i
         output['position_stack']=position_stack
+        output['size_stack']=size_stack
         return output
 
     def img(self, img):

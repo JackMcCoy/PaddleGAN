@@ -264,12 +264,12 @@ def get_crop_bounds(thumb_size,img_width,img_height):
     if thumb_size==img_width:
         leftmost=0
     else:
-        leftmost= random.choice(list(range(0, img_width - thumb_size,2)))
+        leftmost= random.choice(list(range(0, int(img_width - thumb_size),2)))
     rightmost=leftmost+thumb_size
     if thumb_size==img_height:
         bottommost=0
     else:
-        bottommost = random.choice(list(range(0, img_height - thumb_size,2)))
+        bottommost = random.choice(list(range(0, int(img_height - thumb_size),2)))
     topmost=bottommost+thumb_size
     return [leftmost,bottommost,rightmost,topmost]
 

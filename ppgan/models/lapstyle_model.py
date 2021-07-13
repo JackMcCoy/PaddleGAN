@@ -1333,10 +1333,10 @@ class LapStyleRevSecondPatch(BaseModel):
 
         self.set_requires_grad(self.nets['netD_patch'], False)
         optimizers['optimG'].clear_grad()
-        self.backward_G(optimizers['optimG'])
+        self.backward_G()
         optimizers['optimG'].step()
         optimizers['optimG'].clear_grad()
-        self.backward_G_p(optimizers['optimG'])
+        self.backward_G_p()
         optimizers['optimG'].step()
 
 def random_crop_coords(size):

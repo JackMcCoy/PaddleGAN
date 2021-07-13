@@ -1168,10 +1168,10 @@ class LapStyleRevSecondPatch(BaseModel):
         stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
         stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
 
-        revnet_input = paddle.concat(x=[laplacian(self.content_stack[3]), stylized_up.detach()], axis=1)
+        revnet_input = paddle.concat(x=[laplacian(self.content_stack[3]).detach(), stylized_up.detach()], axis=1)
         stylized_rev_patch_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach())
         stylized_rev_patch_second = fold_laplace_patch(
-            [stylized_rev_patch_second, stylized_up.detach()])
+            [stylized_rev_patch_second.detach(), stylized_up.detach()])
         self.visual_items['stylized_rev_fourth'] = stylized_rev_patch_second
 
         self.stylized = stylized_rev_patch
@@ -1243,7 +1243,7 @@ class LapStyleRevSecondPatch(BaseModel):
         with paddle.no_grad():
             tt_cropF = self.nets['net_enc'](self.second_patch_in)
 
-        tpF = self.nets['net_enc'](self.stylized)
+        tpF = self.nets['net_enc'](self.p_stylized)
 
         """patch loss"""
         loss_patch = 0

@@ -1098,6 +1098,8 @@ class LapStyleRevSecondPatch(BaseModel):
         # define the second revnet params
         self.nets['net_rev_2'] = build_generator(revnet_generator)
         init_weights(self.nets['net_rev_2'])
+        self.nets['netD'] = build_discriminator(revnet_discriminator)
+        init_weights(self.nets['netD'])
         self.nets['netD_patch'] = build_discriminator(revnet_discriminator)
         init_weights(self.nets['netD_patch'])
 
@@ -1227,7 +1229,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
         """gan loss"""
-        pred_fake_p = self.nets['netD_patch'](self.stylized)
+        pred_fake_p = self.nets['netD'](self.stylized)
         self.loss_Gp_GAN = paddle.clip(self.gan_criterion(pred_fake_p, True), 1e-5, 1e5)
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
@@ -1302,6 +1304,24 @@ class LapStyleRevSecondPatch(BaseModel):
 
     def backward_D(self):
         """Calculate GAN loss for the discriminator"""
+        pred_p_fake = self.nets['netD'](self.stylized.detach())
+        self.loss_Dp_fake = paddle.clip(self.gan_criterion(pred_p_fake, False), 1e-5, 1e5)
+
+        pred_Dp_real = 0
+        reshaped = paddle.split(self.style_stack[2], 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                self.loss_Dp_real = self.nets['netD'](j.detach())
+                pred_Dp_real += paddle.clip(self.gan_criterion(self.loss_Dp_real, True), 1e-5, 1e5)
+        self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real/4) * 0.5
+
+        self.loss_D_patch.backward()
+
+        self.losses['D_fake_loss'] = self.loss_Dp_fake
+        self.losses['D_real_loss'] = pred_Dp_real
+
+    def backward_Dpatch(self):
+        """Calculate GAN loss for the discriminator"""
         pred_p_fake = self.nets['netD_patch'](self.p_stylized.detach())
         self.loss_Dp_fake = paddle.clip(self.gan_criterion(pred_p_fake, False), 1e-5, 1e5)
 
@@ -1322,10 +1342,14 @@ class LapStyleRevSecondPatch(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        self.set_requires_grad(self.nets['netD_patch'], True)
+        self.set_requires_grad(self.nets['netD'], True)
         optimizers['optimD'].clear_grad()
         self.backward_D()
         optimizers['optimD'].step()
+        self.set_requires_grad(self.nets['netD_patch'], True)
+        optimizers['optimD_patch'].clear_grad()
+        self.backward_Dpatch()
+        optimizers['optimD_patch'].step()
 
         # update G
 

@@ -68,6 +68,12 @@ optimizer:
   optimD:
     name: Adam
     net_names:
+      - netD
+    beta1: 0.9
+    beta2: 0.999
+  optimD_patch:
+    name: Adam
+    net_names:
       - netD_patch
     beta1: 0.9
     beta2: 0.999
@@ -78,7 +84,7 @@ validate:
 
 log_config:
   interval: 10
-  visiual_interval: 50
+  visiual_interval: 100
 
 snapshot_config:
   interval: 2500

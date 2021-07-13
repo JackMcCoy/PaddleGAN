@@ -1058,6 +1058,13 @@ class LapStyleRevSecondThumb(BaseModel):
         self.backward_G_p()
         optimizers['optimG'].step()
 
+def crop_upsized(stylized_up,positions,orig_size):
+    ratio = stylized_up.shape[-1]/orig_size
+    for i in range(stylized_up.shape[0]+1):
+        stylized_up[i]=stylized_up[i,:,math.floor(positions[0][i]*ratio):math.floor(positions[2][i]*ratio),\
+                       math.floor(positions[1][i]*ratio):math.floor(positions[3][i]*ratio)]
+    return stylized_up
+
 
 @MODELS.register()
 class LapStyleRevSecondPatch(BaseModel):
@@ -1117,9 +1124,6 @@ class LapStyleRevSecondPatch(BaseModel):
 
         self.positions = input['position_stack']
         self.size_stack = input['size_stack']
-        print(self.positions)
-        print('size stack: ')
-        print(self.size_stack)
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
@@ -1137,9 +1141,7 @@ class LapStyleRevSecondPatch(BaseModel):
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
         self.visual_items['stylized_rev_first'] = stylized_rev
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
-        print(stylized_up.shape)
-        print(self.positions[0])
-        stylized_up = stylized_up[:,:,self.positions[0][0]:self.positions[0][2],self.positions[0][1]:self.positions[0][3]]
+        stylized_up = crop_upsized(stylized_up,self.positions[0],self.size_stack[0])
 
         revnet_input = paddle.concat(x=[laplacian(self.content_stack[1]), stylized_up], axis=1)
         stylized_rev_lap_second,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylzied_feats)
@@ -1149,8 +1151,9 @@ class LapStyleRevSecondPatch(BaseModel):
         self.visual_items['stylized_rev_second'] = stylized_rev_second
 
         stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
-        stylized_up = stylized_up[:,:,self.positions[1][0]:self.positions[1][2],self.positions[1][1]:self.positions[1][3]]
+        stylized_up = crop_upsized(stylized_up,self.positions[1],self.size_stack[1])
         self.first_patch_in = stylized_up
+        
         stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
         stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
 
@@ -1161,7 +1164,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.visual_items['stylized_rev_third'] = stylized_rev_patch
 
         stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
-        stylized_up = stylized_up[:,:,self.positions[2][0]:self.positions[2][2],self.positions[2][1]:self.positions[2][3]]
+        stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
         self.second_patch_in = stylized_up
         stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
         stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)

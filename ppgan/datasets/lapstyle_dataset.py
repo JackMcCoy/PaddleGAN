@@ -358,7 +358,7 @@ class MultiPatchSet(Dataset):
             content_patch = np.array(content_img)
             for c in position_stack:
                 content_patch=content_patch[c[0]:c[1],c[2]:c[3]]
-            content_patch = Image.fromarray(content_patch)
+            content_patch = Image.fromarray(content_patch.copy())
             content_patch = content_patch.resize((self.crop_size,self.crop_size),
                                                  Image.BILINEAR)
             content_patch = np.array(content_patch)

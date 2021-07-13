@@ -9,8 +9,9 @@ model:
   revnet_generator:
     name: RevisionNetThumb
   revnet_discriminator:
-    name: LapStyleDiscriminator
-    num_channels: 32
+    name: LapStyleMultiresDiscriminator
+    num_channels: 64
+    num_halvings: 3
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -40,7 +41,7 @@ dataset:
     crop_size: 256
     thumb_size: 256
     patch_depth: 4
-    num_workers: 10
+    num_workers: 15
     batch_size: 5
   test:
     name: MultiPatchSet

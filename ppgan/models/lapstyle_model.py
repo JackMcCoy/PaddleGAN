@@ -1174,8 +1174,8 @@ class LapStyleRevSecondPatch(BaseModel):
             [stylized_rev_patch_second.detach(), stylized_up.detach()])
         self.visual_items['stylized_rev_fourth'] = stylized_rev_patch_second
 
-        self.stylized = stylized_rev_patch
-        self.p_stylized = stylized_rev_patch_second
+        self.stylized = stylized_rev_patch.detach()
+        self.p_stylized = stylized_rev_patch_second.detach()
 
     def backward_G(self):
         self.cF = self.nets['net_enc'](self.content_stack[-2])

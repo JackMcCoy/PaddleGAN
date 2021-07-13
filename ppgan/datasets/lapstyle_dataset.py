@@ -356,7 +356,6 @@ class MultiPatchSet(Dataset):
             content_patch = content_img
             for c in position_stack:
                 content_patch=content_patch.crop(box=(c[0],c[1],c[2],c[3]))
-            print(content_patch.width)
             position_stack.append(get_crop_bounds(self.crop_size*(self.patch_depth-i),content_patch.width))
             content_patch=content_patch.crop(box=(position_stack[-1][0],position_stack[-1][1],position_stack[-1][2],position_stack[-1][3]))
             content_patch = content_patch.resize((self.crop_size,self.crop_size),
@@ -375,10 +374,8 @@ class MultiPatchSet(Dataset):
         style_stack.append(self.img(style_patch))
         output = {}
         for idx,i in enumerate(content_stack):
-            print('content '+str(idx)+' '+str(i.shape))
             output['content_stack_'+str(idx+1)]=i
         for idx,i in enumerate(style_stack):
-            print('content '+str(idx)+' '+str(i.shape))
             output['style_stack_'+str(idx+1)]=i
         output['position_stack']=position_stack
         return output

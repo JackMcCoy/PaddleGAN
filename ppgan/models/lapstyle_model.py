@@ -1134,7 +1134,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.visual_items['stylized_rev_first'] = stylized_rev
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
         print(stylized_up.shape)
-        print(positions[0])
+        print(self.positions[0])
         stylized_up = stylized_up[:,:,self.positions[0][0]:self.positions[0][2],self.positions[0][1]:self.positions[0][3]]
 
         revnet_input = paddle.concat(x=[laplacian(self.content_stack[1]), stylized_up], axis=1)

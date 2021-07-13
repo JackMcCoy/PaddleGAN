@@ -40,8 +40,8 @@ dataset:
     crop_size: 256
     thumb_size: 256
     patch_depth: 4
-    num_workers: 4
-    batch_size: 4
+    num_workers: 5
+    batch_size: 5
   test:
     name: MultiPatchSet
     content_root: /content/gdrive/My Drive/img_style/large_pics/

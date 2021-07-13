@@ -1060,8 +1060,8 @@ class LapStyleRevSecondThumb(BaseModel):
 
 def crop_upsized(stylized_up,positions,orig_size):
     ratio = orig_size/512
-    stylized_up=paddle.slice(stylized_up,axes=[2,3],starts=[(positions[1]/ratio).astype('int32'),(positions[0]/ratio).astype('int32')],\
-                             ends=[(positions[3]/ratio).astype('int32'),(positions[2]/ratio).astype('int32')])
+    stylized_up=paddle.slice(stylized_up,axes=[2,3],starts=[(positions[0]/ratio).astype('int32'),(positions[1]/ratio).astype('int32')],\
+                             ends=[(positions[2]/ratio).astype('int32'),(positions[3]/ratio).astype('int32')])
     return stylized_up
 
 

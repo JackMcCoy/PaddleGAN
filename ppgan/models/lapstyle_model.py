@@ -1060,6 +1060,8 @@ class LapStyleRevSecondThumb(BaseModel):
 
 def crop_upsized(stylized_up,positions,orig_size):
     ratio = stylized_up.shape[-1]/orig_size
+    print(positions[0][0])
+    print(ratio)
     for i in range(stylized_up.shape[0]+1):
         stylized_up[i]=stylized_up[i,:,math.floor(positions[0][i]*ratio):math.floor(positions[2][i]*ratio),\
                        math.floor(positions[1][i]*ratio):math.floor(positions[3][i]*ratio)]
@@ -1153,7 +1155,7 @@ class LapStyleRevSecondPatch(BaseModel):
         stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
         stylized_up = crop_upsized(stylized_up,self.positions[1],self.size_stack[1])
         self.first_patch_in = stylized_up
-        
+
         stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
         stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
 

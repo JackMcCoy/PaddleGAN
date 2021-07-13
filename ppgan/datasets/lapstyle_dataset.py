@@ -260,11 +260,12 @@ class LapStyleThumbset(Dataset):
     def name(self):
         return 'LapStyleThumbset'
 
-def get_crop_bounds(crop_size,thumb_size,img_shape):
+def get_crop_bounds(thumb_size,img_shape):
+
     leftmost= random.choice(list(range(0, img_shape - thumb_size,2)))
-    rightmost=leftmost+crop_size
+    rightmost=leftmost+thumb_size
     bottommost = random.choice(list(range(0, img_shape - thumb_size,2)))
-    topmost=bottommost+crop_size
+    topmost=bottommost+thumb_size
     return [leftmost,topmost,rightmost,bottommost]
 
 @DATASETS.register()
@@ -356,7 +357,7 @@ class MultiPatchSet(Dataset):
             content_patch = content_img
             for c in position_stack:
                 content_patch=content_patch.crop(box=(c[0],c[1],c[2],c[3]))
-            position_stack.append(get_crop_bounds(self.crop_size,self.thumb_size,content_patch.width))
+            position_stack.append(get_crop_bounds(self.crop_size,content_patch.width))
             content_patch=content_patch.crop(box=(position_stack[-1][0],position_stack[-1][1],position_stack[-1][2],position_stack[-1][3]))
             content_patch = content_patch.resize((self.crop_size,self.crop_size),
                                                  Image.BILINEAR)
@@ -364,7 +365,7 @@ class MultiPatchSet(Dataset):
             content_patch = self.img(content_patch)
             content_stack.append(content_patch)
         for i in range(2):
-            pos=get_crop_bounds(self.crop_size*2*(i+1),self.thumb_size,self.crop_size*(self.patch_depth-i)*2)
+            pos=get_crop_bounds(self.crop_size*2*(i+1),self.crop_size*(self.patch_depth-i)*2)
             style_patch = style_img.resize(math.floor(self.thumb_size/(i+1))*self.style_upsize,math.floor(self.thumb_size/(i+1))*self.style_upsize)
             style_patch = np.array(style_patch)
             style_patch = style_patch[pos[0]:pos[1],pos[2]:pos[3]]

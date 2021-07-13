@@ -1113,7 +1113,7 @@ class LapStyleRevSecondPatch(BaseModel):
         for i in range(1,6):
             if 'content_stack_'+str(i) in input:
                 self.content_stack.append(paddle.to_tensor(input['content_stack_'+str(i)]))
-        self.visual_items['ci'] = style_stack[0]
+        self.visual_items['ci'] = self.content_stack[0]
 
         self.positions = input['positions']
 

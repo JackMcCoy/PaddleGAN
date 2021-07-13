@@ -265,7 +265,7 @@ def get_crop_bounds(thumb_size,img_shape):
     rightmost=leftmost+thumb_size
     bottommost = random.choice(list(range(0, img_shape - thumb_size,2)))
     topmost=bottommost+thumb_size
-    return [leftmost,topmost,rightmost,bottommost]
+    return [leftmost,bottommost,rightmost,topmost]
 
 @DATASETS.register()
 class MultiPatchSet(Dataset):

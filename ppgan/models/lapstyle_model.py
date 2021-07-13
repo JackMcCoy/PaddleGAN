@@ -1060,16 +1060,6 @@ class LapStyleRevSecondThumb(BaseModel):
 
 def crop_upsized(stylized_up,positions,orig_size):
     ratio = orig_size/512
-    print(orig_size)
-    print(ratio)
-    print(positions[0])
-    print(positions[0]/ratio)
-    print(positions[1])
-    print(positions[1]/ratio)
-    print(positions[2])
-    print(positions[2]/ratio)
-    print(positions[3])
-    print(positions[3]/ratio)
     stylized_up=paddle.slice(stylized_up,axes=[2,3],starts=[(positions[0]/ratio).astype('int32'),(positions[1]/ratio).astype('int32')],\
                              ends=[(positions[2]/ratio).astype('int32'),(positions[3]/ratio).astype('int32')])
     return stylized_up
@@ -1337,7 +1327,7 @@ class LapStyleRevSecondPatch(BaseModel):
         # update D
         self.set_requires_grad(self.nets['netD_patch'], True)
         optimizers['optimD'].clear_grad()
-        self.backward_Dpatch()
+        self.backward_D()
         optimizers['optimD'].step()
 
         # update G

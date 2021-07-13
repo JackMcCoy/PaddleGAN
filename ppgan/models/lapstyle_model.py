@@ -1164,7 +1164,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.visual_items['ci_3'] = self.content_stack[2]
         self.visual_items['stylized_rev_third'] = stylized_rev_patch
 
-        stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
+        stylized_up = F.interpolate(stylized_rev_patch, scale_factor=2)
         stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
         self.second_patch_in = stylized_up.detach()
         stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())

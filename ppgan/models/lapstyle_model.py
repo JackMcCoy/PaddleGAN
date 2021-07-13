@@ -1238,64 +1238,64 @@ class LapStyleRevSecondPatch(BaseModel):
         return self.loss
 
     def backward_G_p(self):
-        self.cF = self.nets['net_enc'](self.content_stack[-1])
+        cF = self.nets['net_enc'](self.content_stack[-1])
 
         with paddle.no_grad():
-            self.tt_cropF = self.nets['net_enc'](self.second_patch_in)
+            tt_cropF = self.nets['net_enc'](self.second_patch_in)
 
-        self.tpF = self.nets['net_enc'](self.stylized)
+        tpF = self.nets['net_enc'](self.stylized)
 
         """patch loss"""
-        self.loss_patch = 0
+        loss_patch = 0
         # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
         #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
         for layer in [self.content_layers[-2]]:
-            self.loss_patch += paddle.clip(self.calc_content_loss(self.tpF[layer],
-                                                      self.tt_cropF[layer]), 1e-5, 1e5)
-        self.losses['loss_patch2'] = self.loss_patch
+            loss_patch += paddle.clip(self.calc_content_loss(tpF[layer],
+                                                      tt_cropF[layer]), 1e-5, 1e5)
+        self.losses['loss_patch2'] = loss_patch
 
-        self.loss_content_p = 0
+        loss_content_p = 0
         for layer in self.content_layers:
-            self.loss_content_p += paddle.clip(self.calc_content_loss(self.tpF[layer],
-                                                      self.cF[layer],
+            loss_content_p += paddle.clip(self.calc_content_loss(tpF[layer],
+                                                      cF[layer],
                                                       norm=True), 1e-5, 1e5)
-        self.losses['loss_content_p2'] = self.loss_content_p
+        self.losses['loss_content_p2'] = loss_content_p
 
-        self.loss_ps = 0
-        self.p_loss_style_remd = 0
+        loss_ps = 0
+        p_loss_style_remd = 0
 
         reshaped = paddle.split(self.style_stack[1], 2, 2)
         for i in reshaped:
             for j in paddle.split(i, 2, 3):
                 spF = self.nets['net_enc'](j.detach())
                 for layer in self.content_layers:
-                    self.loss_ps += paddle.clip(self.calc_style_loss(self.tpF[layer],
+                    loss_ps += paddle.clip(self.calc_style_loss(tpF[layer],
                                                           spF[layer]), 1e-5, 1e5)
-                self.p_loss_style_remd += self.calc_style_emd_loss(
-                    self.tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
-                    self.tpF['r41'], spF['r41'])
-        self.losses['loss_ps'] = self.loss_ps
-        self.p_loss_content_relt = self.calc_content_relt_loss(
-            self.tpF['r31'], self.cF['r31']) + self.calc_content_relt_loss(
-            self.tpF['r41'], self.cF['r41'])
-        self.p_loss_style_remd = paddle.clip(self.p_loss_style_remd, 1e-5, 1e5)
-        self.p_loss_content_relt = paddle.clip(self.p_loss_content_relt, 1e-5, 1e5)
+                p_loss_style_remd += self.calc_style_emd_loss(
+                    tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
+                    tpF['r41'], spF['r41'])
+        self.losses['loss_ps'] = loss_ps
+        p_loss_content_relt = self.calc_content_relt_loss(
+            tpF['r31'], cF['r31']) + self.calc_content_relt_loss(
+            tpF['r41'], cF['r41'])
+        p_loss_style_remd = paddle.clip(p_loss_style_remd, 1e-5, 1e5)
+        p_loss_content_relt = paddle.clip(p_loss_content_relt, 1e-5, 1e5)
         self.losses['p_loss_style_remd2'] = self.p_loss_style_remd
         self.losses['p_loss_content_relt2'] = self.p_loss_content_relt
 
         """gan loss"""
         pred_fake_p = self.nets['netD_patch'](self.stylized)
-        self.loss_Gp_GAN = paddle.clip(self.gan_criterion(pred_fake_p, True), 1e-5, 1e5)
-        self.losses['loss_gan_Gp2'] = self.loss_Gp_GAN
+        loss_Gp_GAN = paddle.clip(self.gan_criterion(pred_fake_p, True), 1e-5, 1e5)
+        self.losses['loss_gan_Gp2'] = loss_Gp_GAN
 
 
-        self.loss = self.loss_Gp_GAN +self.loss_ps/4 * self.style_weight +\
-                    self.loss_content_p * self.content_weight +\
-                    self.loss_patch * self.content_weight * 20 +\
-                    self.p_loss_style_remd/4 * 22 + self.p_loss_content_relt * 22
-        self.loss.backward()
+        loss_patch = loss_Gp_GAN +loss_ps/4 * self.style_weight +\
+                    loss_content_p * self.content_weight +\
+                    loss_patch * self.content_weight * 20 +\
+                    p_loss_style_remd/4 * 22 + p_loss_content_relt * 22
+        loss_patch.backward()
 
-        return self.loss
+        return loss_patch
 
     def backward_D(self):
         """Calculate GAN loss for the discriminator"""

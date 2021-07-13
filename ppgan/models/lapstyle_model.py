@@ -1336,9 +1336,9 @@ class LapStyleRevSecondPatch(BaseModel):
         self.forward()
         # update D
         self.set_requires_grad(self.nets['netD_patch'], True)
-        optimizers['optimD_patch'].clear_grad()
+        optimizers['optimD'].clear_grad()
         self.backward_Dpatch()
-        optimizers['optimD_patch'].step()
+        optimizers['optimD'].step()
 
         # update G
 

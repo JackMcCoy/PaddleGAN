@@ -375,8 +375,10 @@ class MultiPatchSet(Dataset):
             style_stack.append(self.img(style_patch))
         output = {}
         for idx,i in enumerate(content_stack):
+            print(i.shape)
             output['content_stack_'+str(idx+1)]=i
         for idx,i in enumerate(style_stack):
+            print(i.shape)
             output['style_stack_'+str(idx+1)]=i
         output['position_stack']=position_stack
         return output

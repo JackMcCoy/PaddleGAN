@@ -1151,15 +1151,12 @@ class LapStyleRevSecondPatch(BaseModel):
 
         stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
         stylized_up = crop_upsized(stylized_up,self.positions[1],self.size_stack[1])
-        self.first_patch_in = stylized_up
+        self.first_patch_in = stylized_up.detach()
 
         stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
         stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
 
-        print(self.size_stack[1])
-        print(self.content_stack[2].shape)
-        print(stylized_up.shape)
-        revnet_input = paddle.concat(x=[laplacian(self.content_stack[2]), stylized_up], axis=1)
+        revnet_input = paddle.concat(x=[laplacian(self.content_stack[2]), stylized_up.detach()], axis=1)
         stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach())
         stylized_rev_patch = fold_laplace_patch(
             [stylized_rev_patch, stylized_up.detach()])
@@ -1167,11 +1164,11 @@ class LapStyleRevSecondPatch(BaseModel):
 
         stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
         stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
-        self.second_patch_in = stylized_up
+        self.second_patch_in = stylized_up.detach()
         stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
         stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
 
-        revnet_input = paddle.concat(x=[laplacian(self.content_stack[3]), stylized_up], axis=1)
+        revnet_input = paddle.concat(x=[laplacian(self.content_stack[3]), stylized_up.detach()], axis=1)
         stylized_rev_patch_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach())
         stylized_rev_patch_second = fold_laplace_patch(
             [stylized_rev_patch_second, stylized_up.detach()])

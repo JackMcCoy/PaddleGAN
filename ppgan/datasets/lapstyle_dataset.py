@@ -260,6 +260,130 @@ class LapStyleThumbset(Dataset):
     def name(self):
         return 'LapStyleThumbset'
 
+def get_crop_bounds(crop_size,thumb_size,img_shape):
+    leftmost= random.choice(list(range(0, img_shape - thumb_size,2)))
+    rightmost=leftmost+crop_size
+    bottommost = random.choice(list(range(0, img_shape - thumb_size,2)))
+    topmost=bottommost+crop_size
+    return [leftmost,rightmost,bottommost,topmost]
+
+@DATASETS.register()
+class MultiPatchSet(Dataset):
+    """
+    coco2017 dataset for LapStyle model
+    """
+    def __init__(self, content_root, style_root, load_size, crop_size, thumb_size, patch_depth,style_upsize=1):
+        super(MultiPatchSet, self).__init__()
+        self.content_root = content_root
+        self.paths = os.listdir(self.content_root)
+        random.shuffle(self.paths)
+        self.style_root = style_root
+        self.style_paths = [os.path.join(self.style_root,i) for i in os.listdir(self.style_root)] if self.style_root[-1]=='/' else [self.style_root]
+        self.load_size = load_size
+        self.crop_size = crop_size
+        self.thumb_size = thumb_size
+        self.style_upsize = style_upsize
+        self.patch_depth = patch_depth
+        self.transform = data_transform(self.crop_size)
+        self.transform_patch = data_transform(self.load_size)
+
+    def __getitem__(self, index):
+        """Get training sample
+
+        return:
+            ci: content image with shape [C,W,H],
+            si: style image with shape [C,W,H],
+            ci_path: str
+        """
+        content_stack=[]
+        style_stack= []
+        position_stack = []
+        path = self.paths[index]
+        content_img = cv2.imread(os.path.join(self.content_root, path))
+        try:
+            if content_img.ndim == 2:
+                content_img = cv2.cvtColor(content_img, cv2.COLOR_GRAY2RGB)
+            else:
+                content_img = cv2.cvtColor(content_img, cv2.COLOR_BGR2RGB)
+        except:
+            print(path)
+        content_img = Image.fromarray(content_img)
+        small_edge = min(content_img.width,content_img.height)
+        if small_edge==content_img.width:
+            small_edge='width'
+            intermediate_width = self.load_size
+            ratio = content_img.height/content_img.width
+            intermediate_height = math.ceil(self.load_size*ratio)
+        else:
+            small_edge='height'
+            final_height = self.thumb_size
+            intermediate_height = self.load_size
+            ratio = content_img.width/content_img.height
+            intermediate_width = math.ceil(self.load_size*ratio)
+            final_width = math.ceil(self.thumb_size*ratio)
+        content_img = content_img.resize((intermediate_width, intermediate_height),
+                                         Image.BILINEAR)
+
+        style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]
+        style_img = cv2.imread(style_path)
+        style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)
+        style_img = Image.fromarray(style_img)
+        small_edge = min(style_img.width,style_img.height)
+        if small_edge==style_img.width:
+            intermediate_width = math.floor(self.load_size* self.style_upsize)
+            final_width = math.ceil(self.thumb_size*self.style_upsize)
+            ratio = style_img.height/style_img.width
+            intermediate_height = math.floor(self.load_size*ratio* self.style_upsize)
+            final_height = math.ceil(self.thumb_size*ratio* self.style_upsize)
+        else:
+            intermediate_height = math.floor(self.load_size* self.style_upsize)
+            final_height = math.ceil(self.thumb_size * self.style_upsize)
+            ratio = style_img.width/style_img.height
+            intermediate_width = math.floor(self.load_size* ratio* self.style_upsize)
+            final_width = math.ceil(self.thumb_size*ratio* self.style_upsize)
+        style_img = style_img.resize((intermediate_width, intermediate_height),
+                                     Image.BILINEAR)
+        for i in range(self.patch_depth):
+            position_stack.append(get_crop_bounds(self.crop_size*(self.patch_depth-i),self.thumb_size,content_image.shape[-1]))
+            content_patch = np.array(content_img)
+            for c in positions:
+                content_patch=content_patch[c[0]:c[1],c[2]:c[3]]
+            content_patch = Image.fromarray(content_patch)
+            content_patch = content_patch.resize((self.crop_size,self.crop_size),
+                                                 Image.BILINEAR)
+            content_patch = np.array(content_patch)
+            content_patch = self.img(content_patch)
+            content_stack.append(content_patch)
+        for i in range(2):
+            pos=get_crop_bounds(self.crop_size*2*(i+1),self.thumb_size,content_image.shape[-1])
+            style_patch = style_img.resize(math.floor(self.thumb_size/(i+1))*self.style_upsize,math.floor(self.thumb_size/(i+1))*self.style_upsize)
+            style_patch = np.array(style_patch)
+            style_patch = style_patch[pos[0]:pos[1],pos[2]:pos[3]]
+            style_stack.append(self.img(style_patch))
+
+        return {'ci': content_img, 'si': style_img, 'sp':style_patch, 'ci_path': path,'cp':content_patches,'position':position,'half_position':half_position}
+
+    def img(self, img):
+        """make image with [0,255] and HWC to [0,1] and CHW
+
+        return:
+            img: image with shape [3,W,H] and value [0, 1].
+        """
+        # [0,255] to [0,1]
+        img = img.astype(np.float32) / 255.
+        # some images have 4 channels
+        if img.shape[2] > 3:
+            img = img[:, :, :3]
+        # HWC to CHW
+        img = np.transpose(img, (2, 0, 1)).astype('float32')
+        return img
+
+    def __len__(self):
+        return len(self.paths)
+
+    def name(self):
+        return 'MultiPatchSet'
+
 @DATASETS.register()
 class LapStyleThumbsetInference(Dataset):
     """

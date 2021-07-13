@@ -1175,12 +1175,12 @@ class LapStyleRevSecondPatch(BaseModel):
         revnet_input = paddle.concat(x=[laplacian(self.content_stack[3]).detach(), stylized_up.detach()], axis=1)
         stylized_rev_patch_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach())
         stylized_rev_patch_second = fold_laplace_patch(
-            [stylized_rev_patch_second.detach(), stylized_up.detach()])
+            [stylized_rev_patch_second, stylized_up.detach()])
         self.visual_items['ci_4'] = self.content_stack[3]
         self.visual_items['stylized_rev_fourth'] = stylized_rev_patch_second
 
-        self.stylized = stylized_rev_patch.detach()
-        self.p_stylized = stylized_rev_patch_second.detach()
+        self.stylized = stylized_rev_patch
+        self.p_stylized = stylized_rev_patch_second
 
     def backward_G(self):
         self.cF = self.nets['net_enc'](self.content_stack[-2])
@@ -1279,7 +1279,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 p_loss_style_remd += self.calc_style_emd_loss(
                     tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                     tpF['r41'], spF['r41'])
-        self.losses['loss_ps'] = loss_ps
+        self.losses['loss_ps2'] = loss_ps
         p_loss_content_relt = self.calc_content_relt_loss(
             tpF['r31'], cF['r31']) + self.calc_content_relt_loss(
             tpF['r41'], cF['r41'])

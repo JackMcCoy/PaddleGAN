@@ -347,7 +347,7 @@ class MultiPatchSet(Dataset):
         style_patch = style_patch.resize((self.crop_size,self.crop_size))
         style_patch = np.array(style_patch)
         style_patch = self.img(style_patch)
-        style_stack.append(content_patch)
+        style_stack.append(style_patch)
         content_patch = content_img.resize((self.crop_size,self.crop_size))
         content_patch = np.array(content_patch)
         content_patch = self.img(content_patch)
@@ -370,8 +370,7 @@ class MultiPatchSet(Dataset):
             style_patch = np.array(style_patch)
             style_patch = style_patch[pos[0]:pos[1],pos[2]:pos[3]]
             style_stack.append(self.img(style_patch))
-
-        return {'ci': content_img, 'si': style_img, 'sp':style_patch, 'ci_path': path,'cp':content_patches,'position':position,'half_position':half_position}
+        return {'content_stack': content_stack, 'style_stack': style_stack, 'positions':position_stack}
 
     def img(self, img):
         """make image with [0,255] and HWC to [0,1] and CHW

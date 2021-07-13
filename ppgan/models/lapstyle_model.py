@@ -1092,8 +1092,8 @@ class LapStyleRevSecondPatch(BaseModel):
         # define the second revnet params
         self.nets['net_rev_2'] = build_generator(revnet_generator)
         init_weights(self.nets['net_rev_2'])
-        self.nets['netD'] = build_discriminator(revnet_discriminator)
-        init_weights(self.nets['netD'])
+        self.nets['netD_patch'] = build_discriminator(revnet_discriminator)
+        init_weights(self.nets['netD_patch'])
 
         # define loss functions
         self.calc_style_emd_loss = build_criterion(calc_style_emd_loss)
@@ -1108,181 +1108,223 @@ class LapStyleRevSecondPatch(BaseModel):
         self.style_weight = style_weight
 
     def setup_input(self, input):
-        self.ci = paddle.to_tensor(input['ci'])
+        self.content_stack = [paddle.to_tensor(i) for i in input['content_stack']]
+        self.style_stack = [paddle.to_tensor(i) for i in input['style_stack']]
         self.visual_items['ci'] = self.ci
-        self.si = paddle.to_tensor(input['si'])
-        self.visual_items['si'] = self.si
-        self.sp = paddle.to_tensor(input['sp'])
-        self.image_paths = input['ci_path']
-        self.cp = paddle.to_tensor(input['cp'])
-        self.visual_items['cp'] = self.cp
-        self.position = input['position']
 
-        self.pyr_ci = make_laplace_pyramid(self.ci, 2)
-        self.pyr_si = make_laplace_pyramid(self.si, 2)
-        self.pyr_cp = make_laplace_pyramid(self.cp, 2)
-        self.pyr_ci.append(self.ci)
-        self.pyr_si.append(self.si)
-        self.pyr_cp.append(self.cp)
+        self.position = input['positions']
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
 
-        self.cF = self.nets['net_enc'](self.pyr_ci[2])
-        self.sF = self.nets['net_enc'](self.pyr_si[2])
+        self.cF = self.nets['net_enc'](F.interpolate(self.content_stack[0],scale_factor=.5))
+        self.sF = self.nets['net_enc'](F.interpolate(self.style_stack[0], scale_factor=.5))
 
         stylized_small= self.nets['net_dec'](self.cF, self.sF)
         self.visual_items['stylized_small'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
 
-        revnet_input = paddle.concat(x=[self.pyr_ci[1], stylized_up], axis=1)
+        revnet_input = paddle.concat(x=[laplace(self.content_stack[0]), stylized_up], axis=1)
         #rev_net thumb only calcs as patch if second parameter is passed
-        stylized_rev_lap,_ = self.nets['net_rev'](revnet_input)
+        stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input)
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
         self.visual_items['stylized_rev_first'] = stylized_rev
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
+        stylized_up = stylized_up[positions[0][0]:positions[0][1],positions[0][2]:positions[0][3]]
 
-        revnet_input = paddle.concat(x=[self.pyr_ci[0], stylized_up], axis=1)
-        stylized_rev_lap_second,_ = self.nets['net_rev_2'](revnet_input.detach())
-        stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_rev_lap, stylized_small])
+        revnet_input = paddle.concat(x=[laplace(self.content_stack[1]), stylized_up], axis=1)
+        stylized_rev_lap_second,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylzied_feats)
+        stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up])
         self.stylized= stylized_rev_second
 
         self.visual_items['stylized_rev_second'] = stylized_rev_second
 
         stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
-        self.thumb_crop = paddle.slice(stylized_up, axes=[2, 3], starts=[self.position[0], self.position[2]],ends=[self.position[1], self.position[3]])
+        stylized_up = stylized_up[positions[1][0]:positions[1][1],positions[1][2]:positions[1][3]]
+        self.first_patch_in = stylized_up
+        stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
+        stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
 
-        revnet_input = paddle.concat(x=[self.pyr_cp[0], self.thumb_crop], axis=1)
-        stylized_rev_patch,_ = self.nets['net_rev_2'](revnet_input.detach())
+        revnet_input = paddle.concat(x=[laplace(self.content_stack[2]), stylized_up], axis=1)
+        stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach())
         stylized_rev_patch = fold_laplace_patch(
-            [stylized_rev_second, stylized_rev_lap, stylized_small],stylized_rev_patch)
+            [stylized_rev_patch, stylized_up.detach()])
+        self.visual_items['stylized_rev_third'] = stylized_rev_patch
 
-        self.p_stylized = stylized_rev_patch
-        self.visual_items['p_stylized'] = self.p_stylized
+        stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
+        stylized_up = stylized_up[positions[2][0]:positions[2][1],positions[2][2]:positions[2][3]]
+        self.second_patch_in = stylized_up
+        stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
+        stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
+
+        revnet_input = paddle.concat(x=[laplace(self.content_stack[3]), stylized_up], axis=1)
+        stylized_rev_patch_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach())
+        stylized_rev_patch_second = fold_laplace_patch(
+            [stylized_rev_patch_second, stylized_up.detach()])
+        self.visual_items['stylized_rev_fourth'] = stylized_rev_patch_second
+
+        self.stylized = stylized_rev_patch
+        self.p_stylized = stylized_rev_patch_second
 
     def backward_G(self):
-        cF = self.nets['net_enc'](self.ci)
-        sF = self.nets['net_enc'](self.si)
-        ttF = self.nets['net_enc'](self.stylized)
+        self.cF = self.nets['net_enc'](self.content_stack[-2])
 
-        loss_content = 0
-        for layer in self.content_layers:
-            loss_content += self.calc_content_loss(ttF[layer],
-                                                        cF[layer],
-                                                        norm=True)
-        self.losses['loss_content'] = loss_content
-
-        """style loss"""
-        loss_s = 0
-        for layer in self.style_layers:
-            loss_s += self.calc_style_loss(ttF[layer], sF[layer])
-        self.losses['loss_s'] = loss_s
-
-        """relative loss"""
-        loss_style_remd = self.calc_style_emd_loss(
-            ttF['r31'], sF['r31']) + self.calc_style_emd_loss(
-            ttF['r41'], sF['r41'])
-        loss_content_relt = self.calc_content_relt_loss(
-            ttF['r31'], cF['r31']) + self.calc_content_relt_loss(
-            ttF['r41'], cF['r41'])
-        self.losses['loss_style_remd'] = loss_style_remd
-        self.losses['loss_content_relt'] = loss_content_relt
-
-        loss = loss_s * self.style_weight + \
-                    loss_content * self.content_weight + \
-                    loss_style_remd * 10 + \
-                    loss_content_relt * 16
-
-        return loss
-
-    def backward_G_p(self):
-        transformed = paddle.slice(self.sp, axes=[2, 3], starts=[self.position[0], self.position[2]],
-                                   ends=[self.position[1], self.position[3]])
-        spCrop = self.nets['net_enc'](transformed)
-        tpF = self.nets['net_enc'](self.p_stylized)
-        cpF = self.nets['net_enc'](self.cp)
         with paddle.no_grad():
-            tt_cropF = self.nets['net_enc'](self.thumb_crop)
+            self.tt_cropF = self.nets['net_enc'](self.first_patch_in)
+
+        self.tpF = self.nets['net_enc'](self.stylized)
+
         """patch loss"""
-        loss_patch = 0
+        self.loss_patch = 0
         # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
         #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
-        for layer in [self.content_layers[3]]:
-            loss_patch += self.calc_content_loss(tpF[layer],
-                                                      tt_cropF[layer])
-        self.losses['loss_patch'] = loss_patch
+        for layer in [self.content_layers[-2]]:
+            self.loss_patch += paddle.clip(self.calc_content_loss(self.tpF[layer],
+                                                      self.tt_cropF[layer]), 1e-5, 1e5)
+        self.losses['loss_patch'] = self.loss_patch
 
-        loss_content_p = 0
+        self.loss_content_p = 0
         for layer in self.content_layers:
-            loss_content_p += self.calc_content_loss(tpF[layer],
-                                                          cpF[layer],
-                                                          norm=True)
-        self.losses['loss_content_p'] = loss_content_p
+            self.loss_content_p += paddle.clip(self.calc_content_loss(self.tpF[layer],
+                                                      self.cF[layer],
+                                                      norm=True), 1e-5, 1e5)
+        self.losses['loss_content_p'] = self.loss_content_p
 
-        loss_ps = 0
-        for layer in self.style_layers:
-            loss_ps += self.calc_style_loss(tpF[layer], spCrop[layer])
-        self.losses['loss_ps'] = loss_ps
+        self.loss_ps = 0
+        self.p_loss_style_remd = 0
 
-        p_loss_style_remd = self.calc_style_emd_loss(
-            tpF['r31'], spCrop['r31']) + self.calc_style_emd_loss(
-            tpF['r41'], spCrop['r41'])
-        p_loss_content_relt = self.calc_content_relt_loss(
-            tpF['r31'], cpF['r31']) + self.calc_content_relt_loss(
-            tpF['r41'], cpF['r41'])
-        self.losses['p_loss_style_remd'] = p_loss_style_remd
-        self.losses['p_loss_content_relt'] = p_loss_content_relt
+        style_patches = paddle.slice(self.style_stack[2],axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
+        reshaped = paddle.split(style_patches, 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                spF = self.nets['net_enc'](j.detach())
+                for layer in self.content_layers:
+                    self.loss_ps += paddle.clip(self.calc_style_loss(self.tpF[layer],
+                                                          spF[layer]), 1e-5, 1e5)
+                self.p_loss_style_remd += self.calc_style_emd_loss(
+                    self.tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
+                    self.tpF['r41'], spF['r41'])
+        self.losses['loss_ps'] = self.loss_ps
+        self.p_loss_content_relt = self.calc_content_relt_loss(
+            self.tpF['r31'], self.cF['r31']) + self.calc_content_relt_loss(
+            self.tpF['r41'], self.cF['r41'])
+        self.p_loss_style_remd = paddle.clip(self.p_loss_style_remd, 1e-5, 1e5)
+        self.p_loss_content_relt = paddle.clip(self.p_loss_content_relt, 1e-5, 1e5)
+        self.losses['p_loss_style_remd'] = self.p_loss_style_remd
+        self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
         """gan loss"""
-        pred_fake_p = self.nets['netD'](self.p_stylized)
-        loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
-        self.losses['loss_gan_Gp'] = loss_Gp_GAN
+        pred_fake_p = self.nets['netD_patch'](self.stylized)
+        self.loss_Gp_GAN = paddle.clip(self.gan_criterion(pred_fake_p, True), 1e-5, 1e5)
+        self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
-        patch_loss = loss_Gp_GAN + loss_ps * self.style_weight + \
-                          loss_content_p * self.content_weight + \
-                          loss_patch * self.content_weight + \
-                          p_loss_style_remd * 10 + p_loss_content_relt * 16
-        return patch_loss
+
+        self.loss = self.loss_Gp_GAN +self.loss_ps/4 * self.style_weight +\
+                    self.loss_content_p * self.content_weight +\
+                    self.loss_patch * self.content_weight * 20 +\
+                    self.p_loss_style_remd/4 * 22 + self.p_loss_content_relt * 22
+        self.loss.backward()
+
+        return self.loss
+
+    def backward_G_p(self):
+        self.cF = self.nets['net_enc'](self.content_stack[-1])
+
+        with paddle.no_grad():
+            self.tt_cropF = self.nets['net_enc'](self.second_patch_in)
+
+        self.tpF = self.nets['net_enc'](self.stylized)
+
+        """patch loss"""
+        self.loss_patch = 0
+        # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
+        #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
+        for layer in [self.content_layers[-2]]:
+            self.loss_patch += paddle.clip(self.calc_content_loss(self.tpF[layer],
+                                                      self.tt_cropF[layer]), 1e-5, 1e5)
+        self.losses['loss_patch2'] = self.loss_patch
+
+        self.loss_content_p = 0
+        for layer in self.content_layers:
+            self.loss_content_p += paddle.clip(self.calc_content_loss(self.tpF[layer],
+                                                      self.cF[layer],
+                                                      norm=True), 1e-5, 1e5)
+        self.losses['loss_content_p2'] = self.loss_content_p
+
+        self.loss_ps = 0
+        self.p_loss_style_remd = 0
+
+        style_patches = paddle.slice(self.style_stack[1],axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
+        reshaped = paddle.split(style_patches, 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                spF = self.nets['net_enc'](j.detach())
+                for layer in self.content_layers:
+                    self.loss_ps += paddle.clip(self.calc_style_loss(self.tpF[layer],
+                                                          spF[layer]), 1e-5, 1e5)
+                self.p_loss_style_remd += self.calc_style_emd_loss(
+                    self.tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
+                    self.tpF['r41'], spF['r41'])
+        self.losses['loss_ps'] = self.loss_ps
+        self.p_loss_content_relt = self.calc_content_relt_loss(
+            self.tpF['r31'], self.cF['r31']) + self.calc_content_relt_loss(
+            self.tpF['r41'], self.cF['r41'])
+        self.p_loss_style_remd = paddle.clip(self.p_loss_style_remd, 1e-5, 1e5)
+        self.p_loss_content_relt = paddle.clip(self.p_loss_content_relt, 1e-5, 1e5)
+        self.losses['p_loss_style_remd2'] = self.p_loss_style_remd
+        self.losses['p_loss_content_relt2'] = self.p_loss_content_relt
+
+        """gan loss"""
+        pred_fake_p = self.nets['netD_patch'](self.stylized)
+        self.loss_Gp_GAN = paddle.clip(self.gan_criterion(pred_fake_p, True), 1e-5, 1e5)
+        self.losses['loss_gan_Gp2'] = self.loss_Gp_GAN
+
+
+        self.loss = self.loss_Gp_GAN +self.loss_ps/4 * self.style_weight +\
+                    self.loss_content_p * self.content_weight +\
+                    self.loss_patch * self.content_weight * 20 +\
+                    self.p_loss_style_remd/4 * 22 + self.p_loss_content_relt * 22
+        self.loss.backward()
+
+        return self.loss
 
     def backward_D(self):
         """Calculate GAN loss for the discriminator"""
-        pred_p_fake = self.nets['netD'](self.p_stylized.detach())
-        loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
+        pred_p_fake = self.nets['netD_patch'](self.p_stylized.detach())
+        self.loss_Dp_fake = paddle.clip(self.gan_criterion(pred_p_fake, False), 1e-5, 1e5)
 
-        pred_p_real = self.nets['netD'](self.thumb_crop.detach())
-        loss_Dp_real = self.gan_criterion(pred_p_real, True)
-        loss_D = (loss_Dp_fake + loss_Dp_real) * 0.5
+        pred_Dp_real = 0
+        style_patches = paddle.slice(self.style_stack[1],axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
+        reshaped = paddle.split(style_patches, 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                self.loss_Dp_real = self.nets['netD_patch'](j.detach())
+                pred_Dp_real += paddle.clip(self.gan_criterion(self.loss_Dp_real, True), 1e-5, 1e5)
+        self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real/4) * 0.5
 
+        self.loss_D_patch.backward()
 
-        self.losses['Dp_fake_loss'] = loss_Dp_fake
-        self.losses['Dp_real_loss'] = loss_Dp_real
-        return loss_D
+        self.losses['Dp_fake_loss'] = self.loss_Dp_fake
+        self.losses['Dp_real_loss'] = pred_Dp_real
 
     def train_iter(self, optimizers=None):
-        with paddle.amp.auto_cast():
-            # compute fake images: G(A)
-            self.forward()
-            # update D
+        # compute fake images: G(A)
+        self.forward()
+        # update D
+        self.set_requires_grad(self.nets['netD_patch'], True)
+        optimizers['optimD_patch'].clear_grad()
+        self.backward_Dpatch()
+        optimizers['optimD_patch'].step()
 
-            self.set_requires_grad(self.nets['netD'], True)
-            optimizers['optimD'].clear_grad()
-            loss = self.backward_D()
-            scaled = self.scaler.scale(loss)
-            scaled.backward()
-            self.scaler.minimize(optimizers['optimD'], scaled)
+        # update G
 
-            # update G
-            self.set_requires_grad(self.nets['netD'], False)
-            optimizers['optimG'].clear_grad()
-            loss = self.backward_G()
-            scaled = self.scaler.scale(loss)
-            scaled.backward()
-            self.scaler.minimize(optimizers['optimG'], scaled)
-            optimizers['optimG'].clear_grad()
-            loss = self.backward_G_p()
-            scaled = self.scaler.scale(loss)
-            scaled.backward()
-            self.scaler.minimize(optimizers['optimG'], scaled)
+        self.set_requires_grad(self.nets['netD_patch'], False)
+        optimizers['optimG'].clear_grad()
+        self.backward_G(optimizers['optimG'])
+        optimizers['optimG'].step()
+        optimizers['optimG'].clear_grad()
+        self.backward_G_p(optimizers['optimG'])
+        optimizers['optimG'].step()
 
 def random_crop_coords(size):
     halfsize=math.floor(size/2)

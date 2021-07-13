@@ -370,7 +370,13 @@ class MultiPatchSet(Dataset):
             style_patch = np.array(style_patch)
             style_patch = style_patch[pos[0]:pos[1],pos[2]:pos[3]]
             style_stack.append(self.img(style_patch))
-        return {'content_stack': content_stack, 'style_stack': style_stack, 'positions':position_stack}
+        output = {}
+        for idx,i in enumerate(content_stack):
+            output['content_stack_'+str(idx+1)]=i
+        for idx,i in enumerate(style_stack):
+            output['style_stack_'+str(idx+1)]=i
+        output['position_stack']=position_stack
+        return output
 
     def img(self, img):
         """make image with [0,255] and HWC to [0,1] and CHW

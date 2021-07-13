@@ -1059,8 +1059,8 @@ class LapStyleRevSecondThumb(BaseModel):
         optimizers['optimG'].step()
 
 def crop_upsized(stylized_up,positions,orig_size):
-    ratio = stylized_up.shape[-1]/orig_size
-    print(positions)
+    ratio = orig_size/stylized_up.shape[-1]
+    print(orig_size)
     print(positions[0]*ratio)
     print(positions[1]*ratio)
     print(positions[2]*ratio)

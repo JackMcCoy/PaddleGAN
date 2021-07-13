@@ -1116,6 +1116,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.visual_items['ci'] = self.content_stack[0]
 
         self.positions = input['position_stack']
+        print(self.positions)
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""

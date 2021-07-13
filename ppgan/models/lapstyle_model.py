@@ -1207,8 +1207,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.loss_ps = 0
         self.p_loss_style_remd = 0
 
-        style_patches = paddle.slice(self.style_stack[2],axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-        reshaped = paddle.split(style_patches, 2, 2)
+        reshaped = paddle.split(self.style_stack[2], 2, 2)
         for i in reshaped:
             for j in paddle.split(i, 2, 3):
                 spF = self.nets['net_enc'](j.detach())
@@ -1268,8 +1267,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.loss_ps = 0
         self.p_loss_style_remd = 0
 
-        style_patches = paddle.slice(self.style_stack[1],axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-        reshaped = paddle.split(style_patches, 2, 2)
+        reshaped = paddle.split(self.style_stack[1], 2, 2)
         for i in reshaped:
             for j in paddle.split(i, 2, 3):
                 spF = self.nets['net_enc'](j.detach())

@@ -1115,7 +1115,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 self.content_stack.append(paddle.to_tensor(input['content_stack_'+str(i)]))
         self.visual_items['ci'] = self.content_stack[0]
 
-        self.positions = input['positions']
+        self.positions = input['position_stack']
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""

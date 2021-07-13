@@ -369,7 +369,7 @@ class MultiPatchSet(Dataset):
                 style_patch = style_img.resize((math.floor(style_img.width/2)*self.style_upsize,math.floor(style_img.width/2)*self.style_upsize),Image.BILINEAR)
             else:
                 style_patch = style_img
-            pos=get_crop_bounds(self.crop_size*2,style_patch.width)
+            pos=get_crop_bounds(self.crop_size*2,self.load_size)
             style_patch = np.array(style_patch)
             style_patch = style_patch[pos[0]:pos[1],pos[2]:pos[3]]
             style_stack.append(self.img(style_patch))

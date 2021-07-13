@@ -1133,7 +1133,7 @@ class LapStyleRevSecondPatch(BaseModel):
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
         self.visual_items['stylized_rev_first'] = stylized_rev
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
-        stylized_up = stylized_up[:,:,self.positions[0][0]:self.positions[0][2],self.positions[0][1]:self.positions[0][3]]
+        stylized_up = stylized_up[:,self.positions[0][0]:self.positions[0][2],self.positions[0][1]:self.positions[0][3]]
 
         revnet_input = paddle.concat(x=[laplacian(self.content_stack[1]), stylized_up], axis=1)
         stylized_rev_lap_second,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylzied_feats)
@@ -1143,7 +1143,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.visual_items['stylized_rev_second'] = stylized_rev_second
 
         stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
-        stylized_up = stylized_up[:,:,self.positions[1][0]:self.positions[1][2],self.positions[1][1]:self.positions[1][3]]
+        stylized_up = stylized_up[:,self.positions[1][0]:self.positions[1][2],self.positions[1][1]:self.positions[1][3]]
         self.first_patch_in = stylized_up
         stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
         stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
@@ -1155,7 +1155,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.visual_items['stylized_rev_third'] = stylized_rev_patch
 
         stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
-        stylized_up = stylized_up[:,:,self.positions[2][0]:self.positions[2][2],self.positions[2][1]:self.positions[2][3]]
+        stylized_up = stylized_up[:,self.positions[2][0]:self.positions[2][2],self.positions[2][1]:self.positions[2][3]]
         self.second_patch_in = stylized_up
         stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
         stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)

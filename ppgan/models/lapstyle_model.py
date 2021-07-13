@@ -1308,8 +1308,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.loss_Dp_fake = paddle.clip(self.gan_criterion(pred_p_fake, False), 1e-5, 1e5)
 
         pred_Dp_real = 0
-        style_patches = paddle.slice(self.style_stack[1],axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-        reshaped = paddle.split(style_patches, 2, 2)
+        reshaped = paddle.split(self.style_stack[1], 2, 2)
         for i in reshaped:
             for j in paddle.split(i, 2, 3):
                 self.loss_Dp_real = self.nets['netD_patch'](j.detach())

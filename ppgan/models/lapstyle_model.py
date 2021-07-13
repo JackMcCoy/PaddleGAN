@@ -1118,6 +1118,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.positions = input['position_stack']
         self.size_stack = input['size_stack']
         print(self.positions)
+        print('size stack: ')
         print(self.size_stack)
 
     def forward(self):

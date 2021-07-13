@@ -365,7 +365,7 @@ class MultiPatchSet(Dataset):
             content_patch = self.img(content_patch)
             content_stack.append(content_patch)
         for i in range(2):
-            pos=get_crop_bounds(self.crop_size*2*(i+1),self.thumb_size,content_image.shape[-1])
+            pos=get_crop_bounds(self.crop_size*2*(i+1),self.thumb_size,style_img.width)
             style_patch = style_img.resize(math.floor(self.thumb_size/(i+1))*self.style_upsize,math.floor(self.thumb_size/(i+1))*self.style_upsize)
             style_patch = np.array(style_patch)
             style_patch = style_patch[pos[0]:pos[1],pos[2]:pos[3]]

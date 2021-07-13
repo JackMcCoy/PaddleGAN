@@ -343,8 +343,18 @@ class MultiPatchSet(Dataset):
             final_width = math.ceil(self.thumb_size*ratio* self.style_upsize)
         style_img = style_img.resize((intermediate_width, intermediate_height),
                                      Image.BILINEAR)
+        style_patch = style_img.resize((self.crop_size,self.crop_size))
+        style_patch = style_patch.resize((self.crop_size,self.crop_size))
+        style_patch = np.array(style_patch)
+        style_patch = self.img(style_patch)
+        style_stack.append(content_patch)
+        content_patch = content_img.resize((self.crop_size,self.crop_size))
+        content_patch = np.array(content_patch)
+        content_patch = self.img(content_patch)
+        content_stack.append(content_patch)
         for i in range(self.patch_depth):
-            position_stack.append(get_crop_bounds(self.crop_size*(self.patch_depth-i),self.thumb_size,content_image.shape[-1]))
+            l = content_image.shape[-1] if i==0 else position_stack[-1][-1]-position_stack[-1][-2]
+            position_stack.append(get_crop_bounds(self.crop_size*(self.patch_depth-i),self.thumb_size,l))
             content_patch = np.array(content_img)
             for c in positions:
                 content_patch=content_patch[c[0]:c[1],c[2]:c[3]]

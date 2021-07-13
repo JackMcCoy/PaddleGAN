@@ -9,8 +9,9 @@ model:
   revnet_generator:
     name: RevisionNetThumb
   revnet_discriminator:
-    name: LapStyleDiscriminator
-    num_channels: 16
+    name: LapStyleMultiresDiscriminator
+    num_channels: 64
+    num_halvings: 3
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -34,7 +35,7 @@ model:
 dataset:
   train:
     name: LapStyleThumbset
-    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
+    content_root: /content/gdrive/My Drive/img_style/large_pics/
     style_root: /content/PaddleGAN/starrypatched1024.png
     load_size: 1024
     crop_size: 512

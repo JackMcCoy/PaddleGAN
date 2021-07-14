@@ -291,7 +291,7 @@ class MultiPatchSet(Dataset):
         self.style_upsize = style_upsize
         self.patch_depth = patch_depth
         self.transform = data_transform(self.crop_size)
-        self.transform_patch = data_transform(self.crop_size*2)
+        self.transform_patch = data_transform(self.crop_size)
 
     def __getitem__(self, index):
         """Get training sample

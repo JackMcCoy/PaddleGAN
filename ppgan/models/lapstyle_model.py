@@ -1126,10 +1126,10 @@ class LapStyleRevSecondPatch(BaseModel):
 
         self.positions = input['position_stack']
         self.size_stack = input['size_stack']
-        self.laplacians.append(laplacian(self.content_stack[0]))
-        self.laplacians.append(laplacian(self.content_stack[1]))
-        self.laplacians.append(laplacian(self.content_stack[2]))
-        self.laplacians.append(laplacian(self.content_stack[3]))
+        self.laplacians.append(laplacian(self.content_stack[0]).detach())
+        self.laplacians.append(laplacian(self.content_stack[1]).detach())
+        self.laplacians.append(laplacian(self.content_stack[2]).detach())
+        self.laplacians.append(laplacian(self.content_stack[3]).detach())
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
 

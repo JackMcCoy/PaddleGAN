@@ -1291,7 +1291,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['p_loss_content_relt2'] = self.p_loss_content_relt
 
         """gan loss"""
-        pred_fake_p = self.nets['netD_patch'](self.stylized)
+        pred_fake_p = self.nets['netD_patch'](self.p_stylized)
         loss_Gp_GAN = paddle.clip(self.gan_criterion(pred_fake_p, True), 1e-5, 1e5)
         self.losses['loss_gan_Gp2'] = loss_Gp_GAN
 

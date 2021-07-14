@@ -1179,12 +1179,12 @@ class LapStyleRevSecondPatch(BaseModel):
         revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up.detach()], axis=1)
         stylized_rev_patch_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach())
         stylized_rev_patch_second = fold_laplace_patch(
-            [stylized_rev_patch_second.detach(), stylized_up.detach()])
+            [stylized_rev_patch_second, stylized_up.detach()])
         self.visual_items['ci_4'] = self.content_stack[3]
         self.visual_items['stylized_rev_fourth'] = stylized_rev_patch_second
 
-        self.stylized = stylized_rev_patch
-        self.p_stylized = stylized_rev_patch_second
+        self.stylized = stylized_rev_patch.detach()
+        self.p_stylized = stylized_rev_patch_second.detach()
 
     def backward_G(self):
         self.cF = self.nets['net_enc'](self.content_stack[-2])

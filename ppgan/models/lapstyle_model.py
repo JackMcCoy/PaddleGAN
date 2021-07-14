@@ -1211,13 +1211,16 @@ class LapStyleRevSecondPatch(BaseModel):
         self.loss_ps = 0
         self.p_loss_style_remd = 0
 
-        spF = self.nets['net_enc'](self.style_stack[2])
-        for layer in self.content_layers:
-            self.loss_ps += paddle.clip(self.calc_style_loss(self.tpF[layer],
-                                                  spF[layer]), 1e-5, 1e5)
-        self.p_loss_style_remd += self.calc_style_emd_loss(
-            self.tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
-                self.tpF['r41'], spF['r41'])
+        reshaped = paddle.split(self.style_stack[2], 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                spF = self.nets['net_enc'](j.detach())
+                for layer in self.content_layers:
+                    self.loss_ps += paddle.clip(self.calc_style_loss(self.tpF[layer],
+                                                          spF[layer]), 1e-5, 1e5)
+                self.p_loss_style_remd += self.calc_style_emd_loss(
+                    self.tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
+                    self.tpF['r41'], spF['r41'])
         self.losses['loss_ps'] = self.loss_ps
         self.p_loss_content_relt = self.calc_content_relt_loss(
             self.tpF['r31'], self.cF['r31']) + self.calc_content_relt_loss(
@@ -1233,9 +1236,9 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
 
-        self.loss = self.loss_Gp_GAN*2.5 +self.loss_ps/4 * self.style_weight +\
+        self.loss = self.loss_Gp_GAN +self.loss_ps/4 * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
-                    self.loss_patch * self.content_weight * 30 +\
+                    self.loss_patch * self.content_weight * 25 +\
                     self.p_loss_style_remd/4 * 22 + self.p_loss_content_relt * 22
         self.loss.backward()
 
@@ -1268,13 +1271,16 @@ class LapStyleRevSecondPatch(BaseModel):
         loss_ps = 0
         p_loss_style_remd = 0
 
-        spF = self.nets['net_enc'](self.style_stack[1])
-        for layer in self.content_layers:
-            loss_ps += paddle.clip(self.calc_style_loss(tpF[layer],
-                                                  spF[layer]), 1e-5, 1e5)
-        p_loss_style_remd += self.calc_style_emd_loss(
-            tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
-            tpF['r41'], spF['r41'])
+        reshaped = paddle.split(self.style_stack[1], 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                spF = self.nets['net_enc'](j.detach())
+                for layer in self.content_layers:
+                    loss_ps += paddle.clip(self.calc_style_loss(tpF[layer],
+                                                          spF[layer]), 1e-5, 1e5)
+                p_loss_style_remd += self.calc_style_emd_loss(
+                    tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
+                    tpF['r41'], spF['r41'])
         self.losses['loss_ps2'] = loss_ps
         p_loss_content_relt = self.calc_content_relt_loss(
             tpF['r31'], cF['r31']) + self.calc_content_relt_loss(
@@ -1292,7 +1298,7 @@ class LapStyleRevSecondPatch(BaseModel):
 
         loss_patch = loss_Gp_GAN*2.5 +loss_ps/4 * self.style_weight +\
                     loss_content_p * self.content_weight +\
-                    loss_patch * self.content_weight * 30 +\
+                    loss_patch * self.content_weight * 25 +\
                     p_loss_style_remd/4 * 22 + p_loss_content_relt * 22
         loss_patch.backward()
 
@@ -1304,8 +1310,11 @@ class LapStyleRevSecondPatch(BaseModel):
         self.loss_Dp_fake = paddle.clip(self.gan_criterion(pred_p_fake, False), 1e-5, 1e5)
 
         pred_Dp_real = 0
-        self.loss_Dp_real = self.nets['netD'](self.style_stack[2])
-        pred_Dp_real += paddle.clip(self.gan_criterion(self.loss_Dp_real, True), 1e-5, 1e5)
+        reshaped = paddle.split(self.style_stack[2], 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                self.loss_Dp_real = self.nets['netD'](j.detach())
+                pred_Dp_real += paddle.clip(self.gan_criterion(self.loss_Dp_real, True), 1e-5, 1e5)
         self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real/4) * 0.5
 
         self.loss_D_patch.backward()
@@ -1319,8 +1328,11 @@ class LapStyleRevSecondPatch(BaseModel):
         self.loss_Dp_fake = paddle.clip(self.gan_criterion(pred_p_fake, False), 1e-5, 1e5)
 
         pred_Dp_real = 0
-        self.loss_Dp_real = self.nets['netD_patch'](self.style_stack[1])
-        pred_Dp_real += paddle.clip(self.gan_criterion(self.loss_Dp_real, True), 1e-5, 1e5)
+        reshaped = paddle.split(self.style_stack[1], 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                self.loss_Dp_real = self.nets['netD_patch'](j.detach())
+                pred_Dp_real += paddle.clip(self.gan_criterion(self.loss_Dp_real, True), 1e-5, 1e5)
         self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real/4) * 0.5
 
         self.loss_D_patch.backward()

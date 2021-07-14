@@ -291,7 +291,7 @@ class MultiPatchSet(Dataset):
         self.style_upsize = style_upsize
         self.patch_depth = patch_depth
         self.transform = data_transform(self.crop_size)
-        self.transform_patch = data_transform(self.crop_size)
+        self.transform_patch = data_transform(self.crop_size*2)
 
     def __getitem__(self, index):
         """Get training sample
@@ -374,11 +374,11 @@ class MultiPatchSet(Dataset):
             content_stack.append(content_patch)
 
         style_patch = style_img
-        pos=get_crop_bounds(self.crop_size,style_patch.width,style_patch.height)
+        pos=get_crop_bounds(self.crop_size*2,style_patch.width,style_patch.height)
         style_patch = np.array(style_patch.crop(box=(pos[0],pos[1],pos[2],pos[3])))
         style_stack.append(self.img(self.transform_patch(style_patch)))
         style_patch = style_img.resize((math.floor((self.load_size/2)*self.style_upsize),math.floor((self.load_size/2)*self.style_upsize)),Image.BILINEAR)
-        pos=get_crop_bounds(self.crop_size,style_patch.width,style_patch.height)
+        pos=get_crop_bounds(self.crop_size*2,style_patch.width,style_patch.height)
         style_patch = np.array(self.transform_patch(style_patch.crop(box=(pos[0],pos[1],pos[2],pos[3]))))
         style_stack.append(self.img(style_patch))
         output = {}

@@ -41,7 +41,7 @@ dataset:
     thumb_size: 256
     patch_depth: 4
     num_workers: 16
-    batch_size: 5
+    batch_size: 2
   test:
     name: MultiPatchSet
     content_root: /content/gdrive/My Drive/img_style/large_pics/

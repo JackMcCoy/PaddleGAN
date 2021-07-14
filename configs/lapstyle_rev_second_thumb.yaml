@@ -40,7 +40,7 @@ dataset:
     crop_size: 256
     thumb_size: 256
     patch_depth: 4
-    num_workers: 15
+    num_workers: 20
     batch_size: 5
   test:
     name: MultiPatchSet

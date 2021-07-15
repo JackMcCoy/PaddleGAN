@@ -292,7 +292,7 @@ class MultiPatchSet(Dataset):
         self.patch_depth = patch_depth
         self.transform = data_transform(self.crop_size)
         self.transform_patch = data_transform(self.crop_size*2)
-        style_img = cv2.imread(style_path[0])
+        style_img = cv2.imread(self.style_paths[0])
         style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)
         self.style_img = Image.fromarray(style_img)
 

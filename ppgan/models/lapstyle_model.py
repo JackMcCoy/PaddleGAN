@@ -1164,7 +1164,7 @@ class LapStyleRevSecondPatch(BaseModel):
         stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
 
         revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up.detach()], axis=1)
-        stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats)
+        stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach())
         stylized_rev_patch = fold_laplace_patch(
             [stylized_rev_patch, stylized_up.detach()])
         self.visual_items['ci_3'] = self.content_stack[2]
@@ -1175,7 +1175,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.second_patch_in = stylized_up.detach()
 
         revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up.detach()], axis=1)
-        stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats)
+        stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach())
         stylized_rev_patch_second = fold_laplace_patch(
             [stylized_rev_patch_second, stylized_up.detach()])
         self.visual_items['ci_4'] = self.content_stack[3]

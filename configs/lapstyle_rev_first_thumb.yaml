@@ -1,4 +1,4 @@
-total_iters: 30000
+total_iters: 100000
 output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/starry/
 checkpoints_dir: checkpoints
 min_max:
@@ -35,7 +35,7 @@ model:
 dataset:
   train:
     name: LapStyleThumbset
-    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
+    content_root: /content/gdrive/My Drive/img_style/large_pics/
     style_root: /content/PaddleGAN/starrypatched1024.png
     load_size: 512
     crop_size: 256
@@ -45,7 +45,7 @@ dataset:
     batch_size: 5
   test:
     name: LapStyleThumbset
-    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
+    content_root: /content/gdrive/My Drive/img_style/large_pics/
     style_root: /content/PaddleGAN/starrypatched1024.png
     load_size: 512
     crop_size: 256

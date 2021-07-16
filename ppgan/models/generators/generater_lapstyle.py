@@ -512,6 +512,8 @@ class RevisionNetThumb(nn.Layer):
         out = self.DownBlock(input)
         out = self.resblock(out)
         feats = out.clone()
+        if type(thumbnail) != bool:
+            out += adaptive_instance_normalization(out, thumbnail)
         out = self.UpBlock(out)
         return out,feats
 

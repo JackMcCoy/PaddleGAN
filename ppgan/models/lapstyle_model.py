@@ -1139,7 +1139,7 @@ class LapStyleRevSecondPatch(BaseModel):
             self.laplacians.append(laplacian(self.content_stack[2]).detach())
             self.laplacians.append(laplacian(self.content_stack[3]).detach())
         else:
-            self.content_stack=[input['content_thumb']
+            self.content_stack=[input['content_thumb']]
             self.content=input['content']
             self.style_stack = input['style']
             self.visual_items['ci']=input['content_thumb']

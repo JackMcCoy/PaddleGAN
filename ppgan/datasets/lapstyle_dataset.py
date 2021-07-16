@@ -412,7 +412,7 @@ class MultiPatchSet(Dataset):
         return 'MultiPatchSet'
 
 @DATASETS.register()
-class MultiPatchSet(Dataset):
+class LapStyleThumbsetInference(Dataset):
     """
     coco2017 dataset for LapStyle model
     """

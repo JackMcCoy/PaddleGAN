@@ -1116,39 +1116,54 @@ class LapStyleRevSecondPatch(BaseModel):
         self.content_weight = content_weight
         self.style_weight = style_weight
 
-    def setup_input(self, input):
-        self.content_stack = []
-        self.style_stack = [paddle.to_tensor(input['style_stack_1']),paddle.to_tensor(input['style_stack_2']),paddle.to_tensor(input['style_stack_3'])]
-        self.laplacians=[]
-        for i in range(1,6):
-            if 'content_stack_'+str(i) in input:
-                self.content_stack.append(paddle.to_tensor(input['content_stack_'+str(i)]))
-        self.visual_items['ci'] = self.content_stack[0]
+    def test_iter(self, metrics=None):
+        bordered_content =
+        self.eval()
+        with paddle.no_grad():
+            self.forward()
+        self.train()
 
-        self.positions = input['position_stack']
-        self.size_stack = input['size_stack']
-        self.laplacians.append(laplacian(self.content_stack[0]).detach())
-        self.laplacians.append(laplacian(self.content_stack[1]).detach())
-        self.laplacians.append(laplacian(self.content_stack[2]).detach())
-        self.laplacians.append(laplacian(self.content_stack[3]).detach())
+    def setup_input(self, input):
+        if self.is_train:
+            self.content_stack = []
+            self.style_stack = [paddle.to_tensor(input['style_stack_1']),paddle.to_tensor(input['style_stack_2']),paddle.to_tensor(input['style_stack_3'])]
+            self.laplacians=[]
+            for i in range(1,6):
+                if 'content_stack_'+str(i) in input:
+                    self.content_stack.append(paddle.to_tensor(input['content_stack_'+str(i)]))
+            self.visual_items['ci'] = self.content_stack[0]
+
+            self.positions = input['position_stack']
+            self.size_stack = input['size_stack']
+            self.laplacians.append(laplacian(self.content_stack[0]).detach())
+            self.laplacians.append(laplacian(self.content_stack[1]).detach())
+            self.laplacians.append(laplacian(self.content_stack[2]).detach())
+            self.laplacians.append(laplacian(self.content_stack[3]).detach())
+        else:
+            self.content_stack=[input['content_thumb']
+            self.content=input['content']
+            self.style_stack = input['style']
+            self.visual_items['ci']=input['content_thumb']
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
+        if self.is_train:
+            self.cF = self.nets['net_enc'](F.interpolate(self.content_stack[0],scale_factor=.5))
+            self.sF = self.nets['net_enc'](F.interpolate(self.style_stack[0], scale_factor=.5))
 
-        self.cF = self.nets['net_enc'](F.interpolate(self.content_stack[0],scale_factor=.5))
-        self.sF = self.nets['net_enc'](F.interpolate(self.style_stack[0], scale_factor=.5))
+            stylized_small= self.nets['net_dec'](self.cF, self.sF)
+            self.visual_items['stylized_small'] = stylized_small
+            stylized_up = F.interpolate(stylized_small, scale_factor=2)
 
-        stylized_small= self.nets['net_dec'](self.cF, self.sF)
-        self.visual_items['stylized_small'] = stylized_small
-        stylized_up = F.interpolate(stylized_small, scale_factor=2)
-
-        revnet_input = paddle.concat(x=[self.laplacians[0], stylized_up], axis=1)
-        #rev_net thumb only calcs as patch if second parameter is passed
-        stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input)
-        stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
-        self.visual_items['stylized_rev_first'] = stylized_rev
-        stylized_up = F.interpolate(stylized_rev, scale_factor=2)
-        stylized_up = crop_upsized(stylized_up,self.positions[0],self.size_stack[0])
-
+            revnet_input = paddle.concat(x=[self.laplacians[0], stylized_up], axis=1)
+            #rev_net thumb only calcs as patch if second parameter is passed
+            stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input)
+            stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
+            self.visual_items['stylized_rev_first'] = stylized_rev
+            stylized_up = F.interpolate(stylized_rev, scale_factor=2)
+            stylized_up = crop_upsized(stylized_up,self.positions[0],self.size_stack[0])
+        else:
+            stylized_up = self.stylized_up
+            stylized_feats = self.stylized_feats
         revnet_input = paddle.concat(x=[self.laplacians[1], stylized_up], axis=1)
         stylized_rev_lap_second,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats)
         stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up])
@@ -1240,7 +1255,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.loss = self.loss_Gp_GAN*2.5 +self.loss_ps/4 * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight * 10 +\
-                    self.p_loss_style_remd/4 * 26 + self.p_loss_content_relt * 22
+                    self.p_loss_style_remd/4 * 26 + self.p_loss_content_relt * 24
         self.loss.backward()
 
         return self.loss
@@ -1300,7 +1315,7 @@ class LapStyleRevSecondPatch(BaseModel):
         loss_patch = loss_Gp_GAN*2.5 +loss_ps/4 * self.style_weight +\
                     loss_content_p * self.content_weight +\
                     loss_patch * self.content_weight * 10 +\
-                    p_loss_style_remd/4 * 26 + p_loss_content_relt * 22
+                    p_loss_style_remd/4 * 26 + p_loss_content_relt * 24
         loss_patch.backward()
 
         return loss_patch

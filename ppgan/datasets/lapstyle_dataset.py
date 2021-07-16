@@ -412,12 +412,12 @@ class MultiPatchSet(Dataset):
         return 'MultiPatchSet'
 
 @DATASETS.register()
-class LapStyleThumbsetInference(Dataset):
+class MultiPatchSet(Dataset):
     """
     coco2017 dataset for LapStyle model
     """
-    def __init__(self, content_root, style_root, load_size, crop_size, thumb_size, style_upsize=1):
-        super(LapStyleThumbset, self).__init__()
+    def __init__(self, content_root, style_root, load_size, crop_size, thumb_size, patch_depth,style_upsize=1):
+        super(MultiPatchSet, self).__init__()
         self.content_root = content_root
         self.paths = os.listdir(self.content_root)
         random.shuffle(self.paths)
@@ -427,9 +427,12 @@ class LapStyleThumbsetInference(Dataset):
         self.crop_size = crop_size
         self.thumb_size = thumb_size
         self.style_upsize = style_upsize
+        self.patch_depth = patch_depth
         self.transform = data_transform(self.crop_size)
-        self.transform_patch = data_transform(self.load_size)
-        self.patches = self.prepare_patches(self.content_root)
+        self.transform_patch = data_transform(self.crop_size*2)
+        style_img = cv2.imread(self.style_paths[0])
+        style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)
+        self.style_img = Image.fromarray(style_img)
 
     def __getitem__(self, index):
         """Get training sample
@@ -439,6 +442,10 @@ class LapStyleThumbsetInference(Dataset):
             si: style image with shape [C,W,H],
             ci_path: str
         """
+        content_stack=[]
+        style_stack= []
+        position_stack = []
+        size_stack = []
         path = self.paths[index]
         content_img = cv2.imread(os.path.join(self.content_root, path))
         try:
@@ -453,108 +460,56 @@ class LapStyleThumbsetInference(Dataset):
         if small_edge==content_img.width:
             small_edge='width'
             intermediate_width = self.load_size
-            final_width = self.thumb_size
             ratio = content_img.height/content_img.width
+            reduce_ratio = content_img.width/content_img.height
             intermediate_height = math.ceil(self.load_size*ratio)
-            final_height = math.ceil(self.thumb_size*ratio)
+            final_width = self.thumb_size*reduce_ratio
+            final_height = self.thumb_size
         else:
             small_edge='height'
-            final_height = self.thumb_size
+
             intermediate_height = self.load_size
             ratio = content_img.width/content_img.height
+            reduce_ratio = content_img.width/content_img.height
             intermediate_width = math.ceil(self.load_size*ratio)
-            final_width = math.ceil(self.thumb_size*ratio)
+            final_height = math.floor(self.thumb_size*reduce_ratio)
+            final_width = self.thumb_size
         content_img = content_img.resize((intermediate_width, intermediate_height),
                                          Image.BILINEAR)
-        content_patches = np.array(content_img)
-        content_img = content_img.resize((final_width, final_height),
+        content_thumb = content_img.resize((final_width, final_height),
                                          Image.BILINEAR)
-        content_img = np.array(content_img)
-        if small_edge=='height':
-            topmost=self.crop_size #will be divided by content_img
-            bottommost=0
-            if content_img.shape[0]<self.thumb_size-1:
-                leftmost= random.choice(list(range(0, content_img.shape[0] - self.thumb_size,2)))
-                rightmost=leftmost+self.crop_size
-            else:
-                leftmost=0
-                rightmost=self.crop_size
-        else:
-            rightmost=self.crop_size
-            leftmost=0
-            if content_img.shape[1]<self.thumb_size-1:
-                bottommost = random.choice(list(range(0, content_img.shape[1] - self.thumb_size,2)))
-                topmost=bottommost+self.crop_size
-            else:
-                bottommost = 0
-                topmost = self.crop_size
-        content_img =content_img[bottommost:topmost,leftmost:rightmost]
-        content_patches = content_patches[bottommost*2:topmost*2,leftmost*2:rightmost*2]
-        randx = random.choice(list(range(0, self.crop_size,2)))
-        randy = random.choice(list(range(0, self.crop_size,2)))
-        position = [randx, randx + self.crop_size, randy, randy+self.crop_size]
-        half_position = [math.floor(randx*.5), math.floor((randx + self.crop_size)*.5), math.floor(randy*.5), math.floor((randy+self.crop_size)*.5)]
-        content_patches = content_patches[randx:randx + self.crop_size,
-                          randy:randy+self.crop_size]
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]
-        style_img = cv2.imread(style_path)
-        style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)
-        style_img = Image.fromarray(style_img)
-        small_edge = min(style_img.width,style_img.height)
-        if small_edge==style_img.width:
+        small_edge = min(self.style_img.width,self.style_img.height)
+        if small_edge==self.style_img.width:
             intermediate_width = math.floor(self.load_size* self.style_upsize)
             final_width = math.ceil(self.thumb_size*self.style_upsize)
-            ratio = style_img.height/style_img.width
+            ratio = style_img.height/self.style_img.width
             intermediate_height = math.floor(self.load_size*ratio* self.style_upsize)
             final_height = math.ceil(self.thumb_size*ratio* self.style_upsize)
         else:
             intermediate_height = math.floor(self.load_size* self.style_upsize)
             final_height = math.ceil(self.thumb_size * self.style_upsize)
-            ratio = style_img.width/style_img.height
+            ratio = self.style_img.width/self.style_img.height
             intermediate_width = math.floor(self.load_size* ratio* self.style_upsize)
             final_width = math.ceil(self.thumb_size*ratio* self.style_upsize)
-        style_patch = style_img.resize((intermediate_width, intermediate_height),
+        style_img = self.style_img.resize((intermediate_width, intermediate_height),
                                      Image.BILINEAR)
-        style_img = style_patch.resize((final_width,final_height),Image.BILINEAR)
+        style_img = style_img.crop(box=get_crop_bounds(self.load_size,style_img.width,style_img.height))
         style_img = np.array(style_img)
-        style_patch = np.array(style_patch)
-        style_img = self.transform(style_img)
-        style_patch = self.transform_patch(style_patch)
-        style_patch = self.img(style_patch)
-        content_img = self.img(content_img)
         style_img = self.img(style_img)
-        content_patches = self.img(content_patches)
-        return {'ci': content_img, 'si': style_img, 'sp':style_patch, 'ci_path': path,'cp':content_patches,'position':position,'half_position':half_position}
-
-    def prepare_patches(self,path):
-        content_img = cv2.imread(os.path.join(self.content_root, path))
-        try:
-            if content_img.ndim == 2:
-                content_img = cv2.cvtColor(content_img, cv2.COLOR_GRAY2RGB)
-            else:
-                content_img = cv2.cvtColor(content_img, cv2.COLOR_BGR2RGB)
-        except:
-            print(path)
-        content_img = Image.fromarray(content_img)
-        small_edge = min(content_img.width,content_img.height)
-        if small_edge==content_img.width:
-            intermediate_width = self.load_size
-            ratio = content_img.height/content_img.width
-            intermediate_height = math.ceil(self.load_size*ratio)
-        else:
-            intermediate_height = self.load_size
-            ratio = content_img.width/content_img.height
-            intermediate_width = math.ceil(self.load_size*ratio)
-        content_img = content_img.resize((intermediate_width, intermediate_height),
-                                         Image.BILINEAR)
-        content_patches = np.array(content_img)
-        num_patch_horizontal = math.floor(content_patches.shape[-2]/self.crop_size)
-        num_patch_vertical = math.floor(content_patches.shape[-1]/self.crop_size)
-        patches = []
-        for i in range(num_patch_vertical):
-            for j in range(num_patch_horizontal):
-                patches.append(content_patches[i+1*self.crop_size:j+1*self.crop_size])
-        return patches
+        content_img = np.array(content_img)
+        content_thumb = np.array(content_thumb)
+        content_thumb = self.img(content_thumb)
+        zero_thumb = np.zeros((3,self.thumb_size,self.thumb_size), dtype=np.float32)
+        thumb_shape = content_thumb.shape
+        zero_thumb[:,:thumb_shape[1],:thumb_shape[2]]=content_thumb
+        if content_img.shape[-2]%2 != 0:
+            content_img = content_img[:,:-1,:]
+        if content_img.shape[-1]%2 != 0:
+            content_img = content_img[:,:,:-1]
+        content_img = self.img(content_img)
+        output = {'content':content_img,'style':style_img,'content_thumb':zero_thumb,'content_shape':thumb_shape}
+        return output
 
     def img(self, img):
         """make image with [0,255] and HWC to [0,1] and CHW
@@ -575,4 +530,4 @@ class LapStyleThumbsetInference(Dataset):
         return len(self.paths)
 
     def name(self):
-        return 'LapStyleThumbset'
+        return 'LapStyleThumbsetInference'

@@ -1117,7 +1117,6 @@ class LapStyleRevSecondPatch(BaseModel):
         self.style_weight = style_weight
 
     def test_iter(self, metrics=None):
-        bordered_content =
         self.eval()
         with paddle.no_grad():
             self.forward()

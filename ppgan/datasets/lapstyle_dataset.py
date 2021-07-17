@@ -461,40 +461,45 @@ class LapStyleThumbsetInference(Dataset):
             small_edge='width'
             intermediate_width = self.load_size
             ratio = content_img.height/content_img.width
-            reduce_ratio = content_img.width/content_img.height
+            #reduce_ratio = content_img.width/content_img.height
             intermediate_height = math.ceil(self.load_size*ratio)
-            final_width = self.thumb_size*reduce_ratio
-            final_height = self.thumb_size
+            final_width = self.thumb_size
+            final_height = math.ceil(self.thumb_size/ratio)
         else:
             small_edge='height'
 
             intermediate_height = self.load_size
             ratio = content_img.width/content_img.height
-            reduce_ratio = content_img.width/content_img.height
+            #reduce_ratio = content_img.width/content_img.height
             intermediate_width = math.ceil(self.load_size*ratio)
-            final_height = math.floor(self.thumb_size*reduce_ratio)
-            final_width = self.thumb_size
+            final_height = self.thumb_size
+            final_width = math.ceil(self.thumb_size/ratio)
         content_img = content_img.resize((intermediate_width, intermediate_height),
                                          Image.BILINEAR)
         content_thumb = content_img.resize((final_width, final_height),
                                          Image.BILINEAR)
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]
         small_edge = min(self.style_img.width,self.style_img.height)
+        max_size=max(final_height,final_width)
         if small_edge==self.style_img.width:
             intermediate_width = math.floor(self.load_size* self.style_upsize)
-            final_width = math.ceil(self.thumb_size*self.style_upsize)
+            final_width = math.ceil((max_size*self.style_upsize)/ratio)
             ratio = style_img.height/self.style_img.width
             intermediate_height = math.floor(self.load_size*ratio* self.style_upsize)
-            final_height = math.ceil(self.thumb_size*ratio* self.style_upsize)
+            final_height = math.ceil(max_size* self.style_upsize)
         else:
             intermediate_height = math.floor(self.load_size* self.style_upsize)
-            final_height = math.ceil(self.thumb_size * self.style_upsize)
+            final_height = math.ceil((max_size* self.style_upsize)/ratio)
             ratio = self.style_img.width/self.style_img.height
             intermediate_width = math.floor(self.load_size* ratio* self.style_upsize)
-            final_width = math.ceil(self.thumb_size*ratio* self.style_upsize)
+            final_width = math.ceil(max_size* self.style_upsize)
+        style_thumb = self.style_img.resize((final_width,final_height))
+        transform = data_transform((content_thumb.height,content_thumb.width))
+        style_thumb = transform(style_thumb)
         style_img = self.style_img.resize((intermediate_width, intermediate_height),
                                      Image.BILINEAR)
         style_img = style_img.crop(box=get_crop_bounds(self.load_size,style_img.width,style_img.height))
+
         style_img = np.array(style_img)
         style_img = self.img(style_img)
         content_img = np.array(content_img)
@@ -508,7 +513,8 @@ class LapStyleThumbsetInference(Dataset):
         if content_img.shape[-1]%2 != 0:
             content_img = content_img[:,:,:-1]
         content_img = self.img(content_img)
-        output = {'content':content_img,'style':style_img,'content_thumb':zero_thumb,'content_shape':thumb_shape}
+        #output = {'content':content_img,'style':style_img,'content_thumb':zero_thumb,'style_thumb':style_thumb,'content_shape':thumb_shape}
+        output={'ci':content_thumb,'si':style_thumb,'ci_path':path}
         return output
 
     def img(self, img):

@@ -36,12 +36,13 @@ dataset:
     num_workers: 16
     batch_size: 5
   test:
-    name: LapStyleThumbset
-    content_root: /content/gdrive/My Drive/img_style/content/
-    style_root: /content/PaddleGAN/starrypatched1024.png
-    load_size: 256
-    thumb_size: 128
+    name: LapStyleThumbsetInference
+    content_root: /content/gdrive/My Drive/img_style/washnight/
+    style_root: /content/PaddleGAN/starry1600.png
+    load_size: 128
     crop_size: 128
+    thumb_size: 128
+    patch_depth: 1
     num_workers: 0
     batch_size: 1
 

@@ -464,7 +464,7 @@ class LapStyleThumbsetInference(Dataset):
             #reduce_ratio = content_img.width/content_img.height
             intermediate_height = math.ceil(self.load_size*ratio)
             final_width = self.thumb_size
-            final_height = math.ceil(self.thumb_size*ratio)
+            final_height = math.floor(self.thumb_size*ratio)
         else:
             small_edge='height'
 
@@ -473,7 +473,7 @@ class LapStyleThumbsetInference(Dataset):
             #reduce_ratio = content_img.width/content_img.height
             intermediate_width = math.ceil(self.load_size*ratio)
             final_height = self.thumb_size
-            final_width = math.ceil(self.thumb_size*ratio)
+            final_width = math.floor(self.thumb_size*ratio)
         content_img = content_img.resize((intermediate_width, intermediate_height),
                                          Image.BILINEAR)
         content_thumb = content_img.resize((final_width, final_height),

@@ -966,7 +966,7 @@ class LapStyleRevSecondThumb(BaseModel):
         loss_G_GAN = self.gan_criterion(pred_fake, True)
         self.losses['loss_gan_G'] = loss_G_GAN
 
-        loss = loss_G_GAN + loss_s * self.style_weight + \
+        loss = loss_G_GAN *2+ loss_s * self.style_weight + \
                     loss_content * self.content_weight + \
                     loss_style_remd * 10 + \
                     loss_content_relt * 16
@@ -1015,7 +1015,7 @@ class LapStyleRevSecondThumb(BaseModel):
 
         patch_loss = loss_ps * self.style_weight * 2 + \
                           loss_content_p * self.content_weight + \
-                          loss_patch * self.content_weight * 40 + \
+                          loss_patch * self.content_weight + \
                           p_loss_style_remd * 12 + p_loss_content_relt * 16
         patch_loss.backward()
         return patch_loss

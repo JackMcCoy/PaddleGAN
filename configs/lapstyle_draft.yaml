@@ -36,7 +36,7 @@ dataset:
     batch_size: 5
   test:
     name: LapStyleDataset
-    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
+    content_root: /content/gdrive/My Drive/img_style/washnight/
     style_root: /content/PaddleGAN/starry1600.png
     load_size: 128
     crop_size: 128

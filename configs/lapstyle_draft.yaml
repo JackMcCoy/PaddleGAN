@@ -9,7 +9,7 @@ model:
   generator_encode:
     name: Encoder
   generator_decode:
-    name: DecoderNet
+    name: DecoderThumbNet
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:

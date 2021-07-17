@@ -515,7 +515,7 @@ class LapStyleThumbsetInference(Dataset):
         if sizes[-2]%32!=0:
             closest=math.floor(sizes[-2]/32)
             style_thumb=style_thumb[:,:closest*32,:]
-            content_thumb=content_thumb[:,:closest*32,L]
+            content_thumb=content_thumb[:,:closest*32,:]
         print(style_thumb.shape)
         print(content_thumb.shape)
         assert content_thumb.shape == style_thumb.shape

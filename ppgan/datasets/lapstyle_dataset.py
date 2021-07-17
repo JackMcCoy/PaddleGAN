@@ -521,7 +521,7 @@ class LapStyleThumbsetInference(Dataset):
         content_img = self.img(content_img)
         '''
         #output = {'content':content_img,'style':style_img,'content_thumb':zero_thumb,'style_thumb':style_thumb,'content_shape':thumb_shape}
-        output={'ci':content_thumb,'cp':content_thumb,'si':style_thumb,'sp':style_thumb,'ci_path':path}
+        output={'ci':content_thumb,'position':{},'cp':content_thumb,'si':style_thumb,'sp':style_thumb,'ci_path':path}
         return output
 
     def img(self, img):

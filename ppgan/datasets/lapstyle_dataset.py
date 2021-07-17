@@ -483,16 +483,16 @@ class LapStyleThumbsetInference(Dataset):
         max_size=max(final_height,final_width)
         if small_edge==self.style_img.width:
             intermediate_width = math.floor(self.load_size* self.style_upsize)
-            final_width = math.ceil((max_size*self.style_upsize)/ratio)
+            final_width = math.ceil(max_size* self.style_upsize)
             ratio = style_img.height/self.style_img.width
             intermediate_height = math.floor(self.load_size*ratio* self.style_upsize)
-            final_height = math.ceil(max_size* self.style_upsize)
+            final_height = math.ceil((max_size*self.style_upsize)*ratio)
         else:
             intermediate_height = math.floor(self.load_size* self.style_upsize)
-            final_height = math.ceil((max_size* self.style_upsize)/ratio)
+            final_height = math.ceil(max_size* self.style_upsize)
             ratio = self.style_img.width/self.style_img.height
             intermediate_width = math.floor(self.load_size* ratio* self.style_upsize)
-            final_width = math.ceil(max_size* self.style_upsize)
+            final_width = math.ceil(max_size* self.style_upsize*ratio)
         style_thumb = self.style_img.resize((final_width,final_height))
         transform = data_transform((content_thumb.height,content_thumb.width))
         style_thumb = transform(style_thumb)

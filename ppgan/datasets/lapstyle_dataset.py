@@ -505,6 +505,8 @@ class LapStyleThumbsetInference(Dataset):
         content_img = np.array(content_img)
         content_thumb = np.array(content_thumb)
         content_thumb = self.img(content_thumb)
+        style_thumb = np.array(style_thumb)
+        style_thumb = self.img(style_thumb)
         '''
         zero_thumb = np.zeros((3,self.thumb_size,self.thumb_size), dtype=np.float32)
         thumb_shape = content_thumb.shape

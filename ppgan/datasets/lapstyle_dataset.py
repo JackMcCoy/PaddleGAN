@@ -508,14 +508,14 @@ class LapStyleThumbsetInference(Dataset):
         style_thumb = np.array(style_thumb)
         style_thumb = self.img(style_thumb)
         sizes=style_thumb.shape
-        if sizes[-1]%32!=0:
-            closest=math.floor(sizes[-1]/32)
-            style_thumb=style_thumb[:,:,:closest*32]
-            content_thumb=content_thumb[:,:,:closest*32]
-        if sizes[-2]%32!=0:
-            closest=math.floor(sizes[-2]/32)
-            style_thumb=style_thumb[:,:closest*32,:]
-            content_thumb=content_thumb[:,:closest*32,:]
+        if sizes[-1]%16!=0:
+            closest=math.floor(sizes[-1]/16)
+            style_thumb=style_thumb[:,:,:closest*16]
+            content_thumb=content_thumb[:,:,:closest*16]
+        if sizes[-2]%16!=0:
+            closest=math.floor(sizes[-2]/16)
+            style_thumb=style_thumb[:,:closest*16,:]
+            content_thumb=content_thumb[:,:closest*16,:]
         print(style_thumb.shape)
         print(content_thumb.shape)
         assert content_thumb.shape == style_thumb.shape

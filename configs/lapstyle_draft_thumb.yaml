@@ -43,6 +43,7 @@ dataset:
     crop_size: 128
     thumb_size: 128
     patch_depth: 1
+    style_upsize: 1
     num_workers: 0
     batch_size: 1
 

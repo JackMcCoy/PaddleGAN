@@ -417,7 +417,7 @@ class LapStyleThumbsetInference(Dataset):
     coco2017 dataset for LapStyle model
     """
     def __init__(self, content_root, style_root, load_size, crop_size, thumb_size, patch_depth,style_upsize=1):
-        super(MultiPatchSet, self).__init__()
+        super(LapStyleThumbsetInference, self).__init__()
         self.content_root = content_root
         self.paths = os.listdir(self.content_root)
         random.shuffle(self.paths)

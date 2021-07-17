@@ -38,8 +38,8 @@ dataset:
   test:
     name: LapStyleThumbsetInference
     content_root: /content/gdrive/My Drive/img_style/washnight/
-    style_root: /content/PaddleGAN/starry1600.png
-    load_size: 256
+    style_root: /content/PaddleGAN/starrypatched1024.png
+    load_size: 128
     crop_size: 128
     thumb_size: 128
     patch_depth: 1

@@ -1210,8 +1210,9 @@ class LapStyleRevSecondPatch(BaseModel):
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward()
-            style_paths = [i for i in os.path.join(self.output_dir, 'visual_test')]
+            style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test'))]
             style_paths = [i for i in style_paths if '_' in i]
+            print(style_paths[0])
             positions = [(int(re.split('_|\.',i)[0]),int(re.split('_|\.',i)[1])) for i in style_paths]
             max_x = 0
             max_y = 0

@@ -14,7 +14,9 @@
 
 import paddle
 import paddle.nn.functional as F
-import math,random,os
+import math,random,os,re
+from PIL import Image
+import numpy as np
 from .base_model import BaseModel
 
 from .builder import MODELS
@@ -1208,6 +1210,34 @@ class LapStyleRevSecondPatch(BaseModel):
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward()
+            style_paths = [i for i in os.path.join(self.output_dir, 'visual_test')]
+            style_paths = [i for i in style_paths if '_' in i]
+            positions = [(int(re.split('_|\.',i)[0]),int(re.split('_|\.',i)[1])) for i in style_paths]
+            max_x = 0
+            max_y = 0
+            for a,b in positions:
+                if a>max_x:
+                    max_x=a
+                if b>max_y:
+                    max_y=b
+            max_x = max_x+size_x
+            max_y = max_y+size_y
+            tiles_1 = np.zeros((3,max_x,max_y), dtype=np.uint8)
+            tiles_2 = np.zeros((3, max_x, max_y), dtype=np.uint8)
+            for a,b in zip(style_paths,positions):
+                with Image.open(os.path.join(self.output_dir, 'visual_test',a)) as file:
+                    image = np.asarray(file)
+                    if b[0]%size_x==0 and b[1]%size_y==0:
+                        tiles_1[:,b[0]:b[0]+size_x,b[1]:b[1]+size_y]=image
+                    else:
+                        tiles_2[:, b[0]:b[0] + size_x, b[1]:b[1] + size_y] = image
+            for a,b in zip([tiles_1,tiles_2],['tiled_1','tiled_2']):
+                im = Image.fromarray(a)
+                label = b
+                makedirs(os.path.join(self.output_dir, 'visual_test'))
+                img_path = os.path.join(self.output_dir, 'visual_test',
+                                        '%s.png' % (label))
+                im.save(img_path)
         self.train()
 
     def setup_input(self, input):

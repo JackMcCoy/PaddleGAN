@@ -1314,7 +1314,7 @@ class LapStyleRevSecondPatch(BaseModel):
                         stylized_rev_patch_second = fold_laplace_patch(
                             [stylized_rev_patch_second, stylized_up_4.detach()])
                         image_numpy=tensor2img(stylized_rev_patch_second,min_max=(0., 1.))
-                        label = str(self.outer_loop[0]*4+k+i)+'_'+str(self.outer_loop[1]*4+l+j)
+                        label = str(self.outer_loop[0]*4+k+i*2)+'_'+str(self.outer_loop[1]*4+l+j*2)
                         makedirs(os.path.join(self.output_dir, 'visual_test'))
                         img_path = os.path.join(self.output_dir, 'visual_test',
                                                 '%s.png' % (label))

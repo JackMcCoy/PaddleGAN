@@ -1150,7 +1150,7 @@ class LapStyleRevSecondPatch(BaseModel):
 
     def test_iter(self, metrics=None):
         self.eval()
-        self.laplacians=[laplacian(self.content_stack)]
+        self.laplacians=[laplacian(self.content_stack[0])]
         for i in [.25,.5,1]:
             if i==1:
                 self.laplacians.append(laplacian(self.content))

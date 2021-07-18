@@ -203,7 +203,7 @@ class Trainer:
             self.learning_rate_scheduler_step()
 
             if self.validate_interval > -1 and self.current_iter % self.validate_interval == 0:
-                self.test(self.output_dir)
+                self.test()
 
             if self.current_iter % self.weight_interval == 0:
                 self.save(self.current_iter, 'weight', keep=-1)
@@ -230,7 +230,7 @@ class Trainer:
         for i in range(self.max_eval_steps):
             data = next(iter_loader)
             self.model.setup_input(data)
-            self.model.test_iter(metrics=self.metrics)
+            self.model.test_iter(output_dir=self.output_dir,metrics=self.metrics)
 
             visual_results = {}
             current_paths = self.model.get_image_paths()

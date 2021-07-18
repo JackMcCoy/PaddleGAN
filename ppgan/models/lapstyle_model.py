@@ -1198,7 +1198,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small_slize])
                     self.stylized_slice = F.interpolate(stylized_rev, scale_factor=2)
                     self.outer_loop=(i,j)
-                    self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
+                    self.positions=[[i,j,i+256,j+256]]#!
                     self.test_forward()
         self.train()
 

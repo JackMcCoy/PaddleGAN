@@ -1227,15 +1227,12 @@ class LapStyleRevSecondPatch(BaseModel):
             print(max_y)
             tiles_1 = np.zeros((max_x,max_y,3), dtype=np.uint8)
             print(tiles_1.shape)
-            tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
+            #tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
             for a,b in zip(style_paths,positions):
                 with Image.open(os.path.join(self.output_dir, 'visual_test',a)) as file:
                     image = np.asarray(file)
-                    if b[0]%size_x==0 and b[1]%size_y==0:
-                        tiles_1[b[0]:b[0]+size_x,b[1]:b[1]+size_y,:]=image
-                    else:
-                        tiles_2[b[0]:b[0] + size_x, b[1]:b[1] + size_y,:] = image
-            for a,b in zip([tiles_1,tiles_2],['tiled_1','tiled_2']):
+                    tiles_1[b[0]:b[0]+size_x,b[1]:b[1]+size_y,:]=image
+            for a,b in zip([tiles_1],['tiled_1']):
                 print(a.shape)
                 im = Image.fromarray(a,'RGB')
                 label = b

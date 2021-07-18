@@ -508,29 +508,23 @@ class LapStyleThumbsetInference(Dataset):
         style_thumb = np.array(style_thumb)
         style_thumb = self.img(style_thumb)
         sizes=style_thumb.shape
+        ratio = math.floor(self.load_size/self.crop_size)
         if sizes[-1]%16!=0:
             closest=math.floor(sizes[-1]/16)
             style_thumb=style_thumb[:,:,:closest*16]
             content_thumb=content_thumb[:,:,:closest*16]
+            content_img = content_img[:,:,:closest*16*ratio]
         if sizes[-2]%16!=0:
             closest=math.floor(sizes[-2]/16)
             style_thumb=style_thumb[:,:closest*16,:]
             content_thumb=content_thumb[:,:closest*16,:]
-        print(style_thumb.shape)
-        print(content_thumb.shape)
+            content_img = content_img[:,:,closest*16*ratio,:]
         assert content_thumb.shape == style_thumb.shape
-        '''
-        zero_thumb = np.zeros((3,self.thumb_size,self.thumb_size), dtype=np.float32)
-        thumb_shape = content_thumb.shape
-        zero_thumb[:,:thumb_shape[1],:thumb_shape[2]]=content_thumb
-        if content_img.shape[-2]%2 != 0:
-            content_img = content_img[:,:-1,:]
-        if content_img.shape[-1]%2 != 0:
-            content_img = content_img[:,:,:-1]
+
         content_img = self.img(content_img)
-        '''
+
         #output = {'content':content_img,'style':style_img,'content_thumb':zero_thumb,'style_thumb':style_thumb,'content_shape':thumb_shape}
-        output={'ci':content_thumb,'position':{},'cp':content_thumb,'si':style_thumb,'sp':style_thumb,'ci_path':path}
+        output={'content':content_img,'ci':content_thumb,'position':{},'cp':content_thumb,'si':style_thumb,'sp':style_thumb,'ci_path':path}
         return output
 
     def img(self, img):

@@ -1209,7 +1209,7 @@ class LapStyleRevSecondPatch(BaseModel):
         else:
             self.content_stack=[input['ci']]
             self.content=input['content']
-            self.style_stack = input['si']
+            self.style_stack = [input['si']]
             self.visual_items['ci']=input['ci']
     def test_forward(self):
         stylized_up = self.stylized_up

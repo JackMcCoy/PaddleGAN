@@ -1190,8 +1190,8 @@ class LapStyleRevSecondPatch(BaseModel):
                              ends=[i+256,j+256])
                     small_i = 0 if i==0 else i/2
                     small_j = 0 if j==0 else j/2
-                    stylized_small_slize=paddle.slice(self.stylized_up,axes=[2,3],starts=[small_i,small_j],\
-                             ends=[small_i+128,small_j+128])
+                    stylized_small_slize=paddle.slice(self.stylized_up,axes=[2,3],starts=[math.floor(small_i),math.floor(small_j)],\
+                             ends=[math.floor(small_i)+128,math.floor(small_j)+128])
                     revnet_input = paddle.concat(x=[lap, stylized_slice], axis=1)
                     #rev_net thumb only calcs as patch if second parameter is passed
                     stylized_rev_lap,self.stylized_feats = self.nets['net_rev'](revnet_input)

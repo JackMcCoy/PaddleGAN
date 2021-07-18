@@ -1188,7 +1188,12 @@ class LapStyleRevSecondPatch(BaseModel):
                 move_y = adjust(size_y,self.in_size_y)
             print('size_y='+str(size_y))
             print('in_size_y='+str(self.in_size_y))
+            print('move_y='+str(move_y))
+            print('size_x='+str(size_x))
+            print('in_size_x='+str(self.in_size_x))
+            print('move_x='+str(move_x))
             for i in range(0,size_x-move_x,move_x):
+                print('i='+i)
                 for j in range(0,size_y-move_y,move_y):
                     print(str(i)+', '+str(j))
                     self.outer_loop=(i,j)

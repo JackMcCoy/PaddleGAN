@@ -1169,8 +1169,8 @@ class LapStyleRevSecondPatch(BaseModel):
             stylized_rev_lap,self.stylized_feats = self.nets['net_rev'](revnet_input)
             stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
             self.stylized_up = F.interpolate(stylized_rev, scale_factor=2)
-            if stylized_up.shape[-1].value()==256:
-                size_x=stylized_up.shape[-2].value()
+            if self.stylized_up.shape[-1].value()==256:
+                size_x=self.stylized_up.shape[-2].value()
                 self.in_size_x = math.floor(size_x/2)
                 move_x = adjust(size_x,self.in_size_x)
                 size_y=256
@@ -1180,7 +1180,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 size_x=256
                 self.in_size_x = 128
                 move_x = 256
-                size_y=stylized_up.shape[-1].value()
+                size_y=self.stylized_up.shape[-1].value()
                 in_size_y = math.floor(size_y/2)
                 move_y = adjust(size_y,self.in_size_y)
             for i in range(0,size_x-move_x,move_x):

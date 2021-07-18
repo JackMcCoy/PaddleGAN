@@ -1187,7 +1187,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 for j in range(0,size_y-move_y,move_y):
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+in_size_x,j+in_size_y]]#!
-                    self.forward()
+                    self.test_forward()
         self.train()
 
     def setup_input(self, input):
@@ -1207,10 +1207,10 @@ class LapStyleRevSecondPatch(BaseModel):
             self.laplacians.append(laplacian(self.content_stack[2]).detach())
             self.laplacians.append(laplacian(self.content_stack[3]).detach())
         else:
-            self.content_stack=[input['content_thumb']]
+            self.content_stack=[input['ci']]
             self.content=input['content']
-            self.style_stack = input['style']
-            self.visual_items['ci']=input['content_thumb']
+            self.style_stack = input['si']
+            self.visual_items['ci']=input['ci']
     def test_forward(self):
         stylized_up = self.stylized_up
         stylized_feats = self.stylized_feats

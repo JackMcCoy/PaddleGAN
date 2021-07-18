@@ -1157,8 +1157,8 @@ class LapStyleRevSecondPatch(BaseModel):
             else:
                 self.laplacians.append(laplacian(F.interpolate(self.content, scale_factor=i)))
         with paddle.no_grad():
-            cF = self.nets['net_enc'](F.interpolate(self.content_stack,scale_factor=.5))
-            sF = self.nets['net_enc'](F.interpolate(self.style_stack, scale_factor=.5))
+            cF = self.nets['net_enc'](F.interpolate(self.content_stack[0],scale_factor=.5))
+            sF = self.nets['net_enc'](F.interpolate(self.style_stack[0], scale_factor=.5))
 
             stylized_small= self.nets['net_dec'](cF, sF)
             self.visual_items['stylized_small'] = stylized_small

@@ -1261,6 +1261,7 @@ class LapStyleRevSecondPatch(BaseModel):
                         img_path = os.path.join(self.output_dir, 'visual_test',
                                                 '%s.png' % (label))
                         save_image(image_numpy, img_path)
+                        print(label)
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         if self.is_train:

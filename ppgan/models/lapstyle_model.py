@@ -1199,6 +1199,12 @@ class LapStyleRevSecondPatch(BaseModel):
                     self.stylized_slice = F.interpolate(stylized_rev, scale_factor=2)
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+256,j+256]]#!
+                    image_numpy = tensor2img(self.stylized_slice)
+                    label = str(self.outer_loop[0] * 4 + k + i) + '_' + str(self.outer_loop[1] * 4 + l + j)+' lap_1'
+                    makedirs(os.path.join(self.output_dir, 'visual_test'))
+                    img_path = os.path.join(self.output_dir, 'visual_test',
+                                            '%s.png' % (label))
+                    save_image(image_numpy, img_path)
                     self.test_forward()
         self.train()
 

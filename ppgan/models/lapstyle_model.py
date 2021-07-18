@@ -1228,6 +1228,7 @@ class LapStyleRevSecondPatch(BaseModel):
             for a,b in zip(style_paths,positions):
                 with Image.open(os.path.join(self.output_dir, 'visual_test',a)) as file:
                     image = np.asarray(file)
+                    image = np.transpose(image, (2, 0, 1))
                     if b[0]%size_x==0 and b[1]%size_y==0:
                         tiles_1[:,b[0]:b[0]+size_x,b[1]:b[1]+size_y]=image
                     else:

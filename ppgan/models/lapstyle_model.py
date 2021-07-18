@@ -1208,7 +1208,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 for j in range(0,size_y-move_y,move_y):
                     print(str(i)+', '+str(j))
                     self.outer_loop=(i,j)
-                    self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
+                    self.positions=[[i,j,i+size_x,j+size_y]]#!
                     self.test_forward()
             style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test'))]
             style_paths = [i for i in style_paths if '_' in i]
@@ -1274,7 +1274,7 @@ class LapStyleRevSecondPatch(BaseModel):
         stylized_feats = self.stylized_feats
         stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
                              ends=[self.positions[0][2],self.positions[0][3]])
-        lap = paddle.slice(self.laplacians[1],axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
+        lap = paddle.slice(self.laplacians[1],axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]*2],\
                              ends=[self.positions[0][2],self.positions[0][3]])
         revnet_input = paddle.concat(x=[lap, stylized_up], axis=1)
         stylized_rev_lap_second,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats)

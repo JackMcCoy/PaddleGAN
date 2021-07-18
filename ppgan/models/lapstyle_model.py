@@ -1165,39 +1165,38 @@ class LapStyleRevSecondPatch(BaseModel):
             stylized_small= self.nets['net_dec'](cF, sF)
             self.visual_items['stylized_small'] = stylized_small
             self.stylized_up = F.interpolate(stylized_small, scale_factor=2)
-
-            revnet_input = paddle.concat(x=[self.laplacians[0], self.stylized_up], axis=1)
-            #rev_net thumb only calcs as patch if second parameter is passed
-            stylized_rev_lap,self.stylized_feats = self.nets['net_rev'](revnet_input)
-            stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
-            self.stylized_up = F.interpolate(stylized_rev, scale_factor=2)
             small_side=min(self.stylized_up.shape[-1],self.stylized_up.shape[-2])
-            print(self.stylized_up.shape)
-            print()
             if small_side==self.stylized_up.shape[-1]:
                 size_x=self.stylized_up.shape[-2]
                 self.in_size_x = math.floor(size_x/2)
                 move_x = adjust(size_x,self.in_size_x)
-                size_y=512
-                self.in_size_y = 256
-                move_y = 256
+                size_y=256
+                self.in_size_y = 128
+                move_y = 128
             else:
-                size_x=512
-                self.in_size_x = 256
-                move_x = 256
+                size_x=256
+                self.in_size_x = 128
+                move_x = 128
                 size_y=self.stylized_up.shape[-1]
                 self.in_size_y = math.floor(size_y/2)
                 move_y = adjust(size_y,self.in_size_y)
-            print('size_y='+str(size_y))
-            print('in_size_y='+str(self.in_size_y))
-            print('move_y='+str(move_y))
-            print('size_x='+str(size_x))
-            print('in_size_x='+str(self.in_size_x))
-            print('move_x='+str(move_x))
             for i in range(0,size_x-move_x,move_x):
                 print('i='+str(i))
                 for j in range(0,size_y-move_y,move_y):
                     print(str(i)+', '+str(j))
+                    lap = paddle.slice(self.laplacians[1],axes=[2,3],starts=[i,j],\
+                             ends=[i+256,j+256])
+                    stylized_slice = paddle.slice(self.stylized_up,axes=[2,3],starts=[i,j],\
+                             ends=[i+256,j+256])
+                    small_i = 0 if i==0 else i/2
+                    small_j = 0 if j==0 else j/2
+                    stylized_small_slize=paddle.slice(self.stylized_up,axes=[2,3],starts=[small_i,small_j],\
+                             ends=[small_i+128,small_j+128])
+                    revnet_input = paddle.concat(x=[lap, stylized_slice], axis=1)
+                    #rev_net thumb only calcs as patch if second parameter is passed
+                    stylized_rev_lap,self.stylized_feats = self.nets['net_rev'](revnet_input)
+                    stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small_slize])
+                    self.stylized_slice = F.interpolate(stylized_rev, scale_factor=2)
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward()
@@ -1225,7 +1224,7 @@ class LapStyleRevSecondPatch(BaseModel):
             self.style_stack = [input['si']]
             self.visual_items['ci']=input['ci']
     def test_forward(self):
-        stylized_up = self.stylized_up
+        stylized_up = self.stylized_slice
         stylized_feats = self.stylized_feats
         stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
                              ends=[self.positions[0][2],self.positions[0][3]])

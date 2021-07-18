@@ -1172,6 +1172,14 @@ class LapStyleRevSecondPatch(BaseModel):
             img_path = os.path.join(self.output_dir, 'visual_test',
                                     '%s.png' % (label))
             save_image(image_numpy, img_path)
+            image_numpy = tensor2img(self.content_stack[0])
+            img_path = os.path.join(self.output_dir, 'visual_test',
+                                    '%s.png' % ('ci'))
+            save_image(image_numpy, img_path)
+            image_numpy = tensor2img(self.style_stack[0])
+            img_path = os.path.join(self.output_dir, 'visual_test',
+                                    '%s.png' % ('si'))
+            save_image(image_numpy, img_path)
             if small_side==self.stylized_up.shape[-1]:
                 size_x=self.stylized_up.shape[-2]
                 self.in_size_x = math.floor(size_x/2)

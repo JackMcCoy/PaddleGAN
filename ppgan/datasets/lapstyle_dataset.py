@@ -522,7 +522,9 @@ class LapStyleThumbsetInference(Dataset):
         assert content_thumb.shape == style_thumb.shape
 
         content_img = self.img(content_img)
-
+        content_img = np.expand_dims(content_img, axis=0)
+        content_thumb = np.expand_dims(content_thumb, axis=0)
+        style_thumb = np.expand_dims(style_thumb, axis=0)
         #output = {'content':content_img,'style':style_img,'content_thumb':zero_thumb,'style_thumb':style_thumb,'content_shape':thumb_shape}
         output={'content':content_img,'ci':content_thumb,'position':{},'cp':content_thumb,'si':style_thumb,'sp':style_thumb,'ci_path':path}
         return output

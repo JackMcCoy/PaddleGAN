@@ -1180,45 +1180,33 @@ class LapStyleRevSecondPatch(BaseModel):
             img_path = os.path.join(self.output_dir, 'visual_test',
                                     '%s.png' % ('si'))
             save_image(image_numpy, img_path)
+
+            revnet_input = paddle.concat(x=[self.laplacians[0], stylized_slice], axis=1)
+            # rev_net thumb only calcs as patch if second parameter is passed
+            stylized_rev_lap, self.stylized_feats = self.nets['net_rev'](revnet_input)
+            stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small_slize])
+            self.stylized_slice = F.interpolate(stylized_rev, scale_factor=2)
+
             if small_side==self.stylized_up.shape[-1]:
-                size_x=self.stylized_up.shape[-2]
-                self.in_size_x = math.floor(size_x/2)
-                move_x = adjust(size_x,self.in_size_x)
-                size_y=256
+                size_x = self.stylized_up.shape[-2]
+                self.in_size_x = math.floor(size_x / 2)
+                move_x = adjust(size_x, self.in_size_x)
+                size_y = 256
                 self.in_size_y = 128
                 move_y = 128
             else:
                 size_x=256
                 self.in_size_x = 128
                 move_x = 128
-                size_y=self.stylized_up.shape[-1]
-                self.in_size_y = math.floor(size_y/2)
-                move_y = adjust(size_y,self.in_size_y)
-            for i in range(0,self.stylized_up.shape[-2]-128,128):
+                size_y = self.stylized_up.shape[-1]
+                self.in_size_y = math.floor(size_y / 2)
+                move_y = adjust(size_y, self.in_size_y)
+            for i in range(0,size_x-move_x,move_x):
                 print('i='+str(i))
-                for j in range(0,self.stylized_up.shape[-1]-128,128):
+                for j in range(0,size_y-move_y,move_y):
                     print(str(i)+', '+str(j))
-                    lap = paddle.slice(self.laplacians[1],axes=[2,3],starts=[i,j],\
-                             ends=[i+256,j+256])
-                    stylized_slice = paddle.slice(self.stylized_up,axes=[2,3],starts=[i,j],\
-                             ends=[i+256,j+256])
-                    small_i = 0 if i==0 else i/2
-                    small_j = 0 if j==0 else j/2
-                    stylized_small_slize=paddle.slice(self.stylized_up,axes=[2,3],starts=[math.floor(small_i),math.floor(small_j)],\
-                             ends=[math.floor(small_i)+128,math.floor(small_j)+128])
-                    revnet_input = paddle.concat(x=[lap, stylized_slice], axis=1)
-                    #rev_net thumb only calcs as patch if second parameter is passed
-                    stylized_rev_lap,self.stylized_feats = self.nets['net_rev'](revnet_input)
-                    stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small_slize])
-                    self.stylized_slice = F.interpolate(stylized_rev, scale_factor=2)
                     self.outer_loop=(i,j)
-                    self.positions=[[i,j,i+256,j+256]]#!
-                    image_numpy = tensor2img(self.stylized_slice,min_max=(0., 1.))
-                    label = str(self.outer_loop[0] * 2 + i) + '_' + str(self.outer_loop[1] * 2 + j)+' lap_1'
-                    makedirs(os.path.join(self.output_dir, 'visual_test'))
-                    img_path = os.path.join(self.output_dir, 'visual_test',
-                                            '%s.png' % (label))
-                    save_image(image_numpy, img_path)
+                    self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward()
         self.train()
 
@@ -1254,12 +1242,12 @@ class LapStyleRevSecondPatch(BaseModel):
         stylized_rev_lap_second,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats)
         stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up])
         stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
-        size_x=stylized_up.shape[-2]
-        in_size_x = math.floor(size_x/2)
-        move_x = adjust(size_x,in_size_x)
-        size_y=stylized_up.shape[-1]
-        in_size_y = math.floor(size_y/2)
-        move_y = adjust(size_y,in_size_y)
+        size_x = stylized_up.shape[-2]
+        in_size_x = math.floor(size_x / 2)
+        move_x = adjust(size_x, in_size_x)
+        size_y = stylized_up.shape[-1]
+        in_size_y = math.floor(size_y / 2)
+        move_y = adjust(size_y, in_size_y)
         for i in range(0,size_x-move_x,move_x):
             for j in range(0,size_y-move_y,move_y):
                 stylized_up_2 = paddle.slice(stylized_up,axes=[2,3],starts=[i,j],\

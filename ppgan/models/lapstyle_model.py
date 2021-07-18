@@ -1172,17 +1172,17 @@ class LapStyleRevSecondPatch(BaseModel):
                 move_x = adjust(size_x,self.in_size_x)
                 size_y=256
                 self.in_size_y = 128
-                move_y = 256
+                move_y = 128
             else:
                 size_x=256
                 self.in_size_x = 128
-                move_x = 256
+                move_x = 128
                 size_y=self.stylized_up.shape[-1]
                 self.in_size_y = math.floor(size_y/2)
                 move_y = adjust(size_y,self.in_size_y)
-            for i in range(0,size_x-move_x,move_x):
+            for i in range(0,self.stylized_up.shape[-2]-128,128):
                 print('i='+str(i))
-                for j in range(0,size_y-move_y,move_y):
+                for j in range(0,self.stylized_up.shape[-1]-128,128):
                     print(str(i)+', '+str(j))
                     lap = paddle.slice(self.laplacians[1],axes=[2,3],starts=[i,j],\
                              ends=[i+256,j+256])

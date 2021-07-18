@@ -1164,7 +1164,7 @@ class LapStyleRevSecondPatch(BaseModel):
             self.visual_items['stylized_small'] = stylized_small
             self.stylized_up = F.interpolate(stylized_small, scale_factor=2)
 
-            revnet_input = paddle.concat(x=[self.laplacians[0], stylized_up], axis=1)
+            revnet_input = paddle.concat(x=[self.laplacians[0], self.stylized_up], axis=1)
             #rev_net thumb only calcs as patch if second parameter is passed
             stylized_rev_lap,self.stylized_feats = self.nets['net_rev'](revnet_input)
             stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])

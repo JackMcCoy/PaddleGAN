@@ -1170,7 +1170,7 @@ class LapStyleRevSecondPatch(BaseModel):
             stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
             self.stylized_up = F.interpolate(stylized_rev, scale_factor=2)
             small_side=min(self.stylized_up.shape[-1],self.stylized_up.shape[-2])
-            if self.stylized_up.shape[-1]==512:
+            if small_side==self.stylized_up.shape[-1]:
                 size_x=self.stylized_up.shape[-2]
                 self.in_size_x = math.floor(size_x/2)
                 move_x = adjust(size_x,self.in_size_x)

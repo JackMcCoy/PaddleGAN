@@ -1247,8 +1247,8 @@ class LapStyleRevSecondPatch(BaseModel):
 
                 stylized_feats_2 = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
                 stylized_feats_2 = self.nets['net_rev_2'].resblock(stylized_feats_2)
-                lap_2 = paddle.slice(self.laplacians[2],axes=[2,3],starts=[self.outer_loop*2+i,self.outer_loop*2+j],
-                                   ends=[self.outer_loop*2+i+in_size_x,self.outer_loop*2+j+in_size_y])
+                lap_2 = paddle.slice(self.laplacians[2],axes=[2,3],starts=[self.outer_loop[0]*2+i,self.outer_loop[1]*2+j],
+                                   ends=[self.outer_loop[0]*2+i+in_size_x,self.outer_loop[1]*2+j+in_size_y])
 
                 revnet_input_2 = paddle.concat(x=[lap_2, stylized_up_2.detach()], axis=1)
                 stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input_2.detach(),stylized_feats_2.detach())
@@ -1260,14 +1260,14 @@ class LapStyleRevSecondPatch(BaseModel):
                     for l in range(0,size_y-move_y,move_y):
                         stylized_up_4 = paddle.slice(stylized_up_3,axes=[2,3],starts=[k,l],\
                              ends=[k+in_size_x,l+in_size_y])
-                        lap_3 = paddle.slice(self.laplacians[3],axes=[2,3],starts=[self.outer_loop*4+k,self.outer_loop*4+l],
-                                   ends=[self.outer_loop*4+k+in_size_x,self.outer_loop*4+l+in_size_y])
+                        lap_3 = paddle.slice(self.laplacians[3],axes=[2,3],starts=[self.outer_loop[0]*4+k,self.outer_loop[1]*4+l],
+                                   ends=[self.outer_loop[0]*4+k+in_size_x,self.outer_loop[1]*4+l+in_size_y])
                         revnet_input_3 = paddle.concat(x=[lap_3, stylized_up_4.detach()], axis=1)
                         stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input_3.detach(),stylized_feats_2.detach())
                         stylized_rev_patch_second = fold_laplace_patch(
                             [stylized_rev_patch_second, stylized_up_4.detach()])
                         image_numpy=tensor2img(stylized_rev_patch_second)
-                        label = str(self.outer_loop*4+k)+'_'+str(self.outer_loop*4+l)
+                        label = str(self.outer_loop[0]*4+k)+'_'+str(self.outer_loop[1]*4+l)
                         makedirs(os.path.join(self.config['output_dir'], 'visual_test'))
                         img_path = os.path.join(self.output_dir, 'visual_test',
                                                 '%s.png' % (label))

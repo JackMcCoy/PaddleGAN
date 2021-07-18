@@ -1226,10 +1226,10 @@ class LapStyleRevSecondPatch(BaseModel):
     def test_forward(self):
         stylized_up = self.stylized_slice
         stylized_feats = self.stylized_feats
-        stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
-                             ends=[self.positions[0][2],self.positions[0][3]])
-        lap = paddle.slice(self.laplacians[1],axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
-                             ends=[self.positions[0][2],self.positions[0][3]])
+        stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.positions[0][0]*2,self.positions[0][1]*2],\
+                             ends=[self.positions[0][2]*2,self.positions[0][3]*2])
+        lap = paddle.slice(self.laplacians[1],axes=[2,3],starts=[self.positions[0][0]*2,self.positions[0][1]*2],\
+                             ends=[self.positions[0][2]*2,self.positions[0][3]*2])
         revnet_input = paddle.concat(x=[lap, stylized_up], axis=1)
         stylized_rev_lap_second,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats)
         stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up])
@@ -1261,8 +1261,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     for l in range(0,size_y-move_y,move_y):
                         stylized_up_4 = paddle.slice(stylized_up_3,axes=[2,3],starts=[k,l],\
                              ends=[k+in_size_x,l+in_size_y])
-                        lap_3 = paddle.slice(self.laplacians[3],axes=[2,3],starts=[self.outer_loop[0]*4+k,self.outer_loop[1]*4+l],
-                                   ends=[self.outer_loop[0]*4+k+in_size_x,self.outer_loop[1]*4+l+in_size_y])
+                        lap_3 = paddle.slice(self.laplacians[3],axes=[2,3],starts=[self.outer_loop[0]*4+i*2+k,self.outer_loop[1]*4+j*2+l],
+                                   ends=[self.outer_loop[0]*4+i*2+k+in_size_x,self.outer_loop[1]*4+l+j*2+in_size_y])
                         revnet_input_3 = paddle.concat(x=[lap_3, stylized_up_4.detach()], axis=1)
                         stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input_3.detach(),stylized_feats_2.detach())
                         stylized_rev_patch_second = fold_laplace_patch(

@@ -1166,17 +1166,17 @@ class LapStyleRevSecondPatch(BaseModel):
             self.visual_items['stylized_small'] = stylized_small
             self.stylized_up = F.interpolate(stylized_small, scale_factor=2)
             small_side=min(self.stylized_up.shape[-1],self.stylized_up.shape[-2])
-            image_numpy = tensor2img(self.stylized_up)
+            image_numpy = tensor2img(self.stylized_up,min_max=(0., 1.))
             label = 'draft'
             makedirs(os.path.join(self.output_dir, 'visual_test'))
             img_path = os.path.join(self.output_dir, 'visual_test',
                                     '%s.png' % (label))
             save_image(image_numpy, img_path)
-            image_numpy = tensor2img(self.content_stack[0])
+            image_numpy = tensor2img(self.content_stack[0],min_max=(0., 1.))
             img_path = os.path.join(self.output_dir, 'visual_test',
                                     '%s.png' % ('ci'))
             save_image(image_numpy, img_path)
-            image_numpy = tensor2img(self.style_stack[0])
+            image_numpy = tensor2img(self.style_stack[0],min_max=(0., 1.))
             img_path = os.path.join(self.output_dir, 'visual_test',
                                     '%s.png' % ('si'))
             save_image(image_numpy, img_path)
@@ -1213,7 +1213,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     self.stylized_slice = F.interpolate(stylized_rev, scale_factor=2)
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+256,j+256]]#!
-                    image_numpy = tensor2img(self.stylized_slice)
+                    image_numpy = tensor2img(self.stylized_slice,min_max=(0., 1.))
                     label = str(self.outer_loop[0] * 2 + i) + '_' + str(self.outer_loop[1] * 2 + j)+' lap_1'
                     makedirs(os.path.join(self.output_dir, 'visual_test'))
                     img_path = os.path.join(self.output_dir, 'visual_test',
@@ -1287,7 +1287,7 @@ class LapStyleRevSecondPatch(BaseModel):
                         stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input_3.detach(),stylized_feats_2.detach())
                         stylized_rev_patch_second = fold_laplace_patch(
                             [stylized_rev_patch_second, stylized_up_4.detach()])
-                        image_numpy=tensor2img(stylized_rev_patch_second)
+                        image_numpy=tensor2img(stylized_rev_patch_second,min_max=(0., 1.))
                         label = str(self.outer_loop[0]*4+k+i)+'_'+str(self.outer_loop[1]*4+l+j)
                         makedirs(os.path.join(self.output_dir, 'visual_test'))
                         img_path = os.path.join(self.output_dir, 'visual_test',

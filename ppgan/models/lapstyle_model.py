@@ -1171,6 +1171,7 @@ class LapStyleRevSecondPatch(BaseModel):
             self.stylized_up = F.interpolate(stylized_rev, scale_factor=2)
             small_side=min(self.stylized_up.shape[-1],self.stylized_up.shape[-2])
             print(self.stylized_up.shape)
+            print()
             if small_side==self.stylized_up.shape[-1]:
                 size_x=self.stylized_up.shape[-2]
                 self.in_size_x = math.floor(size_x/2)
@@ -1185,11 +1186,13 @@ class LapStyleRevSecondPatch(BaseModel):
                 size_y=self.stylized_up.shape[-1]
                 self.in_size_y = math.floor(size_y/2)
                 move_y = adjust(size_y,self.in_size_y)
+            print('size_y='+str(size_y))
+            print('in_size_y='+str(self.in_size_y))
             for i in range(0,size_x-move_x,move_x):
                 for j in range(0,size_y-move_y,move_y):
                     print(str(i)+', '+str(j))
                     self.outer_loop=(i,j)
-                    self.positions=[[i,j,i+in_size_x,j+in_size_y]]#!
+                    self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward()
         self.train()
 

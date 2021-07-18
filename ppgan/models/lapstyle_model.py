@@ -1181,10 +1181,10 @@ class LapStyleRevSecondPatch(BaseModel):
                                     '%s.png' % ('si'))
             save_image(image_numpy, img_path)
 
-            revnet_input = paddle.concat(x=[self.laplacians[0], stylized_slice], axis=1)
+            revnet_input = paddle.concat(x=[self.laplacians[0], self.stylized_up], axis=1)
             # rev_net thumb only calcs as patch if second parameter is passed
             stylized_rev_lap, self.stylized_feats = self.nets['net_rev'](revnet_input)
-            stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small_slize])
+            stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
             self.stylized_slice = F.interpolate(stylized_rev, scale_factor=2)
 
             if small_side==self.stylized_up.shape[-1]:

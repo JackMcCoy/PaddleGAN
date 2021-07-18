@@ -1227,11 +1227,17 @@ class LapStyleRevSecondPatch(BaseModel):
             print(max_y)
             tiles_1 = np.zeros((max_x,max_y,3), dtype=np.uint8)
             print(tiles_1.shape)
-            #tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
+            tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
             for a,b in zip(style_paths,positions):
                 with Image.open(os.path.join(self.output_dir, 'visual_test',a)) as file:
                     image = np.asarray(file)
-                    tiles_1[b[0]:b[0]+size_x,b[1]:b[1]+size_y,:]=image
+                    '''
+                    if b[0]%size_x==0 and b[1]%size_y==0:
+                        tiles_1[b[0]:b[0]+size_x,b[1]:b[1]+size_y,:]=image
+                    else:
+                        tiles_2[b[0]:b[0] + size_x, b[1]:b[1] + size_y,:] = image
+                    '''
+                    tiles_1[b[0]:b[0] + size_x, b[1]:b[1] + size_y, :] = image
             for a,b in zip([tiles_1],['tiled_1']):
                 print(a.shape)
                 im = Image.fromarray(a,'RGB')
@@ -1266,10 +1272,10 @@ class LapStyleRevSecondPatch(BaseModel):
     def test_forward(self):
         stylized_up = self.stylized_slice
         stylized_feats = self.stylized_feats
-        stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.positions[0][0]*2,self.positions[0][1]*2],\
-                             ends=[self.positions[0][2]*2,self.positions[0][3]*2])
-        lap = paddle.slice(self.laplacians[1],axes=[2,3],starts=[self.positions[0][0]*2,self.positions[0][1]*2],\
-                             ends=[self.positions[0][2]*2,self.positions[0][3]*2])
+        stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
+                             ends=[self.positions[0][2],self.positions[0][3]])
+        lap = paddle.slice(self.laplacians[1],axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
+                             ends=[self.positions[0][2],self.positions[0][3]])
         revnet_input = paddle.concat(x=[lap, stylized_up], axis=1)
         stylized_rev_lap_second,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats)
         stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up])

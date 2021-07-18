@@ -1269,7 +1269,7 @@ class LapStyleRevSecondPatch(BaseModel):
                             [stylized_rev_patch_second, stylized_up_4.detach()])
                         image_numpy=tensor2img(stylized_rev_patch_second)
                         label = str(self.outer_loop[0]*4+k)+'_'+str(self.outer_loop[1]*4+l)
-                        makedirs(os.path.join(self.config['output_dir'], 'visual_test'))
+                        makedirs(os.path.join(self.params['output_dir'], 'visual_test'))
                         img_path = os.path.join(self.output_dir, 'visual_test',
                                                 '%s.png' % (label))
                         save_image(image_numpy, img_path)

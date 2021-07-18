@@ -1149,8 +1149,9 @@ class LapStyleRevSecondPatch(BaseModel):
         self.content_weight = content_weight
         self.style_weight = style_weight
 
-    def test_iter(self, metrics=None):
+    def test_iter(self, output_dir,metrics=None):
         self.eval()
+        self.output_dir=output_dir
         self.laplacians=[laplacian(self.content_stack[0])]
         for i in [.25,.5,1]:
             if i==1:

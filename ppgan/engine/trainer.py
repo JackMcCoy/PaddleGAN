@@ -203,7 +203,7 @@ class Trainer:
             self.learning_rate_scheduler_step()
 
             if self.validate_interval > -1 and self.current_iter % self.validate_interval == 0:
-                self.test()
+                self.test(self.output_dir)
 
             if self.current_iter % self.weight_interval == 0:
                 self.save(self.current_iter, 'weight', keep=-1)

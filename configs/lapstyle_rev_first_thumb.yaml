@@ -37,9 +37,9 @@ dataset:
     name: LapStyleThumbset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
     style_root: /content/PaddleGAN/starrypatched1024.png
-    load_size: 512
-    crop_size: 256
-    thumb_size: 256
+    load_size: 1024
+    crop_size: 512
+    thumb_size: 512
     num_workers: 16
     style_upsize: 1
     batch_size: 5
@@ -47,9 +47,9 @@ dataset:
     name: LapStyleThumbset
     content_root: /content/gdrive/My Drive/img_style/large_pics/
     style_root: /content/PaddleGAN/starrypatched1024.png
-    load_size: 512
-    crop_size: 256
-    thumb_size: 256
+    load_size: 1024
+    crop_size: 512
+    thumb_size: 512
     style_upsize: 1
     num_workers: 0
     batch_size: 1

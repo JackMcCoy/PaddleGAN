@@ -1202,9 +1202,9 @@ class LapStyleRevSecondPatch(BaseModel):
                 size_y = self.stylized_up.shape[-1]
                 self.in_size_y = math.floor(size_y / 2)
                 move_y = adjust(size_y, self.in_size_y)
-            for i in range(0,size_x,move_x):
+            for i in range(0,size_x-self.in_size_x+1,move_x):
                 print('i='+str(i))
-                for j in range(0,size_y,move_y):
+                for j in range(0,size_y-self.in_size_y+1,move_y):
                     print(str(i)+', '+str(j))
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+size_x,j+size_y]]#!
@@ -1290,8 +1290,8 @@ class LapStyleRevSecondPatch(BaseModel):
         print('size_y='+str(size_y))
         print('in_size_x='+str(in_size_x))
         print('in_size_y='+str(in_size_y))
-        for i in range(0,size_x,move_x):
-            for j in range(0,size_y,move_y):
+        for i in range(0,size_x-in_size_x+1,move_x):
+            for j in range(0,size_y-in_size_y+1,move_y):
                 if i+in_size_x>stylized_up.shape[-2] or j+in_size_y>stylized_up.shape[-1]:
                     continue
                 stylized_up_2 = paddle.slice(stylized_up,axes=[2,3],starts=[i,j],\
@@ -1310,8 +1310,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     [stylized_rev_patch, stylized_up_2.detach()])
 
                 stylized_up_3 = F.interpolate(stylized_rev_patch, scale_factor=2)
-                for k in range(0,size_x,move_x):
-                    for l in range(0,size_y,move_y):
+                for k in range(0,size_x-in_size_x+1,move_x):
+                    for l in range(0,size_y-in_size_y+1,move_y):
                         if k+in_size_x>stylized_up_3.shape[-2] or l+in_size_y>stylized_up_3.shape[-1]:
                             continue
                         stylized_up_4 = paddle.slice(stylized_up_3,axes=[2,3],starts=[k,l],\

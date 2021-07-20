@@ -1153,6 +1153,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.eval()
         self.output_dir=output_dir
         self.laplacians=[laplacian(self.content_stack[0])]
+        print('content_size='+str(self.content.shape))
         for i in [.25,.5,1]:
             if i==1:
                 self.laplacians.append(laplacian(self.content))
@@ -1284,8 +1285,10 @@ class LapStyleRevSecondPatch(BaseModel):
         size_y = stylized_up.shape[-1]
         in_size_y = math.floor(size_y / 2)
         move_y = adjust(size_y, in_size_y)
-        print(size_x)
-        print(size_y)
+        print('size_x='+str(size_x))
+        print('size_y='+str(size_y))
+        print('in_size_x='+str(in_size_x))
+        print('in_size_y='+str(in_size_y))
         for i in range(0,size_x,move_x):
             for j in range(0,size_y,move_y):
                 stylized_up_2 = paddle.slice(stylized_up,axes=[2,3],starts=[i,j],\

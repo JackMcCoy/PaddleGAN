@@ -1294,7 +1294,8 @@ class LapStyleRevSecondPatch(BaseModel):
                 stylized_feats_2 = self.nets['net_rev_2'].resblock(stylized_feats_2)
                 lap_2 = paddle.slice(self.laplacians[2],axes=[2,3],starts=[self.outer_loop[0]*2+i,self.outer_loop[1]*2+j],
                                    ends=[self.outer_loop[0]*2+i+in_size_x,self.outer_loop[1]*2+j+in_size_y])
-
+                if lap_2.shape[-1]!=in_size_y or lap_2.shape[-2]!=in_size_x:
+                    continue
                 revnet_input_2 = paddle.concat(x=[lap_2, stylized_up_2.detach()], axis=1)
                 stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input_2.detach(),stylized_feats_2.detach())
                 stylized_rev_patch = fold_laplace_patch(
@@ -1307,6 +1308,8 @@ class LapStyleRevSecondPatch(BaseModel):
                              ends=[k+in_size_x,l+in_size_y])
                         lap_3 = paddle.slice(self.laplacians[3],axes=[2,3],starts=[self.outer_loop[0]*4+i*2+k,self.outer_loop[1]*4+j*2+l],
                                    ends=[self.outer_loop[0]*4+i*2+k+in_size_x,self.outer_loop[1]*4+l+j*2+in_size_y])
+                        if lap_3.shape[-1]!=in_size_y or lap_3.shape[-2]!=in_size_x:
+                            continue
                         revnet_input_3 = paddle.concat(x=[lap_3, stylized_up_4.detach()], axis=1)
                         stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input_3.detach(),stylized_feats_2.detach())
                         stylized_rev_patch_second = fold_laplace_patch(

@@ -1201,12 +1201,12 @@ class LapStyleRevSecondPatch(BaseModel):
                 size_y = self.stylized_up.shape[-1]
                 self.in_size_y = math.floor(size_y / 2)
                 move_y = adjust(size_y, self.in_size_y)
-            for i in range(0,size_x-move_x+1,move_x):
+            for i in range(0,size_x,move_x):
                 print('i='+str(i))
-                for j in range(0,size_y-move_y+1,move_y):
+                for j in range(0,size_y,move_y):
                     print(str(i)+', '+str(j))
                     self.outer_loop=(i,j)
-                    self.positions=[[i,j,i+size_x,j+size_y]]#!
+                    self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward()
             style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test'))]
             style_paths = [i for i in style_paths if '_' in i]
@@ -1284,8 +1284,8 @@ class LapStyleRevSecondPatch(BaseModel):
         move_y = adjust(size_y, in_size_y)
         print(size_x)
         print(size_y)
-        for i in range(0,size_x-move_x,move_x):
-            for j in range(0,size_y-move_y,move_y):
+        for i in range(0,size_x,move_x):
+            for j in range(0,size_y,move_y):
                 stylized_up_2 = paddle.slice(stylized_up,axes=[2,3],starts=[i,j],\
                              ends=[i+in_size_x,j+in_size_y])
                 self.first_patch_in = stylized_up_2.detach()

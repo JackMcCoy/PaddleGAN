@@ -1291,6 +1291,8 @@ class LapStyleRevSecondPatch(BaseModel):
         print('in_size_y='+str(in_size_y))
         for i in range(0,size_x,move_x):
             for j in range(0,size_y,move_y):
+                if i+in_size_x>size_x or j+in_size_y>size_y:
+                    continue
                 stylized_up_2 = paddle.slice(stylized_up,axes=[2,3],starts=[i,j],\
                              ends=[i+in_size_x,j+in_size_y])
                 self.first_patch_in = stylized_up_2.detach()
@@ -1301,8 +1303,6 @@ class LapStyleRevSecondPatch(BaseModel):
                                    ends=[self.outer_loop[0]*2+i*2+in_size_x,self.outer_loop[1]*2+j*2+in_size_y])
                 print('lap_2.shape[-2]='+str(lap_2.shape[-2]))
                 print('lap_2.shape[-1]='+str(lap_2.shape[-1]))
-                if lap_2.shape[-1]!=in_size_y or lap_2.shape[-2]!=in_size_x:
-                    continue
                 revnet_input_2 = paddle.concat(x=[lap_2, stylized_up_2.detach()], axis=1)
                 stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input_2.detach(),stylized_feats_2.detach())
                 stylized_rev_patch = fold_laplace_patch(
@@ -1311,18 +1311,18 @@ class LapStyleRevSecondPatch(BaseModel):
                 stylized_up_3 = F.interpolate(stylized_rev_patch, scale_factor=2)
                 for k in range(0,size_x-move_x,move_x):
                     for l in range(0,size_y-move_y,move_y):
+                        if k+in_size_x>size_x or l+in_size_y>size_y:
+                            continue
                         stylized_up_4 = paddle.slice(stylized_up_3,axes=[2,3],starts=[k,l],\
                              ends=[k+in_size_x,l+in_size_y])
-                        lap_3 = paddle.slice(self.laplacians[3],axes=[2,3],starts=[self.outer_loop[0]*4+i*2+k,self.outer_loop[1]*4+j*2+l],
-                                   ends=[self.outer_loop[0]*4+i*2+k+in_size_x,self.outer_loop[1]*4+l+j*2+in_size_y])
-                        if lap_3.shape[-1]!=in_size_y or lap_3.shape[-2]!=in_size_x:
-                            continue
+                        lap_3 = paddle.slice(self.laplacians[3],axes=[2,3],starts=[self.outer_loop[0]*4+i*4+k,self.outer_loop[1]*4+j*4+l],
+                                   ends=[self.outer_loop[0]*4+i*4+k+in_size_x,self.outer_loop[1]*4+l+j*4+in_size_y])
                         revnet_input_3 = paddle.concat(x=[lap_3, stylized_up_4.detach()], axis=1)
                         stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input_3.detach(),stylized_feats_2.detach())
                         stylized_rev_patch_second = fold_laplace_patch(
                             [stylized_rev_patch_second, stylized_up_4.detach()])
                         image_numpy=tensor2img(stylized_rev_patch_second,min_max=(0., 1.))
-                        label = str(self.outer_loop[0]*4+k+i*2)+'_'+str(self.outer_loop[1]*4+l+j*2)
+                        label = str(self.outer_loop[0]*4+k+i*4)+'_'+str(self.outer_loop[1]*4+l+j*4)
                         makedirs(os.path.join(self.output_dir, 'visual_test'))
                         img_path = os.path.join(self.output_dir, 'visual_test',
                                                 '%s.png' % (label))

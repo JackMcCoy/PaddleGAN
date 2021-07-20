@@ -7,10 +7,11 @@ min_max:
 model:
   name: LapStyleRevSecondPatch
   revnet_generator:
-    name: RevisionNetThumb
+    name: RevisionNetDeepThumb
   revnet_discriminator:
-    name: LapStyleDiscriminator
-    num_channels: 32
+    name: LapStyleMultiresDiscriminator
+    num_channels: 64
+    num_halvings: 3
   draftnet_encode:
     name: Encoder
   draftnet_decode:

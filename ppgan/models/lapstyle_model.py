@@ -1207,6 +1207,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     print(str(i)+', '+str(j))
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
+                    if self.positions[-2]>size_x or self.positions[-1]>size_y:
+                        continue
                     self.test_forward()
             style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test'))]
             style_paths = [i for i in style_paths if '_' in i]

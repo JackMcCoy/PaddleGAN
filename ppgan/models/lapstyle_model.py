@@ -1234,9 +1234,9 @@ class LapStyleRevSecondPatch(BaseModel):
                     image = np.asarray(file)
 
                     if b[0]%size_x==0 and b[1]%size_y==0:
-                        tiles_1[b[0]:b[0]+self.in_size_x,b[1]:b[1]+self.in_size_y,:]=image
+                        tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],:]=image
                     else:
-                        tiles_2[b[0]:b[0] + self.in_size_x, b[1]:b[1] + self.in_size_y,:] = image
+                        tiles_2[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1],:] = image
             for a,b in zip([tiles_1,tiles_2],['tiled_1','tiled_2']):
                 print(a.shape)
                 im = Image.fromarray(a,'RGB')

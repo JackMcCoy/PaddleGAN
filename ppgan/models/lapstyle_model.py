@@ -1312,7 +1312,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 stylized_up_3 = F.interpolate(stylized_rev_patch, scale_factor=2)
                 for k in range(0,size_x,move_x):
                     for l in range(0,size_y,move_y):
-                        if k+in_size_x>self.content.shape[-2] or l+in_size_y>self.content.shape[-1]:
+                        if k+in_size_x>stylized_up_3.shape[-2] or l+in_size_y>stylized_up_3.shape[-1]:
                             continue
                         stylized_up_4 = paddle.slice(stylized_up_3,axes=[2,3],starts=[k,l],\
                              ends=[k+in_size_x,l+in_size_y])

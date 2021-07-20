@@ -1264,6 +1264,7 @@ class LapStyleRevSecondPatch(BaseModel):
             self.laplacians.append(laplacian(self.content_stack[2]).detach())
             self.laplacians.append(laplacian(self.content_stack[3]).detach())
         else:
+            self.labels=[]
             self.content_stack=[input['ci']]
             self.content=input['content']
             self.style_stack = [input['si']]
@@ -1309,20 +1310,24 @@ class LapStyleRevSecondPatch(BaseModel):
                     [stylized_rev_patch, stylized_up_2.detach()])
 
                 stylized_up_3 = F.interpolate(stylized_rev_patch, scale_factor=2)
-                for k in range(0,size_x-move_x,move_x):
-                    for l in range(0,size_y-move_y,move_y):
-                        if k+in_size_x>size_x or l+in_size_y>size_y:
+                for k in range(0,size_x,move_x):
+                    for l in range(0,size_y,move_y):
+                        if k+in_size_x>self.content.shape[-2] or l+in_size_y>self.content.shape[-1]:
                             continue
                         stylized_up_4 = paddle.slice(stylized_up_3,axes=[2,3],starts=[k,l],\
                              ends=[k+in_size_x,l+in_size_y])
-                        lap_3 = paddle.slice(self.laplacians[3],axes=[2,3],starts=[self.outer_loop[0]*4+i*4+k*2,self.outer_loop[1]*4+j*4+l*2],
-                                   ends=[self.outer_loop[0]*4+i*4+k*2+in_size_x,self.outer_loop[1]*4+l*2+j*4+in_size_y])
+                        lap_3 = paddle.slice(self.laplacians[3],axes=[2,3],starts=[self.outer_loop[0]*4+i*4+k,self.outer_loop[1]*4+j*4+l],
+                                   ends=[self.outer_loop[0]*4+i*4+k+in_size_x,self.outer_loop[1]*4+l*2+j+in_size_y])
                         revnet_input_3 = paddle.concat(x=[lap_3, stylized_up_4.detach()], axis=1)
                         stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input_3.detach(),stylized_feats_2.detach())
                         stylized_rev_patch_second = fold_laplace_patch(
                             [stylized_rev_patch_second, stylized_up_4.detach()])
                         image_numpy=tensor2img(stylized_rev_patch_second,min_max=(0., 1.))
-                        label = str(self.outer_loop[0]*4+k*2+i*4)+'_'+str(self.outer_loop[1]*4+l*2+j*4)
+                        label = str(self.outer_loop[0]*4+k+i*4)+'_'+str(self.outer_loop[1]*4+l+j*4)
+                        if label in self.labels:
+                            print('DUPLICATED LABEL!!!')
+                        else:
+                            self.labels.append(label)
                         makedirs(os.path.join(self.output_dir, 'visual_test'))
                         img_path = os.path.join(self.output_dir, 'visual_test',
                                                 '%s.png' % (label))

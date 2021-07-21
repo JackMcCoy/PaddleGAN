@@ -501,8 +501,7 @@ class LapStyleThumbsetInference(Dataset):
         style_img = style_img.crop(box=get_crop_bounds(self.load_size,style_img.width,style_img.height))
 
         style_img = np.array(style_img)
-        style_img = self.img(style_img)
-        content_img = np.array([content_img])
+        content_img = np.array(content_img)
         content_thumb = np.array(content_thumb)
         content_thumb = self.img(content_thumb)
         style_thumb = np.array(style_thumb)
@@ -510,6 +509,7 @@ class LapStyleThumbsetInference(Dataset):
         sizes=style_thumb.shape
         ratio = math.floor(self.load_size/self.crop_size)
         content_img = self.img(content_img)
+        content_img = np.expand_dims(content_img, axis=0)
         print(content_img.shape)
         if sizes[-1]%16!=0:
             closest=math.floor(sizes[-1]/16)

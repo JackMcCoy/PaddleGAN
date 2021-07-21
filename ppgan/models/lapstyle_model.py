@@ -1244,7 +1244,7 @@ class LapStyleRevSecondPatch(BaseModel):
             for a,b in zip([tiles_1],['tiled_1']):
                 print(a.shape)
                 im = Image.fromarray(a,'RGB')
-                label = b
+                label = self.path+' '+b
                 makedirs(os.path.join(self.output_dir, 'visual_test'))
                 img_path = os.path.join(self.output_dir, 'visual_test',
                                         '%s.png' % (label))
@@ -1273,6 +1273,7 @@ class LapStyleRevSecondPatch(BaseModel):
             self.content=input['content']
             self.style_stack = [input['si']]
             self.visual_items['ci']=input['ci']
+            self.path=input['path']
     def test_forward(self,stylized_slice,stylized_feats):
         stylized_up = paddle.slice(stylized_slice,axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
                              ends=[self.positions[0][2],self.positions[0][3]])
@@ -1509,7 +1510,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['loss_gan_Gp2'] = loss_Gp_GAN
 
 
-        loss_patch = loss_Gp_GAN +loss_ps/4 * self.style_weight*1.25 +\
+        loss_patch = loss_Gp_GAN +loss_ps/4 * self.style_weight*2 +\
                     loss_content_p * self.content_weight +\
                     loss_patch * self.content_weight +\
                     p_loss_style_remd/4 * 16 + p_loss_content_relt * 16

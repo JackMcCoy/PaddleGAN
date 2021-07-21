@@ -1316,7 +1316,7 @@ class LapStyleRevSecondPatch(BaseModel):
                             continue
                         stylized_up_4 = paddle.slice(stylized_up_3,axes=[2,3],starts=[k,l],\
                              ends=[k+in_size_x,l+in_size_y])
-                        lap_3 = paddle.slice(self.laplacians[3],axes=[2,3],starts=[self.outer_loop[0]*8+i*4+k*2,self.outer_loop[1]*8+j*4+l*2],
+                        lap_3 = paddle.slice(self.laplacians[3],axes=[2,3],starts=[self.outer_loop[0]*4+i*2+k,self.outer_loop[1]*4+j*2+l*1],
                                    ends=[self.outer_loop[0]*4+i*2+k+in_size_x,self.outer_loop[1]*4+j*2+l+in_size_y])
                         if lap_3.shape[-2]!=in_size_x or lap_3.shape[-1]!=in_size_y:
                             continue

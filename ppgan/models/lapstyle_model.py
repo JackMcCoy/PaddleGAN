@@ -1273,7 +1273,7 @@ class LapStyleRevSecondPatch(BaseModel):
             self.content=input['content']
             self.style_stack = [input['si']]
             self.visual_items['ci']=input['ci']
-            self.path=input['path']
+            self.path=input['ci_path']
     def test_forward(self,stylized_slice,stylized_feats):
         stylized_up = paddle.slice(stylized_slice,axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
                              ends=[self.positions[0][2],self.positions[0][3]])

@@ -1164,7 +1164,6 @@ class LapStyleRevSecondPatch(BaseModel):
             sF = self.nets['net_enc'](F.interpolate(self.style_stack[0], scale_factor=.5))
 
             stylized_small= self.nets['net_dec'](cF, sF)
-            self.visual_items['stylized_small'] = stylized_small
             self.stylized_up = F.interpolate(stylized_small, scale_factor=2)
             small_side=min(self.stylized_up.shape[-1],self.stylized_up.shape[-2])
 

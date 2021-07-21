@@ -1191,9 +1191,9 @@ class LapStyleRevSecondPatch(BaseModel):
             img_path = os.path.join(self.output_dir, 'visual_test',
                                     '%s.png' % ('lap_1'))
             save_image(image_numpy, img_path)
-            print('stylized_up='+str(self.stylized_up.shape))
+            print('stylized_up='+str(self.stylized_slice.shape))
             if small_side==self.stylized_up.shape[-1]:
-                size_x = self.stylized_up.shape[-2]
+                size_x = self.stylized_slice.shape[-2]
                 self.in_size_x = math.floor(size_x / 2)
                 move_x = adjust(size_x, self.in_size_x)
                 size_y = 256
@@ -1203,7 +1203,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 size_x=256
                 self.in_size_x = 128
                 move_x = 128
-                size_y = self.stylized_up.shape[-1]
+                size_y = self.stylized_slice.shape[-1]
                 self.in_size_y = math.floor(size_y / 2)
                 move_y = adjust(size_y, self.in_size_y)
             for i in range(0,size_x,move_x):

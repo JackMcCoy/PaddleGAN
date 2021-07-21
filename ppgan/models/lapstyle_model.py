@@ -1301,7 +1301,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 stylized_feats_2 = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
                 stylized_feats_2 = self.nets['net_rev_2'].resblock(stylized_feats_2)
                 lap_2 = paddle.slice(self.laplacians[2],axes=[2,3],starts=[self.outer_loop[0]*4+i*2,self.outer_loop[1]*4+j*2],
-                                   ends=[self.outer_loop[0]*2+i+in_size_x,self.outer_loop[1]*4+2+j*2+in_size_y])
+                                   ends=[self.outer_loop[0]*2+i+in_size_x,self.outer_loop[1]*4+j*2+in_size_y])
                 print('lap_2.shape[-2]='+str(lap_2.shape[-2]))
                 print('lap_2.shape[-1]='+str(lap_2.shape[-1]))
                 revnet_input_2 = paddle.concat(x=[lap_2, stylized_up_2.detach()], axis=1)

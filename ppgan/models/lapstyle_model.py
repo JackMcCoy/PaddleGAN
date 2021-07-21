@@ -1242,9 +1242,9 @@ class LapStyleRevSecondPatch(BaseModel):
                     '''
                     tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],:]=image
             for a,b in zip([tiles_1],['tiled_1']):
-                print(a.shape)
+                print(self.path)
                 im = Image.fromarray(a,'RGB')
-                label = self.path+' '+b
+                label = self.path[0]+' '+b
                 makedirs(os.path.join(self.output_dir, 'visual_test'))
                 img_path = os.path.join(self.output_dir, 'visual_test',
                                         '%s.png' % (label))

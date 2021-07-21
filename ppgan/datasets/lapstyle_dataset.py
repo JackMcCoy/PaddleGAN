@@ -309,7 +309,6 @@ class MultiPatchSet(Dataset):
         position_stack = []
         size_stack = []
         path = self.paths[index]
-        print(path)
         content_img = cv2.imread(os.path.join(self.content_root, path))
         try:
             if content_img.ndim == 2:

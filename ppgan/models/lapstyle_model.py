@@ -1167,20 +1167,6 @@ class LapStyleRevSecondPatch(BaseModel):
             self.visual_items['stylized_small'] = stylized_small
             self.stylized_up = F.interpolate(stylized_small, scale_factor=2)
             small_side=min(self.stylized_up.shape[-1],self.stylized_up.shape[-2])
-            image_numpy = tensor2img(self.stylized_up,min_max=(0., 1.))
-            label = 'draft'
-            makedirs(os.path.join(self.output_dir, 'visual_test'))
-            img_path = os.path.join(self.output_dir, 'visual_test',
-                                    '%s.png' % (label))
-            save_image(image_numpy, img_path)
-            image_numpy = tensor2img(self.content_stack[0],min_max=(0., 1.))
-            img_path = os.path.join(self.output_dir, 'visual_test',
-                                    '%s.png' % ('ci'))
-            save_image(image_numpy, img_path)
-            image_numpy = tensor2img(self.style_stack[0],min_max=(0., 1.))
-            img_path = os.path.join(self.output_dir, 'visual_test',
-                                    '%s.png' % ('si'))
-            save_image(image_numpy, img_path)
 
             revnet_input = paddle.concat(x=[self.laplacians[0], self.stylized_up], axis=1)
             # rev_net thumb only calcs as patch if second parameter is passed

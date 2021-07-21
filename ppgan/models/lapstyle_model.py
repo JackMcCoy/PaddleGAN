@@ -1300,6 +1300,12 @@ class LapStyleRevSecondPatch(BaseModel):
                 stylized_up_3 = F.interpolate(stylized_rev_patch, scale_factor=2)
                 for k in range(0,size_x,move_x):
                     for l in range(0,size_y,move_y):
+                        label = str(self.outer_loop[0]*4+i*2+k)+'_'+str(self.outer_loop[1]*4+j*2+l)
+                        if label in self.labels:
+                            print('DUPLICATED LABEL!!!')
+                            continue
+                        else:
+                            self.labels.append(label)
                         if k+in_size_x>stylized_up_3.shape[-2] or l+in_size_y>stylized_up_3.shape[-1]:
                             continue
                         stylized_up_4 = paddle.slice(stylized_up_3,axes=[2,3],starts=[k,l],\
@@ -1315,11 +1321,6 @@ class LapStyleRevSecondPatch(BaseModel):
                         stylized_rev_patch_second = fold_laplace_patch(
                             [stylized_rev_patch_second, stylized_up_4.detach()])
                         image_numpy=tensor2img(stylized_rev_patch_second,min_max=(0., 1.))
-                        label = str(self.outer_loop[0]*4+i*2+k)+'_'+str(self.outer_loop[1]*4+j*2+l)
-                        if label in self.labels:
-                            print('DUPLICATED LABEL!!!')
-                        else:
-                            self.labels.append(label)
                         makedirs(os.path.join(self.output_dir, 'visual_test'))
                         img_path = os.path.join(self.output_dir, 'visual_test',
                                                 '%s.png' % (label))

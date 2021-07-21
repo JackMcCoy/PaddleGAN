@@ -1202,9 +1202,9 @@ class LapStyleRevSecondPatch(BaseModel):
                 size_y = self.stylized_up.shape[-1]
                 self.in_size_y = math.floor(size_y / 2)
                 move_y = adjust(size_y, self.in_size_y)
-            for i in range(0,size_x-self.in_size_x+1,move_x):
+            for i in range(0,size_x,move_x):
                 print('i='+str(i))
-                for j in range(0,size_y-self.in_size_y+1,move_y):
+                for j in range(0,size_y,move_y):
                     print(str(i)+', '+str(j))
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!

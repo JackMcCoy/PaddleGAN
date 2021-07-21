@@ -1208,8 +1208,6 @@ class LapStyleRevSecondPatch(BaseModel):
                     print(str(i)+', '+str(j))
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
-                    if self.positions[0][-2]>i+self.in_size_x or self.positions[0][-1]>j+self.in_size_y:
-                        continue
                     self.test_forward(self.stylized_slice,self.stylized_feats)
             style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test'))]
             style_paths = [i for i in style_paths if '_' in i]
@@ -1288,7 +1286,7 @@ class LapStyleRevSecondPatch(BaseModel):
         print('size_y='+str(size_y))
         print('in_size_x='+str(in_size_x))
         print('in_size_y='+str(in_size_y))
-        for i in range(0,size_x-in_size_x+1,move_x):
+        for i in range(0,size_x,move_x):
             for j in range(0,size_y-in_size_y+1,move_y):
                 stylized_up_2 = paddle.slice(stylized_up,axes=[2,3],starts=[i,j],\
                              ends=[i+in_size_x,j+in_size_y])
@@ -1310,8 +1308,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     [stylized_rev_patch, stylized_up_2.detach()])
 
                 stylized_up_3 = F.interpolate(stylized_rev_patch, scale_factor=2)
-                for k in range(0,size_x-in_size_x+1,move_x):
-                    for l in range(0,size_y-in_size_y+1,move_y):
+                for k in range(0,size_x,move_x):
+                    for l in range(0,size_y,move_y):
                         if k+in_size_x>stylized_up_3.shape[-2] or l+in_size_y>stylized_up_3.shape[-1]:
                             continue
                         stylized_up_4 = paddle.slice(stylized_up_3,axes=[2,3],starts=[k,l],\

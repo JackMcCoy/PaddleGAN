@@ -1202,9 +1202,9 @@ class LapStyleRevSecondPatch(BaseModel):
                 size_y = self.stylized_up.shape[-1]
                 self.in_size_y = math.floor(size_y / 2)
                 move_y = adjust(size_y, self.in_size_y)
-            for i in range(0,self.in_size_x,move_x):
+            for i in range(0,size_x,move_x):
                 print('i='+str(i))
-                for j in range(0,self.in_size_y,move_y):
+                for j in range(0,size_y,move_y):
                     print(str(i)+', '+str(j))
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
@@ -1296,8 +1296,8 @@ class LapStyleRevSecondPatch(BaseModel):
 
                 stylized_feats_2 = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
                 stylized_feats_2 = self.nets['net_rev_2'].resblock(stylized_feats_2)
-                lap_2 = paddle.slice(self.laplacians[2],axes=[2,3],starts=[self.outer_loop[0]*4+i*2,self.outer_loop[1]*4+j*2],
-                                   ends=[self.outer_loop[0]*4+i*2+in_size_x,self.outer_loop[1]*4+j*2+in_size_y])
+                lap_2 = paddle.slice(self.laplacians[2],axes=[2,3],starts=[self.outer_loop[0]*2+i,self.outer_loop[1]*4+j*2],
+                                   ends=[self.outer_loop[0]*2+i+in_size_x,self.outer_loop[1]*2+j+in_size_y])
                 print('lap_2.shape[-2]='+str(lap_2.shape[-2]))
                 print('lap_2.shape[-1]='+str(lap_2.shape[-1]))
                 if lap_2.shape[-2]!=in_size_x or lap_2.shape[-1]!=in_size_y:
@@ -1317,7 +1317,7 @@ class LapStyleRevSecondPatch(BaseModel):
                         stylized_up_4 = paddle.slice(stylized_up_3,axes=[2,3],starts=[k,l],\
                              ends=[k+in_size_x,l+in_size_y])
                         lap_3 = paddle.slice(self.laplacians[3],axes=[2,3],starts=[self.outer_loop[0]*8+i*4+k*2,self.outer_loop[1]*8+j*4+l*2],
-                                   ends=[self.outer_loop[0]*8+i*4+k*2+in_size_x,self.outer_loop[1]*8+j*4+l*2+in_size_y])
+                                   ends=[self.outer_loop[0]*4+i*2+k+in_size_x,self.outer_loop[1]*4+j*2+l+in_size_y])
                         if lap_3.shape[-2]!=in_size_x or lap_3.shape[-1]!=in_size_y:
                             continue
                         if stylized_up_4.shape[-2]!=in_size_x or stylized_up_4.shape[-1]!=in_size_y:
@@ -1327,7 +1327,7 @@ class LapStyleRevSecondPatch(BaseModel):
                         stylized_rev_patch_second = fold_laplace_patch(
                             [stylized_rev_patch_second, stylized_up_4.detach()])
                         image_numpy=tensor2img(stylized_rev_patch_second,min_max=(0., 1.))
-                        label = str(self.outer_loop[0]*8+i*4+k*2)+'_'+str(self.outer_loop[1]*8+j*4+l*2)
+                        label = str(self.outer_loop[0]*4+i*2+k*1)+'_'+str(self.outer_loop[1]*4+j*2+l*1)
                         if label in self.labels:
                             print('DUPLICATED LABEL!!!')
                         else:

@@ -1329,7 +1329,7 @@ class LapStyleRevSecondPatch(BaseModel):
                         stylized_rev_patch_second = fold_laplace_patch(
                             [stylized_rev_patch_second, stylized_up_4.detach()])
                         image_numpy=tensor2img(stylized_rev_patch_second,min_max=(0., 1.))
-                        label = str(self.outer_loop[0]*8+i*4+k*2)+'_'+str(self.outer_loop[1]*8+j*4+l*2)
+                        label = str(self.outer_loop[0]*4+i*2+k)+'_'+str(self.outer_loop[1]*4+j*2+l)
                         if label in self.labels:
                             print('DUPLICATED LABEL!!!')
                         else:

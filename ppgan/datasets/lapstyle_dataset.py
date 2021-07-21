@@ -509,12 +509,12 @@ class LapStyleThumbsetInference(Dataset):
         style_thumb = self.img(style_thumb)
         sizes=style_thumb.shape
         ratio = math.floor(self.load_size/self.crop_size)
-
+        print(content_img.shape)
         if sizes[-1]%16!=0:
             closest=math.floor(sizes[-1]/16)
             style_thumb=style_thumb[:,:,:closest*16]
             content_thumb=content_thumb[:,:,:closest*16]
-            #content_img = content_img[:,:,:closest*16*ratio]
+            content_img = content_img[:,:,:closest*16*ratio]
         if sizes[-2]%16!=0:
             closest=math.floor(sizes[-2]/16)
             style_thumb=style_thumb[:,:closest*16,:]

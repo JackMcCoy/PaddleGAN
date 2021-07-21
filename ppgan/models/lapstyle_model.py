@@ -1231,8 +1231,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 img_path = os.path.join(self.output_dir, 'visual_test',
                                         '%s.png' % (label))
                 im.save(img_path)
-            for i in style_paths:
-                os.system('rm '+os.path.join(self.output_dir,'visual_test',i))
+            self.paths=[]
         self.train()
 
     def setup_input(self, input):

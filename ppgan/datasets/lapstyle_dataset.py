@@ -80,7 +80,7 @@ class LapStyleDataset(Dataset):
             intermediate_width = math.floor(self.load_size*ratio)
         content_img = content_img.resize((intermediate_width, intermediate_height),
                                          Image.BILINEAR)
-        content_img = np.array(content_img)
+        content_img = np.array([content_img])
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]
         style_img = cv2.imread(style_path)
         style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)

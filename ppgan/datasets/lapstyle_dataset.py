@@ -80,7 +80,7 @@ class LapStyleDataset(Dataset):
             intermediate_width = math.floor(self.load_size*ratio)
         content_img = content_img.resize((intermediate_width, intermediate_height),
                                          Image.BILINEAR)
-        content_img = np.array([content_img])
+        content_img = np.array(content_img)
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]
         style_img = cv2.imread(style_path)
         style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)
@@ -502,7 +502,7 @@ class LapStyleThumbsetInference(Dataset):
 
         style_img = np.array(style_img)
         style_img = self.img(style_img)
-        content_img = np.array(content_img)
+        content_img = np.array([content_img])
         content_thumb = np.array(content_thumb)
         content_thumb = self.img(content_thumb)
         style_thumb = np.array(style_thumb)
@@ -515,12 +515,12 @@ class LapStyleThumbsetInference(Dataset):
             closest=math.floor(sizes[-1]/16)
             style_thumb=style_thumb[:,:,:closest*16]
             content_thumb=content_thumb[:,:,:closest*16]
-            content_img = content_img[:,:closest*16*ratio]
+            content_img = content_img[:,:,:,:closest*16*ratio]
         if sizes[-2]%16!=0:
             closest=math.floor(sizes[-2]/16)
             style_thumb=style_thumb[:,:closest*16,:]
             content_thumb=content_thumb[:,:closest*16,:]
-            content_img = content_img[:,closest*16*ratio,:]
+            content_img = content_img[:,:,:closest*16*ratio,:]
         assert content_thumb.shape == style_thumb.shape
         #output = {'content':content_img,'style':style_img,'content_thumb':zero_thumb,'style_thumb':style_thumb,'content_shape':thumb_shape}
         output={'content':content_img,'ci':content_thumb,'position':{},'cp':content_thumb,'si':style_thumb,'sp':style_thumb,'ci_path':path}

@@ -1202,15 +1202,15 @@ class LapStyleRevSecondPatch(BaseModel):
                 size_y = self.stylized_up.shape[-1]
                 self.in_size_y = math.floor(size_y / 2)
                 move_y = adjust(size_y, self.in_size_y)
-            for i in range(0,size_x,move_x):
+            for i in range(0,self.in_size_x,move_x):
                 print('i='+str(i))
-                for j in range(0,size_y,move_y):
+                for j in range(0,self.in_size_y,move_y):
                     print(str(i)+', '+str(j))
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     if self.positions[0][-2]<i+self.in_size_x or self.positions[0][-1]<j+self.in_size_y:
                         continue
-                    self.test_forward()
+                    self.test_forward(self.stylized_slice,self.stylized_feats)
             style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test'))]
             style_paths = [i for i in style_paths if '_' in i]
             print(style_paths[0])
@@ -1269,10 +1269,8 @@ class LapStyleRevSecondPatch(BaseModel):
             self.content=input['content']
             self.style_stack = [input['si']]
             self.visual_items['ci']=input['ci']
-    def test_forward(self):
-        stylized_up = self.stylized_slice
-        stylized_feats = self.stylized_feats
-        stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
+    def test_forward(self,stylized_slice,stylized_feats):
+        stylized_up = paddle.slice(stylized_slice,axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
                              ends=[self.positions[0][2],self.positions[0][3]])
         lap = paddle.slice(self.laplacians[1],axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
                              ends=[self.positions[0][2],self.positions[0][3]])

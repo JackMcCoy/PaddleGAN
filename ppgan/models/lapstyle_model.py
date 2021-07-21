@@ -1437,7 +1437,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.loss = self.loss_Gp_GAN * 1.5 +self.loss_ps/4 * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight *20 +\
-                    self.p_loss_style_remd/4 * 24 + self.p_loss_content_relt * 24
+                    self.p_loss_style_remd/4 * 15 + self.p_loss_content_relt * 24
         self.loss.backward()
 
         return self.loss
@@ -1494,10 +1494,10 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['loss_gan_Gp2'] = loss_Gp_GAN
 
 
-        loss_patch = loss_Gp_GAN * 2+loss_ps/4 * self.style_weight*2.5 +\
+        loss_patch = loss_Gp_GAN * 2+loss_ps/4 * self.style_weight*2 +\
                     loss_content_p * self.content_weight +\
                     loss_patch * self.content_weight *20 +\
-                    p_loss_style_remd/4 * 26 + p_loss_content_relt * 26
+                    p_loss_style_remd/4 * 16 + p_loss_content_relt * 26
         loss_patch.backward()
 
         return loss_patch

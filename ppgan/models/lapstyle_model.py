@@ -1182,12 +1182,12 @@ class LapStyleRevSecondPatch(BaseModel):
                 size_y = 512
                 self.in_size_y = 256
                 move_y = 256
-                ranges_y = list(range(0,size_y,move_y))+list(range(64,size_y,move_y))
+                ranges_y = list(range(0,size_y,move_y))+list(range(128,size_y,move_y))
             else:
                 size_x=512
                 self.in_size_x = 256
                 move_x = 256
-                ranges_x = list(range(0,size_x,move_x))+list(range(64,size_x,move_x))
+                ranges_x = list(range(0,size_x,move_x))+list(range(128,size_x,move_x))
                 size_y = self.stylized_slice.shape[-1]
                 self.in_size_y = math.floor(size_y / 2)
                 move_y = adjust(size_y, self.in_size_y)
@@ -1203,7 +1203,6 @@ class LapStyleRevSecondPatch(BaseModel):
                     self.test_forward(self.stylized_slice,self.stylized_feats)
             style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test'))]
             style_paths = [i for i in style_paths if '_' in i]
-            print(style_paths[0])
             positions = [(int(re.split('_|\.',i)[0]),int(re.split('_|\.',i)[1])) for i in style_paths]
             max_x = 0
             max_y = 0
@@ -1297,8 +1296,8 @@ class LapStyleRevSecondPatch(BaseModel):
         print('in_size_y='+str(in_size_y))
         ranges_x=list(range(0,size_x,move_x))+list(range(math.floor(move_x*.5),size_x-in_size_x,move_x))
         ranges_y=list(range(0,size_y,move_y))+list(range(math.floor(move_y*.5),size_y-in_size_y,move_y))
-        for j in ranges_x:
-            for i in ranges_y:
+        for i in ranges_x:
+            for j in ranges_y:
                 label = str(self.outer_loop[0]*4+i*2)+'_'+str(self.outer_loop[1]*4+j*2)
                 if label in self.labels:
                     notin=True

@@ -1199,13 +1199,15 @@ class LapStyleRevSecondPatch(BaseModel):
             print('ranges x: '+str(ranges_x))
             print('ranges y: '+str(ranges_y))
             for i in ranges_x:
-                self.save_width = True if i == ranges_x[-1] else False
+                if i == ranges_x[-1]:
+                    self.save_width = True
                 for j in ranges_y:
-                    self.save_height=True if j==ranges_y[-1] else False
+                    if j==ranges_y[=1]:
+                        self.save_height=True
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward(self.stylized_slice,self.stylized_feats)
-            style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test','patches'))]
+            style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test'))]
             style_paths = [i for i in style_paths if '_' in i]
             print(style_paths[0])
             positions = [(int(re.split('_|\.',i)[0]),int(re.split('_|\.',i)[1])) for i in style_paths]
@@ -1216,8 +1218,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     max_x=a
                 if b>max_y:
                     max_y=b
-            max_x = max_x+self.in_size_x
-            max_y = max_y+self.in_size_y
+            max_x = max_x+self.rm_width
+            max_y = max_y+self.bm_height
             print(max_x)
             print(max_y)
             tiles_1 = np.zeros((max_x,max_y,3), dtype=np.uint8)
@@ -1226,7 +1228,7 @@ class LapStyleRevSecondPatch(BaseModel):
             weights_sum = np.zeros((max_x,max_y,3))
             #tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
             for a,b in zip(style_paths,positions):
-                with Image.open(os.path.join(self.output_dir, 'visual_test','patches',a)) as file:
+                with Image.open(os.path.join(self.output_dir, 'visual_test',a)) as file:
                     image = np.asarray(file)
                     '''
                     if b[0]%size_x==0 and b[1]%size_y==0:
@@ -1234,10 +1236,10 @@ class LapStyleRevSecondPatch(BaseModel):
                     else:
                         tiles_2[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1],:] = image
                     '''
-                    x_mod_1=16
-                    x_mod_2=16
-                    y_mod_1=16
-                    y_mod_2=16
+                    x_mod_1=8
+                    x_mod_2=8
+                    y_mod_1=8
+                    y_mod_2=8
                     if b[0]==0:
                         x_mod_1=0
                     if b[1]==0:
@@ -1246,7 +1248,7 @@ class LapStyleRevSecondPatch(BaseModel):
                         x_mod_2=0
                     if b[1]+self.in_size_y==max_y:
                         y_mod_2=0
-                    tiles_1[b[0]+x_mod_1:b[0]+image.shape[0]-x_mod_2,b[1]+y_mod_1:b[1]+image.shape[1]-y_mod_2,:] = image[x_mod_1:image.shape[0]-x_mod_2,y_mod_1:image.shape[1]-y_mod_2,:]
+                    tiles_1[b[0]+x_mod_1:b[0]+image.shape[0]-x_mod_2,b[1]+y_mod_1:b[1]+image.shape[1]-y_mod_2,:]=image[x_mod_1:image.shape[0]-x_mod_2,y_mod_1:image.shape[1]-y_mod_2,:]
             for a,b in zip([tiles_1],['tiled']):
                 print(self.path)
                 im = Image.fromarray(a,'RGB')
@@ -1353,13 +1355,13 @@ class LapStyleRevSecondPatch(BaseModel):
                         stylized_rev_patch_second = fold_laplace_patch(
                             [stylized_rev_patch_second, stylized_up_4.detach()])
                         image_numpy=tensor2img(stylized_rev_patch_second,min_max=(0., 1.))
-                        makedirs(os.path.join(self.output_dir, 'visual_test','patches'))
-                        img_path = os.path.join(self.output_dir, 'visual_test','patches',
+                        makedirs(os.path.join(self.output_dir, 'visual_test'))
+                        img_path = os.path.join(self.output_dir, 'visual_test',
                                                 '%s.png' % (label))
                         save_image(image_numpy, img_path)
                         if self.save_width:
                             self.rm_width=stylized_rev_patch_second.shape[-2]
-                        if self.save_height:
+                        if self.save_width:
                             self.bm_height=stylized_rev_patch_second.shape[-1]
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""

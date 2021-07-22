@@ -1199,11 +1199,9 @@ class LapStyleRevSecondPatch(BaseModel):
             print('ranges x: '+str(ranges_x))
             print('ranges y: '+str(ranges_y))
             for i in ranges_x:
-                if i == ranges_x[-1]:
-                    self.save_width = True
+                self.save_width = True if i == ranges_x[-1] else False
                 for j in ranges_y:
-                    if j==ranges_y[-1]:
-                        self.save_width=True
+                    self.save_width=True if j==ranges_y[-1] else False
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward(self.stylized_slice,self.stylized_feats)

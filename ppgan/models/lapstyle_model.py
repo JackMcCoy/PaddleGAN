@@ -1180,7 +1180,8 @@ class LapStyleRevSecondPatch(BaseModel):
                 move_x = adjust(size_x, self.in_size_x)
                 ranges_x=list(range(0,size_x,move_x))
                 if ranges_x[1]-ranges_x[0]<self.in_size_x*.5:
-                    ranges_x = ranges_x+list(range(math.floor(self.in_size_x*.5),size_x-256,move_x))
+                    print('second x range')
+                    ranges_x = ranges_x+list(range(math.floor(self.in_size_x*.25),size_x-256,move_x))
                 size_y = 512
                 self.in_size_y = 256
                 move_y = 256
@@ -1195,7 +1196,8 @@ class LapStyleRevSecondPatch(BaseModel):
                 move_y = adjust(size_y, self.in_size_y)
                 ranges_y=list(range(0,size_y,move_y))
                 if ranges_y[1]-ranges_y[0]<self.in_size_y*.5:
-                    ranges_y = ranges_y+list(range(math.floor(self.in_size_y*.5),size_y-self.in_size_y,move_y))
+                    print('second y range')
+                    ranges_y = ranges_y+list(range(math.floor(self.in_size_y*.25),size_y-self.in_size_y,move_y))
             for i in ranges_x:
                 print('i='+str(i))
                 for j in ranges_y:

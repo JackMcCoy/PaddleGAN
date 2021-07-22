@@ -1192,8 +1192,12 @@ class LapStyleRevSecondPatch(BaseModel):
                 self.in_size_y = math.floor(size_y / 2)
                 move_y = adjust(size_y, self.in_size_y)
                 ranges_y=list(range(0,size_y,move_y))
-            ranges_x = ranges_x + [i+math.floor(self.in_size_x/16) for i in ranges_x]
-            ranges_y = ranges_y + [i+math.floor(self.in_size_y/16) for i in ranges_y]
+            curr_last_x=ranges_x[-1]
+            curr_last_y=ranges_y[-1]
+            ranges_x = ranges_x + [i+math.floor(self.in_size_x/16) for i in ranges_x[:-1]]
+            ranges_y = ranges_y + [i+math.floor(self.in_size_y/16) for i in ranges_y[:-1]]
+            ranges_x.append(curr_last_x-math.floor(self.in_size_x/16))
+            ranges_y.append(curr_last_y-math.floor(self.in_size_y/16))
             self.save_width=False
             self.save_height=False
             print('ranges x: '+str(ranges_x))

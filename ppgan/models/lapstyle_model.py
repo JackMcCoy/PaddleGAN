@@ -1178,7 +1178,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 size_x = self.stylized_slice.shape[-2]
                 self.in_size_x = math.floor(size_x / 2)
                 move_x = adjust(size_x, self.in_size_x)
-                ranges_x=list(range(0,size_x,move_x))+ranges_x+list(range(math.floor(size_x*.25),size_x-self.in_size_x,move_x))
+                ranges_x=list(range(0,size_x,move_x))+list(range(math.floor(size_x*.25),size_x-self.in_size_x,move_x))
                 size_y = 512
                 self.in_size_y = 256
                 move_y = 256
@@ -1191,7 +1191,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 size_y = self.stylized_slice.shape[-1]
                 self.in_size_y = math.floor(size_y / 2)
                 move_y = adjust(size_y, self.in_size_y)
-                ranges_y=list(range(0,size_y,move_y))+ranges_y+list(range(math.floor(size_y*.25),size_y-self.in_size_y,move_y))
+                ranges_y=list(range(0,size_y,move_y))+list(range(math.floor(size_y*.25),size_y-self.in_size_y,move_y))
             for i in ranges_x:
                 print('i='+str(i))
                 for j in ranges_y:

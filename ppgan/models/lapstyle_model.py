@@ -1213,8 +1213,10 @@ class LapStyleRevSecondPatch(BaseModel):
                 if b>max_y:
                     max_y=b
             max_x = max_x+self.in_size_x
-            max_y = max_y+self.in_size_y
-            tiles_1 = np.zeros((max_y,max_x,3), dtype=np.uint8)
+            max_y = max_y+self.
+            print('max_x = '+str(max_x))
+            print('max_y = ' + str(max_y))
+            tiles_1 = np.zeros((max_x,max_y,3), dtype=np.uint8)
             edges = np.zeros((max_x, max_y, 3), dtype=np.uint8)
             data_visits = np.zeros((max_x,max_y,3), dtype=np.uint32)
             weights = np.zeros((max_x,max_y,3))
@@ -1271,7 +1273,7 @@ class LapStyleRevSecondPatch(BaseModel):
                         edges['x_mod_2']=0
                     if b[1]+self.in_size_y==max_y:
                         edges['y_mod_2']=0
-                    tiles_1[b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],:]=image[edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],:]
+                    tiles_1[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
                     '''
                     for key,value in edges.items():
                         if value>0:

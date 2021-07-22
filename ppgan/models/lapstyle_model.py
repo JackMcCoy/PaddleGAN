@@ -1173,7 +1173,6 @@ class LapStyleRevSecondPatch(BaseModel):
             stylized_rev_lap, self.stylized_feats = self.nets['net_rev'](revnet_input)
             stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
             self.stylized_slice = F.interpolate(stylized_rev, scale_factor=2)
-            print('stylized_up='+str(self.stylized_slice.shape))
             if small_side==self.stylized_up.shape[-1]:
                 size_x = self.stylized_slice.shape[-2]
                 self.in_size_x = math.floor(size_x / 2)
@@ -1198,22 +1197,13 @@ class LapStyleRevSecondPatch(BaseModel):
             ranges_y = ranges_y + [i+math.floor(self.in_size_y/16) for i in ranges_y[:-1]]
             ranges_x.append(curr_last_x-math.floor(self.in_size_x/16))
             ranges_y.append(curr_last_y-math.floor(self.in_size_y/16))
-            self.save_width=False
-            self.save_height=False
-            print('ranges x: '+str(ranges_x))
-            print('ranges y: '+str(ranges_y))
             for i in ranges_x:
-                if i == ranges_x[-1]:
-                    self.save_width = True
                 for j in ranges_y:
-                    if j==ranges_y[-1]:
-                        self.save_height=True
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward(self.stylized_slice,self.stylized_feats)
             style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test','tiles'))]
             style_paths = [i for i in style_paths if '_' in i]
-            print(style_paths[0])
             positions = [(int(re.split('_|\.',i)[0]),int(re.split('_|\.',i)[1])) for i in style_paths]
             max_x = 0
             max_y = 0
@@ -1224,10 +1214,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     max_y=b
             max_x = max_x+self.in_size_x
             max_y = max_y+self.in_size_y
-            print(max_x)
-            print(max_y)
             tiles_1 = np.zeros((max_x,max_y,3), dtype=np.uint8)
-            print(tiles_1.shape)
             data_visits = np.zeros((max_x,max_y,3), dtype=np.uint32)
             weights_sum = np.zeros((max_x,max_y,3))
             #tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
@@ -1254,7 +1241,6 @@ class LapStyleRevSecondPatch(BaseModel):
                         y_mod_2=0
                     tiles_1[b[0]+x_mod_1:b[0]+image.shape[0]-x_mod_2,b[1]+y_mod_1:b[1]+image.shape[1]-y_mod_2,:]=image[x_mod_1:image.shape[0]-x_mod_2,y_mod_1:image.shape[1]-y_mod_2,:]
             for a,b in zip([tiles_1],['tiled']):
-                print(self.path)
                 im = Image.fromarray(a,'RGB')
                 label = self.path[0]+' '+b
                 makedirs(os.path.join(self.output_dir, 'visual_test'))
@@ -1301,10 +1287,6 @@ class LapStyleRevSecondPatch(BaseModel):
         size_y = stylized_up.shape[-1]
         in_size_y = math.floor(size_y / 2)
         move_y = adjust(size_y, in_size_y)
-        print('size_x='+str(size_x))
-        print('size_y='+str(size_y))
-        print('in_size_x='+str(in_size_x))
-        print('in_size_y='+str(in_size_y))
         for i in range(0,size_x,move_x):
             for j in range(0,size_y,move_y):
                 label = str(self.outer_loop[0]*4+i*2)+'_'+str(self.outer_loop[1]*4+j*2)
@@ -1325,11 +1307,11 @@ class LapStyleRevSecondPatch(BaseModel):
                 stylized_feats_2 = self.nets['net_rev_2'].resblock(stylized_feats_2)
                 lap_2 = paddle.slice(self.laplacians[2],axes=[2,3],starts=[self.outer_loop[0]*2+i,self.outer_loop[1]*2+j],
                                    ends=[self.outer_loop[0]*2+i+in_size_x,self.outer_loop[1]*2+j+in_size_y])
-                print('lap_2.shape[-2]='+str(lap_2.shape[-2]))
-                print('lap_2.shape[-1]='+str(lap_2.shape[-1]))
                 if lap_2.shape[-2]!=in_size_x or lap_2.shape[-1]!=in_size_y:
+                    print('continue, line 1311')
                     continue
                 if stylized_up_2.shape[-2]!=in_size_x or stylized_up_2.shape[-1]!=in_size_y:
+                    print('continue, line 1314')
                     continue
                 revnet_input_2 = paddle.concat(x=[lap_2, stylized_up_2.detach()], axis=1)
                 stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input_2.detach(),stylized_feats_2.detach())
@@ -1341,18 +1323,22 @@ class LapStyleRevSecondPatch(BaseModel):
                     for l in range(0,size_y,move_y):
                         label = str(self.outer_loop[0]*4+i*2+k)+'_'+str(self.outer_loop[1]*4+j*2+l)
                         if label in self.labels:
+                            print('label in labels')
                             continue
                         else:
                             self.labels.append(label)
                         if k+in_size_x>stylized_up_3.shape[-2] or l+in_size_y>stylized_up_3.shape[-1]:
+                            print('continue, line 1331')
                             continue
                         stylized_up_4 = paddle.slice(stylized_up_3,axes=[2,3],starts=[k,l],\
                              ends=[k+in_size_x,l+in_size_y])
                         lap_3 = paddle.slice(self.laplacians[3],axes=[2,3],starts=[self.outer_loop[0]*4+i*2+k,self.outer_loop[1]*4+j*2+l*1],
                                    ends=[self.outer_loop[0]*4+i*2+k+in_size_x,self.outer_loop[1]*4+j*2+l+in_size_y])
                         if lap_3.shape[-2]!=in_size_x or lap_3.shape[-1]!=in_size_y:
+                            print('continue, line 1338')
                             continue
                         if stylized_up_4.shape[-2]!=in_size_x or stylized_up_4.shape[-1]!=in_size_y:
+                            print('continue, line 1341')
                             continue
                         revnet_input_3 = paddle.concat(x=[lap_3, stylized_up_4.detach()], axis=1)
                         stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input_3.detach(),stylized_feats_2.detach())
@@ -1363,10 +1349,6 @@ class LapStyleRevSecondPatch(BaseModel):
                         img_path = os.path.join(self.output_dir, 'visual_test','tiles',
                                                 '%s.png' % (label))
                         save_image(image_numpy, img_path)
-                        if self.save_width:
-                            self.rm_width=stylized_rev_patch_second.shape[-2]
-                        if self.save_width:
-                            self.bm_height=stylized_rev_patch_second.shape[-1]
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         if self.is_train:

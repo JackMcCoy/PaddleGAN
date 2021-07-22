@@ -1196,18 +1196,16 @@ class LapStyleRevSecondPatch(BaseModel):
             ranges_y = ranges_y + [i+math.floor(self.in_size_y/16) for i in ranges_y]
             self.save_width=False
             self.save_height=False
-            self.bm_height = self.in_size_y
-            self.rm_width = self.in_size_x
             print('ranges x: '+str(ranges_x))
             print('ranges y: '+str(ranges_y))
             for i in ranges_x:
                 self.save_width = True if i == ranges_x[-1] else False
                 for j in ranges_y:
-                    self.save_width=True if j==ranges_y[-1] else False
+                    self.save_height=True if j==ranges_y[-1] else False
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward(self.stylized_slice,self.stylized_feats)
-            style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test'))]
+            style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test','patches'))]
             style_paths = [i for i in style_paths if '_' in i]
             print(style_paths[0])
             positions = [(int(re.split('_|\.',i)[0]),int(re.split('_|\.',i)[1])) for i in style_paths]
@@ -1228,7 +1226,7 @@ class LapStyleRevSecondPatch(BaseModel):
             weights_sum = np.zeros((max_x,max_y,3))
             #tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
             for a,b in zip(style_paths,positions):
-                with Image.open(os.path.join(self.output_dir, 'visual_test',a)) as file:
+                with Image.open(os.path.join(self.output_dir, 'visual_test','patches',a)) as file:
                     image = np.asarray(file)
                     '''
                     if b[0]%size_x==0 and b[1]%size_y==0:
@@ -1355,8 +1353,8 @@ class LapStyleRevSecondPatch(BaseModel):
                         stylized_rev_patch_second = fold_laplace_patch(
                             [stylized_rev_patch_second, stylized_up_4.detach()])
                         image_numpy=tensor2img(stylized_rev_patch_second,min_max=(0., 1.))
-                        makedirs(os.path.join(self.output_dir, 'visual_test'))
-                        img_path = os.path.join(self.output_dir, 'visual_test',
+                        makedirs(os.path.join(self.output_dir, 'visual_test','patches'))
+                        img_path = os.path.join(self.output_dir, 'visual_test','patches',
                                                 '%s.png' % (label))
                         save_image(image_numpy, img_path)
                         if self.save_width:

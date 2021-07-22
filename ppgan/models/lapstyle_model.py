@@ -1246,7 +1246,7 @@ class LapStyleRevSecondPatch(BaseModel):
                         x_mod_2=0
                     if b[1]+image.shape[1]==max_y:
                         y_mod_2=0
-                    tiles_1[b[0]+x_mod_1:b[0]+image.shape[0]-x_mod_2,b[1]+y_mod_1:b[1]+image.shape[1]-y_mod_2,:]=image[x_mod_1:image.shape[0]-x_mod_2,y_mod_1:image.shape[1]-y_mod_2,:]
+                    tiles_1[b[0]+x_mod_1:b[0]+image.shape[0]-x_mod_2,b[1]+y_mod_1:b[1]+image.shape[1]-y_mod_2,:] = image[x_mod_1:image.shape[0]-x_mod_2,y_mod_1:image.shape[1]-y_mod_2,:]
             for a,b in zip([tiles_1],['tiled']):
                 print(self.path)
                 im = Image.fromarray(a,'RGB')
@@ -1359,7 +1359,7 @@ class LapStyleRevSecondPatch(BaseModel):
                         save_image(image_numpy, img_path)
                         if self.save_width:
                             self.rm_width=stylized_rev_patch_second.shape[-2]
-                        if self.save_width:
+                        if self.save_height:
                             self.bm_height=stylized_rev_patch_second.shape[-1]
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""

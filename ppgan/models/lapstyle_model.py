@@ -1198,6 +1198,8 @@ class LapStyleRevSecondPatch(BaseModel):
                 if ranges_y[1]-ranges_y[0]<self.in_size_y*.5:
                     print('second y range')
                     ranges_y = ranges_y+list(range(math.floor(self.in_size_y*.25),size_y-self.in_size_y,move_y))
+            print('ranges x: '+str(ranges_x))
+            print('ranges y: '+str(ranges_y))
             for i in ranges_x:
                 print('i='+str(i))
                 for j in ranges_y:

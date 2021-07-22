@@ -1178,20 +1178,20 @@ class LapStyleRevSecondPatch(BaseModel):
                 size_x = self.stylized_slice.shape[-2]
                 self.in_size_x = math.floor(size_x / 2)
                 move_x = adjust(size_x, self.in_size_x)
-                ranges_x=list(range(0,size_x,move_x))+list(range(math.floor(move_x*.5),size_x-256,move_x))
+                ranges_x=list(range(0,size_x,move_x))
                 size_y = 512
                 self.in_size_y = 256
                 move_y = 256
-                ranges_y = list(range(0,size_y,move_y))+list(range(128,size_y,move_y))
+                ranges_y = list(range(0,size_y,move_y))+list(range(64,size_y,move_y))
             else:
                 size_x=512
                 self.in_size_x = 256
                 move_x = 256
-                ranges_x = list(range(0,size_x,move_x))+list(range(128,size_x,move_x))
+                ranges_x = list(range(0,size_x,move_x))+list(range(64,size_x,move_x))
                 size_y = self.stylized_slice.shape[-1]
                 self.in_size_y = math.floor(size_y / 2)
                 move_y = adjust(size_y, self.in_size_y)
-                ranges_y=list(range(0,size_y,move_y))+list(range(math.floor(move_y*.5),size_y-self.in_size_y,move_y))
+                ranges_y=list(range(0,size_y,move_y))
             print('ranges x: '+str(ranges_x))
             print('ranges y: '+str(ranges_y))
             for i in ranges_x:

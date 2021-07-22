@@ -1216,8 +1216,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     max_x=a
                 if b>max_y:
                     max_y=b
-            max_x = max_x+self.rm_width
-            max_y = max_y+self.bm_height
+            max_x = max_x+self.in_size_x
+            max_y = max_y+self.in_size_y
             print(max_x)
             print(max_y)
             tiles_1 = np.zeros((max_x,max_y,3), dtype=np.uint8)
@@ -1242,9 +1242,9 @@ class LapStyleRevSecondPatch(BaseModel):
                         x_mod_1=0
                     if b[1]==0:
                         y_mod_1=0
-                    if b[0]+image.shape[0]==max_x:
+                    if b[0]+self.in_size_x==max_x:
                         x_mod_2=0
-                    if b[1]+image.shape[1]==max_y:
+                    if b[1]+self.in_size_y==max_y:
                         y_mod_2=0
                     tiles_1[b[0]+x_mod_1:b[0]+image.shape[0]-x_mod_2,b[1]+y_mod_1:b[1]+image.shape[1]-y_mod_2,:] = image[x_mod_1:image.shape[0]-x_mod_2,y_mod_1:image.shape[1]-y_mod_2,:]
             for a,b in zip([tiles_1],['tiled']):

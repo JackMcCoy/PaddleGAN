@@ -1244,7 +1244,7 @@ class LapStyleRevSecondPatch(BaseModel):
                         x_mod_2=0
                     if b[1]+self.in_size_y==max_y:
                         y_mod_2=0
-                    tiles_1[b[0]+x_mod_1:b[0]+image.shape[0]-x_mod_2,b[1]+y_mod_1:b[1]+image.shape[1]-y_mod_2,:]=image[x_mod_1:image.shape[0]-x_mod_2,y_mod_1:image.shape[0]-y_mod_2,:]
+                    tiles_1[b[0]+x_mod_1:b[0]+image.shape[0]-x_mod_1-x_mod_2,b[1]+y_mod_1:b[1]+image.shape[1]-y_mod_1-y_mod_2,:]=image[x_mod_1:image.shape[0]-x_mod_1-x_mod_2,y_mod_1:image.shape[0]-y_mod_1-y_mod_2,:]
             for a,b in zip([tiles_1],['tiled']):
                 print(self.path)
                 im = Image.fromarray(a,'RGB')

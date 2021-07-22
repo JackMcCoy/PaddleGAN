@@ -1222,8 +1222,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     max_x=a
                 if b>max_y:
                     max_y=b
-            max_x = max_x+self.rm_width
-            max_y = max_y+self.bm_height
+            max_x = max_x+self.in_size_x
+            max_y = max_y+self.in_size_y
             print(max_x)
             print(max_y)
             tiles_1 = np.zeros((max_x,max_y,3), dtype=np.uint8)

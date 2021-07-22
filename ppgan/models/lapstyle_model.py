@@ -1295,8 +1295,10 @@ class LapStyleRevSecondPatch(BaseModel):
         print('size_y='+str(size_y))
         print('in_size_x='+str(in_size_x))
         print('in_size_y='+str(in_size_y))
-        for i in range(0,size_x,move_x):
-            for j in range(0,size_y-in_size_y+1,move_y):
+        ranges_x=list(range(0,size_x,move_x))+list(range(math.floor(move_x*.5),size_x-256,move_x))
+        ranges_y=list(range(0,size_y,move_y))+list(range(math.floor(move_y*.5),size_x-256,move_y))
+        for i in ranges_x:
+            for j in ranges_y):
                 label = str(self.outer_loop[0]*4+i*2)+'_'+str(self.outer_loop[1]*4+j*2)
                 if label in self.labels:
                     notin=True

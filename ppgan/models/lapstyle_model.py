@@ -1173,6 +1173,7 @@ class LapStyleRevSecondPatch(BaseModel):
             stylized_rev_lap, self.stylized_feats = self.nets['net_rev'](revnet_input)
             stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
             self.stylized_slice = F.interpolate(stylized_rev, scale_factor=2)
+            print('stylized_slice.shape = 'self.stylized_slice.shape)
             if small_side==self.stylized_up.shape[-1]:
                 size_x = self.stylized_slice.shape[-2]
                 self.in_size_x = math.floor(size_x / 2)
@@ -1197,8 +1198,8 @@ class LapStyleRevSecondPatch(BaseModel):
             ranges_y = ranges_y + [i+math.floor(self.in_size_y/16) for i in ranges_y[:-1]]
             ranges_x.append(curr_last_x-math.floor(self.in_size_x/16))
             ranges_y.append(curr_last_y-math.floor(self.in_size_y/16))
-            for j in ranges_x:
-                for i in ranges_y:
+            for i in ranges_x:
+                for j in ranges_y:
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward(self.stylized_slice,self.stylized_feats)
@@ -1348,8 +1349,8 @@ class LapStyleRevSecondPatch(BaseModel):
         size_y = stylized_up.shape[-1]
         in_size_y = math.floor(size_y / 2)
         move_y = adjust(size_y, in_size_y)
-        for j in range(0,size_x,move_x):
-            for i in range(0,size_y,move_y):
+        for i in range(0,size_x,move_x):
+            for j in range(0,size_y,move_y):
                 label = str(self.outer_loop[0]*4+i*2)+'_'+str(self.outer_loop[1]*4+j*2)
                 if label in self.labels:
                     notin=True
@@ -1380,8 +1381,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     [stylized_rev_patch, stylized_up_2.detach()])
 
                 stylized_up_3 = F.interpolate(stylized_rev_patch, scale_factor=2)
-                for l in range(0,size_x,move_x):
-                    for k in range(0,size_y,move_y):
+                for k in range(0,size_x,move_x):
+                    for l in range(0,size_y,move_y):
                         label = str(self.outer_loop[0]*4+i*2+k)+'_'+str(self.outer_loop[1]*4+j*2+l)
                         if label in self.labels:
                             print('label in labels')

@@ -1214,9 +1214,10 @@ class LapStyleRevSecondPatch(BaseModel):
                     max_y=b
             max_x = max_x+self.in_size_x
             max_y = max_y+self.in_size_y
-            tiles_1 = np.zeros((max_x,max_y,3), dtype=np.uint8)
+            tiles_1 = np.zeros((max_y,max_x,3), dtype=np.uint8)
+            edges = np.zeros((max_x, max_y, 3), dtype=np.uint8)
             data_visits = np.zeros((max_x,max_y,3), dtype=np.uint32)
-            weights_sum = np.zeros((max_x,max_y,3))
+            weights = np.zeros((max_x,max_y,3))
             #tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
             for a,b in zip(style_paths,positions):
                 with Image.open(os.path.join(self.output_dir, 'visual_test','tiles',a)) as file:
@@ -1227,19 +1228,75 @@ class LapStyleRevSecondPatch(BaseModel):
                     else:
                         tiles_2[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1],:] = image
                     '''
-                    x_mod_1=16
-                    x_mod_2=16
-                    y_mod_1=16
-                    y_mod_2=16
+                    def blurred_edge_function(start_value,end_value,steps):
+                        return np.geomspace(start_value,end_value,steps)
+                    def block_sequence(main,left_edge,right_edge):
+                        s,m,e=0,1,0
+                        if left_edge>0:
+                            s=1
+                        if right_edge>0:
+                            e=1
+                        return [s,m,e]
+                    def get_direction(edges):
+                        if edges[1][0]=='x':
+                            direction='right'
+                        else:
+                            direction='up'
+                        if edges[0][-1]=='2':
+                            transform= {'right':'left','up':'down'}
+                            direction = transform[direction]
+                            gradient = (255,0.1)
+                        else:
+                            gradient = (0.1, 255)
+                        return direction, gradient
+                    def get_perpendicular_edges(key):
+                        axis='x'
+                        if key[0]=='x':
+                            axis='y'
+                        first_side='1'
+                        second_side='2'
+                        if key[-1]=='1':
+                            first_side='2'
+                            second_side='2'
+                        return [axis+'_mod_'+first_side, key, axis+'_mod_'+second_side]
+                    edges={'x_mod_1':16,
+                    'x_mod_2':16,
+                    'y_mod_1':16,
+                    'y_mod_2':16}
                     if b[0]==0:
-                        x_mod_1=0
+                        edges['x_mod_1']=0
                     if b[1]==0:
-                        y_mod_1=0
+                        edges['y_mod_1']=0
                     if b[0]+self.in_size_x==max_x:
-                        x_mod_2=0
+                        edges['x_mod_2']=0
                     if b[1]+self.in_size_y==max_y:
-                        y_mod_2=0
-                    tiles_1[b[0]+x_mod_1:b[0]+image.shape[0]-x_mod_2,b[1]+y_mod_1:b[1]+image.shape[1]-y_mod_2,:]=image[x_mod_1:image.shape[0]-x_mod_2,y_mod_1:image.shape[1]-y_mod_2,:]
+                        edges['y_mod_2']=0
+                    tiles_1[b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],:]=image[edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],:]
+                    '''
+                    for key,value in edges.items():
+                        if value>0:
+                            block_edges=get_perpendicular_edges(key)# keys for the beginning and end block subtractions - edges
+                            blocks = block_sequence(value,edges[block_edges[0],block_edges[2]]) # returns [0/1,0/1,0/1] for whether a block is needed or not
+                            direction, gradient = get_direction(block_edges)
+                            mask_width = image.shape[0]
+                            mask_height = image.shape[1]
+                            if key[0]=='x':
+                                mask_width = value
+                            else:
+                                mask_height= value
+                            mask = np.zeros((mask_width,mask_height),dtype=float)
+                            mask[:,:] = blurred_edge_function(gradient[0],gradient[1],mask_width)
+                            if blocks[0]==1:
+                                pass
+                            if blocks[-1]==1:
+                                pass
+                            if key[-1]=='1':
+                                weights[b[0]:b[0]+mask_width,b[1]:b[1]+mask_width]=mask
+                                edges[b[0]:b[0]+mask_width,b[1]:b[1]+mask_width]=image[:mask_width,:mask_height]
+                            else:
+                                weights[b[0]+image.shape[-2]-mask_width:b[0] + image.shape[-2], b[1]+image.shape[-1]-mask_height:b[1] + image.shape[-1]] = mask
+                                edges[b[0]+image.shape[-2]-mask_width:b[0] + image.shape[-2], b[1]+image.shape[-1]-mask_height:b[1] + image.shape[-1]] = image[image.shape[-2]-mask_width:,image]
+                        '''
             for a,b in zip([tiles_1],['tiled']):
                 im = Image.fromarray(a,'RGB')
                 label = self.path[0]+' '+b

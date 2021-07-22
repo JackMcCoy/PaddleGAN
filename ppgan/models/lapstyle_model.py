@@ -1229,10 +1229,10 @@ class LapStyleRevSecondPatch(BaseModel):
                     else:
                         tiles_2[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1],:] = image
                     '''
-                    x_mod_1=2
-                    x_mod_2=2
-                    y_mod_1=2
-                    y_mod_2=2
+                    x_mod_1=0
+                    x_mod_2=0
+                    y_mod_1=0
+                    y_mod_2=0
                     if b[0]==0:
                         x_mod_1=0
                     if b[1]==0:

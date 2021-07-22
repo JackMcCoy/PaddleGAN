@@ -1178,20 +1178,20 @@ class LapStyleRevSecondPatch(BaseModel):
                 size_x = self.stylized_slice.shape[-2]
                 self.in_size_x = math.floor(size_x / 2)
                 move_x = adjust(size_x, self.in_size_x)
-                ranges_x=list(range(0,size_x,move_x))
+                ranges_x=list(range(0,size_x,move_x))x+list(range(math.floor(self.in_size_x*.25),size_x-math.floor(self.in_size_x*.25),move_x))
                 size_y = 512
                 self.in_size_y = 256
                 move_y = 256
-                ranges_y = list(range(0,size_y,move_y))+list(range(64,size_y,move_y))
+                ranges_y = list(range(0,size_y,move_y))+list(range(64,size_y-64,move_y))
             else:
                 size_x=512
                 self.in_size_x = 256
                 move_x = 256
-                ranges_x = list(range(0,size_x,move_x))+list(range(64,size_x,move_x))
+                ranges_x = list(range(0,size_x,move_x))+list(range(64,size_x-64,move_x))
                 size_y = self.stylized_slice.shape[-1]
                 self.in_size_y = math.floor(size_y / 2)
                 move_y = adjust(size_y, self.in_size_y)
-                ranges_y=list(range(0,size_y,move_y))
+                ranges_y=list(range(0,size_y,move_y))+list(range(math.floor(self.in_size_y*.25),size_y-math.floor(self.in_size_y*.25),move_y))
             print('ranges x: '+str(ranges_x))
             print('ranges y: '+str(ranges_y))
             for i in ranges_x:
@@ -1203,6 +1203,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     self.test_forward(self.stylized_slice,self.stylized_feats)
             style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test'))]
             style_paths = [i for i in style_paths if '_' in i]
+            print(style_paths[0])
             positions = [(int(re.split('_|\.',i)[0]),int(re.split('_|\.',i)[1])) for i in style_paths]
             max_x = 0
             max_y = 0
@@ -1229,10 +1230,10 @@ class LapStyleRevSecondPatch(BaseModel):
                     else:
                         tiles_2[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1],:] = image
                     '''
-                    x_mod_1=0
-                    x_mod_2=0
-                    y_mod_1=0
-                    y_mod_2=0
+                    x_mod_1=2
+                    x_mod_2=2
+                    y_mod_1=2
+                    y_mod_2=2
                     if b[0]==0:
                         x_mod_1=0
                     if b[1]==0:
@@ -1294,10 +1295,8 @@ class LapStyleRevSecondPatch(BaseModel):
         print('size_y='+str(size_y))
         print('in_size_x='+str(in_size_x))
         print('in_size_y='+str(in_size_y))
-        ranges_x=list(range(0,size_x,move_x))+list(range(64,512,256))
-        ranges_y=list(range(0,size_y,move_y))
-        for i in ranges_x:
-            for j in ranges_y:
+        for i in range(0,size_x,move_x):
+            for j in range(0,size_y-in_size_y+1,move_y):
                 label = str(self.outer_loop[0]*4+i*2)+'_'+str(self.outer_loop[1]*4+j*2)
                 if label in self.labels:
                     notin=True
@@ -1328,8 +1327,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     [stylized_rev_patch, stylized_up_2.detach()])
 
                 stylized_up_3 = F.interpolate(stylized_rev_patch, scale_factor=2)
-                for k in ranges_x:
-                    for l in ranges_y:
+                for k in range(0,size_x,move_x):
+                    for l in range(0,size_y,move_y):
                         label = str(self.outer_loop[0]*4+i*2+k)+'_'+str(self.outer_loop[1]*4+j*2+l)
                         if label in self.labels:
                             continue

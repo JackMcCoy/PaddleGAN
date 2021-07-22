@@ -1194,12 +1194,16 @@ class LapStyleRevSecondPatch(BaseModel):
                 ranges_y=list(range(0,size_y,move_y))
             ranges_x = ranges_x + [i+math.floor(self.in_size_x/16) for i in ranges_x]
             ranges_y = ranges_y + [i+math.floor(self.in_size_y/16) for i in ranges_y]
+            self.save_width=False
+            self.save_height=False
             print('ranges x: '+str(ranges_x))
             print('ranges y: '+str(ranges_y))
             for i in ranges_x:
-                print('i='+str(i))
+                if i == ranges_x[-1]:
+                    self.save_width = True
                 for j in ranges_y:
-                    print(str(i)+', '+str(j))
+                    if j==ranges_y[=1]:
+                        self.save_width=True
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward(self.stylized_slice,self.stylized_feats)
@@ -1214,8 +1218,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     max_x=a
                 if b>max_y:
                     max_y=b
-            max_x = max_x+self.in_size_x
-            max_y = max_y+self.in_size_y
+            max_x = max_x+self.rm_width
+            max_y = max_y+self.bm_height
             print(max_x)
             print(max_y)
             tiles_1 = np.zeros((max_x,max_y,3), dtype=np.uint8)
@@ -1232,17 +1236,17 @@ class LapStyleRevSecondPatch(BaseModel):
                     else:
                         tiles_2[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1],:] = image
                     '''
-                    x_mod_1=8
-                    x_mod_2=8
-                    y_mod_1=8
-                    y_mod_2=8
+                    x_mod_1=16
+                    x_mod_2=16
+                    y_mod_1=16
+                    y_mod_2=16
                     if b[0]==0:
                         x_mod_1=0
                     if b[1]==0:
                         y_mod_1=0
-                    if b[0]+self.in_size_x==max_x:
+                    if b[0]+image.shape[0]==max_x:
                         x_mod_2=0
-                    if b[1]+self.in_size_y==max_y:
+                    if b[1]+image.shape[1]==max_y:
                         y_mod_2=0
                     tiles_1[b[0]+x_mod_1:b[0]+image.shape[0]-x_mod_2,b[1]+y_mod_1:b[1]+image.shape[1]-y_mod_2,:]=image[x_mod_1:image.shape[0]-x_mod_2,y_mod_1:image.shape[1]-y_mod_2,:]
             for a,b in zip([tiles_1],['tiled']):
@@ -1355,7 +1359,10 @@ class LapStyleRevSecondPatch(BaseModel):
                         img_path = os.path.join(self.output_dir, 'visual_test',
                                                 '%s.png' % (label))
                         save_image(image_numpy, img_path)
-                        print(label)
+                        if self.save_width:
+                            self.rm_width=stylized_rev_patch_second.shape[-2]
+                        if self.save_width:
+                            self.bm_height=stylized_rev_patch_second.shape[-1]
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         if self.is_train:

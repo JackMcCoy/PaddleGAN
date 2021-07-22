@@ -1178,7 +1178,9 @@ class LapStyleRevSecondPatch(BaseModel):
                 size_x = self.stylized_slice.shape[-2]
                 self.in_size_x = math.floor(size_x / 2)
                 move_x = adjust(size_x, self.in_size_x)
-                ranges_x=list(range(0,size_x,move_x))+list(range(math.floor(self.in_size_x*.25),size_x,move_x))
+                ranges_x=list(range(0,size_x,move_x))
+                if ranges_x[1]-ranges_x[0]<self.in_size_x*.5:
+                    ranges_x = ranges_x+list(range(math.floor(self.in_size_x*.5),size_x-256,move_x))
                 size_y = 512
                 self.in_size_y = 256
                 move_y = 256
@@ -1191,16 +1193,15 @@ class LapStyleRevSecondPatch(BaseModel):
                 size_y = self.stylized_slice.shape[-1]
                 self.in_size_y = math.floor(size_y / 2)
                 move_y = adjust(size_y, self.in_size_y)
-                ranges_y=list(range(0,size_y,move_y))+list(range(math.floor(self.in_size_y*.25),size_y+move_y,move_y))
+                ranges_y=list(range(0,size_y,move_y))
+                if ranges_y[1]-ranges_y[0]<self.in_size_y*.5:
+                    ranges_y = ranges_y+list(range(math.floor(self.in_size_y*.5),size_y-self.in_size_y,move_y))
             for i in ranges_x:
                 print('i='+str(i))
                 for j in ranges_y:
                     print(str(i)+', '+str(j))
                     self.outer_loop=(i,j)
-                    self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#
-                    print(self.positions)
-                    if self.positions[0][0]+self.positions[0][2]>self.stylized_slice.shape[-2] or self.positions[0][1]+self.positions[0][3]>self.stylized_slice.shape[-1]:
-                        continue
+                    self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward(self.stylized_slice,self.stylized_feats)
             style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test'))]
             style_paths = [i for i in style_paths if '_' in i]
@@ -1231,10 +1232,10 @@ class LapStyleRevSecondPatch(BaseModel):
                     else:
                         tiles_2[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1],:] = image
                     '''
-                    x_mod_1=16
-                    x_mod_2=16
-                    y_mod_1=16
-                    y_mod_2=16
+                    x_mod_1=32
+                    x_mod_2=32
+                    y_mod_1=32
+                    y_mod_2=32
                     if b[0]==0:
                         x_mod_1=0
                     if b[1]==0:
@@ -1292,14 +1293,12 @@ class LapStyleRevSecondPatch(BaseModel):
         size_y = stylized_up.shape[-1]
         in_size_y = math.floor(size_y / 2)
         move_y = adjust(size_y, in_size_y)
-        ranges_x = list(range(0,size_x,move_x))+list(range(math.floor(size_x*.25),size_x,move_x))
-        ranges_y = list(range(0,size_y,move_y))+list(range(math.floor(size_y*.25),size_y,move_y))
         print('size_x='+str(size_x))
         print('size_y='+str(size_y))
         print('in_size_x='+str(in_size_x))
         print('in_size_y='+str(in_size_y))
-        for i in ranges_x:
-            for j in ranges_y:
+        for i in range(0,size_x,move_x):
+            for j in range(0,size_y-in_size_y+1,move_y):
                 label = str(self.outer_loop[0]*4+i*2)+'_'+str(self.outer_loop[1]*4+j*2)
                 if label in self.labels:
                     notin=True
@@ -1330,8 +1329,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     [stylized_rev_patch, stylized_up_2.detach()])
 
                 stylized_up_3 = F.interpolate(stylized_rev_patch, scale_factor=2)
-                for k in ranges_x:
-                    for l in ranges_y:
+                for k in range(0,size_x,move_x):
+                    for l in range(0,size_y,move_y):
                         label = str(self.outer_loop[0]*4+i*2+k)+'_'+str(self.outer_loop[1]*4+j*2+l)
                         if label in self.labels:
                             continue

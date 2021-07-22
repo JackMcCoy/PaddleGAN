@@ -1202,7 +1202,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 if i == ranges_x[-1]:
                     self.save_width = True
                 for j in ranges_y:
-                    if j==ranges_y[=1]:
+                    if j==ranges_y[-1]:
                         self.save_width=True
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!

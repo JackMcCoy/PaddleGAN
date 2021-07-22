@@ -1196,7 +1196,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 print('i='+str(i))
                 for j in ranges_y:
                     print(str(i)+', '+str(j))
-                    if i+move_x >self.stylized_slice.shape[0] or i+move_y>self.stylized_slice.shape[1]:
+                    if i+move_x >self.stylized_slice.shape[0] or j+move_y>self.stylized_slice.shape[1]:
                         continue
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!

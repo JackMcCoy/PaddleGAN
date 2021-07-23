@@ -1215,7 +1215,7 @@ class LapStyleRevSecondPatch(BaseModel):
             for a,b in zip(style_paths,positions):
                 with Image.open(os.path.join(self.output_dir, 'visual_test','tiles',a)) as file:
                     image = np.asarray(file)
-                    image = np.transpose(image,[1,0,2])
+                    print(image.shape)
                     '''
                     if b[0]%size_x==0 and b[1]%size_y==0:
                         tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],:]=image
@@ -1266,7 +1266,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     if b[1]+self.in_size_y==max_y:
                         edges['y_mod_2']=0
                     print('b = '+str(b)+' shape= '+str(image.shape))
-                    tiles_1[b[0]+edges['x_mod_1']:b[0]+image.shape[1]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[0]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[1]-edges['x_mod_2'],edges['y_mod_1']:image.shape[0]-edges['y_mod_2'],:]
+                    tiles_1[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
                     '''
                     for key,value in edges.items():
                         if value>0:

@@ -1223,7 +1223,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     empty = np.isnan(not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]])
                     k = kernel.copy()
                     k = np.maximum(k,empty)
-                    w = weights[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]=image[:,:] +k
+                    w = weights[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]]=image[:,:] +k
                     tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0] = image[:,:,0]*k*(k/w) +\
                                                                                    (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]*(1-k)*((w-k/w)))
                     tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 1] = image[:, :, 1] * k*(k/w) + (
@@ -1231,7 +1231,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 2] = image[:, :, 2] * k*(k/w) + (
                                 tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 2] * (1 - k)*(w-k/w))
                     not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]]=1
-                    weights[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 0] = image[:, :] = weights[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]=image[:,:]+k
+                    weights[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1]] = weights[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]]+k
             for a,b in zip([tiles_1],['tiled1']):
                 im = Image.fromarray(a,'RGB')
                 label = self.path[0]+' '+b

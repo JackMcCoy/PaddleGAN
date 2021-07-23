@@ -1225,11 +1225,11 @@ class LapStyleRevSecondPatch(BaseModel):
                     k = np.maximum(k,empty)
                     w = weights[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]]
                     tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0] = image[:,:,0]*k*(1/(w+1)) +\
-                                (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]*(1-k)*(w/(w+1)))
+                                (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]*(1-k*(w/(w+1)))
                     tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 1] = image[:, :, 1] * k *(1/(w+1))+ (
-                                tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 1] * (1 - k)*(w/(w+1)))
+                                tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 1] * (1 - k *(w/(w+1)))
                     tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 2] = image[:, :, 2] * k *(1/(w+1))+ (
-                                tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 2] * (1 - k)*(w/(w+1)))
+                                tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 2] * (1 - k*(w/(w+1)))
                     not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]]=1
                     weights[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1]] = weights[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]]+k
             for a,b in zip([tiles_1],['tiled1']):

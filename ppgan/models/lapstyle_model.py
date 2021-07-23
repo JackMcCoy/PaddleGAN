@@ -558,6 +558,25 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['loss_style_remd'] = self.loss_style_remd
         self.losses['loss_content_relt'] = self.loss_content_relt
 
+        self.losses['l_identity1'] = self.l_identity1
+        self.losses['l_identity2'] = self.l_identity2
+
+        self.loss = self.loss_s * self.style_weight +\
+                    self.l_identity1 * 50 + self.l_identity2 * 1 +\
+                    self.loss_content * self.content_weight+\
+                    self.loss_style_remd * 18 +\
+                    self.loss_content_relt * 24
+        self.loss.backward()
+        optimizer.step()
+        """patch loss"""
+        self.loss_patch = 0
+        #self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
+        #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
+        for layer in [self.content_layers[-2]]:
+            self.loss_patch += self.calc_content_loss(self.tpF[layer],
+                                                      self.tt_cropF[layer])
+        self.losses['loss_patch'] =  self.loss_patch
+
         self.loss_content_patch=0
         for layer in self.content_layers:
             self.loss_content_patch += self.calc_content_loss(self.tpF[layer],
@@ -578,25 +597,6 @@ class LapStyleDraThumbModel(BaseModel):
                 self.ttF['r41'], self.cpF['r41'])
         self.losses['loss_style_remd_patch'] = self.loss_style_remd_patch
         self.losses['loss_content_relt_patch'] = self.loss_content_relt_patch
-
-        self.loss = self.loss_s * self.style_weight +\
-                    self.l_identity1 * 50 + self.l_identity2 * 1 +\
-                    self.loss_content * self.content_weight+\
-                    self.loss_style_remd * 18 +\
-                    self.loss_content_relt * 24
-        self.loss.backward()
-        optimizer.step()
-        """patch loss"""
-        self.loss_patch = 0
-        #self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
-        #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
-        for layer in [self.content_layers[-2]]:
-            self.loss_patch += self.calc_content_loss(self.tpF[layer],
-                                                      self.tt_cropF[layer])
-        self.losses['loss_patch'] =  self.loss_patch
-
-        self.losses['l_identity1'] = self.l_identity1
-        self.losses['l_identity2'] = self.l_identity2
 
         self.loss = self.loss_patch * 18 * self.content_weight +\
                     self.loss_s_patch * self.style_weight +\

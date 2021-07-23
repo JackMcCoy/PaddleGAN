@@ -568,6 +568,7 @@ class LapStyleDraThumbModel(BaseModel):
                     self.loss_content_relt * 24
         self.loss.backward()
         optimizer.step()
+        optimizers['optimG'].clear_grad()
         """patch loss"""
         self.loss_patch = 0
         #self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
@@ -598,11 +599,11 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['loss_style_remd_patch'] = self.loss_style_remd_patch
         self.losses['loss_content_relt_patch'] = self.loss_content_relt_patch
 
-        self.loss = self.loss_patch * 18 * self.content_weight +\
+        self.patch_loss = self.loss_patch * 18 * self.content_weight +\
                     self.loss_s_patch * self.style_weight +\
                     self.loss_content_patch * self.content_weight +\
                     self.loss_style_remd_patch * 18 + self.loss_content_relt *24
-        self.loss.backward()
+        self.patch_loss.backward()
         optimier.step()
         return self.loss
 

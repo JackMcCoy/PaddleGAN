@@ -1187,7 +1187,7 @@ class LapStyleRevSecondPatch(BaseModel):
             ranges_y = ranges_y + [i+math.floor(self.in_size_y/3) for i in ranges_y[:-1]]
             ranges_x.append(curr_last_x-math.floor(self.in_size_x/3))
             ranges_y.append(curr_last_y-math.floor(self.in_size_y/3))
-            self.counter=0
+            self.counter=1
             for idx,i in enumerate(ranges_x):
                 for idx2,j in enumerate(ranges_y):
                     self.second_set = 'b' if idx+1>orig_len_x or idx2+1>orig_len_y else 'a'

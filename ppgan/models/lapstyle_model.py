@@ -1187,7 +1187,7 @@ class LapStyleRevSecondPatch(BaseModel):
             ranges_y = ranges_y + [i+math.floor(self.in_size_y/4) for i in ranges_y[:-1]]
             ranges_x.append(curr_last_x-math.floor(self.in_size_x/4))
             ranges_y.append(curr_last_y-math.floor(self.in_size_y/4))
-            self.second_set='a'
+            self.counter=0
             for idx,i in enumerate(ranges_x):
                 for idx2,j in enumerate(ranges_y):
                     self.second_set = 'b' if idx+1>orig_len_x or idx2+1>orig_len_y else 'a'
@@ -1232,7 +1232,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     if b[1]+self.in_size_y==max_y:
                         edges['y_mod_2']=0
                     print('b = '+str(b)+' shape= '+str(image.shape))
-                    if b[0]%size_x==0 or b[1]%size_y==0:
+                    if c%2==0:
                         tiles_2[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
                     else:
                         tiles_1[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
@@ -1317,7 +1317,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 stylized_up_3 = F.interpolate(stylized_rev_patch, scale_factor=2)
                 for k in range(0,size_x,in_size_x):
                     for l in range(0,size_y,in_size_y):
-                        label = str(self.outer_loop[0]*4+i*2+k)+'_'+str(self.outer_loop[1]*4+j*2+l)+'_'+self.second_set
+                        label = str(self.outer_loop[0]*4+i*2+k)+'_'+str(self.outer_loop[1]*4+j*2+l)+'_'+str(self.counter)
                         if label in self.labels:
                             continue
                         if k+in_size_x>stylized_up_3.shape[-2] or l+in_size_y>stylized_up_3.shape[-1]:
@@ -1343,6 +1343,7 @@ class LapStyleRevSecondPatch(BaseModel):
                                                 '%s.png' % (label))
                         save_image(image_numpy, img_path)
                         self.labels.append(label)
+                        self.counter+=1
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         if self.is_train:

@@ -1205,6 +1205,7 @@ class LapStyleRevSecondPatch(BaseModel):
             print('max_x = '+str(max_x))
             print('max_y = ' + str(max_y))
             tiles_1 = np.zeros((max_x,max_y,3), dtype=np.uint8)
+            tiles_2 = np.zeros((max_x, max_y, 3), dtype=np.uint8)
             edges = np.zeros((max_x, max_y, 3), dtype=np.uint8)
             data_visits = np.zeros((max_x,max_y,3), dtype=np.uint32)
             weights = np.zeros((max_x,max_y,3))

@@ -1220,7 +1220,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 with Image.open(os.path.join(self.output_dir, 'visual_test','tiles',a)) as file:
                     image = np.asarray(file)
                     image = image.astype(np.float32)/255.
-                    empty = np.isnan(not_visited[b[0]:b[0]+image.shape[0],b[1]+b[1]+image.shape[1],:])
+                    empty = np.isnan(not_visited[b[0]:b[0]+image.shape[0],b[1]+b[1]+image.shape[1]])
                     k = kernel.copy()
                     k = np.maximum(k,empty)
                     tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]=image[:,:,0]*k + (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]*(1-k))

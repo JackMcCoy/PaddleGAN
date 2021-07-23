@@ -568,7 +568,7 @@ class LapStyleDraThumbModel(BaseModel):
                     self.loss_content_relt * 24
         self.loss.backward()
         optimizer.step()
-        optimizer.clear_grad()
+        
         """patch loss"""
         self.loss_patch = 0
         #self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
@@ -604,8 +604,8 @@ class LapStyleDraThumbModel(BaseModel):
                     self.loss_content_patch * self.content_weight +\
                     self.loss_style_remd_patch * 18 + self.loss_content_relt *24
         self.patch_loss.backward()
-        optimier.step()
-        return self.loss
+        optimizer.step()
+        return self.patch_loss
 
     def train_iter(self, optimizers=None):
         """Calculate losses, gradients, and update network weights"""

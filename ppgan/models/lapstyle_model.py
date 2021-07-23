@@ -1222,7 +1222,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     image = image.astype(np.float32)/255.
                     empty = np.isnan(not_visited[b[0]:b[0]+image.shape[0],b[1]+b[1]+image.shape[1],:])
                     k = kernel.copy()
-                    k = np.maximum(empty,k)
+                    k[empty] = 1
                     tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],:]=image*k + (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],:]*(1-k))
                     not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],:]=1
             tiles_1=tiles_1*255

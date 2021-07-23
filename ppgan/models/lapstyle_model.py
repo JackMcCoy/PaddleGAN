@@ -518,7 +518,7 @@ class LapStyleDraThumbModel(BaseModel):
 
     def backward_Dec(self):
         with paddle.no_grad():
-            g_t_thumb_up = F.interpolate(self.visual_items['stylized_thumb'], scale_factor=2, mode='bilinear', align_corners=False)
+            g_t_thumb_up = F.interpolate(self.stylized_thumb, scale_factor=2, mode='bilinear', align_corners=False)
             g_t_thumb_crop = crop_upsized(g_t_thumb_up,self.position[0],128,256)
             self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
             self.spCrop = self.nets['net_enc'](self.sp)

@@ -519,7 +519,7 @@ class LapStyleDraThumbModel(BaseModel):
     def backward_Dec(self):
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized_thumb'], scale_factor=2, mode='bilinear', align_corners=False)
-            g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.position[0][0],self.position[0][1]],ends=[self.position[0][2],self.position[0][3]])
+            g_t_thumb_crop = crop_upsized(g_t_thumb_up,self.position[0],128,256)
             self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
             self.spCrop = self.nets['net_enc'](self.sp)
         self.ttF = self.nets['net_enc'](self.stylized_thumb)
@@ -1083,8 +1083,8 @@ class LapStyleRevSecondThumb(BaseModel):
         self.backward_G_p()
         optimizers['optimG'].step()
 
-def crop_upsized(stylized_up,positions,orig_size):
-    ratio = orig_size/512
+def crop_upsized(stylized_up,positions,orig_size,upsized):
+    ratio = orig_size/upsized
     stylized_up=paddle.slice(stylized_up,axes=[2,3],starts=[(positions[1]/ratio).astype('int32'),(positions[0]/ratio).astype('int32')],\
                              ends=[(positions[3]/ratio).astype('int32'),(positions[2]/ratio).astype('int32')])
     return stylized_up

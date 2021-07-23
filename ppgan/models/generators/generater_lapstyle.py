@@ -224,7 +224,7 @@ class DecoderThumbDeep(nn.Layer):
     def forward(self, cF, sF, cpF, thumb_or_patch='thumb'):
 
         #out = thumb_adaptive_instance_normalization(cF['r51'], cpF['r51'], sF['r51'], thumb_or_patch=thumb_or_patch)
-        out = thumb_adaptive_instance_normalization(cF['r41'], cpF['r41'], sF['r41'], thumb_or_patch=thumb_or_patch)
+        out = thumb_adaptive_instance_normalization(cF['r41'].detach(), cpF['r41'].detach(), sF['r41'].detach(), thumb_or_patch=thumb_or_patch)
         thumb_ada = {'r41':out.clone()}
         out = self.resblock_41(out)
         out = self.convblock_411(out)
@@ -232,14 +232,14 @@ class DecoderThumbDeep(nn.Layer):
 
         out = self.upsample(out)
 
-        thumb_ada['r31'] = thumb_adaptive_instance_normalization(cF['r31'], cpF['r31'],sF['r31'], thumb_or_patch=thumb_or_patch)
+        thumb_ada['r31'] = thumb_adaptive_instance_normalization(cF['r31'].detach(), cpF['r31'].detach(),sF['r31'].detach(), thumb_or_patch=thumb_or_patch)
         out += thumb_ada['r31']
         out = self.resblock_31(out)
         out = self.convblock_311(out)
         out = self.convblock_31(out)
 
         out = self.upsample(out)
-        thumb_ada['r21'] = thumb_adaptive_instance_normalization(cF['r21'], cpF['r21'], sF['r21'],
+        thumb_ada['r21'] = thumb_adaptive_instance_normalization(cF['r21'].detach(), cpF['r21'].detach(), sF['r21'].detach(),
                                                            thumb_or_patch=thumb_or_patch)
         out += thumb_ada['r21']
         out = self.convblock_211(out)

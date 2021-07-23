@@ -1275,8 +1275,10 @@ class LapStyleRevSecondPatch(BaseModel):
                                 mask_width = value
                             else:
                                 mask_height= value
+                            print('mask_width='+str(mask_width))
+                            print('mask_height=' + str(mask_height))
                             mask = np.zeros((mask_width,mask_height),dtype=float)
-                            mask[:,:] = blurred_edge_function(gradient[0],gradient[1],mask_width)
+                            mask[:,:] = blurred_edge_function(gradient[0],gradient[1],min(mask_width,mask_height))
                             if blocks[0]==1:
                                 pass
                             if blocks[-1]==1:

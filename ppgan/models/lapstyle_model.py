@@ -1179,20 +1179,25 @@ class LapStyleRevSecondPatch(BaseModel):
             self.in_size_y = math.floor(size_y / 2)
             move_y = adjust(size_y, self.in_size_y)
             ranges_y = list(range(0,size_y-self.in_size_y+1,move_y))
+            orig_len_y = len(ranges_y)
+            orig_len_x = len(ranges_x)
             curr_last_x=ranges_x[-1]
             curr_last_y=ranges_y[-1]
             ranges_x = ranges_x + [i+math.floor(self.in_size_x/2) for i in ranges_x[:-1]]
             ranges_y = ranges_y + [i+math.floor(self.in_size_y/2) for i in ranges_y[:-1]]
             ranges_x.append(curr_last_x-math.floor(self.in_size_x/3))
             ranges_y.append(curr_last_y-math.floor(self.in_size_y/3))
-            for i in ranges_x:
-                for j in ranges_y:
+            self.second_set='a'
+            for idx,i in enumerate(ranges_x):
+                for idx2,j in enumerate(ranges_y):
+                    self.second_set = 'b' if idx>=orig_len_x or idx2>=orig_len_y else 'a'
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward(self.stylized_slice,self.stylized_feats)
             style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test','tiles'))]
             style_paths = [i for i in style_paths if '_' in i]
             positions = [(int(re.split('_|\.',i)[0]),int(re.split('_|\.',i)[1])) for i in style_paths]
+            set_letter = [re.split('_|\.',i)[2] for i in style_paths]
             max_x = 0
             max_y = 0
             for a,b in positions:
@@ -1210,7 +1215,7 @@ class LapStyleRevSecondPatch(BaseModel):
             data_visits = np.zeros((max_x,max_y,3), dtype=np.uint32)
             weights = np.zeros((max_x,max_y,3))
             #tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
-            for a,b in zip(style_paths,positions):
+            for a,b,c in zip(style_paths,positions,set_letter):
                 with Image.open(os.path.join(self.output_dir, 'visual_test','tiles',a)) as file:
                     image = np.asarray(file)
                     print(image.shape)
@@ -1227,7 +1232,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     if b[1]+self.in_size_y==max_y:
                         edges['y_mod_2']=0
                     print('b = '+str(b)+' shape= '+str(image.shape))
-                    if (b[0] % self.in_size_x == 0 and b[1] % self.in_size_y==0):
+                    if c=='b':
                         tiles_2[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
                     else:
                         tiles_1[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
@@ -1280,7 +1285,7 @@ class LapStyleRevSecondPatch(BaseModel):
         move_y = adjust(size_y, in_size_y)
         for i in range(0,size_x,in_size_x):
             for j in range(0,size_y,in_size_y):
-                label = str(self.outer_loop[0]*4+i*2)+'_'+str(self.outer_loop[1]*4+j*2)
+                label = str(self.outer_loop[0]*4+i*2)+'_'+str(self.outer_loop[1]*4+j*2)+'_'+self.second_set
                 if label in self.labels:
                     notin=True
                     for k in range(0,size_x,move_x):
@@ -1312,7 +1317,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 stylized_up_3 = F.interpolate(stylized_rev_patch, scale_factor=2)
                 for k in range(0,size_x,in_size_x):
                     for l in range(0,size_y,in_size_y):
-                        label = str(self.outer_loop[0]*4+i*2+k)+'_'+str(self.outer_loop[1]*4+j*2+l)
+                        label = str(self.outer_loop[0]*4+i*2+k)+'_'+str(self.outer_loop[1]*4+j*2+l)+'_'+self.second_set
                         if label in self.labels:
                             continue
                         if k+in_size_x>stylized_up_3.shape[-2] or l+in_size_y>stylized_up_3.shape[-1]:

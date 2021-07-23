@@ -1211,7 +1211,7 @@ class LapStyleRevSecondPatch(BaseModel):
             print('max_x = '+str(max_x))
             print('max_y = ' + str(max_y))
             tiles_1 = np.zeros((max_x,max_y,3), dtype=np.uint8)
-            tiles_2 = np.zeros((max_x, max_y, 3), dtype=np.uint8)
+            weights = np.zeros((max_x, max_y), dtype=np.uint8)
             not_visited = np.empty((max_x,max_y))
             not_visited[:,:]=np.nan
             kernel = np.ones((self.in_size_x-128,self.in_size_y-128))
@@ -1223,12 +1223,15 @@ class LapStyleRevSecondPatch(BaseModel):
                     empty = np.isnan(not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]])
                     k = kernel.copy()
                     k = np.maximum(k,empty)
-                    tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]=image[:,:,0]*k + (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]*(1-k))
-                    tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 1] = image[:, :, 1] * k + (
-                                tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 1] * (1 - k))
-                    tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 2] = image[:, :, 2] * k + (
-                                tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 2] * (1 - k))
+                    w = weights[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]
+                    tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0] = image[:,:,0]*k*(1/(w+1)) +\
+                                (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]*(1-k)*(w/(w+1)))
+                    tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 1] = image[:, :, 1] * k *(1/(w+1))+ (
+                                tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 1] * (1 - k)*(w/(w+1)))
+                    tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 2] = image[:, :, 2] * k *(1/(w+1))+ (
+                                tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 2] * (1 - k)*(w/(w+1)))
                     not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]]=1
+                    weights[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 0] = weights[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]+1
             for a,b in zip([tiles_1],['tiled1']):
                 im = Image.fromarray(a,'RGB')
                 label = self.path[0]+' '+b

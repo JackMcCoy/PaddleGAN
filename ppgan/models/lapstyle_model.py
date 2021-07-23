@@ -497,13 +497,13 @@ class LapStyleDraThumbModel(BaseModel):
         self.style_weight = style_weight
 
     def setup_input(self, input):
-        self.ci = paddle.to_tensor(input['ci'])
+        self.ci = paddle.to_tensor(input['content_stack_1'])
         self.visual_items['ci'] = self.ci
-        self.si = paddle.to_tensor(input['si'])
-        self.cp = paddle.to_tensor(input['cp'])
-        self.sp = paddle.to_tensor(input['sp'])
+        self.si = paddle.to_tensor(input['style_stack_1'])
+        self.cp = paddle.to_tensor(input['content_stack_2'])
+        self.sp = paddle.to_tensor(input['style_stack_2'])
         self.visual_items['cp'] = self.cp
-        self.position = input['position']
+        self.position = input['position_stack'][0]
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""

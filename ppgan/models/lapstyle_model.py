@@ -1174,24 +1174,14 @@ class LapStyleRevSecondPatch(BaseModel):
             stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
             self.stylized_slice = F.interpolate(stylized_rev, scale_factor=2)
             print('stylized_slice.shape = '+str(self.stylized_slice.shape))
-            if small_side==self.stylized_up.shape[-1]:
-                size_x = self.stylized_slice.shape[-2]
-                self.in_size_x = math.floor(size_x / 2)
-                move_x = adjust(size_x, self.in_size_x)
-                ranges_x=list(range(0,size_x,move_x))
-                size_y = 512
-                self.in_size_y = 256
-                move_y = 256
-                ranges_y = list(range(0,size_y,move_y))
-            else:
-                size_y=512
-                self.in_size_y = 256
-                move_y = 256
-                ranges_y = list(range(0,size_y,move_y))
-                size_x = self.stylized_slice.shape[-1]
-                self.in_size_x = math.floor(size_x / 2)
-                move_x = adjust(size_x, self.in_size_x)
-                ranges_x=list(range(0,size_x,move_x))
+            size_x = self.stylized_slice.shape[-2]
+            self.in_size_x = math.floor(size_x / 2)
+            move_x = adjust(size_x, self.in_size_x)
+            ranges_x=list(range(0,size_x-self.in_size_x+1,move_x))
+            size_y = self.stylized_slice.shape[-1]
+            self.in_size_y = math.floor(size_y / 2)
+            move_y = adjust(size_y, self.in_size_y)
+            ranges_y = list(range(0,size_y-self.in_size_y+1,move_y))
             curr_last_x=ranges_x[-1]
             curr_last_y=ranges_y[-1]
             ranges_x = ranges_x + [i+math.floor(self.in_size_x/16) for i in ranges_x[:-1]]
@@ -1349,8 +1339,8 @@ class LapStyleRevSecondPatch(BaseModel):
         size_y = stylized_up.shape[-1]
         in_size_y = math.floor(size_y / 2)
         move_y = adjust(size_y, in_size_y)
-        for i in range(0,size_x,move_x):
-            for j in range(0,size_y,move_y):
+        for i in range(0,size_x-in_size_x+1,move_x):
+            for j in range(0,size_y-in_size_y+1,move_y):
                 label = str(self.outer_loop[0]*4+i*2)+'_'+str(self.outer_loop[1]*4+j*2)
                 if label in self.labels:
                     notin=True
@@ -1381,8 +1371,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     [stylized_rev_patch, stylized_up_2.detach()])
 
                 stylized_up_3 = F.interpolate(stylized_rev_patch, scale_factor=2)
-                for k in range(0,size_x,move_x):
-                    for l in range(0,size_y,move_y):
+                for k in range(0,size_x-in_size_x+1,move_x):
+                    for l in range(0,size_y-in_size_y+1,move_y):
                         label = str(self.outer_loop[0]*4+i*2+k)+'_'+str(self.outer_loop[1]*4+j*2+l)
                         if label in self.labels:
                             print('label in labels')

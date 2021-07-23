@@ -1267,7 +1267,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     for key,value in edges.items():
                         if value>0:
                             block_edges=get_perpendicular_edges(key)# keys for the beginning and end block subtractions - edges
-                            blocks = block_sequence(value,edges[block_edges[0],block_edges[2]]) # returns [0/1,0/1,0/1] for whether a block is needed or not
+                            blocks = block_sequence(value,edges[block_edges[0]],edges[block_edges[2]]) # returns [0/1,0/1,0/1] for whether a block is needed or not
                             direction, gradient = get_direction(block_edges)
                             mask_width = image.shape[0]
                             mask_height = image.shape[1]

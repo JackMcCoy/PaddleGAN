@@ -1174,11 +1174,11 @@ class LapStyleRevSecondPatch(BaseModel):
             size_x = self.stylized_slice.shape[-2]
             self.in_size_x = math.floor(size_x / 2)
             move_x = adjust(size_x, self.in_size_x)
-            ranges_x=list(range(0,size_x-self.in_size_x+1,move_x))
+            ranges_x=list(range(0,size_x-self.in_size_x+1,self.in_size_x))
             size_y = self.stylized_slice.shape[-1]
             self.in_size_y = math.floor(size_y / 2)
             move_y = adjust(size_y, self.in_size_y)
-            ranges_y = list(range(0,size_y-self.in_size_y+1,move_y))
+            ranges_y = list(range(0,size_y-self.in_size_y+1,self.in_size_y))
             orig_len_y = len(ranges_y)
             orig_len_x = len(ranges_x)
             curr_last_x=ranges_x[-1]
@@ -1212,32 +1212,21 @@ class LapStyleRevSecondPatch(BaseModel):
             print('max_y = ' + str(max_y))
             tiles_1 = np.zeros((max_x,max_y,3), dtype=np.uint8)
             tiles_2 = np.zeros((max_x, max_y, 3), dtype=np.uint8)
-            edges = np.zeros((max_x, max_y, 3), dtype=np.uint8)
-            data_visits = np.zeros((max_x,max_y,3), dtype=np.uint32)
-            weights = np.zeros((max_x,max_y,3))
+            not_visited = np.empty((max_x,max_y,3))
+            kernel = np.ones((self.in_size_x-16,self.in_size_y-16))
+            kernel = np.pad(kernel,(8,8),'linear_ramp', end_values=(0, 0))
             #tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
             for a,b,c in zip(style_paths,positions,set_letter):
                 with Image.open(os.path.join(self.output_dir, 'visual_test','tiles',a)) as file:
                     image = np.asarray(file)
-                    print(image.shape)
-                    edges={'x_mod_1':16,
-                    'x_mod_2':16,
-                    'y_mod_1':16,
-                    'y_mod_2':16}
-                    if b[0]==0:
-                        edges['x_mod_1']=0
-                    if b[1]==0:
-                        edges['y_mod_1']=0
-                    if b[0]+self.in_size_x==max_x:
-                        edges['x_mod_2']=0
-                    if b[1]+self.in_size_y==max_y:
-                        edges['y_mod_2']=0
-                    print('b = '+str(b)+' shape= '+str(image.shape))
-                    if int(c)%2==0:
-                        tiles_2[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
-                    else:
-                        tiles_1[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
-            for a,b in zip([tiles_1,tiles_2],['tiled1','tiled2']):
+                    image = image.astype(np.float32)/255.
+                    empty = np.isnan(not_visited[b[0]:b[0]+image.shape[0],b[1]+b[1]+image.shape[1],:])
+                    k = kernel.copy()
+                    k = np.maximum(empty,k)
+                    tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],:]=image*k + (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],:]*(1-k))
+                    not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],:]=1
+            tiles_1=tiles_1*255
+            for a,b in zip([tiles_1],['tiled1']):
                 im = Image.fromarray(a,'RGB')
                 label = self.path[0]+' '+b
                 makedirs(os.path.join(self.output_dir, 'visual_test'))
@@ -1284,8 +1273,8 @@ class LapStyleRevSecondPatch(BaseModel):
         size_y = stylized_up.shape[-1]
         in_size_y = math.floor(size_y / 2)
         move_y = adjust(size_y, in_size_y)
-        for i in range(0,size_x-in_size_x+1,move_x):
-            for j in range(0,size_y-in_size_x+1,move_y):
+        for i in range(0,size_x-in_size_x+1,self.in_size_x):
+            for j in range(0,size_y-in_size_x+1,self.in_size_y):
                 label = str(self.outer_loop[0]*4+i*2)+'_'+str(self.outer_loop[1]*4+j*2)+'_'+self.second_set
                 if label in self.labels:
                     notin=True
@@ -1316,8 +1305,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     [stylized_rev_patch, stylized_up_2.detach()])
 
                 stylized_up_3 = F.interpolate(stylized_rev_patch, scale_factor=2)
-                for k in range(0,size_x-in_size_x+1,move_x):
-                    for l in range(0,size_y-in_size_y+1,move_y):
+                for k in range(0,size_x-in_size_x+1,self.in_size_x):
+                    for l in range(0,size_y-in_size_y+1,self.in_size_y):
                         label = str(self.outer_loop[0]*4+i*2+k)+'_'+str(self.outer_loop[1]*4+j*2+l)+'_'+str(self.counter)
                         if label in self.labels:
                             continue

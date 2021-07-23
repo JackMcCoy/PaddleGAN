@@ -507,9 +507,9 @@ class LapStyleDraThumbModel(BaseModel):
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
-        self.cF = self.nets['net_enc'](self.ci)
-        self.sF = self.nets['net_enc'](self.si)
-        self.cpF = self.nets['net_enc'](self.cp)
+        self.cF = self.nets['net_enc'](self.ci).detach()
+        self.sF = self.nets['net_enc'](self.si).detach()
+        self.cpF = self.nets['net_enc'](self.cp).detach()
         self.stylized_thumb,self.stylized_thumb_feat = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'thumb')
         self.stylized_patch,self.stylized_patch_feat = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'patch')
         self.visual_items['stylized_thumb'] = self.stylized_thumb

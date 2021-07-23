@@ -1177,7 +1177,7 @@ class LapStyleRevSecondPatch(BaseModel):
             if small_side==self.stylized_up.shape[-1]:
                 size_x = self.stylized_slice.shape[-2]
                 self.in_size_x = math.floor(size_x / 2)
-                move_y = adjust(size_x, self.in_size_y)
+                move_x = adjust(size_x, self.in_size_x)
                 ranges_x=list(range(0,size_x,move_x))
                 size_y = 512
                 self.in_size_y = 256

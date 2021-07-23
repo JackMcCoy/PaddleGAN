@@ -611,7 +611,6 @@ class LapStyleDraThumbModel(BaseModel):
         self.forward()
         optimizers['optimG'].clear_grad()
         self.backward_Dec(optimizers['optimG'])
-        self.optimizers['optimG'].step()
 
 @MODELS.register()
 class LapStyleRevFirstThumb(BaseModel):

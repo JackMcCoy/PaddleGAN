@@ -521,7 +521,7 @@ class LapStyleDraThumbModel(BaseModel):
             g_t_thumb_up = F.interpolate(self.stylized_thumb.detach(), scale_factor=2, mode='bilinear', align_corners=False)
             g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.position[0].astype('int32'),self.position[1].astype('int32')],\
                              ends=[self.position[2].astype('int32'),self.position[3].astype('int32')])
-            self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
+            self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop.detach())
             style_crop = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0].astype('int32'),self.position[1].astype('int32')],\
                              ends=[self.position[2].astype('int32'),self.position[3].astype('int32')])
             self.spCrop = self.nets['net_enc'](style_crop)

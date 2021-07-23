@@ -1213,7 +1213,7 @@ class LapStyleRevSecondPatch(BaseModel):
             tiles_1 = np.zeros((max_x,max_y,3), dtype=np.uint8)
             tiles_2 = np.zeros((max_x, max_y, 3), dtype=np.uint8)
             not_visited = np.empty((max_x,max_y,3))
-            kernel = np.ones((self.in_size_x-16,self.in_size_y-16))
+            kernel = np.ones((self.in_size_x-16,self.in_size_y-16,3))
             kernel = np.pad(kernel,(8,8),'linear_ramp', end_values=(0, 0))
             #tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
             for a,b,c in zip(style_paths,positions,set_letter):

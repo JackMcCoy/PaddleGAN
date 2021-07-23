@@ -1203,8 +1203,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     max_x=a
                 if b>max_y:
                     max_y=b
-            max_x = max_x+self.in_size_x
-            max_y = max_y+self.in_size_y
+            max_x = max_x+self.size_x
+            max_y = max_y+self.size_y
             print('max_x = '+str(max_x))
             print('max_y = ' + str(max_y))
             tiles_1 = np.zeros((max_x,max_y,3), dtype=np.uint8)
@@ -1375,10 +1375,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     for l in range(0,size_y-in_size_y+1,move_y):
                         label = str(self.outer_loop[0]*4+i*2+k)+'_'+str(self.outer_loop[1]*4+j*2+l)
                         if label in self.labels:
-                            print('label in labels')
                             continue
-                        else:
-                            self.labels.append(label)
                         if k+in_size_x>stylized_up_3.shape[-2] or l+in_size_y>stylized_up_3.shape[-1]:
                             print('continue, line 1331')
                             continue
@@ -1401,6 +1398,7 @@ class LapStyleRevSecondPatch(BaseModel):
                         img_path = os.path.join(self.output_dir, 'visual_test','tiles',
                                                 '%s.png' % (label))
                         save_image(image_numpy, img_path)
+                        self.labels.append(label)
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         if self.is_train:

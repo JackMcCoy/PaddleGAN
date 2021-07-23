@@ -1228,7 +1228,7 @@ class LapStyleRevSecondPatch(BaseModel):
                                 tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 1] * (1 - k))
                     tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 2] = image[:, :, 2] * k + (
                                 tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 2] * (1 - k))
-                    not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],:]=1
+                    not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]]=1
             tiles_1=tiles_1*255
             for a,b in zip([tiles_1],['tiled1']):
                 im = Image.fromarray(a,'RGB')

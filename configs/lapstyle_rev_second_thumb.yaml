@@ -47,7 +47,7 @@ dataset:
     batch_size: 2
   test:
     name: LapStyleThumbsetInference
-    content_root: /content/gdrive/My Drive/img_style/inference_test/
+    content_root: /content/gdrive/My Drive/img_style/large_pics/
     style_root: /content/PaddleGAN/starrypatched2048.png
     load_size: 2048
     crop_size: 256

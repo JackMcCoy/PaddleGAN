@@ -1239,6 +1239,10 @@ class LapStyleRevSecondPatch(BaseModel):
                 img_path = os.path.join(self.output_dir, 'visual_test',
                                         '%s.png' % (label))
                 im.save(img_path)
+            try:
+                os.rmdir(os.path.join(self.output_dir, 'visual_test','tiles'))
+            except OSError as e:
+                print("Error: %s : %s" % (dir_path, e.strerror))
             self.paths=[]
         self.train()
 

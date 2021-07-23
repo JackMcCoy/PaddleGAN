@@ -539,7 +539,6 @@ class LapStyleThumbsetInference(Dataset):
             img = img[:, :, :3]
         # HWC to CHW
         img = np.transpose(img, (2, 0, 1)).astype('float32')
-        img = np.transpose(img, (0, 2, 1)).astype('float32')
         return img
 
     def __len__(self):

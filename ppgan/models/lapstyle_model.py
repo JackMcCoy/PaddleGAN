@@ -1214,8 +1214,8 @@ class LapStyleRevSecondPatch(BaseModel):
             tiles_2 = np.zeros((max_x, max_y, 3), dtype=np.uint8)
             not_visited = np.empty((max_x,max_y))
             not_visited[:,:]=np.nan
-            kernel = np.ones((self.in_size_x-32,self.in_size_y-32))
-            kernel = np.pad(kernel,(16,16),'linear_ramp', end_values=(0, 0))
+            kernel = np.ones((self.in_size_x-64,self.in_size_y-64))
+            kernel = np.pad(kernel,(32,32),'linear_ramp', end_values=(0, 0))
             #tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
             for a,b,c in zip(style_paths,positions,set_letter):
                 with Image.open(os.path.join(self.output_dir, 'visual_test','tiles',a)) as file:
@@ -1223,7 +1223,6 @@ class LapStyleRevSecondPatch(BaseModel):
                     empty = np.isnan(not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]])
                     k = kernel.copy()
                     k = np.maximum(k,empty)
-                    print(k)
                     tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]=image[:,:,0]*k + (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]*(1-k))
                     tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 1] = image[:, :, 1] * k + (
                                 tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 1] * (1 - k))

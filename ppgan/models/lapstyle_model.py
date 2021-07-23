@@ -595,7 +595,7 @@ class LapStyleDraThumbModel(BaseModel):
                 self.tpF['r41'], self.spCrop['r41'])
         self.loss_content_relt_patch = self.calc_content_relt_loss(
             self.tpF['r31'], self.cpF['r31']) + self.calc_content_relt_loss(
-                self.ttF['r41'], self.cpF['r41'])
+                self.tpF['r41'], self.cpF['r41'])
         self.losses['loss_style_remd_patch'] = self.loss_style_remd_patch
         self.losses['loss_content_relt_patch'] = self.loss_content_relt_patch
 

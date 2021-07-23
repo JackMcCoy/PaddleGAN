@@ -19,6 +19,7 @@ from PIL import Image
 import numpy as np
 from .base_model import BaseModel
 
+import shutil
 from .builder import MODELS
 from .generators.builder import build_generator
 from .criterions import build_criterion
@@ -1239,10 +1240,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 img_path = os.path.join(self.output_dir, 'visual_test',
                                         '%s.png' % (label))
                 im.save(img_path)
-            try:
-                os.rmdir(os.path.join(self.output_dir, 'visual_test','tiles'))
-            except OSError as e:
-                print("Error: %s : %s" % (dir_path, e.strerror))
+            shutil.rmtree(os.path.join(self.output_dir, 'visual_test','tiles'))
             self.paths=[]
         self.train()
 

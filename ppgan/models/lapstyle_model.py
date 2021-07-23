@@ -525,8 +525,8 @@ class LapStyleDraThumbModel(BaseModel):
         self.ttF = self.nets['net_enc'](self.stylized_thumb)
         self.tpF = self.nets['net_enc'](self.stylized_patch)
 
-        print('tpF shape= '+str(self.tpF.shape))
-        print('spCrop shape= '+str(self.spCrop.shape))
+        print('self.stylized_patch shape= '+str(self.stylized_patch.shape))
+        print('g_t_thumb shape= '+str(g_t_thumb_crop.shape))
         """content loss"""
         self.loss_content=0
         for layer in self.content_layers:

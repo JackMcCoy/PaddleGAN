@@ -1198,7 +1198,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward(self.stylized_slice,self.stylized_feats)
             positions = [(int(re.split('_|\.',i)[0]),int(re.split('_|\.',i)[1])) for i in self.labels]
-            set_letter = [re.split('_|\.',i)[2] for i in style_paths]
+            set_letter = [re.split('_|\.',i)[2] for i in self.labels]
             max_x = 0
             max_y = 0
             for a,b in positions:

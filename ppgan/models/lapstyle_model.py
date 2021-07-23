@@ -521,9 +521,8 @@ class LapStyleDraThumbModel(BaseModel):
             g_t_thumb_up = F.interpolate(self.visual_items['stylized_thumb'], scale_factor=2, mode='bilinear', align_corners=False)
             g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
             self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
-            #style_patch = F.interpolate(self.visual_items['si'], scale_factor=2, mode='bilinear', align_corners=False)
-            #style_patch_crop = paddle.slice(style_patch,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-            #self.spCrop = self.nets['net_enc'](self.sp)
+            style_patch = F.interpolate(self.visual_items['si'], scale_factor=2, mode='bilinear', align_corners=False)
+            self.spCrop = self.nets['net_enc'](self.sp)
         self.ttF = self.nets['net_enc'](self.stylized_thumb)
         self.tpF = self.nets['net_enc'](self.stylized_patch)
 
@@ -557,6 +556,27 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['loss_style_remd'] = self.loss_style_remd
         self.losses['loss_content_relt'] = self.loss_content_relt
 
+        self.loss_content_patch=0
+        for layer in self.content_layers:
+            self.loss_content_patch += self.calc_content_loss(self.tpF[layer],
+                                                      self.cpF[layer],
+                                                      norm=True)
+        self.losses['loss_content_patch'] = self.loss_content_patch
+
+        self.loss_s_patch = 0
+        for layer in self.style_layers:
+            self.loss_s_patch += self.calc_style_loss(self.tpF[layer], self.spCrop[layer])
+        self.losses['loss_s_patch'] = self.loss_s_patch
+
+        self.loss_style_remd_patch = self.calc_style_emd_loss(
+            self.tpF['r31'], self.spCrop['r31']) + self.calc_style_emd_loss(
+                self.tpF['r41'], self.spCrop['r41'])
+        self.loss_content_relt_patch = self.calc_content_relt_loss(
+            self.tpF['r31'], self.cpF['r31']) + self.calc_content_relt_loss(
+                self.ttF['r41'], self.cpF['r41'])
+        self.losses['loss_style_remd_patch'] = self.loss_style_remd_patch
+        self.losses['loss_content_relt_patch'] = self.loss_content_relt_patch
+
         """patch loss"""
         self.loss_patch = 0
         #self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
@@ -573,7 +593,10 @@ class LapStyleDraThumbModel(BaseModel):
                     self.l_identity1 * 50 + self.l_identity2 * 1 +\
                     self.loss_content * self.content_weight+\
                     self.loss_style_remd * 18 +\
-                    self.loss_content_relt * 24 +self.loss_patch * 18 * self.content_weight
+                    self.loss_content_relt * 24 +self.loss_patch * 18 * self.content_weight +\
+                    self.loss_s_patch * self.style_weight +\
+                    self.loss_content_patch * self.content_weight +\
+                    self.loss_style_remd_patch * 18 + self.loss_content_relt *24
         self.loss.backward()
 
         return self.loss

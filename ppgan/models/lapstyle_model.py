@@ -1264,7 +1264,6 @@ class LapStyleRevSecondPatch(BaseModel):
                         edges['y_mod_2']=0
                     print('b = '+str(b)+' shape= '+str(image.shape))
                     tiles_1[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
-                    '''
                     for key,value in edges.items():
                         if value>0:
                             block_edges=get_perpendicular_edges(key)# keys for the beginning and end block subtractions - edges
@@ -1288,13 +1287,18 @@ class LapStyleRevSecondPatch(BaseModel):
                             else:
                                 weights[b[0]+image.shape[-2]-mask_width:b[0] + image.shape[-2], b[1]+image.shape[-1]-mask_height:b[1] + image.shape[-1]] = mask
                                 edges[b[0]+image.shape[-2]-mask_width:b[0] + image.shape[-2], b[1]+image.shape[-1]-mask_height:b[1] + image.shape[-1]] = image[image.shape[-2]-mask_width:,image]
-                        '''
             for a,b in zip([tiles_1],['tiled']):
                 im = Image.fromarray(a,'RGB')
                 label = self.path[0]+' '+b
                 makedirs(os.path.join(self.output_dir, 'visual_test'))
                 img_path = os.path.join(self.output_dir, 'visual_test',
                                         '%s.png' % (label))
+                im.save(img_path)
+                im = Image.fromarray(edges, 'RGB')
+                label = self.path[0] + ' ' + b
+                makedirs(os.path.join(self.output_dir, 'visual_test'))
+                img_path = os.path.join(self.output_dir, 'visual_test',
+                                        '%s edges.png' % (label))
                 im.save(img_path)
             self.paths=[]
         self.train()

@@ -1194,7 +1194,6 @@ class LapStyleRevSecondPatch(BaseModel):
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward(self.stylized_slice,self.stylized_feats)
-                self.counter+=1
             style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test','tiles'))]
             style_paths = [i for i in style_paths if '_' in i]
             positions = [(int(re.split('_|\.',i)[0]),int(re.split('_|\.',i)[1])) for i in style_paths]

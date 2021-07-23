@@ -1165,9 +1165,6 @@ class LapStyleRevSecondPatch(BaseModel):
 
             stylized_small= self.nets['net_dec'](cF, sF)
             self.stylized_up = F.interpolate(stylized_small, scale_factor=2)
-            small_side=min(self.stylized_up.shape[-1],self.stylized_up.shape[-2])
-
-
             revnet_input = paddle.concat(x=[self.laplacians[0], self.stylized_up], axis=1)
             # rev_net thumb only calcs as patch if second parameter is passed
             stylized_rev_lap, self.stylized_feats = self.nets['net_rev'](revnet_input)
@@ -1203,8 +1200,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     max_x=a
                 if b>max_y:
                     max_y=b
-            max_x = max_x+self.in_size_y
-            max_y = max_y+self.in_size_x
+            max_x = max_x+self.in_size_x
+            max_y = max_y+self.in_size_y
             print('max_x = '+str(max_x))
             print('max_y = ' + str(max_y))
             tiles_1 = np.zeros((max_x,max_y,3), dtype=np.uint8)

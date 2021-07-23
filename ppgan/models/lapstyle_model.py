@@ -1154,6 +1154,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.eval()
         self.output_dir=output_dir
         self.laplacians=[laplacian(self.content_stack[0])]
+        self.out_images=[]
         print('content_size='+str(self.content.shape))
         for i in [.25,.5,1]:
             if i==1:
@@ -1196,9 +1197,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward(self.stylized_slice,self.stylized_feats)
-            style_paths = [i for i in os.listdir(os.path.join(self.output_dir, 'visual_test','tiles'))]
-            style_paths = [i for i in style_paths if '_' in i]
-            positions = [(int(re.split('_|\.',i)[0]),int(re.split('_|\.',i)[1])) for i in style_paths]
+            positions = [(int(re.split('_|\.',i)[0]),int(re.split('_|\.',i)[1])) for i in self.labels]
             set_letter = [re.split('_|\.',i)[2] for i in style_paths]
             max_x = 0
             max_y = 0
@@ -1218,21 +1217,19 @@ class LapStyleRevSecondPatch(BaseModel):
             kernel = np.ones((self.in_size_x-64,self.in_size_y-64))
             kernel = np.pad(kernel,(32,32),'linear_ramp', end_values=(0, 0))
             #tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
-            for a,b,c in zip(style_paths,positions,set_letter):
-                with Image.open(os.path.join(self.output_dir, 'visual_test','tiles',a)) as file:
-                    image = np.asarray(file)
-                    empty = np.isnan(not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]])
-                    k = kernel.copy()
-                    k = np.maximum(k,empty)
-                    w = weights[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]]+k
-                    tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0] = (image[:,:,0]*k +\
-                                                                                   (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]*(w-k)))/w
-                    tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 1] = (image[:,:,1]*k +\
-                                                                                   (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],1]*(w-k)))/w
-                    tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 2] = (image[:,:,2]*k +\
-                                                                                   (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],2]*(w-k)))/w
-                    not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]]=1
-                    weights[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1]] = weights[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1]]+w
+            for image,b,c in zip(self.out_images,positions,set_letter):
+                empty = np.isnan(not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]])
+                k = kernel.copy()
+                k = np.maximum(k,empty)
+                w = weights[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]]+k
+                tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0] = (image[:,:,0]*k +\
+                                                                               (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]*(w-k)))/w
+                tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 1] = (image[:,:,1]*k +\
+                                                                               (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],1]*(w-k)))/w
+                tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 2] = (image[:,:,2]*k +\
+                                                                               (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],2]*(w-k)))/w
+                not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]]=1
+                weights[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1]] = weights[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1]]+w
             for a,b in zip([tiles_1],['tiled1']):
                 im = Image.fromarray(a,'RGB')
                 label = self.path[0]+' '+b
@@ -1339,7 +1336,7 @@ class LapStyleRevSecondPatch(BaseModel):
                         makedirs(os.path.join(self.output_dir, 'visual_test','tiles'))
                         img_path = os.path.join(self.output_dir, 'visual_test','tiles',
                                                 '%s.png' % (label))
-                        save_image(image_numpy, img_path)
+                        self.out_images.append(image_numpy)
                         self.labels.append(label)
                         self.counter+=1
     def forward(self):

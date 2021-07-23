@@ -1212,8 +1212,8 @@ class LapStyleRevSecondPatch(BaseModel):
             print('max_y = ' + str(max_y))
             tiles_1 = np.zeros((max_x,max_y,3), dtype=np.uint8)
             tiles_2 = np.zeros((max_x, max_y, 3), dtype=np.uint8)
-            not_visited = np.empty((max_x,max_y,3))
-            kernel = np.ones((self.in_size_x-16,self.in_size_y-16,3))
+            not_visited = np.empty((max_x,max_y))
+            kernel = np.ones((self.in_size_x-16,self.in_size_y-16))
             kernel = np.pad(kernel,(8,8),'linear_ramp', end_values=(0, 0))
             #tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
             for a,b,c in zip(style_paths,positions,set_letter):
@@ -1222,8 +1222,12 @@ class LapStyleRevSecondPatch(BaseModel):
                     image = image.astype(np.float32)/255.
                     empty = np.isnan(not_visited[b[0]:b[0]+image.shape[0],b[1]+b[1]+image.shape[1],:])
                     k = kernel.copy()
-                    k[empty] = 1
-                    tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],:]=image*k + (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],:]*(1-k))
+                    k = np.maximum(k,empty)
+                    tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]=image[:,:,0]*k + (tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],0]*(1-k))
+                    tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 1] = image[:, :, 1] * k + (
+                                tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 1] * (1 - k))
+                    tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 2] = image[:, :, 2] * k + (
+                                tiles_1[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1], 2] * (1 - k))
                     not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],:]=1
             tiles_1=tiles_1*255
             for a,b in zip([tiles_1],['tiled1']):

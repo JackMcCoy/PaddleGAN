@@ -516,7 +516,7 @@ class LapStyleDraThumbModel(BaseModel):
         self.visual_items['stylized_patch'] = self.stylized_patch
         self.visual_items['style']=self.si
 
-    def backward_Dec(self):
+    def backward_Dec(self,optimizer):
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.stylized_thumb.detach(), scale_factor=2, mode='bilinear', align_corners=False)
             g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.position[0].astype('int32'),self.position[1].astype('int32')],\
@@ -579,13 +579,13 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['loss_style_remd_patch'] = self.loss_style_remd_patch
         self.losses['loss_content_relt_patch'] = self.loss_content_relt_patch
 
-        self.patch_loss = self.loss_s * self.style_weight +\
+        self.loss = self.loss_s * self.style_weight +\
                     self.l_identity1 * 50 + self.l_identity2 * 1 +\
                     self.loss_content * self.content_weight+\
                     self.loss_style_remd * 18 +\
                     self.loss_content_relt * 24
-        self.patch_loss.backward()
-
+        self.loss.backward()
+        optimizer.step()
         """patch loss"""
         self.loss_patch = 0
         #self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
@@ -603,14 +603,14 @@ class LapStyleDraThumbModel(BaseModel):
                     self.loss_content_patch * self.content_weight +\
                     self.loss_style_remd_patch * 18 + self.loss_content_relt *24
         self.loss.backward()
-
+        optimier.step()
         return self.loss
 
     def train_iter(self, optimizers=None):
         """Calculate losses, gradients, and update network weights"""
         self.forward()
         optimizers['optimG'].clear_grad()
-        self.backward_Dec()
+        self.backward_Dec(optimizers['optimG'])
         self.optimizers['optimG'].step()
 
 @MODELS.register()

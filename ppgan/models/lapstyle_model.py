@@ -504,7 +504,6 @@ class LapStyleDraThumbModel(BaseModel):
         self.sp = paddle.to_tensor(input['style_stack_2'])
         self.visual_items['cp'] = self.cp
         self.position = input['position_stack'][0]
-        print('self.position= '+str(self.position))
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
@@ -523,7 +522,9 @@ class LapStyleDraThumbModel(BaseModel):
             g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.position[0].astype('int32'),self.position[1].astype('int32')],\
                              ends=[self.position[2].astype('int32'),self.position[3].astype('int32')])
             self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
-            self.spCrop = self.nets['net_enc'](self.sp)
+            style_crop = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0].astype('int32'),self.position[1].astype('int32')],\
+                             ends=[self.position[2].astype('int32'),self.position[3].astype('int32')])
+            self.spCrop = self.nets['net_enc'](style_crop)
         self.ttF = self.nets['net_enc'](self.stylized_thumb)
         self.tpF = self.nets['net_enc'](self.stylized_patch)
 

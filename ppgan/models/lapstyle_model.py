@@ -1266,7 +1266,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     if b[1]+self.in_size_y==max_y:
                         edges['y_mod_2']=0
                     print('b = '+str(b)+' shape= '+str(image.shape))
-                    tiles_1[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
+                    tiles_1[b[0]+edges['x_mod_1']:b[0]+image.shape[1]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[0]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[1]-edges['x_mod_2'],edges['y_mod_1']:image.shape[0]-edges['y_mod_2'],:]
                     '''
                     for key,value in edges.items():
                         if value>0:

@@ -1181,10 +1181,10 @@ class LapStyleRevSecondPatch(BaseModel):
             ranges_y = list(range(0,size_y-self.in_size_y+1,move_y))
             curr_last_x=ranges_x[-1]
             curr_last_y=ranges_y[-1]
-            ranges_x = ranges_x + [i+math.floor(self.in_size_x/16) for i in ranges_x[:-1]]
-            ranges_y = ranges_y + [i+math.floor(self.in_size_y/16) for i in ranges_y[:-1]]
-            ranges_x.append(curr_last_x-math.floor(self.in_size_x/16))
-            ranges_y.append(curr_last_y-math.floor(self.in_size_y/16))
+            ranges_x = ranges_x + [i+math.floor(self.in_size_x/3) for i in ranges_x[:-1]]
+            ranges_y = ranges_y + [i+math.floor(self.in_size_y/3) for i in ranges_y[:-1]]
+            ranges_x.append(curr_last_x-math.floor(self.in_size_x/3))
+            ranges_y.append(curr_last_y-math.floor(self.in_size_y/3))
             for i in ranges_x:
                 for j in ranges_y:
                     self.outer_loop=(i,j)

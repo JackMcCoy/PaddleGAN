@@ -1175,23 +1175,23 @@ class LapStyleRevSecondPatch(BaseModel):
             self.stylized_slice = F.interpolate(stylized_rev, scale_factor=2)
             print('stylized_slice.shape = '+str(self.stylized_slice.shape))
             if small_side==self.stylized_up.shape[-1]:
-                size_x = self.stylized_slice.shape[-2]
-                self.in_size_x = math.floor(size_x / 2)
-                move_x = adjust(size_x, self.in_size_x)
-                ranges_x=list(range(0,size_x,move_x))
-                size_y = 512
-                self.in_size_y = 256
-                move_y = 256
-                ranges_y = list(range(0,size_y,move_y))
-            else:
-                size_x=512
-                self.in_size_x = 256
-                move_x = 256
-                ranges_x = list(range(0,size_x,move_x))
-                size_y = self.stylized_slice.shape[-1]
+                size_y = self.stylized_slice.shape[-2]
                 self.in_size_y = math.floor(size_y / 2)
                 move_y = adjust(size_y, self.in_size_y)
                 ranges_y=list(range(0,size_y,move_y))
+                size_x = 512
+                self.in_size_x = 256
+                move_x = 256
+                ranges_x = list(range(0,size_x,move_x))
+            else:
+                size_y=512
+                self.in_size_y = 256
+                move_y = 256
+                ranges_y = list(range(0,size_y,move_y))
+                size_x = self.stylized_slice.shape[-1]
+                self.in_size_x = math.floor(size_y / 2)
+                move_x = adjust(size_x, self.in_size_x)
+                ranges_x=list(range(0,size_x,move_x))
             curr_last_x=ranges_x[-1]
             curr_last_y=ranges_y[-1]
             ranges_x = ranges_x + [i+math.floor(self.in_size_x/16) for i in ranges_x[:-1]]
@@ -1225,7 +1225,7 @@ class LapStyleRevSecondPatch(BaseModel):
             for a,b in zip(style_paths,positions):
                 with Image.open(os.path.join(self.output_dir, 'visual_test','tiles',a)) as file:
                     image = np.asarray(file)
-                    image = np.transpose(image,[1,0,2])
+                    #image = np.transpose(image,[1,0,2])
                     '''
                     if b[0]%size_x==0 and b[1]%size_y==0:
                         tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],:]=image
@@ -1335,18 +1335,18 @@ class LapStyleRevSecondPatch(BaseModel):
             self.style_stack = [input['si']]
             self.path=input['ci_path']
     def test_forward(self,stylized_slice,stylized_feats):
-        stylized_up = paddle.slice(stylized_slice,axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
-                             ends=[self.positions[0][2],self.positions[0][3]])
-        lap = paddle.slice(self.laplacians[1],axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
-                             ends=[self.positions[0][2],self.positions[0][3]])
+        stylized_up = paddle.slice(stylized_slice,axes=[2,3],starts=[self.positions[0][1],self.positions[0][0]],\
+                             ends=[self.positions[0][3],self.positions[0][2]])
+        lap = paddle.slice(self.laplacians[1],axes=[2,3],starts=[self.positions[0][1],self.positions[0][0]],\
+                             ends=[self.positions[0][3],self.positions[0][2]])
         revnet_input = paddle.concat(x=[lap, stylized_up], axis=1)
         stylized_rev_lap_second,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats)
         stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up])
         stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
-        size_x = stylized_up.shape[-2]
+        size_x = stylized_up.shape[-1]
         in_size_x = math.floor(size_x / 2)
         move_x = adjust(size_x, in_size_x)
-        size_y = stylized_up.shape[-1]
+        size_y = stylized_up.shape[-2]
         in_size_y = math.floor(size_y / 2)
         move_y = adjust(size_y, in_size_y)
         for i in range(0,size_x,move_x):
@@ -1361,18 +1361,18 @@ class LapStyleRevSecondPatch(BaseModel):
                                 notin=False
                     if notin:
                         continue
-                stylized_up_2 = paddle.slice(stylized_up,axes=[2,3],starts=[i,j],\
-                             ends=[i+in_size_x,j+in_size_y])
+                stylized_up_2 = paddle.slice(stylized_up,axes=[2,3],starts=[j,i],\
+                             ends=[j+in_size_y,i+in_size_x])
                 self.first_patch_in = stylized_up_2.detach()
 
                 stylized_feats_2 = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
                 stylized_feats_2 = self.nets['net_rev_2'].resblock(stylized_feats_2)
-                lap_2 = paddle.slice(self.laplacians[2],axes=[2,3],starts=[self.outer_loop[0]*2+i,self.outer_loop[1]*2+j],
-                                   ends=[self.outer_loop[0]*2+i+in_size_x,self.outer_loop[1]*2+j+in_size_y])
-                if lap_2.shape[-2]!=in_size_x or lap_2.shape[-1]!=in_size_y:
+                lap_2 = paddle.slice(self.laplacians[2],axes=[2,3],starts=[self.outer_loop[1]*2+j,self.outer_loop[0]*2+i],
+                                   ends=[self.outer_loop[1]*2+j+in_size_y,self.outer_loop[0]*2+i+in_size_x])
+                if lap_2.shape[-2]!=in_size_y or lap_2.shape[-1]!=in_size_x:
                     print('continue, line 1311')
                     continue
-                if stylized_up_2.shape[-2]!=in_size_x or stylized_up_2.shape[-1]!=in_size_y:
+                if stylized_up_2.shape[-2]!=in_size_y or stylized_up_2.shape[-1]!=in_size_x:
                     print('continue, line 1314')
                     continue
                 revnet_input_2 = paddle.concat(x=[lap_2, stylized_up_2.detach()], axis=1)
@@ -1389,17 +1389,17 @@ class LapStyleRevSecondPatch(BaseModel):
                             continue
                         else:
                             self.labels.append(label)
-                        if k+in_size_x>stylized_up_3.shape[-2] or l+in_size_y>stylized_up_3.shape[-1]:
+                        if l+in_size_x>stylized_up_3.shape[-1] or k+in_size_x>stylized_up_3.shape[-2]:
                             print('continue, line 1331')
                             continue
-                        stylized_up_4 = paddle.slice(stylized_up_3,axes=[2,3],starts=[k,l],\
-                             ends=[k+in_size_x,l+in_size_y])
-                        lap_3 = paddle.slice(self.laplacians[3],axes=[2,3],starts=[self.outer_loop[0]*4+i*2+k,self.outer_loop[1]*4+j*2+l*1],
-                                   ends=[self.outer_loop[0]*4+i*2+k+in_size_x,self.outer_loop[1]*4+j*2+l+in_size_y])
-                        if lap_3.shape[-2]!=in_size_x or lap_3.shape[-1]!=in_size_y:
+                        stylized_up_4 = paddle.slice(stylized_up_3,axes=[2,3],starts=[l,k],\
+                             ends=[l+in_size_y,k+in_size_x])
+                        lap_3 = paddle.slice(self.laplacians[3],axes=[2,3],starts=[self.outer_loop[1]*4+j*2+l,self.outer_loop[0]*4+i*2+k*1],
+                                   ends=[self.outer_loop[1]*4+j*2+l+in_size_y,self.outer_loop[0]*4+i*2+k+in_size_x])
+                        if lap_3.shape[-1]!=in_size_x or lap_3.shape[-2]!=in_size_y:
                             print('continue, line 1338')
                             continue
-                        if stylized_up_4.shape[-2]!=in_size_x or stylized_up_4.shape[-1]!=in_size_y:
+                        if stylized_up_4.shape[-1]!=in_size_x or stylized_up_4.shape[-2]!=in_size_y:
                             print('continue, line 1341')
                             continue
                         revnet_input_3 = paddle.concat(x=[lap_3, stylized_up_4.detach()], axis=1)

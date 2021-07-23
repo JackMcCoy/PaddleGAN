@@ -1278,8 +1278,8 @@ class LapStyleRevSecondPatch(BaseModel):
         size_y = stylized_up.shape[-1]
         in_size_y = math.floor(size_y / 2)
         move_y = adjust(size_y, in_size_y)
-        for i in range(0,size_x-in_size_x+1,move_x):
-            for j in range(0,size_y-in_size_y+1,move_y):
+        for i in range(0,size_x,in_size_x):
+            for j in range(0,size_y,in_size_y):
                 label = str(self.outer_loop[0]*4+i*2)+'_'+str(self.outer_loop[1]*4+j*2)
                 if label in self.labels:
                     notin=True
@@ -1310,8 +1310,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     [stylized_rev_patch, stylized_up_2.detach()])
 
                 stylized_up_3 = F.interpolate(stylized_rev_patch, scale_factor=2)
-                for k in range(0,size_x-in_size_x+1,move_x):
-                    for l in range(0,size_y-in_size_y+1,move_y):
+                for k in range(0,size_x,in_size_x):
+                    for l in range(0,size_y,in_size_y):
                         label = str(self.outer_loop[0]*4+i*2+k)+'_'+str(self.outer_loop[1]*4+j*2+l)
                         if label in self.labels:
                             continue

@@ -1,5 +1,5 @@
 total_iters: 30000
-output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/starry_patch/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/starry/
 checkpoints_dir: checkpoints
 min_max:
   (0., 1.)
@@ -9,7 +9,7 @@ model:
   generator_encode:
     name: Encoder
   generator_decode:
-    name: DecoderThumbNet
+    name: DecoderThumbDeep
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:
@@ -21,7 +21,7 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
-  style_weight: 6
+  style_weight: 5
 
 
 dataset:

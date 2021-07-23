@@ -1214,8 +1214,8 @@ class LapStyleRevSecondPatch(BaseModel):
             tiles_2 = np.zeros((max_x, max_y, 3), dtype=np.uint8)
             not_visited = np.empty((max_x,max_y))
             not_visited[:,:]=np.nan
-            kernel = np.ones((self.in_size_x-64,self.in_size_y-64))
-            kernel = np.pad(kernel,(32,32),'linear_ramp', end_values=(0, 0))
+            kernel = np.ones((self.in_size_x-math.floor(self.in_size_x/2),self.in_size_y-math.floor(self.in_size_y/2)))
+            kernel = np.pad(kernel,(math.floor(self.in_size_x/4),math.floor(self.in_size_x/4)),'linear_ramp', end_values=(0, 0))
             #tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
             for a,b,c in zip(style_paths,positions,set_letter):
                 with Image.open(os.path.join(self.output_dir, 'visual_test','tiles',a)) as file:

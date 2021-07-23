@@ -1181,8 +1181,8 @@ class LapStyleRevSecondPatch(BaseModel):
             ranges_y = list(range(0,size_y-self.in_size_y+1,move_y))
             curr_last_x=ranges_x[-1]
             curr_last_y=ranges_y[-1]
-            ranges_x = ranges_x + [i+math.floor(self.in_size_x/3) for i in ranges_x[:-1]]
-            ranges_y = ranges_y + [i+math.floor(self.in_size_y/3) for i in ranges_y[:-1]]
+            ranges_x = ranges_x + [i+math.floor(self.in_size_x/2) for i in ranges_x[:-1]]
+            ranges_y = ranges_y + [i+math.floor(self.in_size_y/2) for i in ranges_y[:-1]]
             ranges_x.append(curr_last_x-math.floor(self.in_size_x/3))
             ranges_y.append(curr_last_y-math.floor(self.in_size_y/3))
             for i in ranges_x:
@@ -1227,10 +1227,10 @@ class LapStyleRevSecondPatch(BaseModel):
                     if b[1]+self.in_size_y==max_y:
                         edges['y_mod_2']=0
                     print('b = '+str(b)+' shape= '+str(image.shape))
-                    if b[0] % self.in_size_x == 0 or b[0]==0 or b[1]==0:
-                        tiles_1[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
-                    else:
+                    if (b[0] % math.floor(self.in_size_x/2) != 0 or b[1] % math.floor(self.in_size_y/2)!=0):
                         tiles_2[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
+                    else:
+                        tiles_1[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
             for a,b in zip([tiles_1,tiles_2],['tiled1','tiled2']):
                 im = Image.fromarray(a,'RGB')
                 label = self.path[0]+' '+b

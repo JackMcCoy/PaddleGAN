@@ -1190,7 +1190,7 @@ class LapStyleRevSecondPatch(BaseModel):
             self.second_set='a'
             for idx,i in enumerate(ranges_x):
                 for idx2,j in enumerate(ranges_y):
-                    self.second_set = 'b' if idx>=orig_len_x or idx2>=orig_len_y else 'a'
+                    self.second_set = 'b' if idx+1>=orig_len_x or idx2+1>=orig_len_y else 'a'
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward(self.stylized_slice,self.stylized_feats)
@@ -1232,7 +1232,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     if b[1]+self.in_size_y==max_y:
                         edges['y_mod_2']=0
                     print('b = '+str(b)+' shape= '+str(image.shape))
-                    if (b[0] % 2 == 0 or b[1] % 2==0):
+                    if c=='b':
                         tiles_2[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
                     else:
                         tiles_1[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]

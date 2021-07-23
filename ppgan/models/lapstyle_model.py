@@ -1190,7 +1190,7 @@ class LapStyleRevSecondPatch(BaseModel):
             self.second_set='a'
             for idx,i in enumerate(ranges_x):
                 for idx2,j in enumerate(ranges_y):
-                    self.second_set = 'b' if idx+1>=orig_len_x or idx2+1>=orig_len_y else 'a'
+                    self.second_set = 'b' if idx+1>orig_len_x or idx2+1>orig_len_y else 'a'
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
                     self.test_forward(self.stylized_slice,self.stylized_feats)

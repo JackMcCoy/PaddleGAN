@@ -1299,6 +1299,12 @@ class LapStyleRevSecondPatch(BaseModel):
                 makedirs(os.path.join(self.output_dir, 'visual_test'))
                 img_path = os.path.join(self.output_dir, 'visual_test',
                                         '%s edges.png' % (label))
+                im = Image.fromarray(weights, 'RGB')
+                im.save(img_path)
+                label = self.path[0] + ' ' + b
+                makedirs(os.path.join(self.output_dir, 'visual_test'))
+                img_path = os.path.join(self.output_dir, 'visual_test',
+                                        '%s weights.png' % (label))
                 im.save(img_path)
             self.paths=[]
         self.train()

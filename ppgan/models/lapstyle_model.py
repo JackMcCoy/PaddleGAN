@@ -1185,8 +1185,8 @@ class LapStyleRevSecondPatch(BaseModel):
             curr_last_y=ranges_y[-1]
             ranges_x = ranges_x + [i+61 for i in ranges_x[:-1]]
             ranges_y = ranges_y + [i+61 for i in ranges_y[:-1]]
-            ranges_x.append(curr_last_x-61
-            ranges_y.append(curr_last_y-61
+            ranges_x.append(curr_last_x-61)
+            ranges_y.append(curr_last_y-61)
             self.second_set='a'
             for idx,i in enumerate(ranges_x):
                 for idx2,j in enumerate(ranges_y):

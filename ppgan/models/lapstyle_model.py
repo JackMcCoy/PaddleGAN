@@ -1213,43 +1213,6 @@ class LapStyleRevSecondPatch(BaseModel):
                 with Image.open(os.path.join(self.output_dir, 'visual_test','tiles',a)) as file:
                     image = np.asarray(file)
                     print(image.shape)
-                    '''
-                    if b[0]%size_x==0 and b[1]%size_y==0:
-                        tiles_1[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1],:]=image
-                    else:
-                        tiles_2[b[0]:b[0] + image.shape[0], b[1]:b[1] + image.shape[1],:] = image
-                    '''
-                    def blurred_edge_function(start_value,end_value,steps):
-                        return np.geomspace(start_value,end_value,steps)
-                    def block_sequence(main,left_edge,right_edge):
-                        s,m,e=0,1,0
-                        if left_edge>0:
-                            s=1
-                        if right_edge>0:
-                            e=1
-                        return [s,m,e]
-                    def get_direction(edges):
-                        if edges[1][0]=='x':
-                            direction='right'
-                        else:
-                            direction='up'
-                        if edges[0][-1]=='2':
-                            transform= {'right':'left','up':'down'}
-                            direction = transform[direction]
-                            gradient = (255,0.1)
-                        else:
-                            gradient = (0.1, 255)
-                        return direction, gradient
-                    def get_perpendicular_edges(key):
-                        axis='x'
-                        if key[0]=='x':
-                            axis='y'
-                        first_side='1'
-                        second_side='2'
-                        if key[-1]=='1':
-                            first_side='2'
-                            second_side='2'
-                        return [axis+'_mod_'+first_side, key, axis+'_mod_'+second_side]
                     edges={'x_mod_1':16,
                     'x_mod_2':16,
                     'y_mod_1':16,
@@ -1263,50 +1226,16 @@ class LapStyleRevSecondPatch(BaseModel):
                     if b[1]+self.in_size_y==max_y:
                         edges['y_mod_2']=0
                     print('b = '+str(b)+' shape= '+str(image.shape))
-                    tiles_1[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
-                    for key,value in edges.items():
-                        if value>0:
-                            block_edges=get_perpendicular_edges(key)# keys for the beginning and end block subtractions - edges
-                            blocks = block_sequence(value,edges[block_edges[0]],edges[block_edges[2]]) # returns [0/1,0/1,0/1] for whether a block is needed or not
-                            direction, gradient = get_direction(block_edges)
-                            mask_width = image.shape[0]
-                            mask_height = image.shape[1]
-                            if key[0]=='x':
-                                mask_width = value
-                            else:
-                                mask_height= value
-                            print('mask_width='+str(mask_width))
-                            print('mask_height=' + str(mask_height))
-                            mask = np.zeros((mask_width,mask_height),dtype=float)
-                            mask[:,:] = blurred_edge_function(gradient[0],gradient[1],max(mask_width,mask_height))
-                            if blocks[0]==1:
-                                pass
-                            if blocks[-1]==1:
-                                pass
-                            if key[-1]=='1':
-                                weights[b[0]:b[0]+mask_width,b[1]:b[1]+mask_width]=mask
-                                edges[b[0]:b[0]+mask_width,b[1]:b[1]+mask_width]=image[:mask_width,:mask_height]
-                            else:
-                                weights[b[0]+image.shape[-2]-mask_width:b[0] + image.shape[-2], b[1]+image.shape[-1]-mask_height:b[1] + image.shape[-1]] = mask
-                                edges[b[0]+image.shape[-2]-mask_width:b[0] + image.shape[-2], b[1]+image.shape[-1]-mask_height:b[1] + image.shape[-1]] = image[image.shape[-2]-mask_width:,image]
-            for a,b in zip([tiles_1],['tiled']):
+                    if b[0] % self.in_size_x == 0:
+                        tiles_1[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
+                    else:
+                        tiles_2[b[0]+edges['x_mod_1']:b[0]+image.shape[0]-edges['x_mod_2'],b[1]+edges['y_mod_1']:b[1]+image.shape[1]-edges['y_mod_2'],:]=image[edges['x_mod_1']:image.shape[0]-edges['x_mod_2'],edges['y_mod_1']:image.shape[1]-edges['y_mod_2'],:]
+            for a,b in zip([tiles_1,tiles_2],['tiled1','tiled2']):
                 im = Image.fromarray(a,'RGB')
                 label = self.path[0]+' '+b
                 makedirs(os.path.join(self.output_dir, 'visual_test'))
                 img_path = os.path.join(self.output_dir, 'visual_test',
                                         '%s.png' % (label))
-                im.save(img_path)
-                im = Image.fromarray(edges, 'RGB')
-                label = self.path[0] + ' ' + b
-                makedirs(os.path.join(self.output_dir, 'visual_test'))
-                img_path = os.path.join(self.output_dir, 'visual_test',
-                                        '%s edges.png' % (label))
-                im = Image.fromarray(weights, 'RGB')
-                im.save(img_path)
-                label = self.path[0] + ' ' + b
-                makedirs(os.path.join(self.output_dir, 'visual_test'))
-                img_path = os.path.join(self.output_dir, 'visual_test',
-                                        '%s weights.png' % (label))
                 im.save(img_path)
             self.paths=[]
         self.train()

@@ -378,7 +378,6 @@ class MultiPatchSet(Dataset):
                                                  Image.BILINEAR)
             style_patch = np.array(style_patch)
             style_patch = self.img(style_patch)
-            content_stack.append(content_patch)
             style_stack.append(style_patch)
         output = {}
         for idx,i in enumerate(content_stack):

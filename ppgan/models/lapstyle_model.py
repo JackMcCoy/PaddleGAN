@@ -668,6 +668,8 @@ class LapStyleRevFirstThumb(BaseModel):
             if 'content_stack_'+str(i) in input:
                 self.content_stack.append(paddle.to_tensor(input['content_stack_'+str(i)]))
         self.visual_items['ci'] = self.content_stack[0]
+        self.visual_items['style_stack_1'] = self.style_stack[1]
+        self.visual_items['style_stack_2'] = self.style_stack[2]
 
         self.positions = input['position_stack']
         self.size_stack = input['size_stack']

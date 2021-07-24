@@ -677,32 +677,31 @@ class LapStyleRevFirstThumb(BaseModel):
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
 
-        cropped_cp = crop_upsized(self.content_stack[0],positions[0],256,128)
+        cropped_cp = crop_upsized(self.content_stack[0],self.positions[0],self.size_stack[0],128)
         self.cpF = self.nets['net_enc'](cropped_cp)
         c_downsamples = F.interpolate(self.content_stack[0], scale_factor=.5)
         cF = self.nets['net_enc'](c_downsamples)
         s_downsamples = F.interpolate(self.content_stack[0], scale_factor=.5)
         sF = self.nets['net_enc'](s_downsamples)
-        transformed = crop_upsized(self.style_stack[1],positions[0],512,256)
-        self.spF = self.nets['net_enc'](transformed)
+        transformed = crop_upsized(self.style_stack[1],positions[1],self.size_stack[1],256)
 
 
-        stylized_thumb,self.stylized_thumb_feat = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'thumb')
-        stylized_small,self.stylized_patch_feat = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'patch')
+        stylized_thumb,self.stylized_thumb_feat = self.nets['net_dec'](cF, sF, self.cpF, 'thumb')
+        stylized_small,self.stylized_patch_feat = self.nets['net_dec'](cF, sF, self.cpF, 'patch')
         self.visual_items['stylized_small'] = stylized_thumb
         self.visual_items['stylized_patch'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
 
-        stylized_up_cropped = crop_upsized(stylized_up,positions[1][512,256])
-        lap = crop_upsized(self.laplacians[1],positions[1],512,256)
+        stylized_up_cropped = crop_upsized(stylized_up,positions[1],self.size_stack[1],256)
+        lap = crop_upsized(self.laplacians[1],self.positions[1],self.size_stack[1],256)
         revnet_input = paddle.concat(x=[lap, stylized_up_cropped], axis=1)
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach())
         #self.ttF_res=self.ttF_res.detach()
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_up_cropped])
 
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
-        p_stylized_up = crop_upsized(stylized_up,positions[2],1024,256)
-        lap_2 = crop_upsized(self.laplacians[2],positions[2],1024,256)
+        p_stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2],256)
+        lap_2 = crop_upsized(self.laplacians[2],positions[2],self.size_stack[2],256)
         p_revnet_input = paddle.concat(x=[lap_2, p_stylized_up], axis=1)
         p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach())
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_up.detach()])
@@ -715,12 +714,13 @@ class LapStyleRevFirstThumb(BaseModel):
 
     def backward_G(self, optimizer):
 
-        self.cF = self.nets['net_enc'](self.ci)
-        self.sF = self.nets['net_enc'](self.si)
+        self.cF = self.nets['net_enc'](self.content_stack[2])
+        self.sF = self.nets['net_enc'](self.style_stack[1])
+        self.spF = self.nets['net_enc'](self.style_stack[2])
 
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear', align_corners=False)
-            g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
+            g_t_thumb_crop = crop_upsized(g_t_thumb_up,self.positions[1],512,256)
             self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
 
         self.ttF = self.nets['net_enc'](self.stylized)
@@ -813,7 +813,7 @@ class LapStyleRevFirstThumb(BaseModel):
         pred_fake = self.nets['netD'](self.stylized.detach())
         self.loss_D_fake = self.gan_criterion(pred_fake, False)
 
-        pred_real = self.nets['netD'](self.pyr_si[2])
+        pred_real = self.nets['netD'](crop_upsized(self.style_stack[2],self.positions[1],self.size_stack[1],256))
         self.loss_D_real = self.gan_criterion(pred_real, True)
 
         self.loss_D = (self.loss_D_fake + self.loss_D_real) * 0.5
@@ -830,7 +830,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
         pred_Dp_real = 0
-        reshaped = paddle.slice(self.sp, axes=[2, 3], starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
+        reshaped = crop_upsized(self.style_stack[2],self.positions[1],self.size_stack[1],256)
         self.loss_Dp_real = self.nets['netD_patch'](reshaped)
         pred_Dp_real += self.gan_criterion(self.loss_Dp_real, True)
         self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real) * 0.5

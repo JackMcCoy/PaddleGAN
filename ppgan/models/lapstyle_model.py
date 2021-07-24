@@ -683,8 +683,6 @@ class LapStyleRevFirstThumb(BaseModel):
         cF = self.nets['net_enc'](c_downsamples)
         s_downsamples = F.interpolate(self.content_stack[0], scale_factor=.5)
         sF = self.nets['net_enc'](s_downsamples)
-        transformed = crop_upsized(self.style_stack[1],positions[1],self.size_stack[1],256)
-
 
         stylized_thumb,self.stylized_thumb_feat = self.nets['net_dec'](cF, sF, self.cpF, 'thumb')
         stylized_small,self.stylized_patch_feat = self.nets['net_dec'](cF, sF, self.cpF, 'patch')
@@ -802,7 +800,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss = self.loss_Gp_GAN +self.loss_ps * self.style_weight*2 +\
                           self.loss_content_p * self.content_weight +\
                     self.loss_content_p * self.content_weight +\
-                    self.loss_patch * self.content_weight * 50 +\
+                    self.loss_patch * self.content_weight +\
                     self.p_loss_style_remd * 26 + self.p_loss_content_relt * 26
         self.loss.backward()
 

@@ -362,8 +362,10 @@ class MultiPatchSet(Dataset):
         content_stack.append(content_patch)
         for i in range(self.patch_depth):
             content_patch = content_img
+            style_patch = style_img
             for c in position_stack:
                 content_patch=content_patch.crop(box=(c[0],c[1],c[2],c[3]))
+                style_patch = style_patch.crop(box=(c[0],c[1],c[2],c[3]))
             size_stack.append(content_patch.width)
             position_stack.append(get_crop_bounds(content_patch.width/2,content_patch.width,content_patch.height))
             content_patch=content_patch.crop(box=(position_stack[-1][0],position_stack[-1][1],position_stack[-1][2],position_stack[-1][3]))
@@ -372,20 +374,12 @@ class MultiPatchSet(Dataset):
             content_patch = np.array(content_patch)
             content_patch = self.img(content_patch)
             content_stack.append(content_patch)
-
-        style_patch = style_img
-        pos=get_crop_bounds(self.crop_size*2,style_patch.width,style_patch.height)
-        style_patch = np.array(style_patch.crop(box=(pos[0],pos[1],pos[2],pos[3])))
-        style_stack.append(self.img(self.transform_patch(style_patch)))
-        style_patch = style_img.resize((math.floor((self.load_size/2)*self.style_upsize),math.floor((self.load_size/2)*self.style_upsize)),Image.BILINEAR)
-        if self.patch_depth>1:
-            pos=get_crop_bounds(self.crop_size*2,style_patch.width,style_patch.height)
-            style_patch = np.array(self.transform_patch(style_patch.crop(box=(pos[0],pos[1],pos[2],pos[3]))))
-            style_stack.append(self.img(style_patch))
-            style_patch = style_img
-            pos=get_crop_bounds(self.crop_size*4,style_patch.width,style_patch.height)
-            style_patch = np.array(self.transform_patch(style_patch.crop(box=(pos[0],pos[1],pos[2],pos[3]))))
-            style_stack.append(self.img(style_patch))
+            style_patch = content_patch.resize((self.crop_size,self.crop_size),
+                                                 Image.BILINEAR)
+            style_patch = np.array(style_patch)
+            style_patch = self.img(style_patch)
+            content_stack.append(content_patch)
+            style_stack.append(style_patch)
         output = {}
         for idx,i in enumerate(content_stack):
             output['content_stack_'+str(idx+1)]=i

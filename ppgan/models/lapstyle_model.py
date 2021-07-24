@@ -661,12 +661,14 @@ class LapStyleRevFirstThumb(BaseModel):
 
     def setup_input(self, input):
 
-        self.style_stack = [paddle.to_tensor(input['style_stack_1']),paddle.to_tensor(input['style_stack_2']),paddle.to_tensor(input['style_stack_3'])]
+        self.style_stack = []
         self.laplacians=[]
         self.content_stack=[]
         for i in range(1,6):
             if 'content_stack_'+str(i) in input:
                 self.content_stack.append(paddle.to_tensor(input['content_stack_'+str(i)]))
+            if 'style_stack_'+str(i) in input:
+                self.style_stack.append(paddle.to_tensor(paddle.to_tensor(input['style_stack_'+i])))
         self.visual_items['ci'] = self.content_stack[0]
 
         self.positions = input['position_stack']
@@ -709,8 +711,8 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.cF = self.nets['net_enc'](self.content_stack[1])
         self.cpF = self.nets['net_enc'](self.content_stack[2])
-        self.sF = self.nets['net_enc'](crop_upsized(self.style_stack[2],self.positions[1],self.size_stack[1],512))
-        self.spF = self.nets['net_enc'](F.interpolate(self.style_stack[1], scale_factor=.5))
+        self.sF = self.nets['net_enc'](self.style_stack[1])
+        self.spF = self.nets['net_enc'](self.style_stack[2)
         self.visual_items['content, rev 1']=self.content_stack[1]
         self.visual_items['content, rev 2']=self.content_stack[2]
         with paddle.no_grad():
@@ -808,8 +810,7 @@ class LapStyleRevFirstThumb(BaseModel):
         pred_fake = self.nets['netD'](self.stylized.detach())
         self.loss_D_fake = self.gan_criterion(pred_fake, False)
 
-        pred_real = self.nets['netD'](paddle.slice(self.style_stack[2],axes=[2,3],starts=[(self.positions[1][1]).astype('int32'),(self.positions[1][0]).astype('int32')],\
-                             ends=[(self.positions[1][3]).astype('int32'),(self.positions[1][2]).astype('int32')]))
+        pred_real = self.nets['netD'](self.style_stack[1])
         self.loss_D_real = self.gan_criterion(pred_real, True)
 
         self.loss_D = (self.loss_D_fake + self.loss_D_real) * 0.5
@@ -826,7 +827,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
         pred_Dp_real = 0
-        self.loss_Dp_real = self.nets['netD_patch'](F.interpolate(self.style_stack[1], scale_factor=.5))
+        self.loss_Dp_real = self.nets['netD_patch'](self.style_stack[2])
         pred_Dp_real += self.gan_criterion(self.loss_Dp_real, True)
         self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real) * 0.5
 

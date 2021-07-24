@@ -716,7 +716,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.cpF = self.nets['net_enc'](self.content_stack[2])
         self.sF = self.nets['net_enc'](crop_upsized(self.style_stack[2],self.positions[1],self.size_stack[1],512))
         self.spF = self.nets['net_enc'](paddle.slice(self.style_stack[1],axes=[2,3],starts=[(self.positions[1][0]).astype('int32'),(self.positions[1][1]).astype('int32')],\
-                             ends=[(self.positions[1][2]).astype('int32'),(self.positions[1]3]).astype('int32')]))
+                             ends=[(self.positions[1][2]).astype('int32'),(self.positions[1][3]).astype('int32')]))
         self.visual_items['content, rev 1']=self.content_stack[1]
         self.visual_items['content, rev 2']=self.content_stack[2]
         with paddle.no_grad():

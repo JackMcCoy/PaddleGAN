@@ -679,7 +679,6 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.laplacians.append(laplacian(self.content_stack[1]).detach())
         self.laplacians.append(laplacian(self.content_stack[2]).detach())
-        self.style_laplacian = laplacian(self.style_stack[0].detach())
 
         cropped_cp = crop_upsized(self.content_stack[0],self.positions[0],self.size_stack[0],256)
         self.cpF = self.nets['net_enc'](cropped_cp)

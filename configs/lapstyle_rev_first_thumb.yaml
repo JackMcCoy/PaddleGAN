@@ -85,7 +85,7 @@ validate:
 
 log_config:
   interval: 10
-  visiual_interval: 100
+  visiual_interval: 50
 
 snapshot_config:
   interval: 1000

@@ -684,7 +684,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.cpF = self.nets['net_enc'](cropped_cp)
         c_downsamples = F.interpolate(self.content_stack[0], scale_factor=.5)
         cF = self.nets['net_enc'](c_downsamples)
-        s_downsamples = F.interpolate(self.content_stack[0], scale_factor=.5)
+        s_downsamples = F.interpolate(self.style_stack[0], scale_factor=.5)
         sF = self.nets['net_enc'](s_downsamples)
         stylized_thumb,self.stylized_thumb_feat = self.nets['net_dec'](cF, sF, self.cpF, 'thumb')
         stylized_small,self.stylized_patch_feat = self.nets['net_dec'](cF, sF, self.cpF, 'patch')

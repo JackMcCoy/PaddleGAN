@@ -693,7 +693,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.visual_items['stylized_small_patch'] = stylized_small
 
         lap_style_input = paddle.concat(x=[self.style_laplacian, self.style_stack[0]], axis=1)
-        lap_stylized_feats = self.nets['net_rev'].DownBlock(revnet_input.detach())
+        lap_stylized_feats = self.nets['net_rev'].DownBlock(lap_style_input.detach())
         lap_stylized_feats = self.nets['net_rev'].resblock(lap_stylized_feats)
 
         stylized_up = F.interpolate(stylized_small, scale_factor=2)

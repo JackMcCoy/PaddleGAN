@@ -698,8 +698,6 @@ class LapStyleRevFirstThumb(BaseModel):
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_up])
 
         stylized_up_2 = F.interpolate(stylized_rev, scale_factor=2)
-        print('positions2='+str(self.positions[2]))
-        print('stylized_up.shape='+str(stylized_up.shape))
         p_stylized_up = paddle.slice(stylized_up_2,axes=[2,3],starts=[(self.positions[1][0]).astype('int32'),(self.positions[1][1]).astype('int32')],\
                              ends=[(self.positions[1][2]).astype('int32'),(self.positions[1][3]).astype('int32')])
         self.visual_items['lap2'] =self.laplacians[1]

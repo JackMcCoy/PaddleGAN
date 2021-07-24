@@ -374,7 +374,7 @@ class MultiPatchSet(Dataset):
             content_patch = np.array(content_patch)
             content_patch = self.img(content_patch)
             content_stack.append(content_patch)
-            style_patch = content_patch.resize((self.crop_size,self.crop_size),
+            style_patch = style_patch.resize((self.crop_size,self.crop_size),
                                                  Image.BILINEAR)
             style_patch = np.array(style_patch)
             style_patch = self.img(style_patch)

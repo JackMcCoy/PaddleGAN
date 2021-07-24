@@ -686,10 +686,6 @@ class LapStyleRevFirstThumb(BaseModel):
         cF = self.nets['net_enc'](c_downsamples)
         s_downsamples = F.interpolate(self.content_stack[0], scale_factor=.5)
         sF = self.nets['net_enc'](s_downsamples)
-
-        print('cF size= '+str(c_downsamples.shape))
-        print('sF size= '+str(s_downsamples.shape))
-        print('self.cpF size= '+str(cropped_cp.shape))
         stylized_thumb,self.stylized_thumb_feat = self.nets['net_dec'](cF, sF, self.cpF, 'thumb')
         stylized_small,self.stylized_patch_feat = self.nets['net_dec'](cF, sF, self.cpF, 'patch')
         self.visual_items['stylized_small'] = stylized_thumb
@@ -722,8 +718,6 @@ class LapStyleRevFirstThumb(BaseModel):
         self.sF = self.nets['net_enc'](crop_upsized(self.style_stack[1],self.positions[0],self.size_stack[0],256))
         self.spF = self.nets['net_enc'](crop_upsized(self.style_stack[2],self.positions[1],self.size_stack[1],256))
 
-        print('content_stack[2] shape='+str(self.content_stack[2].shape))
-
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear', align_corners=False)
             g_t_thumb_crop = crop_upsized(g_t_thumb_up,self.positions[1],512,256)
@@ -731,8 +725,6 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.ttF = self.nets['net_enc'](self.stylized)
         self.tpF = self.nets['net_enc'](self.p_stylized)
-        print('ttF shape='+str(self.stylized.shape))
-
 
         self.loss_content = 0
         for layer in self.content_layers:

@@ -689,7 +689,7 @@ class LapStyleRevFirstThumb(BaseModel):
         stylized_thumb,self.stylized_thumb_feat = self.nets['net_dec'](cF, sF, self.cpF, 'thumb')
         stylized_small,self.stylized_patch_feat = self.nets['net_dec'](cF, sF, self.cpF, 'patch')
         self.visual_items['stylized_small'] = stylized_thumb
-        self.visual_items['stylized_patch'] = stylized_small
+        self.visual_items['stylized_small_patch'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
 
         stylized_up_cropped = crop_upsized(stylized_up,self.positions[1],self.size_stack[1],256)
@@ -715,9 +715,9 @@ class LapStyleRevFirstThumb(BaseModel):
     def backward_G(self, optimizer):
 
         self.cF = self.nets['net_enc'](crop_upsized(self.content_stack[2],self.positions[1],self.size_stack[1],256))
-        self.sF = self.nets['net_enc'](crop_upsized(self.style_stack[1],self.positions[0],self.size_stack[0],256))
+        self.sF = self.nets['net_enc'](F.interpolate(self.style_stack[2],scale_factor=.5))
         self.spF = self.nets['net_enc'](crop_upsized(self.style_stack[2],self.positions[1],self.size_stack[1],256))
-
+        self.visual_items['content, rev 1']=crop_upsized(self.content_stack[2],self.positions[1],self.size_stack[1],256)
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear', align_corners=False)
             g_t_thumb_crop = crop_upsized(g_t_thumb_up,self.positions[1],512,256)

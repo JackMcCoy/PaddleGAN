@@ -722,7 +722,8 @@ class LapStyleRevFirstThumb(BaseModel):
         self.visual_items['content, rev 1']=self.content_stack[-2]
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear', align_corners=False)
-            g_t_thumb_crop = crop_upsized(g_t_thumb_up,self.positions[1],512,256)
+            g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[(self.positions[1][1]).astype('int32'),(self.positions[1][0]).astype('int32')],\
+                             ends=[(self.positions[1][3]).astype('int32'),(self.positions[1][2]).astype('int32')])
             self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
 
         self.ttF = self.nets['net_enc'](self.stylized)

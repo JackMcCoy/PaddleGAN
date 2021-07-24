@@ -753,7 +753,6 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_content_relt'] = self.loss_content_relt
 
         pred_fake = self.nets['netD'](self.stylized)
-        print('754 pred_fake.shape='+str(pred_fake.shape))
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)
         self.losses['loss_gan_G'] = self.loss_G_GAN
 
@@ -798,7 +797,6 @@ class LapStyleRevFirstThumb(BaseModel):
 
         """gan loss"""
         pred_fake_p = self.nets['netD_patch'](self.p_stylized)
-        print('pred_fake_p.shape='+str(pred_fake_p.shape))
         self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
@@ -819,8 +817,6 @@ class LapStyleRevFirstThumb(BaseModel):
 
         pred_real = self.nets['netD'](paddle.slice(self.style_stack[2],axes=[2,3],starts=[(self.positions[1][1]).astype('int32'),(self.positions[1][0]).astype('int32')],\
                              ends=[(self.positions[1][3]).astype('int32'),(self.positions[1][2]).astype('int32')]))
-        print('pred_fake.shape='+str(pred_fake.shape))
-        print('pred_real.shape='+str(pred_real.shape))
         self.loss_D_real = self.gan_criterion(pred_real, True)
 
         self.loss_D = (self.loss_D_fake + self.loss_D_real) * 0.5
@@ -833,14 +829,12 @@ class LapStyleRevFirstThumb(BaseModel):
 
     def backward_Dpatch(self):
         """Calculate GAN loss for the patch discriminator"""
-        print('pstylized.shape='+str(self.p_stylized.shape))
         pred_p_fake = self.nets['netD_patch'](self.p_stylized.detach())
         self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
         pred_Dp_real = 0
         reshaped = paddle.slice(self.style_stack[1],axes=[2,3],starts=[(self.positions[2][1]*2).astype('int32'),(self.positions[2][0]*2).astype('int32')],\
                              ends=[(self.positions[2][3]*2).astype('int32'),(self.positions[2][2]*2).astype('int32')])
-        print('reshaped.shape='+str(reshaped.shape))
         self.loss_Dp_real = self.nets['netD_patch'](reshaped)
         pred_Dp_real += self.gan_criterion(self.loss_Dp_real, True)
         self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real) * 0.5

@@ -673,7 +673,6 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.positions = input['position_stack']
         self.size_stack = input['size_stack']
-        self.laplacians.append(laplacian(self.content_stack[0]).detach())
         self.laplacians.append(laplacian(self.content_stack[1]).detach())
         self.laplacians.append(laplacian(self.content_stack[2]).detach())
 
@@ -692,9 +691,10 @@ class LapStyleRevFirstThumb(BaseModel):
         self.visual_items['stylized_small_patch'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=4)
 
-        stylized_up_cropped = crop_upsized(stylized_up,self.positions[1],self.size_stack[1],512)
-        self.visual_items['lap1'] =self.laplacians[1]
-        revnet_input = paddle.concat(x=[self.laplacians[1], stylized_up_cropped], axis=1)
+        stylized_up_cropped = paddle.slice(stylized_up,axes=[2,3],starts=[(self.positions[1][1]*2).astype('int32'),(self.positions[1][0]*2).astype('int32')],\
+                             ends=[(self.positions[1][3]*2).astype('int32'),(self.positions[1][2]*2).astype('int32')])
+        self.visual_items['lap1'] =self.laplacians[0]
+        revnet_input = paddle.concat(x=[self.laplacians[0], stylized_up_cropped], axis=1)
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach())
         #self.ttF_res=self.ttF_res.detach()
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_up_cropped])
@@ -702,7 +702,7 @@ class LapStyleRevFirstThumb(BaseModel):
         stylized_up_2 = F.interpolate(stylized_rev, scale_factor=2)
         p_stylized_up = paddle.slice(stylized_up_2,axes=[2,3],starts=[(self.positions[2][1]*2).astype('int32'),(self.positions[2][0]*2).astype('int32')],\
                              ends=[(self.positions[2][3]*2).astype('int32'),(self.positions[2][2]*2).astype('int32')])
-        p_revnet_input = paddle.concat(x=[self.laplacians[2], p_stylized_up], axis=1)
+        p_revnet_input = paddle.concat(x=[self.laplacians[1], p_stylized_up], axis=1)
         p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach())
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_up.detach()])
 
@@ -714,8 +714,8 @@ class LapStyleRevFirstThumb(BaseModel):
 
     def backward_G(self, optimizer):
 
-        self.cF = self.nets['net_enc'](self.content_stack[-2])
-        self.cpF = self.nets['net_enc'](self.content_stack[-1])
+        self.cF = self.nets['net_enc'](self.content_stack[1])
+        self.cpF = self.nets['net_enc'](self.content_stack[2])
         self.sF = self.nets['net_enc'](crop_upsized(self.style_stack[2],self.positions[1],self.size_stack[1],512))
         self.spF = self.nets['net_enc'](paddle.slice(self.style_stack[1],axes=[2,3],starts=[(self.positions[2][1]*2).astype('int32'),(self.positions[2][0]*2).astype('int32')],\
                              ends=[(self.positions[2][3]*2).astype('int32'),(self.positions[2][2]*2).astype('int32')]))

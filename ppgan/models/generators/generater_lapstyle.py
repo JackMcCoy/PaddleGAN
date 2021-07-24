@@ -245,10 +245,10 @@ class DecoderThumbDeep(nn.Layer):
 
         return content_thumb_feat, content_patch_feat
 
-    def forward(self, out, cf, sF, thumb_or_patch='thumb'):
+    def forward(self, cf, sF):
 
         #out = thumb_adaptive_instance_normalization(cF['r51'], cpF['r51'], sF['r51'], thumb_or_patch=thumb_or_patch)
-        out = self.resblock_41(out.detach())
+        out = self.resblock_41(cf['r41'].detach())
         out = self.convblock_411(out)
         out = self.convblock_41(out)
 

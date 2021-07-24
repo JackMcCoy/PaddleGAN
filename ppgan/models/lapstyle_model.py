@@ -694,6 +694,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
         stylized_up_cropped = crop_upsized(stylized_up,self.positions[1],self.size_stack[1],256)
         lap = crop_upsized(self.laplacians[1],self.positions[1],self.size_stack[1],256)
+        self.visual_items['lap1'] =lap
         revnet_input = paddle.concat(x=[lap, stylized_up_cropped], axis=1)
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach())
         #self.ttF_res=self.ttF_res.detach()
@@ -830,7 +831,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
         pred_Dp_real = 0
-        reshaped = crop_upsized(self.style_stack[2],self.positions[1],self.size_stack[1],256)
+        reshaped = crop_upsized(crop_upsized(self.style_stack[1],self.positions[2],self.size_stack[1],256))
         self.loss_Dp_real = self.nets['netD_patch'](reshaped)
         pred_Dp_real += self.gan_criterion(self.loss_Dp_real, True)
         self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real) * 0.5

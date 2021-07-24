@@ -507,11 +507,15 @@ class LapStyleDraThumbModel(BaseModel):
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
-        self.cF = self.nets['net_enc'](self.ci.detach())
-        self.sF = self.nets['net_enc'](self.si.detach())
-        self.cpF = self.nets['net_enc'](self.cp.detach())
-        self.stylized_thumb,self.stylized_thumb_feat = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'thumb')
-        self.stylized_patch,self.stylized_patch_feat = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'patch')
+        with paddle.no_grad():
+            self.cF = self.nets['net_enc'](self.ci.detach())
+            self.sF = self.nets['net_enc'](self.si.detach())
+            self.cpF = self.nets['net_enc'](self.cp.detach())
+            self.stylized_thumb_feat,self.stylized_patch_feat = self.nets['net_dec'].thumb_adaptive_instance_normalization(self.cF['r41'], self.cpF['r41'], self.sF['r41'])
+            self.cF['r41'] = self.cF['r41']+self.stylized_thumb_feat
+            self.cpF['r41'] = self.cpF['r41'] + self.stylized_patch_feat
+        self.stylized_thumb = self.nets['net_dec'](self.cF, self.sF)
+        self.stylized_patch = self.nets['net_dec'](self.cpF, self.sF)
         self.visual_items['stylized_thumb'] = self.stylized_thumb
         self.visual_items['stylized_patch'] = self.stylized_patch
         self.visual_items['style']=self.si
@@ -522,9 +526,6 @@ class LapStyleDraThumbModel(BaseModel):
             g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.position[0].astype('int32'),self.position[1].astype('int32')],\
                              ends=[self.position[2].astype('int32'),self.position[3].astype('int32')])
             self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
-            style_crop = paddle.slice(self.sp,axes=[2,3],starts=[self.position[0].astype('int32'),self.position[1].astype('int32')],\
-                             ends=[self.position[2].astype('int32'),self.position[3].astype('int32')])
-            self.spCrop = self.nets['net_enc'](style_crop.detach())
         self.ttF = self.nets['net_enc'](self.stylized_thumb)
         self.tpF = self.nets['net_enc'](self.stylized_patch)
 
@@ -586,13 +587,19 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['loss_content_patch'] = self.loss_content_patch
 
         self.loss_s_patch = 0
-        for layer in self.style_layers:
-            self.loss_s_patch += self.calc_style_loss(self.tpF[layer], self.spCrop[layer].detach())
-        self.losses['loss_s_patch'] = self.loss_s_patch
+        self.loss_style_remd_patch = 0
+        reshaped = paddle.split(self.sp, 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                spCrop = self.nets['net_enc'](j)
+                for layer in self.style_layers:
+                    self.loss_s_patch += self.calc_style_loss(self.tpF[layer], spCrop[layer].detach())
+                    self.loss_style_remd_patch +=self.calc_style_emd_loss(
+                        self.tpF['r31'], spCrop['r31']) + self.calc_style_emd_loss(
+                        self.tpF['r41'], spCrop['r41'])
+        self.losses['loss_s_patch'] = self.loss_s_patch/4
+        self.losses['loss_style_remd_patch'] = self.loss_style_remd_patch/4
 
-        self.loss_style_remd_patch = self.calc_style_emd_loss(
-            self.tpF['r31'], self.spCrop['r31']) + self.calc_style_emd_loss(
-                self.tpF['r41'], self.spCrop['r41'])
         self.loss_content_relt_patch = self.calc_content_relt_loss(
             self.tpF['r31'], self.cpF['r31']) + self.calc_content_relt_loss(
                 self.tpF['r41'], self.cpF['r41'])
@@ -600,9 +607,9 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['loss_content_relt_patch'] = self.loss_content_relt_patch
 
         self.patch_loss = self.loss_patch * 18 * self.content_weight +\
-                    self.loss_s_patch * self.style_weight*1.5 +\
+                    self.loss_s_patch/4 * self.style_weight*1.5 +\
                     self.loss_content_patch * self.content_weight +\
-                    self.loss_style_remd_patch * 18 + self.loss_content_relt_patch *24
+                    self.loss_style_remd_patch/4 * 18 + self.loss_content_relt_patch *24
         self.patch_loss.backward()
         optimizer.step()
         return self.patch_loss

@@ -363,9 +363,10 @@ class MultiPatchSet(Dataset):
         for i in range(self.patch_depth):
             content_patch = content_img
             style_patch = style_img
-            for c in position_stack:
+            for idx,c in enumerate(position_stack):
                 content_patch=content_patch.crop(box=(c[0],c[1],c[2],c[3]))
-                style_patch = style_patch.crop(box=(c[0],c[1],c[2],c[3]))
+                if idx != len(position_stack-1):
+                    style_patch = style_patch.crop(box=(c[0],c[1],c[2],c[3]))
             size_stack.append(content_patch.width)
             position_stack.append(get_crop_bounds(content_patch.width/2,content_patch.width,content_patch.height))
             content_patch=content_patch.crop(box=(position_stack[-1][0],position_stack[-1][1],position_stack[-1][2],position_stack[-1][3]))
@@ -374,7 +375,7 @@ class MultiPatchSet(Dataset):
             content_patch = np.array(content_patch)
             content_patch = self.img(content_patch)
             content_stack.append(content_patch)
-            style_patch = style_patch.resize((self.crop_size,self.crop_size),
+            style_patch = style_patch.resize((self.crop_size*2,self.crop_size*2),
                                                  Image.BILINEAR)
             style_patch = np.array(style_patch)
             style_patch = self.img(style_patch)

@@ -661,43 +661,49 @@ class LapStyleRevFirstThumb(BaseModel):
 
     def setup_input(self, input):
 
-        self.position = input['position']
-        self.ci = paddle.to_tensor(input['ci'])
-        self.visual_items['ci'] = self.ci
-        self.si = paddle.to_tensor(input['si'])
-        self.sp = paddle.to_tensor(input['sp'])
-        self.cp = paddle.to_tensor(input['cp'])
-        self.visual_items['cp'] = self.cp
+        self.style_stack = [paddle.to_tensor(input['style_stack_1']),paddle.to_tensor(input['style_stack_2']),paddle.to_tensor(input['style_stack_3'])]
+        self.laplacians=[]
+        for i in range(1,6):
+            if 'content_stack_'+str(i) in input:
+                self.content_stack.append(paddle.to_tensor(input['content_stack_'+str(i)]))
+        self.visual_items['ci'] = self.content_stack[0]
 
-        self.pyr_ci = make_laplace_pyramid(self.ci, 1)
-        self.pyr_si = make_laplace_pyramid(self.si, 1)
-        self.pyr_cp = make_laplace_pyramid(self.cp, 1)
-        self.pyr_ci.append(self.ci)
-        self.pyr_si.append(self.si)
-        self.pyr_cp.append(self.cp)
+        self.positions = input['position_stack']
+        self.size_stack = input['size_stack']
+        self.laplacians.append(laplacian(self.content_stack[0]).detach())
+        self.laplacians.append(laplacian(self.content_stack[1]).detach())
+        self.laplacians.append(laplacian(self.content_stack[2]).detach())
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
 
-        cF = self.nets['net_enc'](self.pyr_ci[1])
-        sF = self.nets['net_enc'](self.pyr_si[1])
-        transformed = paddle.slice(self.sp, axes=[2, 3], starts=[self.position[0], self.position[2]],
-                                   ends=[self.position[1], self.position[3]])
+        cropped_cp = crop_upsized(self.content_stack[0],positions[0],256,128)
+        self.cpF = self.nets['net_enc'](cropped_cp)
+        c_downsamples = F.interpolate(self.content_stack[0], scale_factor=.5)
+        cF = self.nets['net_enc'](c_downsamples)
+        s_downsamples = F.interpolate(self.content_stack[0], scale_factor=.5)
+        sF = self.nets['net_enc'](s_downsamples)
+        transformed = crop_upsized(self.style_stack[1],positions[0],512,256)
         self.spF = self.nets['net_enc'](transformed)
-        self.cpF = self.nets['net_enc'](self.cp)
 
-        stylized_small = self.nets['net_dec'](cF, sF)
-        self.visual_items['stylized_small'] = stylized_small
+
+        stylized_thumb,self.stylized_thumb_feat = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'thumb')
+        stylized_small,self.stylized_patch_feat = self.nets['net_dec'](self.cF, self.sF, self.cpF, 'patch')
+        self.visual_items['stylized_small'] = stylized_thumb
+        self.visual_items['stylized_patch'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
 
-        revnet_input = paddle.concat(x=[self.pyr_ci[0], stylized_up], axis=1)
+        stylized_up_cropped = crop_upsized(stylized_up,positions[1][512,256])
+        lap = crop_upsized(self.laplacians[1],positions[1],512,256)
+        revnet_input = paddle.concat(x=[lap, stylized_up_cropped], axis=1)
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach())
         #self.ttF_res=self.ttF_res.detach()
-        stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
+        stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_up_cropped])
 
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
-        p_stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-        p_revnet_input = paddle.concat(x=[self.pyr_cp[0], p_stylized_up], axis=1)
+        p_stylized_up = crop_upsized(stylized_up,positions[2],1024,256)
+        lap_2 = crop_upsized(self.laplacians[2],positions[2],1024,256)
+        p_revnet_input = paddle.concat(x=[lap_2, p_stylized_up], axis=1)
         p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach())
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_up.detach()])
 

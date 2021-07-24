@@ -691,10 +691,9 @@ class LapStyleRevFirstThumb(BaseModel):
         self.visual_items['stylized_small_patch'] = stylized_small
 
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
-        stylized_feats = self.nets['net_rev'].DownBlock(stylized_up.detach())
-        stylized_feats = self.nets['net_rev'].resblock(stylized_feats)
         revnet_input = paddle.concat(x=[self.laplacians[0], stylized_up], axis=1)
-
+        stylized_feats = self.nets['net_rev'].DownBlock(revnet_input.detach())
+        stylized_feats = self.nets['net_rev'].resblock(stylized_feats)
         self.first_patch_in = stylized_up.detach()
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats.detach())
         #self.ttF_res=self.ttF_res.detach()

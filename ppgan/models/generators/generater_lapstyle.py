@@ -269,7 +269,7 @@ class DecoderThumbDeep(nn.Layer):
         out = self.convblock_111(out)
         out = self.convblock_11(out)
         out = self.final_conv(out)
-        return out,thumb_ada
+        return out
 
 @GENERATORS.register()
 class DecoderThumbNet(nn.Layer):

@@ -698,8 +698,8 @@ class LapStyleRevFirstThumb(BaseModel):
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_up])
 
         stylized_up_2 = F.interpolate(stylized_rev, scale_factor=2)
-        p_stylized_up = paddle.slice(stylized_up_2,axes=[2,3],starts=[(self.positions[1][1]).astype('int32'),(self.positions[1][0]).astype('int32')],\
-                             ends=[(self.positions[1][3]).astype('int32'),(self.positions[1][2]).astype('int32')])
+        p_stylized_up = paddle.slice(stylized_up_2,axes=[2,3],starts=[(self.positions[1][0]).astype('int32'),(self.positions[1][2]).astype('int32')],\
+                             ends=[(self.positions[1][2]).astype('int32'),(self.positions[1][1]).astype('int32')])
         self.visual_items['lap2'] =self.laplacians[1]
         p_revnet_input = paddle.concat(x=[self.laplacians[1], p_stylized_up], axis=1)
         p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach())
@@ -717,8 +717,8 @@ class LapStyleRevFirstThumb(BaseModel):
         self.sF = self.nets['net_enc'](crop_upsized(self.style_stack[2],self.positions[1],self.size_stack[1],512))
         self.spF = self.nets['net_enc'](paddle.slice(self.style_stack[1],axes=[2,3],starts=[(self.positions[2][1]*2).astype('int32'),(self.positions[2][0]*2).astype('int32')],\
                              ends=[(self.positions[2][3]*2).astype('int32'),(self.positions[2][2]*2).astype('int32')]))
-        self.visual_items['content, rev 1']=self.content_stack[-2]
-        self.visual_items['content, rev 2']=self.content_stack[-1]
+        self.visual_items['content, rev 1']=self.content_stack[1]
+        self.visual_items['content, rev 2']=self.content_stack[2]
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear', align_corners=False)
             g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[(self.positions[1][1]).astype('int32'),(self.positions[1][0]).astype('int32')],\

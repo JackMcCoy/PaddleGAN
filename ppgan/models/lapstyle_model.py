@@ -751,6 +751,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_content_relt'] = self.loss_content_relt
 
         pred_fake = self.nets['netD'](self.stylized)
+        print('754 pred_fake.shape='+pred_fake.shape)
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)
         self.losses['loss_gan_G'] = self.loss_G_GAN
 
@@ -795,6 +796,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
         """gan loss"""
         pred_fake_p = self.nets['netD_patch'](self.p_stylized)
+        print('pred_fake_p.shape='+pred_fake_p.shape)
         self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
@@ -814,6 +816,8 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss_D_fake = self.gan_criterion(pred_fake, False)
 
         pred_real = self.nets['netD'](crop_upsized(self.style_stack[2],self.positions[1],self.size_stack[1],256))
+        print('pred_fake.shape='+pred_fake.shape)
+        print('pred_real.shape='+pred_real.shape)
         self.loss_D_real = self.gan_criterion(pred_real, True)
 
         self.loss_D = (self.loss_D_fake + self.loss_D_real) * 0.5

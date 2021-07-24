@@ -689,12 +689,13 @@ class LapStyleRevFirstThumb(BaseModel):
         stylized_small,self.stylized_patch_feat = self.nets['net_dec'](cF, sF, self.cpF, 'patch')
         self.visual_items['stylized_small'] = stylized_thumb
         self.visual_items['stylized_small_patch'] = stylized_small
+
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
+        stylized_feats = self.nets['net_rev'].DownBlock(stylized_up.detach())
+        stylized_feats = self.nets['net_rev'].resblock(stylized_feats)
         revnet_input = paddle.concat(x=[self.laplacians[0], stylized_up], axis=1)
 
-        stylized_feats = self.nets['net_rev'].DownBlock(revnet_input.detach())
-        stylized_feats = self.nets['net_rev'].resblock(stylized_feats)
-
+        self.first_patch_in = stylized_up.detach()
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats.detach())
         #self.ttF_res=self.ttF_res.detach()
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_up])
@@ -724,10 +725,19 @@ class LapStyleRevFirstThumb(BaseModel):
             g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[(self.positions[1][1]).astype('int32'),(self.positions[1][0]).astype('int32')],\
                              ends=[(self.positions[1][3]).astype('int32'),(self.positions[1][2]).astype('int32')])
             self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
+            self.fp_in = self.nets['net_enc'](self.first_patch_in)
 
         self.ttF = self.nets['net_enc'](self.stylized)
         self.tpF = self.nets['net_enc'](self.p_stylized)
 
+
+        self.loss_patch = 0
+        # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
+        #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
+        for layer in [self.content_layers[-2]]:
+            self.loss_patch += self.calc_content_loss(self.ttF[layer],
+                                                      self.fp_in[layer])
+        self.losses['loss_patch'] = self.loss_patch
         self.loss_content = 0
         for layer in self.content_layers:
             self.loss_content += self.calc_content_loss(self.ttF[layer],
@@ -757,6 +767,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.loss = self.loss_G_GAN*1.5 + self.loss_s *self.style_weight +\
                     self.loss_content * self.content_weight+\
+                    self.loss_patch*self.content_weight+\
                     self.loss_style_remd * 16 +\
                     self.loss_content_relt * 16
         self.loss.backward()

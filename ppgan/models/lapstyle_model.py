@@ -718,9 +718,9 @@ class LapStyleRevFirstThumb(BaseModel):
 
     def backward_G(self, optimizer):
 
-        self.cF = self.nets['net_enc'](crop_upsized(self.content_stack[2],self.positions[1],self.size_stack[1],512))
+        self.cF = self.nets['net_enc'](crop_upsized(self.content_stack[2],self.positions[1],self.size_stack[1],256))
         self.sF = self.nets['net_enc'](self.style_stack[1])
-        self.spF = self.nets['net_enc'](crop_upsized(self.style_stack[2],self.positions[1],self.size_stack[1],512))
+        self.spF = self.nets['net_enc'](crop_upsized(self.style_stack[2],self.positions[1],self.size_stack[1],256))
 
         print('content_stack[2] shape='+str(self.content_stack[2].shape))
 

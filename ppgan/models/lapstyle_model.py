@@ -610,7 +610,7 @@ class LapStyleDraThumbModel(BaseModel):
 
         self.Icc_p = self.nets['net_dec'](self.cpF, self.cpF)
         self.l_identity1_p = self.calc_content_loss(self.Icc, self.cp)
-        self.Fcc_p = self.nets['net_enc'](self.Icc)
+        self.Fcc_p = self.nets['net_enc'](self.Icc_p)
         self.l_identity2_p = 0
         for layer in self.content_layers:
             self.l_identity2_p += self.calc_content_loss(self.Fcc_p[layer],

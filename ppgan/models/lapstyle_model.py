@@ -826,7 +826,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
     def backward_Dpatch(self):
         """Calculate GAN loss for the patch discriminator"""
-        print('pstylized.shape='+str(self.p.stylized.shape))
+        print('pstylized.shape='+str(self.p_stylized.shape))
         pred_p_fake = self.nets['netD_patch'](self.p_stylized.detach())
         self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 

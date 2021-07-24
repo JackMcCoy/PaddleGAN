@@ -688,8 +688,6 @@ class LapStyleRevFirstThumb(BaseModel):
         self.visual_items['stylized_small'] = stylized_thumb
         self.visual_items['stylized_small_patch'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
-
-        self.visual_items['lap1'] =self.laplacians[0]
         revnet_input = paddle.concat(x=[self.laplacians[0], stylized_up], axis=1)
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach())
         #self.ttF_res=self.ttF_res.detach()
@@ -698,7 +696,6 @@ class LapStyleRevFirstThumb(BaseModel):
         stylized_up_2 = F.interpolate(stylized_rev, scale_factor=2)
         p_stylized_up = paddle.slice(stylized_up_2,axes=[2,3],starts=[(self.positions[1][1]).astype('int32'),(self.positions[1][0]).astype('int32')],\
                              ends=[(self.positions[1][3]).astype('int32'),(self.positions[1][2]).astype('int32')])
-        self.visual_items['lap2'] =self.laplacians[1]
         p_revnet_input = paddle.concat(x=[self.laplacians[1], p_stylized_up], axis=1)
         p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach())
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_up.detach()])

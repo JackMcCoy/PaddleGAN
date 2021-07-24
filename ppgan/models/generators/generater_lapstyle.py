@@ -232,15 +232,15 @@ class DecoderThumbDeep(nn.Layer):
 
         out = self.upsample(out)
 
-        thumb_ada['r31'] = thumb_adaptive_instance_normalization(cF['r31'], cpF['r31'],sF['r31'], thumb_or_patch=thumb_or_patch)
+        cf = cF if thumb_or_patch=='thumb' else cpF
+        thumb_ada['r31'] = adaptive_instance_normalization(cf['r31'], sF['r31'])
         out += thumb_ada['r31']
         out = self.resblock_31(out)
         out = self.convblock_311(out)
         out = self.convblock_31(out)
 
         out = self.upsample(out)
-        thumb_ada['r21'] = thumb_adaptive_instance_normalization(cF['r21'], cpF['r21'], sF['r21'],
-                                                           thumb_or_patch=thumb_or_patch)
+        thumb_ada['r21'] = adaptive_instance_normalization(cf['r21'], sF['r21'])
         out += thumb_ada['r21']
         out = self.convblock_211(out)
         out = self.convblock_21(out)

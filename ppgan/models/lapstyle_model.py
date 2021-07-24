@@ -673,6 +673,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.positions = input['position_stack']
         self.size_stack = input['size_stack']
+        self.style_laplacian = laplacian(self.style_stack[0].detach())
         self.laplacians.append(laplacian(self.content_stack[1]).detach())
         self.laplacians.append(laplacian(self.content_stack[2]).detach())
 
@@ -692,10 +693,15 @@ class LapStyleRevFirstThumb(BaseModel):
 
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
         revnet_input = paddle.concat(x=[self.laplacians[0], stylized_up], axis=1)
+        #thumb feats
         stylized_feats = self.nets['net_rev'].DownBlock(revnet_input.detach())
         stylized_feats = self.nets['net_rev'].resblock(stylized_feats)
+        #style lap feats
+        style_lap_input = paddle.concat(x=[self.style_laplacian, self.style_stack[0]], axis=1)
+        style_lap_feats = self.nets['net_rev'].DownBlock(style_lap_input.detach())
+        style_lap_feats = self.nets['net_rev'].resblock(style_lap_feats)
         self.first_patch_in = stylized_up.detach()
-        stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats.detach())
+        stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats.detach(),style_lap_feats.detach())
         #self.ttF_res=self.ttF_res.detach()
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_up])
 
@@ -703,7 +709,7 @@ class LapStyleRevFirstThumb(BaseModel):
         p_stylized_up = paddle.slice(stylized_up_2,axes=[2,3],starts=[(self.positions[1][1]).astype('int32'),(self.positions[1][0]).astype('int32')],\
                              ends=[(self.positions[1][3]).astype('int32'),(self.positions[1][2]).astype('int32')])
         p_revnet_input = paddle.concat(x=[self.laplacians[1], p_stylized_up], axis=1)
-        p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach())
+        p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach(),style_lap_feats.detach())
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_up.detach()])
 
         self.stylized = stylized_rev

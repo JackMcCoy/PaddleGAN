@@ -712,7 +712,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.cF = self.nets['net_enc'](self.content_stack[1])
         self.cpF = self.nets['net_enc'](self.content_stack[2])
         self.sF = self.nets['net_enc'](self.style_stack[1])
-        self.spF = self.nets['net_enc'](self.style_stack[2)
+        self.spF = self.nets['net_enc'](self.style_stack[2])
         self.visual_items['content, rev 1']=self.content_stack[1]
         self.visual_items['content, rev 2']=self.content_stack[2]
         with paddle.no_grad():

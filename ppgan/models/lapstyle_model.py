@@ -514,8 +514,6 @@ class LapStyleDraThumbModel(BaseModel):
             self.stylized_thumb_feat,self.stylized_patch_feat = self.nets['net_dec'].thumb_adaptive_instance_normalization(self.cF['r41'].detach(), self.cpF['r41'].detach(), self.sF['r41'].detach())
             self.cF['r41'] = self.cF['r41']+self.stylized_thumb_feat.detach()
             self.cpF['r41'] = self.cpF['r41'] + self.stylized_patch_feat.detach()
-        self.cF['r41']=self.cF['r41'].detach()
-        self.cpF['r41']=self.cpF['r41'].detach()
         self.stylized_thumb = self.nets['net_dec'](self.cF, self.sF)
         self.stylized_patch = self.nets['net_dec'](self.cpF, self.sF)
         self.visual_items['stylized_thumb'] = self.stylized_thumb
@@ -564,14 +562,6 @@ class LapStyleDraThumbModel(BaseModel):
         self.losses['l_identity1'] = self.l_identity1
         self.losses['l_identity2'] = self.l_identity2
 
-        self.loss = self.loss_s * self.style_weight +\
-                    self.l_identity1 * 50 + self.l_identity2 * 1 +\
-                    self.loss_content * self.content_weight+\
-                    self.loss_style_remd * 18 +\
-                    self.loss_content_relt * 24
-        self.loss.backward()
-        optimizer.step()
-
         """patch loss"""
         self.loss_patch = 0
         #self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
@@ -616,7 +606,12 @@ class LapStyleDraThumbModel(BaseModel):
             self.l_identity2_p += self.calc_content_loss(self.Fcc_p[layer],
                                                        self.cpF[layer])
 
-        self.patch_loss = self.loss_patch * 18 * self.content_weight +\
+        self.patch_loss = self.loss_s * self.style_weight +\
+                    self.l_identity1 * 50 + self.l_identity2 * 1 +\
+                    self.loss_content * self.content_weight+\
+                    self.loss_style_remd * 18 +\
+                    self.loss_content_relt * 24+\
+                    self.loss_patch * 18 * self.content_weight +\
                     self.loss_s_patch/4 * self.style_weight*1.5 +\
                     self.loss_content_patch * self.content_weight +\
                     self.loss_style_remd_patch/4 * 18 + self.loss_content_relt_patch *24 +\

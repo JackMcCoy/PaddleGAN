@@ -772,8 +772,10 @@ class LapStyleRevFirstThumb(BaseModel):
         """style loss"""
         self.loss_s = 0
         self.loss_style_remd = 0
-        for sF in self.style_quad:
-            for layer in self.style_layers:
+        reshaped = paddle.split(self.style_stack[1], 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                sf = self.nets['net_enc'](j)
                 self.loss_s += self.calc_style_loss(self.ttF[layer], sF[layer])
                 self.loss_style_remd += self.calc_style_emd_loss(
                     self.ttF['r31'], sF['r31']) + self.calc_style_emd_loss(
@@ -857,12 +859,10 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss_D_fake = self.gan_criterion(pred_fake, False)
 
         self.loss_D_real = 0
-        self.style_quad=[]
         reshaped = paddle.split(self.style_stack[1], 2, 2)
         for i in reshaped:
             for j in paddle.split(i, 2, 3):
                 self.style_quad.append(self.nets['net_enc'](j.detach()))
-                pred_real = self.nets['netD'](j)
                 self.loss_D_real += self.gan_criterion(pred_real, True)
 
         self.loss_D = (self.loss_D_fake + self.loss_D_real/4) * 0.5

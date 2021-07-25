@@ -774,7 +774,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss_style_remd = 0
         for sF in self.style_quad:
             for layer in self.style_layers:
-                self.loss_s += self.calcrs:_style_loss(self.ttF[layer], sF[layer])
+                self.loss_s += self.calc_style_loss(self.ttF[layer], sF[layer])
                 self.loss_style_remd += self.calc_style_emd_loss(
                     self.ttF['r31'], sF['r31']) + self.calc_style_emd_loss(
                     self.ttF['r41'], sF['r41'])

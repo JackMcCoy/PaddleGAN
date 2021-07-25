@@ -701,15 +701,15 @@ class LapStyleRevFirstThumb(BaseModel):
             cropped_cp = crop_upsized(self.content_stack[0], self.positions[0], self.size_stack[0], 256)
             c_downsamples = F.interpolate(self.content_stack[0], scale_factor=.5)
             s_downsamples = F.interpolate(self.style_stack[0], scale_factor=.5)
-            self.cF = self.nets['net_enc'](c_downsamples)
+            cF = self.nets['net_enc'](c_downsamples)
             sF = self.nets['net_enc'](s_downsamples)
-            self.cpF = self.nets['net_enc'](cropped_cp)
-            self.stylized_thumb_feat, self.stylized_patch_feat = self.nets[
-                'net_dec'].thumb_adaptive_instance_normalization(self.cF['r41'].detach(), self.cpF['r41'].detach(),
+            cpF = self.nets['net_enc'](cropped_cp)
+            stylized_thumb_feat, stylized_patch_feat = self.nets[
+                'net_dec'].thumb_adaptive_instance_normalization(cF['r41'].detach(), cpF['r41'].detach(),
                                                                  sF['r41'].detach())
-        cF = {'r41': self.cF['r41'] + self.stylized_thumb_feat.detach(), 'r31': self.cF['r31'], 'r21': self.cF['r21']}
-        cpF = {'r41': self.cpF['r41'] + self.stylized_patch_feat.detach(), 'r31': self.cpF['r31'],
-               'r21': self.cpF['r21']}
+        cF = {'r41': cF['r41'] + stylized_thumb_feat.detach(), 'r31': cF['r31'], 'r21': cF['r21']}
+        cpF = {'r41': cpF['r41'] + stylized_patch_feat.detach(), 'r31': cpF['r31'],
+               'r21': cpF['r21']}
         stylized_thumb = self.nets['net_dec'](cF, sF)
         stylized_small = self.nets['net_dec'](cpF, sF)
         self.visual_items['stylized_small'] = stylized_thumb

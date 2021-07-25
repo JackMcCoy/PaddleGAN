@@ -40,7 +40,7 @@ dataset:
     crop_size: 256
     thumb_size: 256
     patch_depth: 2
-    num_workers: 6
+    num_workers: 3
     style_upsize: 1
     batch_size: 3
   test:

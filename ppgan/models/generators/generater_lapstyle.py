@@ -687,7 +687,7 @@ class RevisionNetDeepThumb(nn.Layer):
         out = self.resblock(out)
         if type(thumbnail) != bool:
             feats = adaptive_instance_normalization(out, thumbnail)
-            out += alpha * feats + (1 - alpha) * out
+            out = alpha * feats + (1 - alpha) * out
         feats = out.clone()
         out = self.UpBlock(out)
         return out, feats

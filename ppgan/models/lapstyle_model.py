@@ -1214,8 +1214,8 @@ class LapStyleRevSecondPatch(BaseModel):
             weights = np.zeros((max_x, max_y), dtype=np.uint8)
             not_visited = np.empty((max_x,max_y))
             not_visited[:,:]=np.nan
-            kernel = np.ones((self.in_size_x-8,self.in_size_y-8))
-            kernel = np.pad(kernel,(4,4),'linear_ramp', end_values=(0, 0))
+            kernel = np.ones((self.in_size_x-64,self.in_size_y-64))
+            kernel = np.pad(kernel,(32,32),'linear_ramp', end_values=(0, 0))
             #tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
             for image,b,c in zip(self.out_images,positions,set_letter):
                 empty = np.isnan(not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]])
@@ -1294,6 +1294,8 @@ class LapStyleRevSecondPatch(BaseModel):
                              ends=[i+in_size_x,j+in_size_y])
                 self.first_patch_in = stylized_up_2.detach()
 
+                stylized_feats_2 = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
+                stylized_feats_2 = self.nets['net_rev_2'].resblock(stylized_feats_2)
                 lap_2 = paddle.slice(self.laplacians[2],axes=[2,3],starts=[self.outer_loop[0]*2+i,self.outer_loop[1]*2+j],
                                    ends=[self.outer_loop[0]*2+i+in_size_x,self.outer_loop[1]*2+j+in_size_y])
                 if lap_2.shape[-2]!=in_size_x or lap_2.shape[-1]!=in_size_y:
@@ -1303,7 +1305,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     print('continue, line 1314')
                     continue
                 revnet_input_2 = paddle.concat(x=[lap_2, stylized_up_2.detach()], axis=1)
-                stylized_rev_patch = self.nets['net_rev_2'](revnet_input_2.detach())
+                stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input_2.detach(),stylized_feats_2.detach())
                 stylized_rev_patch = fold_laplace_patch(
                     [stylized_rev_patch, stylized_up_2.detach()])
 
@@ -1327,7 +1329,7 @@ class LapStyleRevSecondPatch(BaseModel):
                             print('continue, line 1341')
                             continue
                         revnet_input_3 = paddle.concat(x=[lap_3, stylized_up_4.detach()], axis=1)
-                        stylized_rev_patch_second = self.nets['net_rev_2'](revnet_input_3.detach())
+                        stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input_3.detach(),stylized_feats_2.detach())
                         stylized_rev_patch_second = fold_laplace_patch(
                             [stylized_rev_patch_second, stylized_up_4.detach()])
                         image_numpy=tensor2img(stylized_rev_patch_second,min_max=(0., 1.))
@@ -1369,8 +1371,11 @@ class LapStyleRevSecondPatch(BaseModel):
         stylized_up = crop_upsized(stylized_up,self.positions[1],self.size_stack[1])
         self.first_patch_in = stylized_up.detach()
 
+        stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
+        stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
+
         revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up.detach()], axis=1)
-        stylized_rev_patch = self.nets['net_rev_2'](revnet_input.detach())
+        stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach())
         stylized_rev_patch = fold_laplace_patch(
             [stylized_rev_patch, stylized_up.detach()])
         self.visual_items['ci_3'] = self.content_stack[2]
@@ -1381,7 +1386,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.second_patch_in = stylized_up.detach()
 
         revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up.detach()], axis=1)
-        stylized_rev_patch_second = self.nets['net_rev_2'](revnet_input.detach())
+        stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach())
         stylized_rev_patch_second = fold_laplace_patch(
             [stylized_rev_patch_second, stylized_up.detach()])
         self.visual_items['ci_4'] = self.content_stack[3]
@@ -1444,7 +1449,7 @@ class LapStyleRevSecondPatch(BaseModel):
 
         self.loss = self.loss_Gp_GAN +self.loss_ps/4 * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
-                    self.loss_patch * self.content_weight *1 +\
+                    self.loss_patch * self.content_weight +\
                     self.p_loss_style_remd/4 * 18 + self.p_loss_content_relt * 26
         self.loss.backward()
 
@@ -1502,10 +1507,10 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['loss_gan_Gp2'] = loss_Gp_GAN
 
 
-        loss_patch = loss_Gp_GAN * 1.25+loss_ps/4 * self.style_weight +\
+        loss_patch = loss_Gp_GAN +loss_ps/4 * self.style_weight*1.25 +\
                     loss_content_p * self.content_weight +\
-                    loss_patch * self.content_weight *1 +\
-                    p_loss_style_remd/4 * 26 + p_loss_content_relt * 26
+                    loss_patch * self.content_weight +\
+                    p_loss_style_remd/4 *25 + p_loss_content_relt * 26
         loss_patch.backward()
 
         return loss_patch

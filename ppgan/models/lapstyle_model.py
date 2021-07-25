@@ -614,7 +614,7 @@ class LapStyleDraThumbModel(BaseModel):
             self.l_identity2_p += self.calc_content_loss(self.Fcc_p[layer],
                                                        self.cpF[layer])
 
-        self.patch_loss = self.loss_patch * 18 * self.content_weight +\
+        self.patch_loss = self.loss_patch * 1 * self.content_weight +\
                     self.loss_s_patch/4 * self.style_weight +\
                     self.loss_content_patch * self.content_weight +\
                     self.loss_style_remd_patch/4 * 18 + self.loss_content_relt_patch *24 +\

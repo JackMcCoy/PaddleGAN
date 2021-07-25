@@ -365,7 +365,7 @@ class MultiPatchSet(Dataset):
             style_patch = style_img
             for idx,c in enumerate(position_stack):
                 content_patch=content_patch.crop(box=(c[0],c[1],c[2],c[3]))
-                if idx != len(position_stack-1):
+                if idx != len(position_stack)-1:
                     style_patch = style_patch.crop(box=(c[0],c[1],c[2],c[3]))
             size_stack.append(content_patch.width)
             position_stack.append(get_crop_bounds(content_patch.width/2,content_patch.width,content_patch.height))

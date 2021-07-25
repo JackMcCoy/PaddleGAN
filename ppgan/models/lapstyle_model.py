@@ -1214,8 +1214,8 @@ class LapStyleRevSecondPatch(BaseModel):
             weights = np.zeros((max_x, max_y), dtype=np.uint8)
             not_visited = np.empty((max_x,max_y))
             not_visited[:,:]=np.nan
-            kernel = np.ones((self.in_size_x-64,self.in_size_y-64))
-            kernel = np.pad(kernel,(32,32),'linear_ramp', end_values=(0, 0))
+            kernel = np.ones((self.in_size_x-8,self.in_size_y-8))
+            kernel = np.pad(kernel,(4,4),'linear_ramp', end_values=(0, 0))
             #tiles_2 = np.zeros((max_x, max_y,3), dtype=np.uint8)
             for image,b,c in zip(self.out_images,positions,set_letter):
                 empty = np.isnan(not_visited[b[0]:b[0]+image.shape[0],b[1]:b[1]+image.shape[1]])
@@ -1442,7 +1442,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
 
-        self.loss = self.loss_Gp_GAN +self.loss_ps/4 * self.style_weight*1.08625 +\
+        self.loss = self.loss_Gp_GAN +self.loss_ps/4 * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight *.2 +\
                     self.p_loss_style_remd/4 * 18 + self.p_loss_content_relt * 26
@@ -1502,7 +1502,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['loss_gan_Gp2'] = loss_Gp_GAN
 
 
-        loss_patch = loss_Gp_GAN * 1.25+loss_ps/4 * self.style_weight*1.25 +\
+        loss_patch = loss_Gp_GAN * 1.25+loss_ps/4 * self.style_weight +\
                     loss_content_p * self.content_weight +\
                     loss_patch * self.content_weight *.1 +\
                     p_loss_style_remd/4 * 22 + p_loss_content_relt * 26

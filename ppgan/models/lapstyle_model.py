@@ -862,7 +862,6 @@ class LapStyleRevFirstThumb(BaseModel):
         reshaped = paddle.split(self.style_stack[1], 2, 2)
         for i in reshaped:
             for j in paddle.split(i, 2, 3):
-                self.style_quad.append(self.nets['net_enc'](j.detach()))
                 self.loss_D_real += self.gan_criterion(pred_real, True)
 
         self.loss_D = (self.loss_D_fake + self.loss_D_real/4) * 0.5

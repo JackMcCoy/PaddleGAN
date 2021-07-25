@@ -1485,7 +1485,6 @@ class LapStyleRevSecondPatch(BaseModel):
 
         loss_ps = 0
         p_loss_style_remd = 0
-        self.visual_items['style_secondpatches']=self.style_stack[1]
         reshaped = paddle.split(self.style_stack[1], 2, 2)
         for i in reshaped:
             for j in paddle.split(i, 2, 3):

@@ -695,7 +695,6 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.laplacians.append(laplacian(self.content_stack[1]).detach())
         self.laplacians.append(laplacian(self.content_stack[2]).detach())
-        self.laplacians.append(laplacian(self.content_stack[0]).detach())
 
         with paddle.no_grad():
             cropped_cp = crop_upsized(self.content_stack[0], self.positions[0], self.size_stack[0], 256)
@@ -715,14 +714,10 @@ class LapStyleRevFirstThumb(BaseModel):
         self.visual_items['stylized_small'] = stylized_thumb
         self.visual_items['stylized_small_patch'] = stylized_small
 
-        thumb_up = F.interpolate(stylized_thumb, scale_factor=2)
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
-        ada_in = paddle.concat(x=[self.laplacians[2],thumb_up],axis=1)
         revnet_input = paddle.concat(x=[self.laplacians[0], stylized_up], axis=1)
-        stylized_feats = self.nets['net_rev'].DownBlock(ada_in.detach())
-        stylized_feats = self.nets['net_rev'].resblock(stylized_feats)
         self.first_patch_in = stylized_up.detach()
-        stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats.detach())
+        stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach())
         #self.ttF_res=self.ttF_res.detach()
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_up])
 

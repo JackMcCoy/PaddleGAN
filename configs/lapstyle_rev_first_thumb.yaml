@@ -40,9 +40,9 @@ dataset:
     crop_size: 256
     thumb_size: 256
     patch_depth: 2
-    num_workers: 2
+    num_workers: 6
     style_upsize: 1
-    batch_size: 2
+    batch_size: 3
   test:
     name: LapStyleThumbset
     content_root: /content/gdrive/My Drive/img_style/large_pics/

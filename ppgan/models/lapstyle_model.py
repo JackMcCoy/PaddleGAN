@@ -695,21 +695,31 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.laplacians.append(laplacian(self.content_stack[1]).detach())
         self.laplacians.append(laplacian(self.content_stack[2]).detach())
+        self.laplacians.append(laplacian(self.content_stack[0]).detach())
 
-        cropped_cp = crop_upsized(self.content_stack[0],self.positions[0],self.size_stack[0],256)
-        self.cpF = self.nets['net_enc'](cropped_cp)
-        c_downsamples = F.interpolate(self.content_stack[0], scale_factor=.5)
-        cF = self.nets['net_enc'](c_downsamples)
-        s_downsamples = F.interpolate(self.style_stack[0], scale_factor=.5)
-        sF = self.nets['net_enc'](s_downsamples)
-        stylized_thumb,self.stylized_thumb_feat = self.nets['net_dec'](cF, sF, self.cpF, 'thumb')
-        stylized_small,self.stylized_patch_feat = self.nets['net_dec'](cF, sF, self.cpF, 'patch')
+        with paddle.no_grad():
+            cropped_cp = crop_upsized(self.content_stack[0], self.positions[0], self.size_stack[0], 256)
+            c_downsamples = F.interpolate(self.content_stack[0], scale_factor=.5)
+            s_downsamples = F.interpolate(self.style_stack[0], scale_factor=.5)
+            self.cF = self.nets['net_enc'](c_downsamples)
+            sF = self.nets['net_enc'](s_downsamples)
+            self.cpF = self.nets['net_enc'](cropped_cp)
+            self.stylized_thumb_feat, self.stylized_patch_feat = self.nets[
+                'net_dec'].thumb_adaptive_instance_normalization(self.cF['r41'].detach(), self.cpF['r41'].detach(),
+                                                                 sF['r41'].detach())
+        cF = {'r41': self.cF['r41'] + self.stylized_thumb_feat.detach(), 'r31': self.cF['r31'], 'r21': self.cF['r21']}
+        cpF = {'r41': self.cpF['r41'] + self.stylized_patch_feat.detach(), 'r31': self.cpF['r31'],
+               'r21': self.cpF['r21']}
+        stylized_thumb = self.nets['net_dec'](cF, sF)
+        stylized_small = self.nets['net_dec'](cpF, sF)
         self.visual_items['stylized_small'] = stylized_thumb
         self.visual_items['stylized_small_patch'] = stylized_small
 
+        thumb_up = F.interpolate(stylized_thumb, scale_factor=2)
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
+        ada_in = paddle.concat(x=[self.laplacians[2],thumb_up],axis=1)
         revnet_input = paddle.concat(x=[self.laplacians[0], stylized_up], axis=1)
-        stylized_feats = self.nets['net_rev'].DownBlock(revnet_input.detach())
+        stylized_feats = self.nets['net_rev'].DownBlock(ada_in.detach())
         stylized_feats = self.nets['net_rev'].resblock(stylized_feats)
         self.first_patch_in = stylized_up.detach()
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats.detach())
@@ -732,8 +742,6 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.cF = self.nets['net_enc'](self.content_stack[1])
         self.cpF = self.nets['net_enc'](self.content_stack[2])
-        self.sF = self.nets['net_enc'](self.style_stack[1])
-        self.spF = self.nets['net_enc'](self.style_stack[2])
         self.visual_items['content, rev 1']=self.content_stack[1]
         self.visual_items['content, rev 2']=self.content_stack[2]
         with paddle.no_grad():
@@ -763,28 +771,30 @@ class LapStyleRevFirstThumb(BaseModel):
 
         """style loss"""
         self.loss_s = 0
-        for layer in self.style_layers:
-            self.loss_s += self.calc_style_loss(self.ttF[layer], self.sF[layer])
-        self.losses['loss_s'] = self.loss_s
+        self.loss_style_remd = 0
+        for sF in self.style_quad:
+            for layer in self.style_layers:
+                self.loss_s += self.calcrs:_style_loss(self.ttF[layer], sF[layer])
+                self.loss_style_remd += self.calc_style_emd_loss(
+                    self.ttF['r31'], sF['r31']) + self.calc_style_emd_loss(
+                    self.ttF['r41'], sF['r41'])
+        self.losses['loss_s'] = self.loss_s/4
+        self.losses['loss_style_remd'] = self.loss_style_remd/4
 
         """relative loss"""
-        self.loss_style_remd = self.calc_style_emd_loss(
-            self.ttF['r31'], self.sF['r31']) + self.calc_style_emd_loss(
-                self.ttF['r41'], self.sF['r41'])
         self.loss_content_relt = self.calc_content_relt_loss(
             self.ttF['r31'], self.cF['r31']) + self.calc_content_relt_loss(
                 self.ttF['r41'], self.cF['r41'])
-        self.losses['loss_style_remd'] = self.loss_style_remd
         self.losses['loss_content_relt'] = self.loss_content_relt
 
         pred_fake = self.nets['netD'](self.stylized)
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)
         self.losses['loss_gan_G'] = self.loss_G_GAN
 
-        self.loss = self.loss_G_GAN*1.5 + self.loss_s *self.style_weight*1.25 +\
+        self.loss = self.loss_G_GAN*1.5 + self.loss_s/4 *self.style_weight*1.25 +\
                     self.loss_content * self.content_weight+\
                     self.loss_patch*self.content_weight*.4+\
-                    self.loss_style_remd * 20 +\
+                    self.loss_style_remd/4 * 20 +\
                     self.loss_content_relt * 26
         self.loss.backward()
         optimizer.step()
@@ -807,18 +817,23 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_content_p'] = self.loss_content_p
 
         self.loss_ps = 0
-        for layer in self.content_layers:
-            self.loss_ps += self.calc_style_loss(self.tpF[layer],
-                                                          self.spF[layer])
-        self.losses['loss_ps'] = self.loss_ps
+        self.p_loss_style_remd = 0
+        reshaped = paddle.split(self.style_stack[2], 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                spF = self.nets['net_enc'](j.detach())
+                for layer in self.content_layers:
+                    self.loss_ps += self.calc_style_loss(self.tpF[layer],
+                                                                  spF[layer])
+                    self.p_loss_style_remd+=self.calc_style_emd_loss(
+                        self.tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
+                        self.tpF['r41'], spF['r41'])
+        self.losses['loss_ps'] = self.loss_ps/4
+        self.losses['p_loss_style_remd'] = self.p_loss_style_remd/4
 
-        self.p_loss_style_remd = self.calc_style_emd_loss(
-            self.tpF['r31'], self.spF['r31']) + self.calc_style_emd_loss(
-            self.tpF['r41'], self.spF['r41'])
         self.p_loss_content_relt = self.calc_content_relt_loss(
             self.tpF['r31'], self.cpF['r31']) + self.calc_content_relt_loss(
             self.tpF['r41'], self.cpF['r41'])
-        self.losses['p_loss_style_remd'] = self.p_loss_style_remd
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
         """gan loss"""
@@ -827,11 +842,11 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
 
-        self.loss = self.loss_Gp_GAN+self.loss_ps *1.5 * self.style_weight*1.75 +\
+        self.loss = self.loss_Gp_GAN+self.loss_ps/4 *1.5 * self.style_weight*1.75 +\
                           self.loss_content_p * self.content_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight*.75 +\
-                    self.p_loss_style_remd * 26 + self.p_loss_content_relt * 26
+                    self.p_loss_style_remd/4 * 26 + self.p_loss_content_relt * 26
         self.loss.backward()
 
         return self.loss
@@ -841,15 +856,21 @@ class LapStyleRevFirstThumb(BaseModel):
         pred_fake = self.nets['netD'](self.stylized.detach())
         self.loss_D_fake = self.gan_criterion(pred_fake, False)
 
-        pred_real = self.nets['netD'](self.style_stack[1])
-        self.loss_D_real = self.gan_criterion(pred_real, True)
+        self.loss_D_real = 0
+        self.style_quad=[]
+        reshaped = paddle.split(self.style_stack[1], 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                self.style_quad.append(self.nets['net_enc'](j.detach()))
+                pred_real = self.nets['netD'](j)
+                self.loss_D_real += self.gan_criterion(pred_real, True)
 
-        self.loss_D = (self.loss_D_fake + self.loss_D_real) * 0.5
+        self.loss_D = (self.loss_D_fake + self.loss_D_real/4) * 0.5
 
         self.loss_D.backward()
 
         self.losses['D_fake_loss'] = self.loss_D_fake
-        self.losses['D_real_loss'] = self.loss_D_real
+        self.losses['D_real_loss'] = self.loss_D_real/4
 
 
     def backward_Dpatch(self):
@@ -858,14 +879,17 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
         pred_Dp_real = 0
-        self.loss_Dp_real = self.nets['netD_patch'](self.style_stack[2])
-        pred_Dp_real += self.gan_criterion(self.loss_Dp_real, True)
-        self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real) * 0.5
+        reshaped = paddle.split(self.style_stack[2], 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                self.loss_Dp_real = self.nets['netD_patch'](j)
+                pred_Dp_real += self.gan_criterion(self.loss_Dp_real, True)
+        self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real/4) * 0.5
 
         self.loss_D_patch.backward()
 
         self.losses['Dp_fake_loss'] = self.loss_Dp_fake
-        self.losses['Dp_real_loss'] = pred_Dp_real
+        self.losses['Dp_real_loss'] = pred_Dp_real/4
 
     def train_iter(self, optimizers=None):
         # compute fake images: G(A)

@@ -1302,6 +1302,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 if stylized_up_2.shape[-2]!=in_size_x or stylized_up_2.shape[-1]!=in_size_y:
                     print('continue, line 1314')
                     continue
+                revnet_input_2 = paddle.concat(x=[lap_2, stylized_up_2.detach()], axis=1)
                 stylized_rev_patch = self.nets['net_rev_2'](revnet_input_2.detach())
                 stylized_rev_patch = fold_laplace_patch(
                     [stylized_rev_patch, stylized_up_2.detach()])

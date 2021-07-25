@@ -775,7 +775,7 @@ class LapStyleRevFirstThumb(BaseModel):
         reshaped = paddle.split(self.style_stack[1], 2, 2)
         for i in reshaped:
             for j in paddle.split(i, 2, 3):
-                sf = self.nets['net_enc'](j)
+                sF = self.nets['net_enc'](j)
                 self.loss_s += self.calc_style_loss(self.ttF[layer], sF[layer])
                 self.loss_style_remd += self.calc_style_emd_loss(
                     self.ttF['r31'], sF['r31']) + self.calc_style_emd_loss(

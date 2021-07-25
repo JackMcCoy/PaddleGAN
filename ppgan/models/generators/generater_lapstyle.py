@@ -675,7 +675,7 @@ class RevisionNetDeepThumb(nn.Layer):
         self.DownBlock = nn.Sequential(*DownBlock)
         self.UpBlock = nn.Sequential(*UpBlock)
 
-    def forward(self, input,thumbnail=False):
+    def forward(self, input,thumbnail=False,alpha=1):
         """
         Args:
             input (Tensor): (b, 6, 256, 256) is concat of last input and this lap.
@@ -686,7 +686,8 @@ class RevisionNetDeepThumb(nn.Layer):
         out = self.DownBlock(input)
         out = self.resblock(out)
         if type(thumbnail) != bool:
-            out += adaptive_instance_normalization(out, thumbnail)
+            feats += adaptive_instance_normalization(out, thumbnail)
+            feats = alpha * feats + (1 - alpha) * out
         feats = out.clone()
         out = self.UpBlock(out)
         return out, feats

@@ -1395,12 +1395,11 @@ class LapStyleRevSecondPatch(BaseModel):
     def backward_G(self):
         self.cF = self.nets['net_enc'](self.content_stack[-2])
 
-        #with paddle.no_grad():
-        #    self.tt_cropF = self.nets['net_enc'](self.first_patch_in)
+        with paddle.no_grad():
+            self.tt_cropF = self.nets['net_enc'](self.first_patch_in)
 
         self.tpF = self.nets['net_enc'](self.stylized)
 
-        '''
         """patch loss"""
         self.loss_patch = 0
         # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
@@ -1409,7 +1408,6 @@ class LapStyleRevSecondPatch(BaseModel):
             self.loss_patch += paddle.clip(self.calc_content_loss(self.tpF[layer],
                                                       self.tt_cropF[layer]), 1e-5, 1e5)
         self.losses['loss_patch'] = self.loss_patch
-        '''
 
         self.loss_content_p = 0
         for layer in self.content_layers:
@@ -1448,8 +1446,8 @@ class LapStyleRevSecondPatch(BaseModel):
 
         self.loss = self.loss_Gp_GAN +self.loss_ps/4 * self.style_weight*1.08625 +\
                     self.loss_content_p * self.content_weight +\
+                    self.loss_patch * self.content_weight *.2 +\
                     self.p_loss_style_remd/4 * 18 + self.p_loss_content_relt * 26
-                    #self.loss_patch * self.content_weight *20 +\
         self.loss.backward()
 
         return self.loss
@@ -1457,13 +1455,12 @@ class LapStyleRevSecondPatch(BaseModel):
     def backward_G_p(self):
         cF = self.nets['net_enc'](self.content_stack[-1])
 
-        #with paddle.no_grad():
-        #    tt_cropF = self.nets['net_enc'](self.second_patch_in)
+        with paddle.no_grad():
+            tt_cropF = self.nets['net_enc'](self.second_patch_in)
 
         tpF = self.nets['net_enc'](self.p_stylized)
 
         """patch loss"""
-        '''
         loss_patch = 0
         # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
         #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
@@ -1471,7 +1468,7 @@ class LapStyleRevSecondPatch(BaseModel):
             loss_patch += paddle.clip(self.calc_content_loss(tpF[layer],
                                                       tt_cropF[layer]), 1e-5, 1e5)
         self.losses['loss_patch2'] = loss_patch
-        '''
+
         loss_content_p = 0
         for layer in self.content_layers:
             loss_content_p += paddle.clip(self.calc_content_loss(tpF[layer],
@@ -1507,10 +1504,10 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['loss_gan_Gp2'] = loss_Gp_GAN
 
 
-        loss_patch = loss_Gp_GAN*1.25 +loss_ps/4 * self.style_weight*1.25 +\
+        loss_patch = loss_Gp_GAN * 1.25+loss_ps/4 * self.style_weight*1.25 +\
                     loss_content_p * self.content_weight +\
-                    p_loss_style_remd/4 * 26 + p_loss_content_relt * 26
-                     #loss_patch * self.content_weight *20 +\
+                    loss_patch * self.content_weight *.1 +\
+                    p_loss_style_remd/4 * 22 + p_loss_content_relt * 26
         loss_patch.backward()
 
         return loss_patch

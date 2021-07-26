@@ -1390,7 +1390,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.second_patch_in = stylized_up.detach()
 
         revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up.detach()], axis=1)
-        stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha)
+        stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),1)
         stylized_rev_patch_second = fold_laplace_patch(
             [stylized_rev_patch_second, stylized_up.detach()])
         self.visual_items['ci_4'] = self.content_stack[3]
@@ -1513,7 +1513,7 @@ class LapStyleRevSecondPatch(BaseModel):
         loss_patch = loss_Gp_GAN +loss_ps/4 * self.style_weight*1.25 +\
                     loss_content_p * self.content_weight +\
                     loss_patch * self.content_weight *25+\
-                    p_loss_style_remd/4 *25 + p_loss_content_relt * 26
+                    p_loss_style_remd/4 + p_loss_content_relt * 26
         loss_patch.backward()
 
         return loss_patch

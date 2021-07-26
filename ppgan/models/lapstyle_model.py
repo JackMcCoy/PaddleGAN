@@ -696,7 +696,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
 
         self.loss_content = 0
-        for layer in self.content_layers:
+        for layer in self.content_layers[:-1]:
             self.loss_content += self.calc_content_loss(self.ttF[layer],
                                                       self.cF[layer],
                                                       norm=True)
@@ -740,7 +740,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_patch'] = self.loss_patch
 
         self.loss_content_p = 0
-        for layer in self.content_layers:
+        for layer in self.content_layers[:-1]:
             self.loss_content_p += self.calc_content_loss(self.tpF[layer],
                                                       self.cpF[layer],
                                                       norm=True)

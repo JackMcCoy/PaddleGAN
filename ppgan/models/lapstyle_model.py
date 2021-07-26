@@ -600,7 +600,8 @@ class LapStyleRevFirstThumb(BaseModel):
                  content_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
                  style_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
                  content_weight=1.0,
-                 style_weight=3.0):
+                 style_weight=3.0,
+                 ada_alpha=1.0):
 
         super(LapStyleRevFirstThumb, self).__init__()
 
@@ -630,6 +631,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.style_layers = style_layers
         self.content_weight = content_weight
         self.style_weight = style_weight
+        self.ada_alpha = ada_alpha
 
     def setup_input(self, input):
 
@@ -670,7 +672,7 @@ class LapStyleRevFirstThumb(BaseModel):
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
         p_stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
         p_revnet_input = paddle.concat(x=[self.pyr_cp[0], p_stylized_up], axis=1)
-        p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach())
+        p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach(),self.ada_alpha)
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_up.detach()])
 
         self.stylized = stylized_rev
@@ -768,7 +770,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss = self.loss_Gp_GAN +self.loss_ps * self.style_weight*2 +\
                           self.loss_content_p * self.content_weight +\
                     self.loss_content_p * self.content_weight +\
-                    self.loss_patch * self.content_weight * 50 +\
+                    self.loss_patch * self.content_weight * 30 +\
                     self.p_loss_style_remd * 26 + self.p_loss_content_relt * 26
         self.loss.backward()
 
@@ -1115,7 +1117,8 @@ class LapStyleRevSecondPatch(BaseModel):
                  content_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
                  style_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
                  content_weight=1.0,
-                 style_weight=3.0):
+                 style_weight=3.0,
+                 ada_alpha=1.0):
 
         super(LapStyleRevSecondPatch, self).__init__()
 
@@ -1149,6 +1152,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.style_layers = style_layers
         self.content_weight = content_weight
         self.style_weight = style_weight
+        self.ada_alpha = ada_alpha
 
     def test_iter(self, output_dir=None,metrics=None):
         self.eval()
@@ -1305,7 +1309,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     print('continue, line 1314')
                     continue
                 revnet_input_2 = paddle.concat(x=[lap_2, stylized_up_2.detach()], axis=1)
-                stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input_2.detach(),stylized_feats_2.detach())
+                stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input_2.detach(),stylized_feats_2.detach(),self.ada_alpha)
                 stylized_rev_patch = fold_laplace_patch(
                     [stylized_rev_patch, stylized_up_2.detach()])
 
@@ -1329,7 +1333,7 @@ class LapStyleRevSecondPatch(BaseModel):
                             print('continue, line 1341')
                             continue
                         revnet_input_3 = paddle.concat(x=[lap_3, stylized_up_4.detach()], axis=1)
-                        stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input_3.detach(),stylized_feats_2.detach())
+                        stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input_3.detach(),stylized_feats_2.detach(),self.ada_alpha)
                         stylized_rev_patch_second = fold_laplace_patch(
                             [stylized_rev_patch_second, stylized_up_4.detach()])
                         image_numpy=tensor2img(stylized_rev_patch_second,min_max=(0., 1.))
@@ -1360,7 +1364,7 @@ class LapStyleRevSecondPatch(BaseModel):
             stylized_feats = self.stylized_feats
         stylized_up = crop_upsized(stylized_up,self.positions[0],self.size_stack[0])
         revnet_input = paddle.concat(x=[self.laplacians[1], stylized_up], axis=1)
-        stylized_rev_lap_second,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats)
+        stylized_rev_lap_second,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats,.75)
         stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up])
         self.visual_items['ci_2'] = self.content_stack[1]
         self.stylized= stylized_rev_second
@@ -1375,7 +1379,7 @@ class LapStyleRevSecondPatch(BaseModel):
         stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
 
         revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up.detach()], axis=1)
-        stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach())
+        stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha)
         stylized_rev_patch = fold_laplace_patch(
             [stylized_rev_patch, stylized_up.detach()])
         self.visual_items['ci_3'] = self.content_stack[2]
@@ -1386,7 +1390,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.second_patch_in = stylized_up.detach()
 
         revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up.detach()], axis=1)
-        stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach())
+        stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha)
         stylized_rev_patch_second = fold_laplace_patch(
             [stylized_rev_patch_second, stylized_up.detach()])
         self.visual_items['ci_4'] = self.content_stack[3]
@@ -1481,7 +1485,6 @@ class LapStyleRevSecondPatch(BaseModel):
 
         loss_ps = 0
         p_loss_style_remd = 0
-
         reshaped = paddle.split(self.style_stack[1], 2, 2)
         for i in reshaped:
             for j in paddle.split(i, 2, 3):

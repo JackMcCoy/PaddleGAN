@@ -30,7 +30,7 @@ model:
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
   style_weight: 5
-  ada_alpha: .15
+  ada_alpha: .125
 
 dataset:
   train:

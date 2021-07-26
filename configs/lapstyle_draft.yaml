@@ -41,7 +41,6 @@ dataset:
     load_size: 128
     crop_size: 128
     thumb_size: 128
-    patch_depth: 1
     num_workers: 0
     batch_size: 1
 

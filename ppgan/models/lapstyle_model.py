@@ -96,7 +96,7 @@ class LapStyleDraModel(BaseModel):
         self.l_identity1 = self.calc_content_loss(self.Icc, self.ci)
         self.Fcc = self.nets['net_enc'](self.Icc)
         self.l_identity2 = 0
-        for layer in self.content_layers[:-1]:
+        for layer in self.content_layers:
             self.l_identity2 += self.calc_content_loss(self.Fcc[layer],
                                                        self.cF[layer])
         self.losses['l_identity1'] = self.l_identity1

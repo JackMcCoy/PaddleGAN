@@ -77,7 +77,7 @@ class LapStyleSpectralDiscriminator(nn.Layer):
                               1,
                               kernel_size=3,
                               stride=1,
-                              padding=1)),
+                              padding=1))),
                                    ('sigmoid',nn.Sigmoid()))
 
     def forward(self, x):

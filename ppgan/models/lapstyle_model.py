@@ -81,14 +81,14 @@ class LapStyleDraModel(BaseModel):
         self.tF = self.nets['net_enc'](self.stylized)
         """content loss"""
         self.loss_c = 0
-        for layer in self.content_layers:
+        for layer in self.content_layers[:-1]:
             self.loss_c += self.calc_content_loss(self.tF[layer],
                                                   self.cF[layer],
                                                   norm=True)
         self.losses['loss_c'] = self.loss_c
         """style loss"""
         self.loss_s = 0
-        for layer in self.style_layers:
+        for layer in self.style_layers[-1]:
             self.loss_s += self.calc_style_loss(self.tF[layer], self.sF[layer])
         self.losses['loss_s'] = self.loss_s
         """IDENTITY LOSSES"""
@@ -96,7 +96,7 @@ class LapStyleDraModel(BaseModel):
         self.l_identity1 = self.calc_content_loss(self.Icc, self.ci)
         self.Fcc = self.nets['net_enc'](self.Icc)
         self.l_identity2 = 0
-        for layer in self.content_layers:
+        for layer in self.content_layers[:-1]:
             self.l_identity2 += self.calc_content_loss(self.Fcc[layer],
                                                        self.cF[layer])
         self.losses['l_identity1'] = self.l_identity1

@@ -32,7 +32,7 @@ model:
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
   style_weight: 5
-  ada_alpha: .2
+  ada_alpha: .1
 
 dataset:
   train:
@@ -44,8 +44,8 @@ dataset:
     thumb_size: 256
     patch_depth: 4
     style_upsize: 1
-    num_workers: 16
-    batch_size: 2
+    num_workers: 5
+    batch_size: 5
   test:
     name: LapStyleThumbsetInference
     content_root: /content/gdrive/My Drive/img_style/inference_test/

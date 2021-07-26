@@ -61,26 +61,23 @@ class LapStyleSpectralDiscriminator(nn.Layer):
         num_layer = 3
         num_channel = num_channels
         self.head = nn.Sequential(
-            spectral_norm(('conv',
-             nn.Conv2D(3, num_channel, kernel_size=3, stride=1, padding=1))),
+            ('conv',spectral_norm(nn.Conv2D(3, num_channel, kernel_size=3, stride=1, padding=1))),
             ('LeakyRelu', nn.LeakyReLU(0.2)))
         self.body = nn.Sequential()
         for i in range(num_layer - 2):
             self.body.add_sublayer(
                 'conv%d' % (i + 1),
-                nn.Conv2D(num_channel,
+                spectral_norm(nn.Conv2D(num_channel,
                           num_channel,
                           kernel_size=3,
                           stride=1,
-                          padding=1))
-            self.body.add_sublayer('norm%d' % (i + 1),
-                                   nn.BatchNorm2D(num_channel))
+                          padding=1)))
             self.body.add_sublayer('LeakyRelu%d' % (i + 1), nn.LeakyReLU(0.2))
-        self.tail = nn.Conv2D(num_channel,
+        self.tail = spectral_norm(nn.Conv2D(num_channel,
                               1,
                               kernel_size=3,
                               stride=1,
-                              padding=1)
+                              padding=1))
 
     def forward(self, x):
         x = self.head(x)

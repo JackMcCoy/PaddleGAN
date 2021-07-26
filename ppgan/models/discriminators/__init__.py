@@ -23,4 +23,4 @@ from .syncnet import SyncNetColor
 from .wav2lip_disc_qual import Wav2LipDiscQual
 from .discriminator_starganv2 import StarGANv2Discriminator
 from .discriminator_firstorder import FirstOrderDiscriminator
-from .discriminator_lapstyle import LapStyleDiscriminator
+from .discriminator_lapstyle import LapStyleDiscriminator, LapStyleSpectralDiscriminator

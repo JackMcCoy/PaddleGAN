@@ -9,7 +9,7 @@ model:
   revnet_generator:
     name: RevisionNetDeepThumb
   revnet_discriminator:
-    name: LapStyleDiscriminator
+    name: LapStyleSpectralDiscriminator
     num_channels: 16
   draftnet_encode:
     name: Encoder

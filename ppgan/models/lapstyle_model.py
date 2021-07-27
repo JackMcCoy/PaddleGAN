@@ -1119,7 +1119,9 @@ class LapStyleRevSecondPatch(BaseModel):
                  content_weight=1.0,
                  style_weight=3.0,
                  ada_alpha=1.0,
-                 ada_alpha_2=1.0):
+                 ada_alpha_2=1.0,
+                 gan_thumb_weight=1.0,
+                 gan_patch_weight=1.0):
 
         super(LapStyleRevSecondPatch, self).__init__()
 
@@ -1155,6 +1157,8 @@ class LapStyleRevSecondPatch(BaseModel):
         self.style_weight = style_weight
         self.ada_alpha = ada_alpha
         self.ada_alpha_2 = ada_alpha_2
+        self.gan_thumb_weight = gan_thumb_weight
+        self.gan_patch_weight = gan_patch_weight
 
     def test_iter(self, output_dir=None,metrics=None):
         self.eval()
@@ -1453,7 +1457,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
 
-        self.loss = self.loss_Gp_GAN +self.loss_ps/4 * self.style_weight +\
+        self.loss = self.loss_Gp_GAN *self.gan_thumb_weight +self.loss_ps/4 * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight * 5 +\
                     self.p_loss_style_remd/4 * 18 + self.p_loss_content_relt * 18
@@ -1512,7 +1516,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['loss_gan_Gp2'] = loss_Gp_GAN
 
 
-        loss_patch = loss_Gp_GAN +loss_ps/4 * self.style_weight*1.5 +\
+        loss_patch = loss_Gp_GAN * self.gan_patch_weight +loss_ps/4 * self.style_weight*1.5 +\
                     loss_content_p * self.content_weight +\
                     loss_patch * self.content_weight * 5+\
                     p_loss_style_remd/4 *26 + p_loss_content_relt * 26

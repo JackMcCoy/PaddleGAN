@@ -33,6 +33,7 @@ model:
   content_weight: 1
   style_weight: 5
   ada_alpha: .16
+  ada_alpha_2: .05
 
 dataset:
   train:

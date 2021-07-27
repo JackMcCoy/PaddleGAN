@@ -601,7 +601,8 @@ class LapStyleRevFirstThumb(BaseModel):
                  style_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
                  content_weight=1.0,
                  style_weight=3.0,
-                 ada_alpha=1.0):
+                 ada_alpha=1.0,
+                 style_patch_alpha=.5):
 
         super(LapStyleRevFirstThumb, self).__init__()
 
@@ -632,6 +633,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.content_weight = content_weight
         self.style_weight = style_weight
         self.ada_alpha = ada_alpha
+        self.style_patch_alpha = style_patch_alpha
 
     def setup_input(self, input):
 
@@ -752,6 +754,14 @@ class LapStyleRevFirstThumb(BaseModel):
                                                           self.sF[layer])
         self.losses['loss_ps'] = self.loss_ps
 
+        self.loss_psp = 0
+        for layer in self.content_layers:
+            self.loss_ps += self.calc_style_loss(self.tpF[layer],
+                                                 self.spF[layer])
+        self.losses['loss_psp'] = self.loss_psp
+
+        style_mix_loss = self.loss_psp * self.style_patch_alpha + (1-self.style_patch_alpha)*self.loss-ps
+
         self.p_loss_style_remd = self.calc_style_emd_loss(
             self.tpF['r31'], self.spF['r31']) + self.calc_style_emd_loss(
             self.tpF['r41'], self.spF['r41'])
@@ -767,10 +777,10 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
 
-        self.loss = self.loss_Gp_GAN * 1.5 +self.loss_ps * self.style_weight*1.5 +\
+        self.loss = self.loss_Gp_GAN * 1.5 +style_mix_loss * self.style_weight*1.5 +\
                           self.loss_content_p * self.content_weight +\
                     self.loss_content_p * self.content_weight +\
-                    self.loss_patch * self.content_weight * 35 +\
+                    self.loss_patch * self.content_weight * 28 +\
                     self.p_loss_style_remd * 24 + self.p_loss_content_relt * 24
         self.loss.backward()
 

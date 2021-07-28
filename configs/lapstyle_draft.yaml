@@ -33,7 +33,7 @@ dataset:
     crop_size: 128
     thumb_size: 128
     patch_depth: 0
-    style_upsize: 1.25
+    style_upsize: 1.125
     num_workers: 16
     batch_size: 1
   test:

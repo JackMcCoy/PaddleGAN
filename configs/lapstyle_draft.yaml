@@ -31,6 +31,8 @@ dataset:
     style_root: /content/PaddleGAN/starrypatched1024.png
     load_size: 132
     crop_size: 128
+    thumb_size: 128
+    patch_depth: 0
     style_upsize: 1.25
     num_workers: 16
     batch_size: 5

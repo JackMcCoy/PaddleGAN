@@ -26,7 +26,7 @@ model:
 
 dataset:
   train:
-    name: LapStyleDataset
+    name: LapStyleThumbsetInference
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
     style_root: /content/PaddleGAN/starrypatched1024.png
     load_size: 132
@@ -58,7 +58,7 @@ optimizer:
     beta2: 0.999
 
 validate:
-  interval: 40000
+  interval: 100000
   save_img: false
 
 log_config:

@@ -521,8 +521,14 @@ class LapStyleThumbsetInference(Dataset):
             content_thumb=content_thumb[:,:closest*16,:]
             content_img = content_img[:,:closest*16*ratio,:]
         assert content_thumb.shape == style_thumb.shape
+        for i in range(self.patch_depth):
+            bottommost = random.choice(list(range(0, content_img.shape[1] - self.crop_size,2)))
+            topmost=bottommost+content_patch.shape[1]
+            leftmost = random.choice(list(range(0, content_img.shape[2] - self.crop_size,2)))
+            rightmost = leftmost+content_patch.shape[2]
+            position_stack.append((math.floor(bottommost/2),math.floor(topmost/2),math.floor(leftmost/2),math.floor(rightmost/2)))
         #output = {'content':content_img,'style':style_img,'content_thumb':zero_thumb,'style_thumb':style_thumb,'content_shape':thumb_shape}
-        output={'content':content_img,'ci':content_thumb,'position':{},'cp':content_thumb,'si':style_thumb,'sp':style_thumb,'ci_path':path}
+        output={'content':content_img,'ci':content_thumb,'position':position_stack,'cp':content_thumb,'si':style_thumb,'sp':style_thumb,'ci_path':path}
         return output
 
     def img(self, img):

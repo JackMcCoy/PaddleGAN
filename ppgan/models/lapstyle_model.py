@@ -1217,7 +1217,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     self.second_set = 'b' if idx+1>orig_len_x or idx2+1>orig_len_y else 'a'
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
-                    self.test_forward(self.stylized_slice,self.stylized_feats,self.a)
+                    self.test_forward(self.stylized_slice,self.stylized_feats)
             positions = [(int(re.split('_|\.',i)[0]),int(re.split('_|\.',i)[1])) for i in self.labels]
             set_letter = [re.split('_|\.',i)[2] for i in self.labels]
             max_x = 0
@@ -1290,7 +1290,7 @@ class LapStyleRevSecondPatch(BaseModel):
         lap = paddle.slice(self.laplacians[1],axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
                              ends=[self.positions[0][2],self.positions[0][3]])
         revnet_input = paddle.concat(x=[lap, stylized_up], axis=1)
-        stylized_rev_lap_second,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats,.75)
+        stylized_rev_lap_second,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats,self.ada_alpha)
         stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up])
         stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
         size_x = stylized_up.shape[-2]

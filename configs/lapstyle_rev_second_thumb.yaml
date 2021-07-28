@@ -32,10 +32,10 @@ model:
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 4
   style_weight: 5
-  ada_alpha: .16
+  ada_alpha: .185
   ada_alpha_2: .02
   gan_thumb_weight: 1.5
-  gan_patch_weight: 1.5
+  gan_patch_weight: 2
 
 dataset:
   train:

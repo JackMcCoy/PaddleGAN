@@ -20,7 +20,7 @@ model:
     name: CalcStyleLoss
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
-  content_weight: 1
+  content_weight: 2.3
   style_weight: 5
 
 
@@ -31,7 +31,7 @@ dataset:
     style_root: /content/PaddleGAN/starrypatched1024.png
     load_size: 132
     crop_size: 128
-    style_upsize: 1.2
+    style_upsize: 1.25
     num_workers: 16
     batch_size: 5
   test:

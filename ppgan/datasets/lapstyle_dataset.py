@@ -506,6 +506,7 @@ class LapStyleThumbsetInference(Dataset):
         content_thumb = self.img(content_thumb)
         style_thumb = np.array(style_thumb)
         style_thumb = self.img(style_thumb)
+        style_img = self.img(style_img)
         sizes=style_thumb.shape
         ratio = math.floor(self.load_size/self.crop_size)
         content_img = self.img(content_img)
@@ -528,7 +529,7 @@ class LapStyleThumbsetInference(Dataset):
             rightmost = leftmost+style_thumb.shape[2]
             position_stack.append((math.floor(bottommost/2),math.floor(topmost/2),math.floor(leftmost/2),math.floor(rightmost/2)))
         #output = {'content':content_img,'style':style_img,'content_thumb':zero_thumb,'style_thumb':style_thumb,'content_shape':thumb_shape}
-        output={'content':content_img,'ci':content_thumb,'position':position_stack,'cp':content_thumb,'si':style_thumb,'sp':style_thumb,'ci_path':path}
+        output={'content':content_img,'ci':content_thumb,'position':position_stack,'cp':content_thumb,'si':style_thumb,'sp':style_thumb,'style':style_img,'ci_path':path}
         return output
 
     def img(self, img):

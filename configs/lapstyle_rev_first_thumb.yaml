@@ -43,7 +43,7 @@ dataset:
     thumb_size: 256
     patch_depth: 1
     num_workers: 8
-    style_upsize: 1
+    style_upsize: 1.125
     batch_size: 1
   test:
     name: LapStyleThumbset

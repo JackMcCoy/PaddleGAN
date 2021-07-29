@@ -637,7 +637,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
     def setup_input(self, input):
 
-        self.position = input['position_stack']
+        self.position = input['position']
         self.ci = paddle.to_tensor(input['ci'])
         self.visual_items['ci'] = self.ci
         self.si = paddle.to_tensor(input['si'])

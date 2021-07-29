@@ -687,6 +687,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
+        self.spF = self.nets['net_enc'](self.sp)
 
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear', align_corners=False)

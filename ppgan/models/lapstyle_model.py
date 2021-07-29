@@ -641,10 +641,8 @@ class LapStyleRevFirstThumb(BaseModel):
         self.ci = paddle.to_tensor(input['ci'])
         self.visual_items['ci'] = self.ci
         self.si = paddle.to_tensor(input['si'])
-        self.cp = paddle.to_tensor(paddle.slice(input['content'], axes=[2, 3], starts=[self.position[0]*2, self.position[2]*2],
-                                   ends=[self.position[1]*2, self.position[3]*2]))
-        self.sp = paddle.to_tensor(paddle.slice(input['style'], axes=[2, 3], starts=[self.position[0]*2, self.position[2]*2],
-                                   ends=[self.position[1]*2, self.position[3]*2]))
+        self.cp = input['content']
+        self.sp = input['style']
         self.cp = F.interpolate(self.cp, scale_factor=.5)
         self.sp = F.interpolate(self.sp, scale_factor=.5)
         self.visual_items['cp'] = self.cp

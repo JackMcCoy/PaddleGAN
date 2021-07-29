@@ -1258,7 +1258,7 @@ class LapStyleRevSecondPatch(BaseModel):
                 img_path = os.path.join(self.output_dir, 'visual_test',
                                         '%s.png' % (label))
                 im.save(img_path)
-            shutil.rmtree(os.path.join(self.output_dir, 'visual_test','tiles'))
+            #shutil.rmtree(os.path.join(self.output_dir, 'visual_test','tiles'))
             self.paths=[]
         self.train()
 

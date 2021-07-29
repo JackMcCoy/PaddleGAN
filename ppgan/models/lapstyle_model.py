@@ -643,7 +643,8 @@ class LapStyleRevFirstThumb(BaseModel):
         self.si = paddle.to_tensor(input['si'])
         self.cp = paddle.to_tensor(paddle.slice(input['content'], axes=[2, 3], starts=[self.position[0]*2, self.position[2]*2],
                                  ends=[self.position[1]*2, self.position[3]*2]))
-        self.sp = input['style']
+        self.sp = paddle.to_tensor(paddle.slice(input['style'], axes=[2, 3], starts=[self.position[0]*2, self.position[2]*2],
+                                 ends=[self.position[1]*2, self.position[3]*2]))
         self.visual_items['cp'] = self.cp
 
         self.pyr_ci = make_laplace_pyramid(self.ci, 1)
@@ -808,8 +809,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
         pred_Dp_real = 0
-        reshaped = paddle.slice(self.sp, axes=[2, 3], starts=[self.position[0]*2,self.position[2]*2],ends=[self.position[1]*2,self.position[3]*2])
-        self.loss_Dp_real = self.nets['netD_patch'](reshaped)
+        self.loss_Dp_real = self.nets['netD_patch'](self.sp)
         pred_Dp_real += self.gan_criterion(self.loss_Dp_real, True)
         self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real) * 0.5
 

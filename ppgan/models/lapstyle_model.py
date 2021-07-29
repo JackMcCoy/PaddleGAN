@@ -669,8 +669,9 @@ class LapStyleRevFirstThumb(BaseModel):
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
 
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
-        p_stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-        p_revnet_input = paddle.concat(x=[self.pyr_cp[0], p_stylized_up], axis=1)
+        patch = paddle.to_tensor(paddle.slice(stylized_up, axes=[2, 3], starts=[self.position[0]*2, self.position[2]*2],
+                                   ends=[self.position[1]*2, self.position[3]*2]))
+        p_revnet_input = paddle.concat(x=[self.pyr_cp[0], patch], axis=1)
         p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach(),self.ada_alpha)
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_up.detach()])
 

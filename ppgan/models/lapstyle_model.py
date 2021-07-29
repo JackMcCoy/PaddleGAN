@@ -643,6 +643,10 @@ class LapStyleRevFirstThumb(BaseModel):
         self.si = paddle.to_tensor(input['si'])
         self.cp = input['cp']
         self.sp = input['sp']
+        print('cp shape='+str(self.cp.shape))
+        print('sp shape='+str(self.sp.shape))
+        print('si shape='+str(self.si.shape))
+        print('ci shape='+str(self.ci.shape))
         self.visual_items['cp'] = self.cp
 
         self.pyr_ci = make_laplace_pyramid(self.ci, 1)
@@ -655,8 +659,8 @@ class LapStyleRevFirstThumb(BaseModel):
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
 
-        cF = self.nets['net_enc'](self.pyr_ci[1])
-        sF = self.nets['net_enc'](self.pyr_si[1])
+        cF = self.nets['net_enc'](self.ci)
+        sF = self.nets['net_enc'](self.si)
         transformed = paddle.slice(self.sp, axes=[2, 3], starts=[self.position[0], self.position[2]],
                                    ends=[self.position[1], self.position[3]])
         self.spF = self.nets['net_enc'](transformed)

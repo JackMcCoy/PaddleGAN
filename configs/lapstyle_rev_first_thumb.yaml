@@ -41,9 +41,10 @@ dataset:
     load_size: 512
     crop_size: 256
     thumb_size: 256
+    patch_depth: 1
     num_workers: 8
     style_upsize: 1
-    batch_size: 5
+    batch_size: 1
   test:
     name: LapStyleThumbset
     content_root: /content/gdrive/My Drive/img_style/large_pics/
@@ -86,7 +87,7 @@ validate:
 
 log_config:
   interval: 10
-  visiual_interval: 100
+  visiual_interval: 500
 
 snapshot_config:
-  interval: 1000
+  interval: 5000

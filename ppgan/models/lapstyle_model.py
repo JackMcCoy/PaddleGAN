@@ -641,10 +641,10 @@ class LapStyleRevFirstThumb(BaseModel):
         self.ci = paddle.to_tensor(input['ci'])
         self.visual_items['ci'] = self.ci
         self.si = paddle.to_tensor(input['si'])
-        self.cp = paddle.to_tensor(paddle.slice(input['content'], axes=[2, 3], starts=[self.position[2]*2, self.position[0]*2],
-                                 ends=[self.position[3]*2, self.position[1]*2]))
-        self.sp = paddle.to_tensor(paddle.slice(input['style'], axes=[2, 3], starts=[self.position[2]*2, self.position[0]*2],
-                                 ends=[self.position[3]*2, self.position[1]*2]))
+        self.cp = paddle.to_tensor(paddle.slice(input['content'], axes=[2, 3], starts=[self.position[0]*2, self.position[2]*2],
+                                 ends=[self.position[1]*2, self.position[3]*2]))
+        self.sp = paddle.to_tensor(paddle.slice(input['style'], axes=[2, 3], starts=[self.position[0]*2, self.position[2]*2],
+                                 ends=[self.position[1]*2, self.position[3]*2]))
         self.visual_items['cp'] = self.cp
 
         self.pyr_ci = make_laplace_pyramid(self.ci, 1)
@@ -671,8 +671,8 @@ class LapStyleRevFirstThumb(BaseModel):
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
 
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
-        patch = paddle.to_tensor(paddle.slice(stylized_up, axes=[2, 3], starts=[self.position[2]*2, self.position[0]*2],
-                                   ends=[self.position[3]*2, self.position[1]*2]))
+        patch = paddle.to_tensor(paddle.slice(stylized_up, axes=[2, 3], starts=[self.position[0]*2, self.position[2]*2],
+                                   ends=[self.position[1]*2, self.position[3]*2]))
         p_revnet_input = paddle.concat(x=[self.pyr_cp[0], patch], axis=1)
         p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach(),self.ada_alpha)
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, patch.detach()])
@@ -691,7 +691,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear', align_corners=False)
-            g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.position[2]*2,self.position[0]*2],ends=[self.position[3]*2,self.position[1]*2])
+            g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.position[0]*2,self.position[2]*2],ends=[self.position[1]*2,self.position[3]*2])
             self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
 
         self.ttF = self.nets['net_enc'](self.stylized)

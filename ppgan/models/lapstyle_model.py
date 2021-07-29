@@ -637,14 +637,12 @@ class LapStyleRevFirstThumb(BaseModel):
 
     def setup_input(self, input):
 
-        self.position = input['position'][0]
+        self.position = input['position']
         self.ci = paddle.to_tensor(input['ci'])
         self.visual_items['ci'] = self.ci
         self.si = paddle.to_tensor(input['si'])
-        self.cp = paddle.to_tensor(paddle.slice(input['content'], axes=[2, 3], starts=[self.position[0]*2, self.position[2]*2],
-                                 ends=[self.position[1]*2, self.position[3]*2]))
-        self.sp = paddle.to_tensor(paddle.slice(input['style'], axes=[2, 3], starts=[self.position[0]*2, self.position[2]*2],
-                                 ends=[self.position[1]*2, self.position[3]*2]))
+        self.cp = input['cp']
+        self.sp = input['sp']
         self.visual_items['cp'] = self.cp
 
         self.pyr_ci = make_laplace_pyramid(self.ci, 1)
@@ -657,8 +655,11 @@ class LapStyleRevFirstThumb(BaseModel):
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
 
-        cF = self.nets['net_enc'](F.interpolate(self.ci, scale_factor=.5))
-        sF = self.nets['net_enc'](F.interpolate(self.si, scale_factor=.5))
+        cF = self.nets['net_enc'](self.pyr_ci[1])
+        sF = self.nets['net_enc'](self.pyr_si[1])
+        transformed = paddle.slice(self.sp, axes=[2, 3], starts=[self.position[0], self.position[2]],
+                                   ends=[self.position[1], self.position[3]])
+        self.spF = self.nets['net_enc'](transformed)
         self.cpF = self.nets['net_enc'](self.cp)
 
         stylized_small = self.nets['net_dec'](cF, sF)
@@ -671,11 +672,10 @@ class LapStyleRevFirstThumb(BaseModel):
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
 
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
-        patch = paddle.to_tensor(paddle.slice(stylized_up, axes=[2, 3], starts=[self.position[0]*2, self.position[2]*2],
-                                   ends=[self.position[1]*2, self.position[3]*2]))
-        p_revnet_input = paddle.concat(x=[self.pyr_cp[0], patch], axis=1)
+        p_stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
+        p_revnet_input = paddle.concat(x=[self.pyr_cp[0], p_stylized_up], axis=1)
         p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach(),self.ada_alpha)
-        p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, patch.detach()])
+        p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_up.detach()])
 
         self.stylized = stylized_rev
         self.p_stylized = p_stylized_rev
@@ -687,11 +687,10 @@ class LapStyleRevFirstThumb(BaseModel):
 
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
-        self.spF = self.nets['net_enc'](self.sp)
 
         with paddle.no_grad():
             g_t_thumb_up = F.interpolate(self.visual_items['stylized'], scale_factor=2, mode='bilinear', align_corners=False)
-            g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.position[0]*2,self.position[2]*2],ends=[self.position[1]*2,self.position[3]*2])
+            g_t_thumb_crop = paddle.slice(g_t_thumb_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
             self.tt_cropF = self.nets['net_enc'](g_t_thumb_crop)
 
         self.ttF = self.nets['net_enc'](self.stylized)
@@ -790,7 +789,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
     def backward_D(self):
         """Calculate GAN loss for the discriminator"""
-        pred_fake = self.nets['netD'](self.visual_items['stylized'].detach())
+        pred_fake = self.nets['netD'](self.stylized.detach())
         self.loss_D_fake = self.gan_criterion(pred_fake, False)
 
         pred_real = self.nets['netD'](self.pyr_si[2])
@@ -810,7 +809,8 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
         pred_Dp_real = 0
-        self.loss_Dp_real = self.nets['netD_patch'](self.sp)
+        reshaped = paddle.slice(self.sp, axes=[2, 3], starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
+        self.loss_Dp_real = self.nets['netD_patch'](reshaped)
         pred_Dp_real += self.gan_criterion(self.loss_Dp_real, True)
         self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real) * 0.5
 

@@ -790,7 +790,7 @@ class LapStyleRevFirstThumb(BaseModel):
 
     def backward_D(self):
         """Calculate GAN loss for the discriminator"""
-        pred_fake = self.nets['netD'](self.visual_items['stylized'])
+        pred_fake = self.nets['netD'](self.visual_items['stylized'].detach())
         self.loss_D_fake = self.gan_criterion(pred_fake, False)
 
         pred_real = self.nets['netD'](self.pyr_si[2])

@@ -68,6 +68,7 @@ def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.98, phi=200, eps=-0.1, k
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
+    print(im.shape)
     for i in range(im.shape[1]):
         imf1 = gaussian_filter(im[:,i,:,:])
         imf2 = gaussian_filter_2(im[:,i,:,:])

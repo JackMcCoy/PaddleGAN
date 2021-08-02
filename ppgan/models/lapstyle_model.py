@@ -60,6 +60,8 @@ def gaussian_filter(sigma):
     gaussian_filter = paddle.nn.Conv2D(3, 3,kernel_size,
                                 groups=3, bias_attr=False,
                                 padding=1, padding_mode='reflect')
+    print(gaussian_filter.keys())
+    print(gaussian_filter.weight.values())
     gaussian_filter.weight=gaussian_filter.weight.set_value(gaussian_kernel)
 
     return gaussian_filter
@@ -78,7 +80,7 @@ def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.98, phi=200, eps=-0.1, k
     imdiff /= imdiff.max(axis=0)
     mean = imdiff.mean(axis=0)
     gt = paddle.greater_than(imdiff,mean)
-    imdiff = imdiff*mean
+    imdiff = imdiff*gt
     im[:,i,:,:] = imdiff
     return im
 

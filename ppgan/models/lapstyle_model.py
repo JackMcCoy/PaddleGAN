@@ -47,7 +47,7 @@ def gaussian_filter(sigma):
                                 padding=7, padding_mode='reflect')
     return gaussian_filter
 
-def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.94, phi=50, eps=-0.1, k=1.6):
+def xdog(im, gaussian_filter, gaussian_filter_2,morph_conv,gamma=0.94, phi=50, eps=-0.1, k=1.6):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
@@ -57,9 +57,9 @@ def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.94, phi=50, eps=-0.1, k=
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
     imdiff -= imdiff.min(axis=0)
     imdiff /= imdiff.max(axis=0)
-    mean = imdiff.mean(axis=0)
-    im= (imdiff > mean).astype('float32') + 0*(imdiff<=mean).astype('float32')
-    im = gaussian_filter(im)
+    morphed = morph_conv(imdiff)
+    mean = morphed.mean(axis=0)
+    im= (morphed > mean).astype('float32') + 0*(morphed<=mean).astype('float32')
     return im
 
 @MODELS.register()
@@ -190,7 +190,9 @@ class LapStyleDraXDOG(BaseModel):
         self.content_weight = content_weight
         self.style_weight = style_weight
         self.gaussian_filter = gaussian_filter(1)
-        self.gaussian_filter_2 = gaussian_filter(1*1.6)
+        self.gaussian_filter_2 = gaussian_filter(1*1.6
+        self.morph_conv = paddle.nn.Conv2D(3,3,10,padding=5,groups=3,padding_mode='reflect',bias_attr=False)
+        self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)
         self.set_requires_grad([self.gaussian_filter_2],False)
         self.MSELoss = paddle.nn.MSELoss()
@@ -201,8 +203,8 @@ class LapStyleDraXDOG(BaseModel):
         self.si = paddle.to_tensor(input['si'])
         self.visual_items['si'] = self.si
         self.image_paths = input['ci_path']
-        self.cX = xdog(self.ci,self.gaussian_filter,self.gaussian_filter_2)
-        self.sX = xdog(self.si,self.gaussian_filter,self.gaussian_filter_2)
+        self.cX = xdog(self.ci,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        self.sX = xdog(self.si,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
         self.visual_items['cx'] = self.cX
         self.visual_items['sx'] = self.sX
 
@@ -247,7 +249,7 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_style_remd'] = self.loss_style_remd
         self.losses['loss_content_relt'] = self.loss_content_relt
 
-        stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2)
+        stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
         cXF = self.nets['net_enc'](self.cX)
         sXF = self.nets['net_enc'](self.sX)
         cdogF = self.nets['net_enc'](stylized_dog)

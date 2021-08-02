@@ -58,8 +58,9 @@ def xdog(im, gaussian_filter, gaussian_filter_2,morph_conv,gamma=0.94, phi=50, e
     imdiff -= imdiff.min(axis=0)
     imdiff /= imdiff.max(axis=0)
     morphed = morph_conv(imdiff)
-    mean = morphed.mean(axis=0)
-    im= (morphed > mean).astype('float32') + 0*(morphed<=mean).astype('float32')
+    for i in range(im.shape[1]):
+        mean = morphed[:,i,:,:].mean()
+        im[:,i,:,:]= (morphed[:,i,:,:] > mean).astype('float32') + 0*(morphed[:,i,:,:]<=mean).astype('float32')
     return im
 
 @MODELS.register()

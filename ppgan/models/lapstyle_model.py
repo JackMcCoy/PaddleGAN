@@ -30,29 +30,16 @@ from ..utils.visual import tensor2img, save_image
 from ..utils.filesystem import makedirs, save, load
 
 
-def gaussian_filter(sigma):
-    kernel_size = 12
+def gaussian_filter(input):
+    output=1 / paddle.sqrt(2 * paddle.pi) * paddle.exp(-input ** 2 / 2.)
+    return output
 
-    # Create a x, y coordinate grid of shape (kernel_size, kernel_size, 2)
-    x_cord = paddle.arange(kernel_size)
-    x_grid = paddle.expand(x_cord,(kernel_size,kernel_size))
-    y_grid = x_grid.t()
-    xy_grid = paddle.stack([x_grid, y_grid], axis=-1)
-
-    mean = (kernel_size - 1)/2.
-    variance = sigma**2.
-    gaussian_filter = paddle.nn.Conv2D(3, 3,kernel_size,
-                                groups=3, bias_attr=False,
-                                weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(std=sigma),trainable=False),
-                                padding=6, padding_mode='reflect')
-    return gaussian_filter
-
-def xdog(im, gaussian_filter, gaussian_filter_2,morph_conv,gamma=0.94, phi=50, eps=-0.1, k=1.6):
+def xdog(im, g, g2,morph_conv,gamma=0.94, phi=50, eps=-0.1, k=1.6):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
-    imf1 = gaussian_filter(im)
-    imf2 = gaussian_filter_2(im)
+    imf1 = gaussian_filter(g(im))
+    imf2 = gaussian_filter(g2(im))
     imdiff = imf1 - gamma * imf2
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
     for i in range(im.shape[1]):
@@ -199,8 +186,14 @@ class LapStyleDraXDOG(BaseModel):
         self.si = paddle.to_tensor(input['si'])
         self.visual_items['si'] = self.si
         self.image_paths = input['ci_path']
-        self.gaussian_filter = gaussian_filter(1)
-        self.gaussian_filter_2 = gaussian_filter(1*1.6)
+        self.gaussian_filter = paddle.nn.Conv2D(3, 3,kernel_size,
+                                groups=3, bias_attr=False,
+                                weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(std=1),trainable=False),
+                                padding=6, padding_mode='reflect')
+        self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3,kernel_size,
+                                groups=3, bias_attr=False,
+                                weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(std=1.6),trainable=False),
+                                padding=6, padding_mode='reflect')
         self.morph_conv = paddle.nn.Conv2D(3,3,6,padding=3,groups=3,padding_mode='reflect',bias_attr=False)
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)

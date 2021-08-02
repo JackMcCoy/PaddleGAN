@@ -1,5 +1,5 @@
 total_iters: 150000
-output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/starry/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/vangogh/
 checkpoints_dir: checkpoints
 min_max:
   (0., 1.)

@@ -41,28 +41,10 @@ def gaussian_filter(sigma):
 
     mean = (kernel_size - 1)/2.
     variance = sigma**2.
-
-    # Calculate the 2-dimensional gaussian kernel which is
-    # the product of two gaussian distributions for two different
-    # variables (in this case called x and y)
-    gaussian_kernel = (1./(2.*math.pi*variance)) *\
-                      paddle.exp(
-                          -paddle.sum((xy_grid - mean)**2., axis=-1) /\
-                          (2*variance)
-                      )
-    # Make sure sum of values in gaussian kernel equals 1.
-    gaussian_kernel = gaussian_kernel / paddle.sum(gaussian_kernel)
-
-    # Reshape to 2d depthwise convolutional weight
-    gaussian_kernel = gaussian_kernel.reshape((kernel_size, kernel_size))
-    gaussian_kernel = paddle.expand(gaussian_kernel,(3,1,kernel_size,kernel_size))
-
     gaussian_filter = paddle.nn.Conv2D(3, 3,kernel_size,
                                 groups=3, bias_attr=False,
+                                weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(std=sigma),trainable=False),
                                 padding=1, padding_mode='reflect')
-    print(gaussian_filter.weight.value())
-    gaussian_filter.weight=gaussian_filter.weight.set_value(gaussian_kernel)
-
     return gaussian_filter
 
 def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.98, phi=200, eps=-0.1, k=1.6):

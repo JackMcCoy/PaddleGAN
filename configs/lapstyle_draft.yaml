@@ -26,7 +26,7 @@ model:
 
 dataset:
   train:
-    name: LapStyleThumbsetInference
+    name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
     style_root: /content/gdrive/My Drive/img_style/styles/
     load_size: 132
@@ -35,7 +35,7 @@ dataset:
     patch_depth: 0
     style_upsize: 1.125
     num_workers: 16
-    batch_size: 1
+    batch_size: 5
   test:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/washnight/
@@ -65,7 +65,7 @@ validate:
 
 log_config:
   interval: 10
-  visiual_interval: 500
+  visiual_interval: 100
 
 snapshot_config:
-  interval: 7500
+  interval: 1250

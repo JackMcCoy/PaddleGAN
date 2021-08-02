@@ -188,8 +188,8 @@ class LapStyleDraXDOG(BaseModel):
         self.style_layers = style_layers
         self.content_weight = content_weight
         self.style_weight = style_weight
-        self.gaussian_filter = gaussian_filter(0.8)
-        self.gaussian_filter_2 = gaussian_filter(0.8*1.6)
+        self.gaussian_filter = gaussian_filter(0.6)
+        self.gaussian_filter_2 = gaussian_filter(0.6*1.6)
         self.set_requires_grad([self.gaussian_filter],False)
         self.set_requires_grad([self.gaussian_filter_2],False)
         self.MSELoss = paddle.nn.MSELoss()

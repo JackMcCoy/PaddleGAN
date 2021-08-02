@@ -31,7 +31,7 @@ from ..utils.filesystem import makedirs, save, load
 
 
 def gaussian_filter(sigma):
-    kernel_size = 15
+    kernel_size = 14
 
     # Create a x, y coordinate grid of shape (kernel_size, kernel_size, 2)
     x_cord = paddle.arange(kernel_size)

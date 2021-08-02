@@ -56,7 +56,7 @@ def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.98, phi=200, eps=-0.1, k
     imf1 = gaussian_filter(im)
     imf2 = gaussian_filter_2(im)
     imdiff = imf1 - gamma * imf2
-    imdiff = (imdiff < eps) * 1.0  + (imdiff >= eps) * (1.0 + paddle.tanh(phi * imdiff))
+    imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
     imdiff -= imdiff.min(axis=0)
     imdiff /= imdiff.max(axis=0)
     mean = imdiff.mean(axis=0)

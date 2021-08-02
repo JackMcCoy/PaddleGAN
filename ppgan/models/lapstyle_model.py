@@ -60,8 +60,8 @@ def xdog(im, gaussian_filter, gaussian_filter_2,morph_conv,gamma=0.94, phi=50, e
     morphed = morph_conv(imdiff)
     for i in range(im.shape[1]):
         mean = morphed[:,i,:,:].mean(axis=0)
-        im[:,i,:,:]= (morphed[:,i,:,:] > mean).astype('float32') + 0*(morphed[:,i,:,:]<=mean).astype('float32')
-    return im
+        morphed[:,i,:,:]= (morphed[:,i,:,:] > mean).astype('float32') + 0*(morphed[:,i,:,:]<=mean).astype('float32')
+    return morphed
 
 @MODELS.register()
 class LapStyleDraModel(BaseModel):

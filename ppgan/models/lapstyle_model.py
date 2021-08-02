@@ -30,16 +30,13 @@ from ..utils.visual import tensor2img, save_image
 from ..utils.filesystem import makedirs, save, load
 
 
-def gaussian_filter(input):
-    output=1 / math.sqrt(2 * math.pi) * paddle.exp(-input ** 2 / 2.)
-    return output
 
 def xdog(im, g, g2,morph_conv,gamma=0.94, phi=50, eps=-0.1, k=1.6):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
-    imf1 = gaussian_filter(g(im))
-    imf2 = gaussian_filter(g2(im))
+    imf1 = g(im)
+    imf2 = g2(im)
     imdiff = imf1 - gamma * imf2
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
     for i in range(im.shape[1]):

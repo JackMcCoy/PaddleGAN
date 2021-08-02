@@ -43,9 +43,10 @@ def xdog(im, g, g2,morph_conv,gamma=0.90, phi=50, eps=-0.1, k=1.6):
         imdiff[:,i,:,:] -= imdiff[:,i,:,:].min(axis=0)
         imdiff[:,i,:,:] /= imdiff[:,i,:,:].max(axis=0)
     morphed = morph_conv(imdiff)
-    for i in range(im.shape[1]):
-        mean = imdiff[:,i,:,:].mean(axis=0)
-        morphed[:,i,:,:]= (morphed[:,i,:,:] > mean).astype('float32') + 0*(morphed[:,i,:,:]<=mean).astype('float32')
+    for i in range(im.shape[0]):
+        for j in range(im.shape[1]):
+            mean = imdiff[i,j,:,:].mean(axis=0)
+            morphed[i,j,:,:]= (morphed[i,j,:,:] > mean).astype('float32') + 0*(morphed[i,j,:,:]<=mean).astype('float32')
     return morphed
 
 @MODELS.register()

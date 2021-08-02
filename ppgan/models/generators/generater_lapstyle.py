@@ -15,9 +15,179 @@
 import paddle
 import paddle.nn as nn
 from ...utils.download import get_path_from_url
-
+from PIL import Image
 from .builder import GENERATORS
 
+
+
+
+def cal_maxpool_size(w, h, count=3):
+    if count == 3:
+        w = np.ceil(np.ceil(np.ceil(w / 2) / 2) / 2)
+        h = np.ceil(np.ceil(np.ceil(h / 2) / 2) / 2)
+    elif count == 2:
+        w = np.ceil(np.ceil(w / 2) / 2)
+        h = np.ceil(np.ceil(h / 2) / 2)
+    elif count == 1:
+        w = np.ceil(w / 2)
+        h = np.ceil(h / 2)
+    else:
+        raise ValueError
+    return int(w), int(h)
+
+class KMeansGPU:
+    def __init__(self, n_clusters, device='cuda', tol=1e-4, init='kmeans++'):
+        self.n_clusters = n_clusters
+        self.device = device
+        self.tol = tol
+        self.init = init
+        self._labels = None
+        self._cluster_centers = None
+        self.init = init
+
+    def _initial_state(self, data):
+        # initial cluster centers by kmeans++ or random
+        if self.init == 'kmeans++':
+            n, c = data.shape
+            dis = paddle.zeros((n, self.n_clusters))
+            initial_state = paddle.zeros((self.n_clusters, c))
+            pr = np.repeat(1 / n, n)
+            initial_state[0, :] = data[np.random.choice(np.arange(n), p=pr)]
+
+            dis[:, 0] = paddle.sum((data - initial_state[0, :]) ** 2, axis=1)
+
+            for k in range(1, self.n_clusters):
+                pr = paddle.sum(dis, axis=1) / paddle.sum(dis)
+                initial_state[k, :] = data[np.random.choice(np.arange(n), 1, p=pr.to('cpu').numpy())]
+                dis[:, k] = paddle.sum((data - initial_state[k, :]) ** 2, axis=1)
+        else:
+            n = data.shape[0]
+            indices = np.random.choice(n, self.n_clusters)
+            initial_state = data[indices]
+
+        return initial_state
+
+    @staticmethod
+    def pairwise_distance(data1, data2=None):
+        # using broadcast mechanism to calculate pairwise ecludian distance of data
+        # the input data is N*M matrix, where M is the dimension
+        # we first expand the N*M matrix into N*1*M matrix A and 1*N*M matrix B
+        # then a simple elementwise operation of A and B will handle
+        # the pairwise operation of points represented by data
+        if data2 is None:
+            data2 = data1
+
+        # N*1*M
+        a = paddle.unsqueeze(data1,axis=1)
+        # 1*N*M
+        b = paddle.unsqueeze(data2,axis=0)
+
+        dis = (a - b) ** 2.0
+        # return N*N matrix for pairwise distance
+        dis = paddle.squeeze(paddle.sum(dis,axis=-1))
+
+        return dis
+
+    def fit(self, data):
+        data = data.astype('float32')
+        cluster_centers = self._initial_state(data)
+
+        while True:
+            dis = self.pairwise_distance(data, cluster_centers)
+
+            labels = paddle.argmin(dis, axis=1)
+            cluster_centers_pre = cluster_centers.clone()
+
+            for index in range(self.n_clusters):
+                selected = labels == index
+                if selected.any():
+                    selected = data[labels == index]
+                    cluster_centers[index] = selected.mean(axis=0)
+                else:
+                    cluster_centers[index] = paddle.zeros_like(cluster_centers[0])
+
+            center_shift = paddle.sum(paddle.sqrt(paddle.sum((cluster_centers - cluster_centers_pre) ** 2, axis=1)))
+
+            if center_shift ** 2 < self.tol:
+                break
+
+        self._labels = labels
+        self._cluster_centers = cluster_centers
+
+    @property
+    def labels_(self):
+        return self._labels
+
+    @property
+    def cluster_centers_(self):
+        return self._cluster_centers
+
+def calc_k(image,
+           max_cluster=5,
+           threshold_min=0.1,
+           threshold_max=0.7):
+    img = Image.fromarray(image.numpy()).convert('RGB')
+    w, h = img.size
+    #     gb = 0.5 if max(w, h) < 1440 else 0
+    w, h = cal_maxpool_size(w, h, 3)
+
+    img = img.resize((w, h))
+    #     img = img.filter(ImageFilter.GaussianBlur(gb))
+
+    img = color.rgb2lab(img).reshape(w * h, -1)
+
+    k = 2
+
+    KMeans = KMeansGPU
+    img = paddle.to_tensor(img)
+
+    k_means_estimator = KMeans(k)
+    k_means_estimator.fit(img)
+    labels = k_means_estimator.labels_
+    previous_labels = k_means_estimator.labels_
+    previous_cluster_centers = k_means_estimator.cluster_centers_
+
+    while True:
+        cnt = Counter(labels.numpy().tolist())
+        if k <= max_cluster and (cnt.most_common()[-1][1] / (w * h) > threshold_min or cnt.most_common()[0][1] / (
+                w * h) > threshold_max):
+            if cnt.most_common()[-2][1] / (w * h) < threshold_min:
+                labels = previous_labels
+                cluster_centers = previous_cluster_centers
+                k = k - 1
+                break
+            k = k + 1
+        else:
+            if k > max_cluster:
+                labels = previous_labels
+                cluster_centers = previous_cluster_centers
+                k = k - 1
+            else:
+                labels = k_means_estimator.labels_
+                cluster_centers = k_means_estimator.cluster_centers_
+            break
+
+        previous_labels = k_means_estimator.labels_
+        previous_cluster_centers = k_means_estimator.cluster_centers_
+
+        k_means_estimator = KMeans(k)
+        k_means_estimator.fit(img)
+        labels = k_means_estimator.labels_
+
+    new_clusters = paddle.argsort(paddle.norm(cluster_centers,axis=1),descending=False).numpy().tolist()
+    new_clusters = [new_clusters.index(j) for j in range(k)]
+    cluster_centers_norm, _ = torch.sort(paddle.norm(cluster_centers,axis=1))
+    cluster_centers_norm = cluster_centers_norm - paddle.min(cluster_centers_norm)
+    cluster_centers_norm = cluster_centers_norm / paddle.max(cluster_centers_norm)
+
+    new_labels = paddlle.zeros_like(labels)
+
+    for i in range(k):
+        new_labels[labels == i] = new_clusters[i]
+
+    label = paddle.reshape(new_labels, (h, w))
+
+    return label, cluster_centers_norm
 
 def calc_mean_std(feat, eps=1e-5):
     """calculate mean and standard deviation.
@@ -42,6 +212,45 @@ def calc_mean_std(feat, eps=1e-5):
     feat_mean = feat_mean.reshape([N, C, 1, 1])
     return feat_mean, feat_std
 
+def labeled_whiten_and_color(f_c, f_s, alpha, clabel):
+    try:
+        cc, ch, cw = f_c.shape
+        cf = paddle.reshape((f_c * clabel), cc, -1)
+
+        num_nonzero = paddle.sum(clabel).item() / cc
+        c_mean = paddle.sum(cf, 1) / num_nonzero
+        c_mean = paddle.reshape(c_mean,(cc, 1, 1)) * clabel
+
+        cf = paddle.reshape(cf,(cc, ch, cw)) - c_mean
+        cf = paddle.reshape(cf,(cc, -1))
+
+        c_cov = paddle.mm(cf, cf.t()) / (num_nonzero - 1)
+        c_u, c_e, c_v = torch.svd(c_cov)
+        c_d = c_e.pow(-0.5)
+
+        w_step1 = torch.mm(c_v, torch.diag(c_d))
+        w_step2 = torch.mm(w_step1, (c_v.t()))
+        whitened = torch.mm(w_step2, cf)
+
+        sf = f_s
+        sc, shw = sf.shape
+        s_mean = torch.mean(f_s, 1, keepdim=True)
+        sf = sf - s_mean
+
+        s_cov = torch.mm(sf, sf.t()) / (shw - 1)
+        s_u, s_e, s_v = torch.svd(s_cov)
+        s_d = s_e.pow(0.5)
+
+        c_step1 = torch.mm(s_v, torch.diag(s_d))
+        c_step2 = torch.mm(c_step1, s_v.t())
+        colored = torch.mm(c_step2, whitened).reshape(cc, ch, cw)
+
+        colored = colored + s_mean.reshape(sc, 1, 1) * clabel
+        colored_feature = alpha * colored + (1 - alpha) * (f_c * clabel)
+    except:
+        colored_feature = f_c * clabel
+
+    return colored_feature
 
 def mean_variance_norm(feat):
     """mean_variance_norm.
@@ -175,6 +384,71 @@ class DecoderNet(nn.Layer):
 
     def forward(self, cF, sF):
 
+        out = adaptive_instance_normalization(cF['r41'], sF['r41'])
+        out = self.resblock_41(out)
+        out = self.convblock_41(out)
+
+        out = self.upsample(out)
+        out += adaptive_instance_normalization(cF['r31'], sF['r31'])
+        out = self.resblock_31(out)
+        out = self.convblock_31(out)
+
+        out = self.upsample(out)
+        out += adaptive_instance_normalization(cF['r21'], sF['r21'])
+        out = self.convblock_21(out)
+        out = self.convblock_22(out)
+
+        out = self.upsample(out)
+        out = self.convblock_11(out)
+        out = self.final_conv(out)
+        return out
+
+@GENERATORS.register()
+class DecoderKMeans(nn.Layer):
+    """Decoder of Drafting module.
+    Paper:
+        Drafting and Revision: Laplacian Pyramid Network for Fast High-Quality
+        Artistic Style Transfer.
+    """
+    def __init__(self):
+        super(DecoderKMeans, self).__init__()
+
+        self.resblock_41 = ResnetBlock(512)
+        self.convblock_41 = ConvBlock(512, 256)
+        self.resblock_31 = ResnetBlock(256)
+        self.convblock_31 = ConvBlock(256, 128)
+
+        self.convblock_21 = ConvBlock(128, 128)
+        self.convblock_22 = ConvBlock(128, 64)
+
+        self.convblock_11 = ConvBlock(64, 64)
+        self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
+
+        self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                        nn.Conv2D(64, 3, (3, 3)))
+
+    def forward(self, ci,si,cF, sF,alpha=1):
+        cs = []
+
+        for cp, sp, cf, sf in zip(ci, si, cF, sF):
+            content_label, content_center_norm = calc_k(cp)
+            style_label, style_center_norm = calc_k(sp)
+
+            match = cluster_matching(content_label, style_label, content_center_norm, style_center_norm)
+
+            cs_feature = paddle.zeros_like(cf)
+            for i, j in match.items():
+                cl = paddle.expand_as(paddle.unsqueeze((content_label == i),axis=0),cf)
+                sl = paddle.zeros_like(sf)
+                for jj in j:
+                    sl += paddle.expand_as(paddle.unsqueeze((style_label == jj),axis=0),sf)
+                sl = sl.astype('bool')
+                sub_sf = paddle.reshape(sf[sl], sf.shape[0], -1)
+                cs_feature += labeled_whiten_and_color(cf, sub_sf, self.alpha, cl)
+
+            cs.append(paddle.unsqueeze(cs_feature.unsqueeze,axis=0)
+
+        cs = paddle.concat(cs, axis=0)
         out = adaptive_instance_normalization(cF['r41'], sF['r41'])
         out = self.resblock_41(out)
         out = self.convblock_41(out)

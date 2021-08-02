@@ -35,8 +35,8 @@ def xdog(im, g, g2,morph_conv,gamma=0.92, phi=200, eps=-0.1, k=1.6):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
-    imf1 = paddle.concat(x=[g(paddle.unsqueeze(im[:,0,:,:],axis=1)),g(paddle.unsqueeze(im[:,1,:,:],axis=1)),g(paddle.unsqueeze(im[:,2,:,:],axis=1))],axis=1)
-    imf2 = paddle.concat(x=[g2(paddle.unsqueeze(im[:,0,:,:],axis=1)),g2(paddle.unsqueeze(im[:,1,:,:],axis=1)),g2(paddle.unsqueeze(im[:,2,:,:],axis=1))],axis=1)
+    imf1 = paddle.concat(x=[g(paddle.unsqueeze(im[:,0,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,1,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,2,:,:].detach(),axis=1))],axis=1)
+    imf2 = paddle.concat(x=[g2(paddle.unsqueeze(im[:,0,:,:].detach(),axis=1)),g2(paddle.unsqueeze(im[:,1,:,:].detach(),axis=1)),g2(paddle.unsqueeze(im[:,2,:,:].detach(),axis=1))],axis=1)
     imdiff = imf1 - gamma * imf2
     print(imdiff.mean())
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))

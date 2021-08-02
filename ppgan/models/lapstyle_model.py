@@ -73,7 +73,7 @@ def gram_matrix(input):
 
     # we 'normalize' the values of the gram matrix
     # by dividing by the number of element in each feature maps.
-    return G.divide(a * b * c * d)
+    return G /(a * b * c * d)
 
 @MODELS.register()
 class LapStyleDraModel(BaseModel):

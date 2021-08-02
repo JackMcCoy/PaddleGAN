@@ -57,8 +57,8 @@ def gaussian_filter(sigma):
     gaussian_kernel = gaussian_kernel.reshape((kernel_size, kernel_size))
     gaussian_kernel = paddle.expand(gaussian_kernel,(1,1,kernel_size,kernel_size))
 
-    gaussian_filter = paddle.nn.Conv2D(1, 1,kernel_size,
-                                groups=1, bias_attr=False,
+    gaussian_filter = paddle.nn.Conv2D(3, 3,kernel_size,
+                                groups=3, bias_attr=False,
                                 padding=1, padding_mode='reflect')
     gaussian_filter.weight=gaussian_filter.weight.set_value(gaussian_kernel)
 

@@ -30,6 +30,57 @@ from ..utils.visual import tensor2img, save_image
 from ..utils.filesystem import makedirs, save, load
 
 
+def gaussian_filter(sigma):
+    kernel_size = 15
+
+    # Create a x, y coordinate grid of shape (kernel_size, kernel_size, 2)
+    x_cord = paddle.arange(kernel_size)
+    x_grid = paddle.expand(xcord,(kernel_size,kernel_size))
+    y_grid = x_grid.t()
+    xy_grid = paddle.stack([x_grid, y_grid], axis=-1)
+
+    mean = (kernel_size - 1)/2.
+    variance = sigma**2.
+
+    # Calculate the 2-dimensional gaussian kernel which is
+    # the product of two gaussian distributions for two different
+    # variables (in this case called x and y)
+    gaussian_kernel = (1./(2.*math.pi*variance)) *\
+                      paddle.exp(
+                          -paddle.sum((xy_grid - mean)**2., axis=-1) /\
+                          (2*variance)
+                      )
+    # Make sure sum of values in gaussian kernel equals 1.
+    gaussian_kernel = gaussian_kernel / paddle.sum(gaussian_kernel)
+
+    # Reshape to 2d depthwise convolutional weight
+    gaussian_kernel = gaussian_kernel.reshape(1, 1, kernel_size, kernel_size)
+    gaussian_kernel = paddle.expand(gaussian_kernel,(channels, gaussian_kernel.shape))
+
+    gaussian_filter = nn.Conv2d(channels, channels,kernel_size,
+                                groups=channels, bias_attr=False,weight_attr=gaussian_kernel,
+                                padding=1, padding_mode='reflect')
+
+    return gaussian_filter
+
+def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.98, phi=200, eps=-0.1, k=1.6):
+    # Source : https://github.com/CemalUnal/XDoG-Filter
+    # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
+    # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
+    if im.shape[1] == 4:
+        for i in range(im.shape[1]):
+            imf1 = gaussian_filter(im[:,i,:,:])
+            imf2 = gaussian_filter_2(im[:,i,:,:])
+            imdiff = imf1 - gamma * imf2
+            imdiff = (imdiff < eps) * 1.0  + (imdiff >= eps) * (1.0 + np.tanh(phi * imdiff))
+            imdiff -= imdiff.min(axis=0)
+            imdiff /= imdiff.max(axis=0)
+            mean = imdiff.mean(axis=0)
+            gt = paddle.greater_than(imdiff,mean)
+            imdiff = imdiff*mean
+            im[:,i,:,:] = imdiff
+    return imdiff
+
 @MODELS.register()
 class LapStyleDraModel(BaseModel):
     def __init__(self,
@@ -69,6 +120,106 @@ class LapStyleDraModel(BaseModel):
         self.si = paddle.to_tensor(input['si'])
         self.visual_items['si'] = self.si
         self.image_paths = input['ci_path']
+
+    def forward(self):
+        """Run forward pass; called by both functions <optimize_parameters> and <test>."""
+        self.cF = self.nets['net_enc'](self.ci)
+        self.sF = self.nets['net_enc'](self.si)
+        self.stylized = self.nets['net_dec'](self.cF, self.sF)
+        self.visual_items['stylized'] = self.stylized
+
+    def backward_Dec(self):
+        self.tF = self.nets['net_enc'](self.stylized)
+        """content loss"""
+        self.loss_c = 0
+        for layer in self.content_layers[:-1]:
+            self.loss_c += self.calc_content_loss(self.tF[layer],
+                                                  self.cF[layer],
+                                                  norm=True)
+        self.losses['loss_c'] = self.loss_c
+        """style loss"""
+        self.loss_s = 0
+        for layer in self.style_layers[:-1]:
+            self.loss_s += self.calc_style_loss(self.tF[layer], self.sF[layer])
+        self.losses['loss_s'] = self.loss_s
+        """IDENTITY LOSSES"""
+        self.Icc = self.nets['net_dec'](self.cF, self.cF)
+        self.l_identity1 = self.calc_content_loss(self.Icc, self.ci)
+        self.Fcc = self.nets['net_enc'](self.Icc)
+        self.l_identity2 = 0
+        for layer in self.content_layers[:-1]:
+            self.l_identity2 += self.calc_content_loss(self.Fcc[layer],
+                                                       self.cF[layer])
+        self.losses['l_identity1'] = self.l_identity1
+        self.losses['l_identity2'] = self.l_identity2
+        """relative loss"""
+        self.loss_style_remd = self.calc_style_emd_loss(
+            self.tF['r31'], self.sF['r31']) + self.calc_style_emd_loss(
+                self.tF['r41'], self.sF['r41'])
+        self.loss_content_relt = self.calc_content_relt_loss(
+            self.tF['r31'], self.cF['r31']) + self.calc_content_relt_loss(
+                self.tF['r41'], self.cF['r41'])
+        self.losses['loss_style_remd'] = self.loss_style_remd
+        self.losses['loss_content_relt'] = self.loss_content_relt
+
+        self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
+                    self.l_identity1 * 50 + self.l_identity2 * 1 + self.loss_style_remd * 10 + \
+                    self.loss_content_relt * 16
+        self.loss.backward()
+
+        return self.loss
+
+    def train_iter(self, optimizers=None):
+        """Calculate losses, gradients, and update network weights"""
+        self.forward()
+        optimizers['optimG'].clear_grad()
+        self.backward_Dec()
+        self.optimizers['optimG'].step()
+
+@MODELS.register()
+class LapStyleDraXDOG(BaseModel):
+    def __init__(self,
+                 generator_encode,
+                 generator_decode,
+                 calc_style_emd_loss=None,
+                 calc_content_relt_loss=None,
+                 calc_content_loss=None,
+                 calc_style_loss=None,
+                 content_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
+                 style_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
+                 content_weight=1.0,
+                 style_weight=3.0):
+
+        super(LapStyleDraXDOG, self).__init__()
+
+        # define generators
+        self.nets['net_enc'] = build_generator(generator_encode)
+        self.nets['net_dec'] = build_generator(generator_decode)
+        init_weights(self.nets['net_dec'])
+        self.set_requires_grad([self.nets['net_enc']], False)
+
+        # define loss functions
+        self.calc_style_emd_loss = build_criterion(calc_style_emd_loss)
+        self.calc_content_relt_loss = build_criterion(calc_content_relt_loss)
+        self.calc_content_loss = build_criterion(calc_content_loss)
+        self.calc_style_loss = build_criterion(calc_style_loss)
+
+        self.content_layers = content_layers
+        self.style_layers = style_layers
+        self.content_weight = content_weight
+        self.style_weight = style_weight
+        self.gaussian_filter = gaussian_filter(0.8)
+        self.gaussian_filter_2 = gaussian_filter(0.8*1.6)
+
+    def setup_input(self, input):
+        self.ci = paddle.to_tensor(input['ci'])
+        self.visual_items['ci'] = self.ci
+        self.si = paddle.to_tensor(input['si'])
+        self.visual_items['si'] = self.si
+        self.image_paths = input['ci_path']
+        self.cX = xdog(self.ci,self.gaussian_filter,self.gaussian_filter_2)
+        self.sX = xdog(self.si,self.gaussian_filter,self.gaussian_filter_2)
+        self.visual_items['cx'] = self.cx
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""

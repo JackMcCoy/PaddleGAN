@@ -44,7 +44,7 @@ def xdog(im, g, g2,morph_conv,gamma=0.94, phi=50, eps=-0.1, k=1.6):
         imdiff[:,i,:,:] /= imdiff[:,i,:,:].max(axis=0)
     morphed = morph_conv(imdiff)
     for i in range(im.shape[1]):
-        mean = morphed[:,i,:,:].mean(axis=0)
+        mean = imdiff[:,i,:,:].mean(axis=0)
         morphed[:,i,:,:]= (morphed[:,i,:,:] > mean).astype('float32') + 0*(morphed[:,i,:,:]<=mean).astype('float32')
     return morphed
 

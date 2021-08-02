@@ -250,8 +250,8 @@ class LapStyleDraXDOG(BaseModel):
         cXF = self.nets['net_enc'](self.cX)
         sXF = self.nets['net_enc'](self.sX)
         cdogF = self.nets['net_enc'](stylized_dog)
-        mxdog_content = self.calc_content_loss(self.tF['r31'],cXF['r31'])
-        mxdog_content_contraint = self.calc_content_loss(cdogF['r31'], cXF['r31'])
+        mxdog_content = self.calc_content_loss(cdogF['r31'], cXF['r31'])
+        mxdog_content_contraint = self.calc_content_relt_loss(cdogF['r31'], cXF['r31'])
         mxdog_content_img = self.calc_style_loss(cdogF['r31'],sXF['r31'])
 
         self.losses['loss_MD'] = mxdog_content

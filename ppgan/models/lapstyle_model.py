@@ -191,7 +191,7 @@ class LapStyleDraXDOG(BaseModel):
         self.style_weight = style_weight
         self.gaussian_filter = gaussian_filter(1)
         self.gaussian_filter_2 = gaussian_filter(1*1.6)
-        self.morph_conv = paddle.nn.Conv2D(3,3,10,padding=5,groups=3,padding_mode='reflect',bias_attr=False)
+        self.morph_conv = paddle.nn.Conv2D(3,3,6,padding=3,groups=3,padding_mode='reflect',bias_attr=False)
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)
         self.set_requires_grad([self.gaussian_filter_2],False)

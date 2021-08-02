@@ -41,8 +41,8 @@ def xdog(im, g, g2,morph_conv,gamma=0.90, phi=50, eps=-0.1, k=1.6):
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
     for j in range(im.shape[0]):
         for i in range(im.shape[1]):
-            imdiff[j,i,:,:] -= imdiff[j,i,:,:].min()
-            imdiff[j,i,:,:] /= imdiff[j,i,:,:].max()
+            imdiff[j,i,:,:] -= imdiff[j,i,:,:].min(axis=0)
+            imdiff[j,i,:,:] /= imdiff[j,i,:,:].max(axis=0)
     morphed = morph_conv(imdiff)
     for i in range(im.shape[0]):
         for j in range(im.shape[1]):

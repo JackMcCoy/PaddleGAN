@@ -31,7 +31,7 @@ from ..utils.filesystem import makedirs, save, load
 
 
 def gaussian_filter(input):
-    output=1 / paddle.sqrt(2 * math.pi) * paddle.exp(-input ** 2 / 2.)
+    output=1 / math.sqrt(2 * math.pi) * paddle.exp(-input ** 2 / 2.)
     return output
 
 def xdog(im, g, g2,morph_conv,gamma=0.94, phi=50, eps=-0.1, k=1.6):

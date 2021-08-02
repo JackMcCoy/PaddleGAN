@@ -262,7 +262,7 @@ class LapStyleDraXDOG(BaseModel):
         stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2)
         cXF = self.nets['net_enc'](self.cX)
         sXF = self.nets['net_enc'](self.sX)
-        cdogF = self.nets['net_enc'](cXF)
+        cdogF = self.nets['net_enc'](stylized_dog)
         sx_gram_matrix = gram_matrix(sXF['r31'])
         tx_gram_matrix = gram_matrix(cdogF['r31'])
         mxdog_content = paddle.nn.MSELoss(tF['r31'],cXF['r31'])

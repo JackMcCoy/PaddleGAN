@@ -58,7 +58,7 @@ def gaussian_filter(sigma):
     gaussian_kernel = paddle.expand(gaussian_kernel,(5,3,kernel_size,kernel_size))
 
     gaussian_filter = paddle.nn.Conv2D(3, 3,kernel_size,
-                                groups=channels, bias_attr=False,weight_attr=gaussian_kernel,
+                                groups=3, bias_attr=False,weight_attr=gaussian_kernel,
                                 padding=1, padding_mode='reflect')
 
     return gaussian_filter

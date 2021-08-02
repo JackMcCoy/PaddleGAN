@@ -55,7 +55,7 @@ def gaussian_filter(sigma):
 
     # Reshape to 2d depthwise convolutional weight
     gaussian_kernel = gaussian_kernel.reshape((kernel_size, kernel_size))
-    gaussian_kernel = paddle.expand(gaussian_kernel,(5,1,kernel_size,kernel_size))
+    gaussian_kernel = paddle.expand(gaussian_kernel,(5,kernel_size,kernel_size))
 
     gaussian_filter = paddle.nn.Conv2D(5, 5,kernel_size,
                                 groups=5, bias_attr=False,

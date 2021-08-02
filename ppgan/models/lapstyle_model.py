@@ -38,8 +38,8 @@ def xdog(im, g, g2,morph_conv,gamma=0.94, phi=50, eps=-0.1, k=1.6):
     imf1 = paddle.zeros_like(im)
     imf2 = paddle.zeros_like(im)
     for i in range(im.shape[1]):
-        imf1[:,i,:,:] = g(paddle.unsqueeze(im[:,i,:,:],axis=1))
-        imf2[:,i,:,:] = g2(paddle.unsqueeze(im[:,i,:,:],axis=1))
+        imf1[:,i,:,:] = g(paddle.unsqueeze(im[:,i,:,:],axis=1).detach())
+        imf2[:,i,:,:] = g2(paddle.unsqueeze(im[:,i,:,:],axis=1).detach())
     imdiff = imf1 - gamma * imf2
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
     for i in range(im.shape[1]):

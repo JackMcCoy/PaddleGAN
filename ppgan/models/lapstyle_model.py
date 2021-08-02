@@ -191,12 +191,6 @@ class LapStyleDraXDOG(BaseModel):
         self.style_layers = style_layers
         self.content_weight = content_weight
         self.style_weight = style_weight
-        self.gaussian_filter = gaussian_filter(1)
-        self.gaussian_filter_2 = gaussian_filter(1*1.6)
-        self.morph_conv = paddle.nn.Conv2D(3,3,6,padding=3,groups=3,padding_mode='reflect',bias_attr=False)
-        self.set_requires_grad([self.morph_conv], False)
-        self.set_requires_grad([self.gaussian_filter],False)
-        self.set_requires_grad([self.gaussian_filter_2],False)
         self.MSELoss = paddle.nn.MSELoss()
 
     def setup_input(self, input):
@@ -205,6 +199,12 @@ class LapStyleDraXDOG(BaseModel):
         self.si = paddle.to_tensor(input['si'])
         self.visual_items['si'] = self.si
         self.image_paths = input['ci_path']
+        self.gaussian_filter = gaussian_filter(1)
+        self.gaussian_filter_2 = gaussian_filter(1*1.6)
+        self.morph_conv = paddle.nn.Conv2D(3,3,6,padding=3,groups=3,padding_mode='reflect',bias_attr=False)
+        self.set_requires_grad([self.morph_conv], False)
+        self.set_requires_grad([self.gaussian_filter],False)
+        self.set_requires_grad([self.gaussian_filter_2],False)
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""

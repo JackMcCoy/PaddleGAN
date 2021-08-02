@@ -206,6 +206,7 @@ class LapStyleDraXDOG(BaseModel):
         self.gaussian_filter_2 = gaussian_filter(0.8*1.6)
         self.set_requires_grad([self.gaussian_filter],False)
         self.set_requires_grad([self.gaussian_filter_2],False)
+        self.MSELoss = paddle.nn.MSELoss()
 
     def setup_input(self, input):
         self.ci = paddle.to_tensor(input['ci'])
@@ -265,9 +266,9 @@ class LapStyleDraXDOG(BaseModel):
         cdogF = self.nets['net_enc'](stylized_dog)
         sx_gram_matrix = gram_matrix(sXF['r31'])
         tx_gram_matrix = gram_matrix(cdogF['r31'])
-        mxdog_content = paddle.nn.MSELoss(self.tF['r31'],cXF['r31'])
-        mxdog_content_contraint = paddle.nn.MSELoss(cdogF['r31'], cXF['r31'])
-        mxdog_content_img = paddle.nn.MSELoss(tx_gram_matrix,sx_gram_matrix)
+        mxdog_content = self.MSELoss(self.tF['r31'],cXF['r31'])
+        mxdog_content_contraint = self.MSELoss(cdogF['r31'], cXF['r31'])
+        mxdog_content_img = self.MSELoss(tx_gram_matrix,sx_gram_matrix)
 
         self.losses['loss_MD'] = mxdog_content
         self.losses['loss_CnsC'] = mxdog_content_contraint

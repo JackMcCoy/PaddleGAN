@@ -60,7 +60,7 @@ def gaussian_filter(sigma):
     gaussian_filter = paddle.nn.Conv2D(3, 3,kernel_size,
                                 groups=3, bias_attr=False,
                                 padding=1, padding_mode='reflect')
-    print(dir(gaussian_filter.weight))
+    gaussian_filter.weight=gaussian_kernel
 
     return gaussian_filter
 
@@ -80,7 +80,7 @@ def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.98, phi=200, eps=-0.1, k
             gt = paddle.greater_than(imdiff,mean)
             imdiff = imdiff*mean
             im[:,i,:,:] = imdiff
-    return imdiff
+    return im
 
 @MODELS.register()
 class LapStyleDraModel(BaseModel):
@@ -211,6 +211,8 @@ class LapStyleDraXDOG(BaseModel):
         self.style_weight = style_weight
         self.gaussian_filter = gaussian_filter(0.8)
         self.gaussian_filter_2 = gaussian_filter(0.8*1.6)
+        self.set_requires_grad([self.gaussian_filter],False)
+        self.set_requires_grad([self.gaussian_filter_2],False)
 
     def setup_input(self, input):
         self.ci = paddle.to_tensor(input['ci'])

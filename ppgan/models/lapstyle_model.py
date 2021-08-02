@@ -186,12 +186,12 @@ class LapStyleDraXDOG(BaseModel):
         self.gaussian_filter = paddle.nn.Conv2D(1, 1,16,
                                 groups=1, bias_attr=False,
                                 weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(std=1)),
-                                padding=8, padding_mode='reflect')
+                                padding=8, padding_mode='reflect',trainable=False)
         self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,16,
                                 groups=1, bias_attr=False,
                                 weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(std=1.6)),
-                                padding=8, padding_mode='reflect')
-        self.morph_conv = paddle.nn.Conv2D(3,3,4,padding=2,groups=3,padding_mode='reflect',bias_attr=False)
+                                padding=8, padding_mode='reflect',trainable=False)
+        self.morph_conv = paddle.nn.Conv2D(3,3,4,padding=2,groups=3,padding_mode='reflect',bias_attr=False,trainable=False)
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)
         self.set_requires_grad([self.gaussian_filter_2],False)

@@ -265,7 +265,7 @@ class LapStyleDraXDOG(BaseModel):
         cdogF = self.nets['net_enc'](stylized_dog)
         sx_gram_matrix = gram_matrix(sXF['r31'])
         tx_gram_matrix = gram_matrix(cdogF['r31'])
-        mxdog_content = paddle.nn.MSELoss(tF['r31'],cXF['r31'])
+        mxdog_content = paddle.nn.MSELoss(self.tF['r31'],cXF['r31'])
         mxdog_content_contraint = paddle.nn.MSELoss(cdogF['r31'], cXF['r31'])
         mxdog_content_img = paddle.nn.MSELoss(tx_gram_matrix,sx_gram_matrix)
 

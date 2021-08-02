@@ -51,8 +51,6 @@ def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.98, phi=200, eps=-0.1, k
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
-    print(im.shape)
-    print(im[:,0,:,:].shape)
     imf1 = gaussian_filter(im)
     imf2 = gaussian_filter_2(im)
     imdiff = imf1 - gamma * imf2
@@ -62,8 +60,7 @@ def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.98, phi=200, eps=-0.1, k
     mean = imdiff.mean(axis=0)
     gt = paddle.greater_than(imdiff,mean)
     imdiff = imdiff*gt.astype('float32')
-    im[:,i,:,:] = imdiff
-    return im
+    return imdiff
 
 @MODELS.register()
 class LapStyleDraModel(BaseModel):

@@ -203,6 +203,7 @@ class LapStyleDraXDOG(BaseModel):
         self.cX = xdog(self.ci,self.gaussian_filter,self.gaussian_filter_2)
         self.sX = xdog(self.si,self.gaussian_filter,self.gaussian_filter_2)
         self.visual_items['cx'] = self.cX
+        self.visual_items['sx'] = self.sX
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""

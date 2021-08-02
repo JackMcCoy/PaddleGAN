@@ -35,8 +35,11 @@ def xdog(im, g, g2,morph_conv,gamma=0.94, phi=50, eps=-0.1, k=1.6):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
-    imf1 = g(im)
-    imf2 = g2(im)
+    imf1 = paddle.zeros_like(im)
+    imf2 = paddle.zeros_like(im)
+    for i in range(im.shape[1]):
+        imf1[:,i,:,:] = g(im[:,i,:,:])
+        imf2[:,i,:,:] = g2(im[:,i,:,:])
     imdiff = imf1 - gamma * imf2
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
     for i in range(im.shape[1]):
@@ -183,12 +186,12 @@ class LapStyleDraXDOG(BaseModel):
         self.si = paddle.to_tensor(input['si'])
         self.visual_items['si'] = self.si
         self.image_paths = input['ci_path']
-        self.gaussian_filter = paddle.nn.Conv2D(3, 3,4,
-                                groups=3, bias_attr=False,
+        self.gaussian_filter = paddle.nn.Conv2D(1, 1,4,
+                                groups=1, bias_attr=False,
                                 weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(std=1),trainable=False),
                                 padding=2, padding_mode='reflect')
-        self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3,4,
-                                groups=3, bias_attr=False,
+        self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,4,
+                                groups=1, bias_attr=False,
                                 weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(std=1.6),trainable=False),
                                 padding=2, padding_mode='reflect')
         self.morph_conv = paddle.nn.Conv2D(3,3,6,padding=3,groups=3,padding_mode='reflect',bias_attr=False)

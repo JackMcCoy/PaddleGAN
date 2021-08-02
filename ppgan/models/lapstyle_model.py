@@ -58,7 +58,7 @@ def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.94, phi=50, eps=-0.1, k=
     imdiff -= imdiff.min(axis=0)
     imdiff /= imdiff.max(axis=0)
     mean = imdiff.mean(axis=0)
-    im= (imdiff > mean).astype('float32') + 0*(imdiff<=mean).astype('float32')
+    im= imdiff*((imdiff > mean).astype('float32') + 0*(imdiff<=mean).astype('float32'))
     return im
 
 @MODELS.register()

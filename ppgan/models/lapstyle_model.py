@@ -62,6 +62,19 @@ def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.98, phi=200, eps=-0.1, k
     imdiff = imdiff*gt.astype('float32')
     return imdiff
 
+def gram_matrix(input):
+    a, b, c, d = input.shape  # a=batch size(=1)
+    # b=number of feature maps
+    # (c,d)=dimensions of a f. map (N=c*d)
+
+    features = input.reshape((a * b, c * d))  # resise F_XL into \hat F_XL
+
+    G = paddle.mm(features, features.t())  # compute the gram product
+
+    # we 'normalize' the values of the gram matrix
+    # by dividing by the number of element in each feature maps.
+    return G.divide(a * b * c * d)
+
 @MODELS.register()
 class LapStyleDraModel(BaseModel):
     def __init__(self,
@@ -246,9 +259,25 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_style_remd'] = self.loss_style_remd
         self.losses['loss_content_relt'] = self.loss_content_relt
 
+        stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2)
+        cXF = self.nets['net_enc'](self.cX)
+        sXF = self.nets['net_enc'](self.sX)
+        cdogF = self.nets['net_enc'](cXF)
+        sx_gram_matrix = gram_matrix(sXF['r31'])
+        tx_gram_matrix = gram_matrix(cdogF['r31'])
+        mxdog_content = paddle.nn.MSELoss(tF['r31'],cXF['r31'])
+        mxdog_content_contraint = paddle.nn.MSELoss(cdogF['r31'], cXF['r31'])
+        mxdog_content_img = paddle.nn.MSELoss(tx_gram_matrix,sx_gram_matrix)
+
+        self.losses['loss_MD'] = mxdog_content
+        self.losses['loss_CnsC'] = mxdog_content_contraint
+        self.losses['loss_CnsS'] = mxdog_content_img
+
         self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
                     self.l_identity1 * 50 + self.l_identity2 * 1 + self.loss_style_remd * 10 + \
-                    self.loss_content_relt * 16
+                    self.loss_content_relt * 16 + \
+                    mxdog_content + mxdog_content_contraint + mxdog_content_img
+
         self.loss.backward()
 
         return self.loss

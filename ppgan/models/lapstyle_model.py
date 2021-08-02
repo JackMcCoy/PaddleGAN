@@ -31,7 +31,7 @@ from ..utils.filesystem import makedirs, save, load
 
 
 def gaussian_filter(sigma):
-    kernel_size = 14
+    kernel_size = 12
 
     # Create a x, y coordinate grid of shape (kernel_size, kernel_size, 2)
     x_cord = paddle.arange(kernel_size)
@@ -44,7 +44,7 @@ def gaussian_filter(sigma):
     gaussian_filter = paddle.nn.Conv2D(3, 3,kernel_size,
                                 groups=3, bias_attr=False,
                                 weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(std=sigma),trainable=False),
-                                padding=7, padding_mode='reflect')
+                                padding=6, padding_mode='reflect')
     return gaussian_filter
 
 def xdog(im, gaussian_filter, gaussian_filter_2,morph_conv,gamma=0.94, phi=50, eps=-0.1, k=1.6):
@@ -205,10 +205,6 @@ class LapStyleDraXDOG(BaseModel):
         self.si = paddle.to_tensor(input['si'])
         self.visual_items['si'] = self.si
         self.image_paths = input['ci_path']
-        self.cX = xdog(self.ci,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-        self.sX = xdog(self.si,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-        self.visual_items['cx'] = self.cX
-        self.visual_items['sx'] = self.sX
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
@@ -218,6 +214,10 @@ class LapStyleDraXDOG(BaseModel):
         self.visual_items['stylized'] = self.stylized
 
     def backward_Dec(self):
+        self.cX = xdog(self.ci,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        self.sX = xdog(self.si,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        self.visual_items['cx'] = self.cX
+        self.visual_items['sx'] = self.sX
         self.tF = self.nets['net_enc'](self.stylized)
         """content loss"""
         self.loss_c = 0

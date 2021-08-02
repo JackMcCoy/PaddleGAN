@@ -35,13 +35,8 @@ def xdog(im, g, g2,morph_conv,gamma=0.94, phi=50, eps=-0.1, k=1.6):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
-    imf1 = []
-    imf2 = []
-    for i in range(im.shape[1]):
-        imf1.append(g(paddle.unsqueeze(im[:,i,:,:],axis=1)))
-        imf2.append(g2(paddle.unsqueeze(im[:,i,:,:],axis=1)))
-    imf1 = paddle.concat(x=imf1,axis=1)
-    imf2 = paddle.concat(x=imf2,axis=1)
+    imf1 = paddle.concat(x=[g(paddle.unsqueeze(im[:,0,:,:])),g(paddle.unsqueeze(im[:,1,:,:])),g(paddle.unsqueeze(im[:,2,:,:]))],axis=1)
+    imf2 = paddle.concat(x=[g2(paddle.unsqueeze(im[:,0,:,:])),g2(paddle.unsqueeze(im[:,1,:,:])),g2(paddle.unsqueeze(im[:,2,:,:]))],axis=1)
     imdiff = imf1 - gamma * imf2
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
     for i in range(im.shape[1]):
@@ -196,7 +191,7 @@ class LapStyleDraXDOG(BaseModel):
                                 groups=1, bias_attr=False,
                                 weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(std=1.6)),
                                 padding=8, padding_mode='reflect')
-        self.morph_conv = paddle.nn.Conv2D(3,3,5,padding=2,groups=3,padding_mode='reflect',bias_attr=False)
+        self.morph_conv = paddle.nn.Conv2D(3,3,4,padding=2,groups=3,padding_mode='reflect',bias_attr=False)
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)
         self.set_requires_grad([self.gaussian_filter_2],False)

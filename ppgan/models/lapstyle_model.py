@@ -35,7 +35,7 @@ def gaussian_filter(sigma):
 
     # Create a x, y coordinate grid of shape (kernel_size, kernel_size, 2)
     x_cord = paddle.arange(kernel_size)
-    x_grid = paddle.expand(xcord,(kernel_size,kernel_size))
+    x_grid = paddle.expand(x_cord,(kernel_size,kernel_size))
     y_grid = x_grid.t()
     xy_grid = paddle.stack([x_grid, y_grid], axis=-1)
 

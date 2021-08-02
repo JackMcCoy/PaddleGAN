@@ -47,7 +47,7 @@ def gaussian_filter(sigma):
                                 padding=7, padding_mode='reflect')
     return gaussian_filter
 
-def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.98, phi=200, eps=-0.1, k=1.6):
+def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.94, phi=50, eps=-0.1, k=1.6):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
@@ -188,8 +188,8 @@ class LapStyleDraXDOG(BaseModel):
         self.style_layers = style_layers
         self.content_weight = content_weight
         self.style_weight = style_weight
-        self.gaussian_filter = gaussian_filter(0.6)
-        self.gaussian_filter_2 = gaussian_filter(0.6*1.6)
+        self.gaussian_filter = gaussian_filter(1)
+        self.gaussian_filter_2 = gaussian_filter(1*1.6)
         self.set_requires_grad([self.gaussian_filter],False)
         self.set_requires_grad([self.gaussian_filter_2],False)
         self.MSELoss = paddle.nn.MSELoss()
@@ -261,7 +261,7 @@ class LapStyleDraXDOG(BaseModel):
         self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
                     self.l_identity1 * 50 + self.l_identity2 * 1 + self.loss_style_remd * 10 + \
                     self.loss_content_relt * 16 + \
-                    mxdog_content + mxdog_content_contraint + mxdog_content_img
+                    mxdog_content * .1 + mxdog_content_contraint *100 + mxdog_content_img * 1000
 
         self.loss.backward()
 

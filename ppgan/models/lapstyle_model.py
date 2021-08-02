@@ -44,7 +44,7 @@ def gaussian_filter(sigma):
     gaussian_filter = paddle.nn.Conv2D(3, 3,kernel_size,
                                 groups=3, bias_attr=False,
                                 weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(std=sigma),trainable=False),
-                                padding=15, padding_mode='reflect')
+                                padding=9, padding_mode='reflect')
     return gaussian_filter
 
 def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.98, phi=200, eps=-0.1, k=1.6):

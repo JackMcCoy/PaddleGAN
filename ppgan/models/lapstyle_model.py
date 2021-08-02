@@ -55,7 +55,7 @@ def gaussian_filter(sigma):
 
     # Reshape to 2d depthwise convolutional weight
     gaussian_kernel = gaussian_kernel.reshape((kernel_size, kernel_size))
-    gaussian_kernel = paddle.expand(gaussian_kernel,(5,kernel_size,kernel_size))
+    gaussian_kernel = paddle.expand(gaussian_kernel,(5,1,kernel_size,kernel_size))
 
     gaussian_filter = paddle.nn.Conv2D(5, 5,kernel_size,
                                 groups=5, bias_attr=False,
@@ -69,6 +69,7 @@ def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.98, phi=200, eps=-0.1, k
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
     print(im.shape)
+    print(im[:,0,:,:].shape)
     for i in range(im.shape[1]):
         imf1 = gaussian_filter(im[:,i,:,:])
         imf2 = gaussian_filter_2(im[:,i,:,:])

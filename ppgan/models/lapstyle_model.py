@@ -59,7 +59,7 @@ def xdog(im, gaussian_filter, gaussian_filter_2,morph_conv,gamma=0.94, phi=50, e
     imdiff /= imdiff.max(axis=0)
     morphed = morph_conv(imdiff)
     for i in range(im.shape[1]):
-        mean = morphed[:,i,:,:].mean()
+        mean = morphed[:,i,:,:].mean(axis=0)
         im[:,i,:,:]= (morphed[:,i,:,:] > mean).astype('float32') + 0*(morphed[:,i,:,:]<=mean).astype('float32')
     return im
 
@@ -192,7 +192,7 @@ class LapStyleDraXDOG(BaseModel):
         self.style_weight = style_weight
         self.gaussian_filter = gaussian_filter(1)
         self.gaussian_filter_2 = gaussian_filter(1*1.6)
-        self.morph_conv = paddle.nn.Conv2D(3,3,6,padding=2,groups=3,padding_mode='reflect',bias_attr=False)
+        self.morph_conv = paddle.nn.Conv2D(3,3,6,padding=3,groups=3,padding_mode='reflect',bias_attr=False)
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)
         self.set_requires_grad([self.gaussian_filter_2],False)

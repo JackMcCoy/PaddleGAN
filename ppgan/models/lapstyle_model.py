@@ -57,10 +57,7 @@ def xdog(im, gaussian_filter, gaussian_filter_2,gamma=0.98, phi=200, eps=-0.1, k
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
     imdiff -= imdiff.min(axis=0)
     imdiff /= imdiff.max(axis=0)
-    mean = imdiff.mean(axis=0)
-    im[paddle.greater_than(imdiff,mean)]=1
-    im[paddle.less_equal(imdiff, mean)] = paddle.tanh(phi * (mean-eps))
-    return im
+    return imdiff
 
 @MODELS.register()
 class LapStyleDraModel(BaseModel):

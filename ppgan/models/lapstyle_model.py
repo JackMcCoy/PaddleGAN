@@ -184,7 +184,7 @@ class LapStyleDraXDOG(BaseModel):
                                 padding=4, padding_mode='reflect')
         self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,10,
                                 groups=1, bias_attr=False,
-                                weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=0,std=.6*1.5),trainable=False),
+                                weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=0,std=.6*1.55),trainable=False),
                                 padding=4, padding_mode='reflect')
         self.morph_conv = paddle.nn.Conv2D(3,3,3,padding=1,groups=3,padding_mode='reflect',weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Bilinear(),trainable=False),bias_attr=False)
         self.set_requires_grad([self.morph_conv], False)
@@ -206,8 +206,8 @@ class LapStyleDraXDOG(BaseModel):
         self.visual_items['stylized'] = self.stylized
 
     def backward_Dec(self):
-        self.cX = xdog(self.ci,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-        self.sX = xdog(self.si,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        self.cX = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        self.sX = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
         self.visual_items['cx'] = self.cX
         self.visual_items['sx'] = self.sX
         self.tF = self.nets['net_enc'](self.stylized)

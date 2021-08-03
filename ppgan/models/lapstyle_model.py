@@ -70,7 +70,7 @@ def gaussian(M, std, amplitude, sym=True):
     odd = M % 2
     if not sym and not odd:
         M = M + 1
-    n = paddle.arange(0, M) - (M - M/2) / 2.0
+    n = paddle.arange(0, M) - (M/2) / 2.0
     sig2 = 2 * std * std
     w = paddle.exp(n ** 2 / sig2)
     if not sym and not odd:

@@ -211,8 +211,8 @@ class LapStyleDraXDOG(BaseModel):
                                 padding=4, padding_mode='reflect')
         self.gaussian_filter.set_state_dict({'weight':gaussian(10,.8)})
         self.gaussian_filter_2.set_state_dict({'weight':gaussian(10,.8*4.5)})
-        self.morph_conv = paddle.nn.Conv2D(1,1,3,padding=1,groups=1,padding_mode='reflect',bias_attr=False)
-        self.gaussian_filter_2.set_state_dict({'weight':gaussian(3,1)})
+        self.morph_conv = paddle.nn.Conv2D(1,1,5,padding=1,groups=1,padding_mode='reflect',bias_attr=False)
+        self.gaussian_filter_2.set_state_dict({'weight':gaussian(3,2.2)})
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)
         self.set_requires_grad([self.gaussian_filter_2],False)
@@ -284,8 +284,8 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_CnsS'] = mxdog_content_img
 
         self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
-                    self.l_identity1 * 50 + self.l_identity2 * 1 + self.loss_style_remd * 10 + \
-                    self.loss_content_relt * 16 + \
+                    self.l_identity1 * 100 + self.l_identity2 * 2 + self.loss_style_remd * 20 + \
+                    self.loss_content_relt * 32 + \
                     mxdog_content * .1 + mxdog_content_contraint *200 + mxdog_content_img * 1000
 
         self.loss.backward()

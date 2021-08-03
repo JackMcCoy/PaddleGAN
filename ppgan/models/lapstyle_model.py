@@ -284,9 +284,9 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_CnsS'] = mxdog_content_img
 
         self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
-                    self.l_identity1 * 100 + self.l_identity2 * 2 + self.loss_style_remd * 20 + \
-                    self.loss_content_relt * 32 + \
-                    mxdog_content * .1 + mxdog_content_contraint *200 + mxdog_content_img * 1000
+                    self.l_identity1 * 150 + self.l_identity2 * 3 + self.loss_style_remd * 40 + \
+                    self.loss_content_relt * 48 + \
+                    mxdog_content * .5 + mxdog_content_contraint *100 + mxdog_content_img * 500
 
         self.loss.backward()
 

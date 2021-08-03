@@ -41,8 +41,8 @@ def xdog(im, g, g2,morph_conv,gamma=.98, phi=25, eps=-.1, k=1.6):
     imf1.stop_gradient=True
     imf2.stop_gradient=True
     for i in range(im.shape[1]):
-        imf2[:,i,:,:]=paddle.squeeze(g2(paddle.unsqueeze(im[:,i,:,:]+.5,axis=1)))
-        imf1[:,i,:,:]=paddle.squeeze(g(paddle.unsqueeze(im[:,i,:,:]+.5,axis=1)))
+        imf2[:,i,:,:]=paddle.squeeze(g2(paddle.unsqueeze(im[:,i,:,:],axis=1)))
+        imf1[:,i,:,:]=paddle.squeeze(g(paddle.unsqueeze(im[:,i,:,:],axis=1)))
     #imf2 = g2(im.detach())
 
     imdiff = imf1 - gamma * imf2
@@ -209,7 +209,8 @@ class LapStyleDraXDOG(BaseModel):
                                 padding=4, padding_mode='reflect')
         self.gaussian_filter.set_state_dict({'weight':gaussian(10,.6)})
         self.gaussian_filter_2.set_state_dict({'weight':gaussian(10,.6*5)})
-        self.morph_conv = paddle.nn.Conv2D(3,3,3,padding=1,groups=1,padding_mode='reflect',weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Bilinear(),trainable=False),bias_attr=False)
+        self.morph_conv = paddle.nn.Conv2D(3,3,3,padding=1,groups=1,padding_mode='reflect',bias_attr=False)
+        self.gaussian_filter_2.set_state_dict({'weight':gaussian(3,1)})
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)
         self.set_requires_grad([self.gaussian_filter_2],False)

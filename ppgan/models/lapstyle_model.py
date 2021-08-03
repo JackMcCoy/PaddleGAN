@@ -210,7 +210,7 @@ class LapStyleDraXDOG(BaseModel):
                                 padding=4, padding_mode='reflect')
         self.gaussian_filter.set_state_dict({'weight':gaussian(10,.6)})
         self.gaussian_filter_2.set_state_dict({'weight':gaussian(10,.6*2)})
-        self.morph_conv = paddle.nn.Conv2D(3,3,6,padding=3,groups=1,padding_mode='reflect',bias_attr=False)
+        self.morph_conv = paddle.nn.Conv2D(3,3,5,padding=2,groups=1,padding_mode='reflect',bias_attr=False)
         self.gaussian_filter_2.set_state_dict({'weight':gaussian(3,1)})
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)

@@ -35,7 +35,7 @@ def xdog(im, g, g2,morph_conv,gamma=1.5, phi=200, eps=-.5, k=1.6):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
-    imf1 = paddle.concat(x=[g(paddle.unsqueeze(im[:,0,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,1,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,2,:,:].detach(),axis=1))],axis=1)
+    #imf1 = paddle.concat(x=[g(paddle.unsqueeze(im[:,0,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,1,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,2,:,:].detach(),axis=1))],axis=1)
     imf2 = g2(im.detach())
     '''
     imdiff = imf1 - gamma * imf2
@@ -181,11 +181,11 @@ class LapStyleDraXDOG(BaseModel):
         self.style_layers = style_layers
         self.content_weight = content_weight
         self.style_weight = style_weight
-        self.gaussian_filter = paddle.nn.Conv2D(1, 1,10,
+        self.gaussian_filter = paddle.nn.Conv2D(3, 3,10,
                                 groups=1, bias_attr=False,
                                 weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=1,std=.8),trainable=False),
                                 padding=4, padding_mode='reflect')
-        self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,10,
+        self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3,10,
                                 groups=1, bias_attr=False,
                                 weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=1,std=.8*20),trainable=False),
                                 padding=4, padding_mode='reflect')

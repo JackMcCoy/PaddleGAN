@@ -60,6 +60,21 @@ def xdog(im, g, g2,morph_conv,gamma=1.5, phi=200, eps=-.5, k=1.6):
     '''
     return imf2
 
+class gaussian(M, std, sym=True):
+    if M < 1:
+        return paddle.to_tensor([])
+    if M == 1:
+        return paddle.ones(1, 'd')
+    odd = M % 2
+    if not sym and not odd:
+        M = M + 1
+    n = paddle.arange(0, M) - (M - 1.0) / 2.0
+    sig2 = 2 * std * std
+    w = paddle.exp(-n ** 2 / sig2)
+    if not sym and not odd:
+        w = w[:-1]
+    return w
+
 @MODELS.register()
 class LapStyleDraModel(BaseModel):
     def __init__(self,
@@ -187,14 +202,15 @@ class LapStyleDraXDOG(BaseModel):
         self.style_layers = style_layers
         self.content_weight = content_weight
         self.style_weight = style_weight
+        gaussian = gaussian(1.2,.6)
         self.gaussian_filter = paddle.nn.Conv2D(1, 1,9,
                                 groups=1, bias_attr=False,
-                                weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=0,std=.8),trainable=False),
                                 padding=4, padding_mode='reflect')
         self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,9,
                                 groups=1, bias_attr=False,
                                 weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=0,std=.8*1.8),trainable=False),
                                 padding=4, padding_mode='reflect')
+        self.gaussian_filter_2.weight=gaussian
         self.morph_conv = paddle.nn.Conv2D(3,3,3,padding=1,groups=3,padding_mode='reflect',weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Bilinear(),trainable=False),bias_attr=False)
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)

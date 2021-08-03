@@ -40,6 +40,7 @@ def xdog(im, g, g2,morph_conv,gamma=0.98, phi=200, eps=-.1, k=1.6):
     imdiff = imf1 - gamma * imf2
     print(imdiff.mean())
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
+    '''
     for j in range(im.shape[0]):
         for i in range(im.shape[1]):
             imdiff[j,i,:,:] -= imdiff[j,i,:,:].min()
@@ -49,7 +50,8 @@ def xdog(im, g, g2,morph_conv,gamma=0.98, phi=200, eps=-.1, k=1.6):
         for j in range(im.shape[1]):
             mean = imdiff[i,j,:,:].mean()
             morphed[i,j,:,:]= (morphed[i,j,:,:] > mean).astype('float32') + 0*(morphed[i,j,:,:]<=mean).astype('float32')
-    return morphed
+    '''
+    return imdiff
 
 @MODELS.register()
 class LapStyleDraModel(BaseModel):

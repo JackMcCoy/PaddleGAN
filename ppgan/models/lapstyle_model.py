@@ -61,7 +61,7 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=100, eps=-.11, k=1.6):
             morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')
     return morphed
 
-def gaussian(M, std, sym=True):
+def gaussian(M, std, amplitude, sym=True):
     if M < 1:
         return paddle.to_tensor([])
     if M == 1:
@@ -71,10 +71,13 @@ def gaussian(M, std, sym=True):
         M = M + 1
     n = paddle.arange(0, M) - (M - 1.0) / 2.0
     sig2 = 2 * std * std
-    w = paddle.exp(-n ** 2 / sig2)
+    w = paddle.exp(n ** 2 / sig2)
     if not sym and not odd:
         w = w[:-1]
-    return w
+    two = paddle.expand(w,(M,M))
+    two = amplitude*-(two + two.t())
+
+    return two
 
 @MODELS.register()
 class LapStyleDraModel(BaseModel):
@@ -209,10 +212,10 @@ class LapStyleDraXDOG(BaseModel):
         self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,9,
                                 groups=1, bias_attr=False,
                                 padding=4, padding_mode='reflect')
-        self.gaussian_filter.set_state_dict({'weight':gaussian(10,.8)})
-        self.gaussian_filter_2.set_state_dict({'weight':gaussian(10,.8*4.5)})
+        self.gaussian_filter.set_state_dict({'weight':gaussian(10,.8,1))
+        self.gaussian_filter_2.set_state_dict({'weight':gaussian(10,.8*4.5,1)})
         self.morph_conv = paddle.nn.Conv2D(1,1,5,padding=2,groups=1,padding_mode='reflect',bias_attr=False)
-        self.morph_conv.set_state_dict({'weight':gaussian(5,2.875)})
+        self.morph_conv.set_state_dict({'weight':gaussian(5,2.825,1)})
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)
         self.set_requires_grad([self.gaussian_filter_2],False)

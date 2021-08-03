@@ -37,10 +37,11 @@ def xdog(im, g, g2,morph_conv,gamma=1.5, phi=200, eps=-.5, k=1.6):
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
     imf1 = paddle.concat(x=[g(paddle.unsqueeze(im[:,0,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,1,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,2,:,:].detach(),axis=1))],axis=1)
     imf2 = paddle.concat(x=[g2(paddle.unsqueeze(im[:,0,:,:].detach(),axis=1)),g2(paddle.unsqueeze(im[:,1,:,:].detach(),axis=1)),g2(paddle.unsqueeze(im[:,2,:,:].detach(),axis=1))],axis=1)
+    '''
     imdiff = imf1 - gamma * imf2
     print(imdiff.mean())
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
-    '''
+
     for j in range(im.shape[0]):
         for i in range(im.shape[1]):
             imdiff[j,i,:,:] -= imdiff[j,i,:,:].min()
@@ -51,7 +52,7 @@ def xdog(im, g, g2,morph_conv,gamma=1.5, phi=200, eps=-.5, k=1.6):
             mean = imdiff[i,j,:,:].mean()
             morphed[i,j,:,:]= (morphed[i,j,:,:] > mean).astype('float32') + 0*(morphed[i,j,:,:]<=mean).astype('float32')
     '''
-    return imdiff
+    return imf2
 
 @MODELS.register()
 class LapStyleDraModel(BaseModel):

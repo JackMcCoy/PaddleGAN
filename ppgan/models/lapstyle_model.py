@@ -46,7 +46,6 @@ def xdog(im, g, g2,morph_conv,gamma=.98, phi=200, eps=-.1, k=1.6):
     #imf2 = g2(im.detach())
 
     imdiff = imf1 - gamma * imf2
-    print(imdiff.mean())
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
 
     for j in range(im.shape[0]):

@@ -38,7 +38,7 @@ def xdog(im, g, g2,morph_conv,gamma=1.5, phi=200, eps=-.5, k=1.6):
     #imf1 = paddle.concat(x=[g(paddle.unsqueeze(im[:,0,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,1,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,2,:,:].detach(),axis=1))],axis=1)
     imf2=paddle.zeros_like(im)
     for i in range(im.shape[1]):
-        imf2[:,i,:,:]=g2(paddle.unsqueeze(imf2[:,i,:,:],axis=1))
+        imf2[:,i,:,:]=paddle.squeeze(g2(paddle.unsqueeze(imf2[:,i,:,:],axis=1)))
     #imf2 = g2(im.detach())
     '''
     imdiff = imf1 - gamma * imf2
@@ -187,11 +187,11 @@ class LapStyleDraXDOG(BaseModel):
         self.gaussian_filter = paddle.nn.Conv2D(1, 1,10,
                                 groups=1, bias_attr=False,
                                 weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=1,std=.8),trainable=False),
-                                padding=4, padding_mode='reflect')
+                                padding=5, padding_mode='reflect')
         self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,10,
                                 groups=1, bias_attr=False,
                                 weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=1,std=.8*20),trainable=False),
-                                padding=4, padding_mode='reflect')
+                                padding=5, padding_mode='reflect')
         self.morph_conv = paddle.nn.Conv2D(3,3,3,padding=1,groups=3,padding_mode='reflect',weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Bilinear(),trainable=False),bias_attr=False)
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)

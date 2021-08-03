@@ -44,7 +44,7 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=100, eps=-.1, k=1.6):
         imf2[:,i,:,:]=paddle.squeeze(g2(paddle.unsqueeze(im[:,i,:,:],axis=1)))
         imf1[:,i,:,:]=paddle.squeeze(g(paddle.unsqueeze(im[:,i,:,:],axis=1)))
     #imf2 = g2(im.detach())
-
+    '''
     imdiff = imf1 - gamma * imf2
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
 
@@ -59,7 +59,8 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=100, eps=-.1, k=1.6):
         for j in range(im.shape[0]):
             mean = imdiff[j,i,:,:].mean()
             morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')
-    return morphed
+    '''
+    return imf2
 
 def gaussian(M, std, amplitude, sym=True):
     if M < 1:

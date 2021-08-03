@@ -44,13 +44,13 @@ def xdog(im, g, g2,morph_conv,gamma=.98, phi=50, eps=-.084, k=1.6):
         imf2[:,i,:,:]=paddle.squeeze(g2(paddle.unsqueeze(im[:,i,:,:],axis=1)))
         imf1[:,i,:,:]=paddle.squeeze(g(paddle.unsqueeze(im[:,i,:,:],axis=1)))
     #imf2 = g2(im.detach())
-    print('imf1 mean= '+imf1.mean())
-    print('imf2 mean= '+imf2.mean())
+    print('imf1 mean= '+str(imf1.mean()))
+    print('imf2 mean= '+str(imf2.mean()))
     imdiff = imf1 - gamma * imf2
-    print('imf1-gamma*imf2 mean= '+imdiff.mean())
-    print('lessthan count='+((imdiff < eps).astype('float32') * 1.0).sum())
+    print('imf1-gamma*imf2 mean= '+str(imdiff.mean()))
+    print('lessthan count='+str(((imdiff < eps).astype('float32') * 1.0).sum()))
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
-    print('imdiff mean= '+imdiff.mean())
+    print('imdiff mean= '+str(imdiff.mean()))
     for j in range(im.shape[0]):
         for i in range(im.shape[1]):
             imdiff[j,i,:,:] -= imdiff[j,i,:,:].min()

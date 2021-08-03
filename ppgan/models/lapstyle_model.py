@@ -197,6 +197,12 @@ class LapStyleDraXDOG(BaseModel):
         self.si = paddle.to_tensor(input['si'])
         self.visual_items['si'] = self.si
         self.image_paths = input['ci_path']
+        self.cX = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        self.sX = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        self.visual_items['cx'] = self.cX
+        self.visual_items['sx'] = self.sX
+        self.cXF = self.nets['net_enc'](self.cX)
+        self.sXF = self.nets['net_enc'](self.sX)
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
@@ -204,12 +210,11 @@ class LapStyleDraXDOG(BaseModel):
         self.sF = self.nets['net_enc'](self.si)
         self.stylized = self.nets['net_dec'](self.cF, self.sF)
         self.visual_items['stylized'] = self.stylized
+        stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        self.cdogF = self.nets['net_enc'](stylized_dog)
 
     def backward_Dec(self):
-        self.cX = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-        self.sX = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-        self.visual_items['cx'] = self.cX
-        self.visual_items['sx'] = self.sX
+
         self.tF = self.nets['net_enc'](self.stylized)
         """content loss"""
         self.loss_c = 0
@@ -243,13 +248,10 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_style_remd'] = self.loss_style_remd
         self.losses['loss_content_relt'] = self.loss_content_relt
 
-        stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-        cXF = self.nets['net_enc'](self.cX)
-        sXF = self.nets['net_enc'](self.sX)
-        cdogF = self.nets['net_enc'](stylized_dog)
-        mxdog_content = self.calc_content_loss(cdogF['r31'], cXF['r31'])
-        mxdog_content_contraint = self.calc_content_relt_loss(cdogF['r31'], cXF['r31'])
-        mxdog_content_img = self.calc_style_loss(cdogF['r31'],sXF['r31'])
+
+        mxdog_content = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])
+        mxdog_content_contraint = self.calc_content_relt_loss(self.cdogF['r31'], self.cXF['r31'])
+        mxdog_content_img = self.calc_style_loss(self.cdogF['r31'],self.sXF['r31'])
 
         self.losses['loss_MD'] = mxdog_content
         self.losses['loss_CnsC'] = mxdog_content_contraint

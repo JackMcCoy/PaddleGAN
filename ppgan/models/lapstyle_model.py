@@ -76,7 +76,7 @@ def gaussian(M, std, amplitude, sym=True):
     if not sym and not odd:
         w = w[:-1]
     two = paddle.expand(w,(M,M))
-    two = amplitude*(two + two.t())
+    two = two * two.t()
 
     return two
 

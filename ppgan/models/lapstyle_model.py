@@ -58,7 +58,7 @@ def xdog(im, g, g2,morph_conv,gamma=.96, phi=200, eps=-.1, k=1.6):
         morphed[:,i,:,:]=paddle.squeeze(morph_conv(paddle.unsqueeze(imdiff[:,i,:,:],axis=1)))
         for j in range(im.shape[0]):
             mean = imdiff[j,i,:,:].mean()
-            morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(morphed[j,i,:,:] > mean).astype('float32')
+            morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')
     return morphed
 
 def gaussian(M, std, sym=True):

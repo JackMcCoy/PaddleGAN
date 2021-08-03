@@ -52,10 +52,11 @@ def xdog(im, g, g2,morph_conv,gamma=.96, phi=200, eps=-.1, k=1.6):
         for i in range(im.shape[1]):
             imdiff[j,i,:,:] -= imdiff[j,i,:,:].min()
             imdiff[j,i,:,:] /= imdiff[j,i,:,:].max()
-    morphed = morph_conv(imdiff)
+    morphed = paddle.zeros_like(im)
 
-    for i in range(im.shape[0]):
-        for j in range(im.shape[1]):
+    for j in range(im.shape[1]):
+        morphed[:,i,:,:]=paddle.squeeze(morph_conv(paddle.unsqueeze(imdiff[:,i,:,:],axis=1))
+        for i in range(im.shape[0]):
             mean = imdiff[i,j,:,:].mean()
             morphed[i,j,:,:]= (morphed[i,j,:,:] > mean).astype('float32') + 0*(morphed[i,j,:,:]<=mean).astype('float32')
     return morphed
@@ -210,7 +211,7 @@ class LapStyleDraXDOG(BaseModel):
                                 padding=4, padding_mode='reflect')
         self.gaussian_filter.set_state_dict({'weight':gaussian(10,.6)})
         self.gaussian_filter_2.set_state_dict({'weight':gaussian(10,.6*5)})
-        self.morph_conv = paddle.nn.Conv2D(3,3,5,padding=2,groups=1,padding_mode='reflect',bias_attr=False)
+        self.morph_conv = paddle.nn.Conv2D(1,1,5,padding=2,groups=1,padding_mode='reflect',bias_attr=False)
         self.gaussian_filter_2.set_state_dict({'weight':gaussian(3,1)})
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)

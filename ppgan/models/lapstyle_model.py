@@ -31,7 +31,7 @@ from ..utils.filesystem import makedirs, save, load
 
 
 
-def xdog(im, g, g2,morph_conv,gamma=.94, phi=100, eps=-.1, k=1.6):
+def xdog(im, g, g2,morph_conv,gamma=.94, phi=100, eps=-.11, k=1.6):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
@@ -60,7 +60,7 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=100, eps=-.1, k=1.6):
             morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')
     return morphed
 
-def gaussian(M, std, amplitude, sym=True):
+def gaussian(M, std, sym=True):
     if M < 1:
         return paddle.to_tensor([])
     if M == 1:
@@ -211,10 +211,10 @@ class LapStyleDraXDOG(BaseModel):
         self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,9,
                                 groups=1, bias_attr=False,
                                 padding=4, padding_mode='reflect')
-        self.gaussian_filter.set_state_dict({'weight':gaussian(10,.8,1)})
-        self.gaussian_filter_2.set_state_dict({'weight':gaussian(10,.8*4.5,1)})
+        self.gaussian_filter.set_state_dict({'weight':gaussian(10,.8)})
+        self.gaussian_filter_2.set_state_dict({'weight':gaussian(10,.8*4.5)})
         self.morph_conv = paddle.nn.Conv2D(1,1,5,padding=2,groups=1,padding_mode='reflect',bias_attr=False)
-        self.morph_conv.set_state_dict({'weight':gaussian(5,2.825,1)})
+        self.morph_conv.set_state_dict({'weight':gaussian(5,2.825)})
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)
         self.set_requires_grad([self.gaussian_filter_2],False)

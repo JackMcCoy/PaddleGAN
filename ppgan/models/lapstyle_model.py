@@ -31,17 +31,20 @@ from ..utils.filesystem import makedirs, save, load
 
 
 
-def xdog(im, g, g2,morph_conv,gamma=1.5, phi=200, eps=-.5, k=1.6):
+def xdog(im, g, g2,morph_conv,gamma=.98, phi=200, eps=-.1, k=1.6):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
     #imf1 = paddle.concat(x=[g(paddle.unsqueeze(im[:,0,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,1,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,2,:,:].detach(),axis=1))],axis=1)
     imf2=paddle.zeros_like(im)
+    imf=paddle.zeros_like(im)
+    imf.stop_gradient=True
     imf2.stop_gradient=True
     for i in range(im.shape[1]):
         imf2[:,i,:,:]=paddle.squeeze(g2(paddle.unsqueeze(im[:,i,:,:],axis=1)))
+        imf2[:,i,:,:]=paddle.squeeze(g(paddle.unsqueeze(im[:,i,:,:],axis=1)))
     #imf2 = g2(im.detach())
-    '''
+
     imdiff = imf1 - gamma * imf2
     print(imdiff.mean())
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
@@ -55,8 +58,7 @@ def xdog(im, g, g2,morph_conv,gamma=1.5, phi=200, eps=-.5, k=1.6):
         for j in range(im.shape[1]):
             mean = imdiff[i,j,:,:].mean()
             morphed[i,j,:,:]= (morphed[i,j,:,:] > mean).astype('float32') + 0*(morphed[i,j,:,:]<=mean).astype('float32')
-    '''
-    return imf2
+    return morphed
 
 def gaussian(M, std, sym=True):
     if M < 1:
@@ -205,9 +207,9 @@ class LapStyleDraXDOG(BaseModel):
                                 padding=4, padding_mode='reflect')
         self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,9,
                                 groups=1, bias_attr=False,
-                                weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=0,std=.8*1.8),trainable=False),
                                 padding=4, padding_mode='reflect')
-        self.gaussian_filter_2.set_state_dict({'weight':gaussian(10,.6)})
+        self.gaussian_filter.set_state_dict({'weight':gaussian(10,.6)})
+        self.gaussian_filter_2.set_state_dict({'weight':gaussian(10,.6*20)})
         self.morph_conv = paddle.nn.Conv2D(3,3,3,padding=1,groups=3,padding_mode='reflect',weight_attr=paddle.ParamAttr(initializer=paddle.nn.initializer.Bilinear(),trainable=False),bias_attr=False)
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)

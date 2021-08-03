@@ -404,6 +404,51 @@ class DecoderNet(nn.Layer):
         return out
 
 @GENERATORS.register()
+class DecoderNetDeep(nn.Layer):
+    """Decoder of Drafting module.
+    Paper:
+        Drafting and Revision: Laplacian Pyramid Network for Fast High-Quality
+        Artistic Style Transfer.
+    """
+    def __init__(self):
+        super(DecoderNetDeep, self).__init__()
+
+        self.resblock_41 = ResnetBlock(512)
+        self.convblock_41 = ConvBlock(512, 256)
+        self.resblock_31 = ResnetBlock(256)
+        self.convblock_31 = ConvBlock(256, 128)
+
+        self.convblock_21 = ConvBlock(128, 128)
+        self.convblock_22 = ConvBlock(128, 64)
+
+        self.convblock_11 = ConvBlock(64, 64)
+        self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
+
+        self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                        nn.Conv2D(64, 3, (3, 3)))
+
+    def forward(self, cF, sF):
+
+        out = adaptive_instance_normalization(cF['r41'], sF['r41'])
+        out = self.resblock_41(out)
+        out = self.convblock_41(out)
+
+        out = self.upsample(out)
+        out += adaptive_instance_normalization(cF['r31'], sF['r31'])
+        out = self.resblock_31(out)
+        out = self.convblock_31(out)
+
+        out = self.upsample(out)
+        out += adaptive_instance_normalization(cF['r21'], sF['r21'])
+        out = self.convblock_21(out)
+        out = self.convblock_22(out)
+
+        out = self.upsample(out)
+        out = self.convblock_11(out)
+        out = self.final_conv(out)
+        return out
+
+@GENERATORS.register()
 class DecoderThumbDeep(nn.Layer):
     """Decoder of Drafting module.
     Paper:

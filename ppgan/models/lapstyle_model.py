@@ -234,15 +234,14 @@ class LapStyleDraXDOG(BaseModel):
 
     def backward_Dec(self):
 
-        with paddle.no_grad():
-            self.cX = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-            self.sX = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-            self.visual_items['cx'] = self.cX
-            self.visual_items['sx'] = self.sX
-            self.cXF = self.nets['net_enc'](self.cX)
-            self.sXF = self.nets['net_enc'](self.sX)
-            stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-            self.cdogF = self.nets['net_enc'](stylized_dog)
+        self.cX = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        self.sX = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        self.visual_items['cx'] = self.cX
+        self.visual_items['sx'] = self.sX
+        self.cXF = self.nets['net_enc'](self.cX)
+        self.sXF = self.nets['net_enc'](self.sX)
+        stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        self.cdogF = self.nets['net_enc'](stylized_dog)
 
         self.tF = self.nets['net_enc'](self.stylized)
         """content loss"""

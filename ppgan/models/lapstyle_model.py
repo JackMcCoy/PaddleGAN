@@ -76,6 +76,7 @@ def gaussian(M, std, sym=True):
         w = w[:-1]
     two = paddle.expand(w,(M,M))
     two = two * two.t()
+    print(two)
     return two
 
 @MODELS.register()

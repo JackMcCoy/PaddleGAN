@@ -67,7 +67,7 @@ def gaussian(kernel_size, sigma,channels=3):
     x_coord = paddle.arange(kernel_size)
     x_grid = paddle.expand(x_coord,(kernel_size,kernel_size))
     y_grid = x_grid.t()
-    xy_grid = paddle.stack([x_grid, y_grid], axis=-1).float()
+    xy_grid = paddle.stack([x_grid, y_grid], axis=-1)
 
     mean = (kernel_size - 1) / 2.
     variance = sigma ** 2.

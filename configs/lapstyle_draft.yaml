@@ -31,6 +31,7 @@ dataset:
     style_root: /content/gdrive/My Drive/img_style/styles/starrypatched1024.png
     load_size: 384
     crop_size: 128
+    thumb_size: 128
     patch_depth: 0
     style_upsize: 1.125
     num_workers: 5

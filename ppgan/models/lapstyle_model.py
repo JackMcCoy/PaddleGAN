@@ -224,12 +224,6 @@ class LapStyleDraXDOG(BaseModel):
         self.si = paddle.to_tensor(input['si'])
         self.visual_items['si'] = self.si
         self.image_paths = input['ci_path']
-        self.cX = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-        self.sX = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-        self.visual_items['cx'] = self.cX
-        self.visual_items['sx'] = self.sX
-        self.cXF = self.nets['net_enc'](self.cX)
-        self.sXF = self.nets['net_enc'](self.sX)
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
@@ -237,10 +231,18 @@ class LapStyleDraXDOG(BaseModel):
         self.sF = self.nets['net_enc'](self.si)
         self.stylized = self.nets['net_dec'](self.cF, self.sF)
         self.visual_items['stylized'] = self.stylized
-        stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-        self.cdogF = self.nets['net_enc'](stylized_dog)
 
     def backward_Dec(self):
+
+        with paddle.no_grad():
+            self.cX = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            self.sX = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            self.visual_items['cx'] = self.cX
+            self.visual_items['sx'] = self.sX
+            self.cXF = self.nets['net_enc'](self.cX)
+            self.sXF = self.nets['net_enc'](self.sX)
+            stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            self.cdogF = self.nets['net_enc'](stylized_dog)
 
         self.tF = self.nets['net_enc'](self.stylized)
         """content loss"""

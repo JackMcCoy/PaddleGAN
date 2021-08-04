@@ -1,5 +1,5 @@
 total_iters: 150000
-output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/vangogh/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/vangogh_starry/
 checkpoints_dir: checkpoints
 min_max:
   (0., 1.)
@@ -28,7 +28,7 @@ dataset:
   train:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/gdrive/My Drive/img_style/styles/
+    style_root: /content/gdrive/My Drive/img_style/styles/starrypatched1024.png
     load_size: 132
     crop_size: 128
     style_upsize: 1.125
@@ -36,8 +36,8 @@ dataset:
     batch_size: 5
   test:
     name: LapStyleDataset
-    content_root: /content/gdrive/My Drive/img_style/washnight/
-    style_root: /content/PaddleGAN/starrypatched1024.png
+    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
+    style_root: /content/gdrive/My Drive/img_style/styles/starrypatched1024.png
     load_size: 128
     crop_size: 128
     thumb_size: 128

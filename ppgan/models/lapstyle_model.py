@@ -63,23 +63,32 @@ def xdog(im, g, g2,morph_conv,gamma=.98, phi=50, eps=-.1, k=1.6):
     '''
     return imf2
 
-def gaussian(M, std, sym=True):
-    if M < 1:
-        return paddle.to_tensor([])
-    if M == 1:
-        return paddle.ones(1, 'd')
-    odd = M % 2
-    if not sym and not odd:
-        M = M + 1
-    n = paddle.arange(0, M) - (M - 1.0) / 2.0
-    sig2 = 2 * std * std
-    w = paddle.exp(-n ** 2 / sig2)
-    if not sym and not odd:
-        w = w[:-1]
-    two = paddle.expand(w,(M,M))
-    two = two * two.t()
-    two = two.unsqueeze(axis=[0,1])
-    return two
+def gaussian(kernel_size, sigma,channels=3):
+    x_coord = torch.arange(kernel_size)
+    x_grid = paddle.expand(x_coord,(kernel_size,kernel_size))
+    y_grid = x_grid.t()
+    xy_grid = paddle.stack([x_grid, y_grid], axis=-1).float()
+
+    mean = (kernel_size - 1) / 2.
+    variance = sigma ** 2.
+
+    # Calculate the 2-dimensional gaussian kernel which is
+    # the product of two gaussian distributions for two different
+    # variables (in this case called x and y)
+    gaussian_kernel = (1. / (2. * math.pi * variance)) * \
+                      paddle.exp(
+                          -paddle.sum((xy_grid - mean) ** 2., axis=-1) / \
+                          (2 * variance)
+                      )
+
+    # Make sure sum of values in gaussian kernel equals 1.
+    gaussian_kernel = gaussian_kernel / paddle.sum(gaussian_kernel)
+
+    # Reshape to 2d depthwise convolutional weight
+    gaussian_kernel = gaussian_kernel.view(1, 1, kernel_size, kernel_size)
+    gaussian_kernel = paddle.expand(gaussian_kernel,repeat(channels, 1, 1, 1))
+
+    return gaussian_kernel
 
 @MODELS.register()
 class LapStyleDraModel(BaseModel):

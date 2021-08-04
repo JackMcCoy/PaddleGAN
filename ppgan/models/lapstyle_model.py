@@ -229,7 +229,7 @@ class LapStyleDraXDOG(BaseModel):
         self.morph_conv = paddle.nn.Conv2D(1,1,5,padding=2,groups=1,
                                            padding_mode='reflect',bias_attr=False,
                                            weight_attr=paddle.ParamAttr(
-                                               initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(5,1).numpy()),trainable=False)
+                                               initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(5,1.6).numpy()),trainable=False)
                                            )
         print(self.morph_conv.weight)
         self.set_requires_grad([self.morph_conv], False)
@@ -288,11 +288,11 @@ class LapStyleDraXDOG(BaseModel):
         self.loss_style_remd = self.calc_style_emd_loss(
             self.tF['r31'], self.sF['r31']) + self.calc_style_emd_loss(
                 self.tF['r41'], self.sF['r41'])
-        #self.loss_content_relt = self.calc_content_relt_loss(
-        #    self.tF['r31'], self.cF['r31']) + self.calc_content_relt_loss(
-        #        self.tF['r41'], self.cF['r41'])
+        self.loss_content_relt = self.calc_content_relt_loss(
+            self.tF['r31'], self.cF['r31']) + self.calc_content_relt_loss(
+                self.tF['r41'], self.cF['r41'])
         self.losses['loss_style_remd'] = self.loss_style_remd
-        #self.losses['loss_content_relt'] = self.loss_content_relt
+        self.losses['loss_content_relt'] = self.loss_content_relt
 
 
         mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])
@@ -304,7 +304,7 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_CnsS'] = mxdog_content_img*125
 
         self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
-                    self.l_identity1 * 50 + self.l_identity2 * 1 +\
+                    self.l_identity1 * 50 + self.l_identity2 * 1 + self.loss_content_relt * 26 +\
                     self.loss_style_remd * 26 + \
                     mxdog_content * .125 + mxdog_content_contraint *25 + mxdog_content_img * 125
 

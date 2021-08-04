@@ -43,6 +43,8 @@ def xdog(im, g, g2,morph_conv,gamma=.98, phi=50, eps=-.1, k=1.6):
     for i in range(im.shape[1]):
         imf2[:,i,:,:]=paddle.squeeze(g2(paddle.unsqueeze(im[:,i,:,:],axis=1)))
         imf1[:,i,:,:]=paddle.squeeze(g(paddle.unsqueeze(im[:,i,:,:],axis=1)))
+        imf2[:, i, :, :] =imf2[:,i,:,:]/paddle.sum(imf2[:,i,:,:])
+        imf1[:, i, :, :] = imf1[:, i, :, :] / paddle.sum(imf1[:, i, :, :])
     '''
     #imf2 = g2(im.detach())
     imdiff = imf1 - gamma * imf2

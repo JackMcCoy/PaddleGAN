@@ -64,7 +64,7 @@ def xdog(im, g, g2,morph_conv,gamma=.98, phi=50, eps=-.1, k=1.6):
     return imf2
 
 def gaussian(kernel_size, sigma,channels=3):
-    x_coord = torch.arange(kernel_size)
+    x_coord = paddle.arange(kernel_size)
     x_grid = paddle.expand(x_coord,(kernel_size,kernel_size))
     y_grid = x_grid.t()
     xy_grid = paddle.stack([x_grid, y_grid], axis=-1).float()

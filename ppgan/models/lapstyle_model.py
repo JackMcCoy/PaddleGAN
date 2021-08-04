@@ -245,7 +245,7 @@ class LapStyleDraXDOG(BaseModel):
         self.tF = self.nets['net_enc'](self.stylized)
         """content loss"""
         self.loss_c = 0
-        for layer in self.content_layers[:-1]:
+        for layer in [self.content_layers[2]]:
             self.loss_c += self.calc_content_loss(self.tF[layer],
                                                   self.cF[layer],
                                                   norm=True)
@@ -276,8 +276,8 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_content_relt'] = self.loss_content_relt
 
 
-        mxdog_content = self.calc_content_loss(self.cXF['r31'], self.cF['r31'])
-        mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])
+        mxdog_content = self.calc_content_loss(self.tF['r31'], self.cdogF['r31'])
+        mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cF['r31'])
         mxdog_content_img = self.calc_style_loss(self.cdogF['r31'],self.sXF['r31'])
 
         self.losses['loss_MD'] = mxdog_content

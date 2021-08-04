@@ -218,7 +218,7 @@ class LapStyleDraXDOG(BaseModel):
         print(dir(self.morph_conv))
         print(dir(self.morph_conv.weight))
         print(self.morph_conv.state_dict())
-        print(self.morph_conv.weight.__dict__())
+        print(self.morph_conv.weight.__dict__)
         self.morph_conv.weight = paddle.nn.ParamAttr(gaussian(7,1))
         print(self.morph_conv.weight)
         self.set_requires_grad([self.morph_conv], False)

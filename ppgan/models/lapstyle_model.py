@@ -212,18 +212,18 @@ class LapStyleDraXDOG(BaseModel):
         self.style_layers = style_layers
         self.content_weight = content_weight
         self.style_weight = style_weight
-        self.gaussian_filter = paddle.nn.Conv2D(1, 1,15,
+        self.gaussian_filter = paddle.nn.Conv2D(1, 1,13,
                                 groups=1, bias_attr=False,
-                                padding=7, padding_mode='reflect',
+                                padding=6, padding_mode='reflect',
                                                 weight_attr=paddle.ParamAttr(
                                                     initializer=paddle.fluid.initializer.NumpyArrayInitializer(
                                                         value=gaussian(15, 1).numpy()), trainable=False)
                                                 )
-        self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,15,
+        self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,13,
                                 groups=1, bias_attr=False,
-                                padding=7, padding_mode='reflect',
+                                padding=6, padding_mode='reflect',
                                 weight_attr = paddle.ParamAttr(
-                                        initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(15, 1*1.6).numpy()), trainable=False)
+                                        initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(15, 1*1.8).numpy()), trainable=False)
                                     )
 
         self.morph_conv = paddle.nn.Conv2D(1,1,3,padding=1,groups=1,
@@ -265,7 +265,7 @@ class LapStyleDraXDOG(BaseModel):
         """content loss"""
         self.loss_c = 0
         for idx, layer in enumerate(self.content_layers[:-1]):
-            w = .5
+            w = .25
             if idx==2:
                 w=1
             self.loss_c += self.calc_content_loss(self.tF[layer],

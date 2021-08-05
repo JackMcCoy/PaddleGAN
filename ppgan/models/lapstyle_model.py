@@ -272,7 +272,7 @@ class LapStyleDraXDOG(BaseModel):
                 w=.75
             self.loss_c += self.calc_content_loss(self.tF[layer],
                                                   self.cF[layer],
-                                                  norm=True)
+                                                  norm=True)*w
         self.losses['loss_c'] = self.loss_c
         """style loss"""
         self.loss_s = 0

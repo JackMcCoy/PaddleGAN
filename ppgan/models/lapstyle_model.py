@@ -31,7 +31,7 @@ from ..utils.filesystem import makedirs, save, load
 
 
 
-def xdog(im, g, g2,morph_conv,gamma=.94, phi=200, eps=-.1, k=1.6):
+def xdog(im, g, g2,morph_conv,gamma=.96, phi=200, eps=-.1, k=1.6):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
@@ -58,7 +58,7 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=200, eps=-.1, k=1.6):
         morphed[:,i,:,:]=paddle.squeeze(morph_conv(paddle.unsqueeze(imdiff[:,i,:,:],axis=1)))
         for j in range(im.shape[0]):
             mean = imdiff[j,i,:,:].mean()
-            morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')*(morphed[j,i,:,:]>=25).astype('float32')
+            morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')*(morphed[j,i,:,:]>=1).astype('float32')
     return morphed
 
 def gaussian(kernel_size, sigma,channels=3):

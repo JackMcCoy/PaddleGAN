@@ -31,7 +31,7 @@ from ..utils.filesystem import makedirs, save, load
 
 
 
-def xdog(im, g, g2,morph_conv,gamma=.99, phi=200, eps=-.025, k=1.6):
+def xdog(im, g, g2,morph_conv,gamma=.99, phi=200, eps=-.1, k=1.6):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
@@ -45,6 +45,7 @@ def xdog(im, g, g2,morph_conv,gamma=.99, phi=200, eps=-.025, k=1.6):
         imf1[:,i,:,:]=paddle.squeeze(g(paddle.unsqueeze(im[:,i,:,:],axis=1)))
     #imf2 = g2(im.detach())
     imdiff = imf1 - gamma * imf2
+    print('num > eps='+str((imdiff>eps).astype('float32').sum()))
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
     for j in range(im.shape[0]):
         for i in range(im.shape[1]):
@@ -264,7 +265,7 @@ class LapStyleDraXDOG(BaseModel):
         self.tF = self.nets['net_enc'](self.stylized)
         """content loss"""
         self.loss_c = 0
-        for layer in [self.content_layers[2]]:
+        for layer in self.content_layers[:-1]:
             self.loss_c += self.calc_content_loss(self.tF[layer],
                                                   self.cF[layer],
                                                   norm=True)
@@ -304,7 +305,8 @@ class LapStyleDraXDOG(BaseModel):
 
         self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
                     self.l_identity1 * 50 + self.l_identity2 * 1 + \
-                    mxdog_content * .125 + mxdog_content_contraint *25 + mxdog_content_img * 125+self.loss_content_relt * 10 +self.loss_style_remd * 16
+                    mxdog_content * .25 + mxdog_content_contraint *50 + mxdog_content_img * 250+\
+                    self.loss_content_relt * 26 +self.loss_style_remd * 26
         self.loss.backward()
 
         return self.loss

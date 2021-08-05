@@ -31,7 +31,7 @@ from ..utils.filesystem import makedirs, save, load
 
 
 
-def xdog(im, g, g2,morph_conv,gamma=.98, phi=200, eps=-.1, k=1.6):
+def xdog(im, g, g2,morph_conv,gamma=.99, phi=200, eps=-.1, k=1.6):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
@@ -285,6 +285,7 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['l_identity1'] = self.l_identity1
         self.losses['l_identity2'] = self.l_identity2
         """relative loss"""
+        '''
         self.loss_style_remd = self.calc_style_emd_loss(
             self.tF['r31'], self.sF['r31']) + self.calc_style_emd_loss(
                 self.tF['r41'], self.sF['r41'])
@@ -293,7 +294,7 @@ class LapStyleDraXDOG(BaseModel):
                 self.tF['r41'], self.cF['r41'])
         self.losses['loss_style_remd'] = self.loss_style_remd
         self.losses['loss_content_relt'] = self.loss_content_relt
-
+        '''
 
         mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])
         mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])
@@ -304,10 +305,10 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_CnsS'] = mxdog_content_img*125
 
         self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
-                    self.l_identity1 * 50 + self.l_identity2 * 1 + self.loss_content_relt * 26 +\
-                    self.loss_style_remd * 26 + \
+                    self.l_identity1 * 50 + self.l_identity2 * 1 + \
                     mxdog_content * .125 + mxdog_content_contraint *25 + mxdog_content_img * 125
-
+        #self.loss_content_relt * 26 +\
+        #            self.loss_style_remd * 26 + \
         self.loss.backward()
 
         return self.loss

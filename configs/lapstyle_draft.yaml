@@ -1,5 +1,5 @@
 total_iters: 200000
-output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/vangogh/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/vangogh_starry/
 checkpoints_dir: checkpoints
 min_max:
   (0., 1.)
@@ -26,14 +26,16 @@ model:
 
 dataset:
   train:
-    name: LapStyleDataset
+    name: LapStyleThumbsetInference
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/gdrive/My Drive/img_style/styles/
-    load_size: 134
+    style_root: /content/gdrive/My Drive/img_style/styles/starrypatched1024.png
+    load_size: 258
+    thumb_size: 128
     crop_size: 128
+    patch_depth: 0
     style_upsize: 1
-    num_workers: 16
-    batch_size: 5
+    num_workers: 5
+    batch_size: 1
   test:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
@@ -63,7 +65,7 @@ validate:
 
 log_config:
   interval: 10
-  visiual_interval: 250
+  visiual_interval: 500
 
 snapshot_config:
-  interval: 5000
+  interval: 10000

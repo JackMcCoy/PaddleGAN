@@ -266,7 +266,7 @@ class LapStyleDraXDOG(BaseModel):
         """content loss"""
         self.loss_c = 0
         for idx, layer in enumerate(self.content_layers[:-1]):
-            w = .33
+            w = .28
             if idx==2:
                 w=1
             self.loss_c += self.calc_content_loss(self.tF[layer],

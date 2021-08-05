@@ -264,10 +264,13 @@ class LapStyleDraXDOG(BaseModel):
         self.tF = self.nets['net_enc'](self.stylized)
         """content loss"""
         self.loss_c = 0
-        for layer in self.content_layers[:-1]:
+        for idx, layer in enumerate(self.content_layers[:-1]):
+            w = .5
+            if idx==2:
+                w=1
             self.loss_c += self.calc_content_loss(self.tF[layer],
                                                   self.cF[layer],
-                                                  norm=True)
+                                                  norm=True)*w
         self.losses['loss_c'] = self.loss_c
         """style loss"""
         self.loss_s = 0

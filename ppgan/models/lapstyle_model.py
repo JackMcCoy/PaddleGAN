@@ -31,7 +31,7 @@ from ..utils.filesystem import makedirs, save, load
 
 
 
-def xdog(im, g, g2,morph_conv,gamma=.98, phi=50, eps=-.001  , k=1.6):
+def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.1  , k=1.6):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
@@ -56,7 +56,8 @@ def xdog(im, g, g2,morph_conv,gamma=.98, phi=50, eps=-.001  , k=1.6):
         morphed[:,i,:,:]=paddle.squeeze(morph_conv(paddle.unsqueeze(imdiff[:,i,:,:],axis=1)))
         for j in range(im.shape[0]):
             mean = imdiff[j,i,:,:].mean()
-            morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')*(morphed[j,i,:,:]>=.6).astype('float32')
+            morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')*(morphed[j,i,:,:]>=81).astype('float32')
+            morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(morphed[j,i,:,:]>=1).astype('float32')
     return morphed
 
 def gaussian(kernel_size, sigma,channels=3):
@@ -223,14 +224,14 @@ class LapStyleDraXDOG(BaseModel):
                                 groups=1, bias_attr=False,
                                 padding=6, padding_mode='reflect',
                                 weight_attr = paddle.ParamAttr(
-                                        initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(13, 1*3).numpy()), trainable=False)
+                                        initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(13, 1*1.6).numpy()), trainable=False)
                                     )
 
-        self.morph_conv = paddle.nn.Conv2D(1,1,11,padding=5,groups=1,
+        self.morph_conv = paddle.nn.Conv2D(1,1,9,padding=4,groups=1,
                                            padding_mode='reflect',bias_attr=False,
                                            weight_attr = paddle.ParamAttr(
-                                        initializer=paddle.fluid.initializer.NumpyArrayInitializer(
-                                                        value=gaussian(11, 1).numpy()), trainable=False)
+                                        initializer=paddle.fluid.initializer.Constant(
+                                                        value=1), trainable=False)
                                     )
         print(self.morph_conv.weight)
         self.set_requires_grad([self.morph_conv], False)

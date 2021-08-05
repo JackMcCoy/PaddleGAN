@@ -228,10 +228,10 @@ class LapStyleDraXDOG(BaseModel):
                                         initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(15, 1*5).numpy()), trainable=False)
                                     )
 
-        self.morph_conv = paddle.nn.Conv2D(1,1,9,padding=4,groups=1,
+        self.morph_conv = paddle.nn.Conv2D(1,1,5,padding=2,groups=1,
                                            padding_mode='reflect',bias_attr=False,
                                            weight_attr = paddle.ParamAttr(
-                                        initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(9, 1).numpy()), trainable=False)
+                                        initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(5, 1).numpy()), trainable=False)
                                     )
         print(self.morph_conv.weight)
         self.set_requires_grad([self.morph_conv], False)

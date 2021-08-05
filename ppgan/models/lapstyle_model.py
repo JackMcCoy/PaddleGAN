@@ -276,7 +276,7 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_c'] = self.loss_c
         """style loss"""
         self.loss_s = 0
-        for layer in self.style_layers[:-1]:
+        for layer in self.style_layers:
             self.loss_s += self.calc_style_loss(self.tF[layer], self.sF[layer])
         self.losses['loss_s'] = self.loss_s
         """IDENTITY LOSSES"""

@@ -267,9 +267,6 @@ class LapStyleDraXDOG(BaseModel):
         """content loss"""
         self.loss_c = 0
         for idx, layer in enumerate(self.content_layers[:-1]):
-            w = .8
-            if idx==2:
-                w=1
             self.loss_c += self.calc_content_loss(self.tF[layer],
                                                   self.cF[layer],
                                                   norm=True)*w
@@ -303,14 +300,14 @@ class LapStyleDraXDOG(BaseModel):
         mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])
         mxdog_content_img = self.calc_style_loss(self.cdogF['r31'],self.sXF['r31'])
 
-        self.losses['loss_MD'] = mxdog_content*.125
-        self.losses['loss_CnsC'] = mxdog_content_contraint*25
-        self.losses['loss_CnsS'] = mxdog_content_img*125
+        self.losses['loss_MD'] = mxdog_content*.01
+        self.losses['loss_CnsC'] = mxdog_content_contraint*20
+        self.losses['loss_CnsS'] = mxdog_content_img*100
 
         self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
                     self.l_identity1 * 50 + self.l_identity2 * 1 + \
                     mxdog_content * .01 + mxdog_content_contraint *20 + mxdog_content_img * 100+\
-                    self.loss_content_relt * 26 +self.loss_style_remd * 26
+                    self.loss_content_relt * 26 +self.loss_style_remd * 18
         self.loss.backward()
 
         return self.loss

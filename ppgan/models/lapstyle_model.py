@@ -230,7 +230,7 @@ class LapStyleDraXDOG(BaseModel):
                                            padding_mode='reflect',bias_attr=False,
                                            weight_attr = paddle.ParamAttr(
                                         initializer=paddle.fluid.initializer.NumpyArrayInitializer(
-                                                        value=gaussian(11, .5).numpy()), trainable=False)
+                                                        value=gaussian(11, 1).numpy()), trainable=False)
                                     )
         print(self.morph_conv.weight)
         self.set_requires_grad([self.morph_conv], False)
@@ -266,7 +266,7 @@ class LapStyleDraXDOG(BaseModel):
         """content loss"""
         self.loss_c = 0
         for idx, layer in enumerate(self.content_layers[:-1]):
-            w = .25
+            w = .33
             if idx==2:
                 w=1
             self.loss_c += self.calc_content_loss(self.tF[layer],

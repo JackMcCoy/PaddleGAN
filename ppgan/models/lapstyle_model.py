@@ -59,7 +59,7 @@ def xdog(im, g, g2,morph_conv,gamma=.99, phi=200, eps=-.05, k=1.6):
         for j in range(im.shape[0]):
             mean = imdiff[j,i,:,:].mean()
             morphed_mean = morphed.mean()
-            morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')*(morphed[j,i,:,:]>=81).astype('float32')
+            morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')*(morphed[j,i,:,:]>=25).astype('float32')
     return morphed
 
 def gaussian(kernel_size, sigma,channels=3):
@@ -229,7 +229,7 @@ class LapStyleDraXDOG(BaseModel):
                                         initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(15, 1*5).numpy()), trainable=False)
                                     )
 
-        self.morph_conv = paddle.nn.Conv2D(1,1,9,padding=4,groups=1,
+        self.morph_conv = paddle.nn.Conv2D(1,1,5,padding=2,groups=1,
                                            padding_mode='reflect',bias_attr=False,
                                            weight_attr=paddle.ParamAttr(
                                                initializer=paddle.nn.initializer.Constant(value=1),trainable=False)

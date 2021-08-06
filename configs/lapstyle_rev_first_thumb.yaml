@@ -8,6 +8,7 @@ model:
   name: LapStyleRevFirstThumb
   revnet_generator:
     name: RevisionNetDeepThumb
+    input_nc: 9
   revnet_discriminator:
     name: LapStyleDiscriminator
     num_channels: 32

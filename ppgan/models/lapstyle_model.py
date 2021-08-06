@@ -57,7 +57,7 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.1, diff=False, position=F
         for j in range(im.shape[0]):
             if type(diff)!=bool:
                 mean = imdiff[j,i,:,:].mean()
-                cropped_mean = imdiff[j,i,position[0][j]:position[1][j],position[2][j]:position[3][j]]
+                cropped_mean = imdiff[j,i,math.floor(position[0][j]/2):math.floor(position[1][j]/2),math.floor(position[2][j]/2):math.floor(position[3][j]/2)]
                 mean = diff[j,i,:,:].mean()*(cropped_mean/mean)
             else:
                 mean = imdiff[j,i,:,:].mean()

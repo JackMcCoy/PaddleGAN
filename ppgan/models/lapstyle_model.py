@@ -947,8 +947,6 @@ class LapStyleRevFirstThumb(BaseModel):
         if self.use_mxdog==1:
             self.cX = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             self.sX = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-            self.visual_items['cx'] = self.cX
-            self.visual_items['sx'] = self.sX
             self.cXF = self.nets['net_enc'](self.cX)
             self.sXF = self.nets['net_enc'](self.sX)
             stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
@@ -1018,12 +1016,30 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
+        if self.use_mxdog==1:
+            self.cX = xdog(self.cp.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            self.sX = xdog(self.sp.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            self.cXF = self.nets['net_enc'](self.cX)
+            self.sXF = self.nets['net_enc'](self.sX)
+            stylized_dog = xdog(self.p_stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            self.cdogF = self.nets['net_enc'](stylized_dog)
+
+            mxdog_content = self.calc_content_loss(self.tpF['r31'], self.cXF['r31'])
+            mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])
+            mxdog_content_img = self.calc_style_loss(self.cdogF['r31'],self.sXF['r31'])
+
+            self.losses['loss_MD'] = mxdog_content*.01
+            self.losses['loss_CnsC'] = mxdog_content_contraint*20
+            self.losses['loss_CnsS'] = mxdog_content_img*100
+            mxdogloss=mxdog_content * .005 + mxdog_content_contraint *10 + mxdog_content_img * 50
+        else:
+            mxdogloss=0
 
         self.loss = self.loss_Gp_GAN * 2 +style_mix_loss * self.style_weight +\
                           self.loss_content_p * self.content_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch * self.content_weight * 9 +\
-                    self.p_loss_style_remd * 26 + self.p_loss_content_relt * 26
+                    self.p_loss_style_remd * 26 + self.p_loss_content_relt * 26 + mxdogloss
         self.loss.backward()
 
         return self.loss

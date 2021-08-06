@@ -1,5 +1,5 @@
 total_iters: 150000
-output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/starry/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/vangogh_starry/
 checkpoints_dir: checkpoints
 min_max:
   (0., 1.)
@@ -14,7 +14,7 @@ model:
   draftnet_encode:
     name: Encoder
   draftnet_decode:
-    name: DecoderNet
+    name: DecoderNetDeep
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:
@@ -42,7 +42,7 @@ dataset:
     crop_size: 256
     thumb_size: 256
     num_workers: 16
-    style_upsize: 1.125
+    style_upsize: 1
     batch_size: 5
   test:
     name: LapStyleThumbset
@@ -86,7 +86,7 @@ validate:
 
 log_config:
   interval: 10
-  visiual_interval: 500
+  visiual_interval: 100
 
 snapshot_config:
-  interval: 1250
+  interval: 2500

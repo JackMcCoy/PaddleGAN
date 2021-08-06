@@ -31,7 +31,7 @@ from ..utils.filesystem import makedirs, save, load
 
 
 
-def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.1  , k=1.6):
+def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.1  , diff=False):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
@@ -48,17 +48,24 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.1  , k=1.6):
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
     for j in range(im.shape[0]):
         for i in range(im.shape[1]):
-            imdiff[j,i,:,:] -= imdiff[j,i,:,:].min()
-            imdiff[j,i,:,:] /= imdiff[j,i,:,:].max()
+            if type(diff)!=bool:
+                imdiff[j,i,:,:] -= diff[j,i,:,:].min()
+                imdiff[j,i,:,:] /= diff[j,i,:,:].max()
+            else:
+                imdiff[j,i,:,:] -= imdiff[j,i,:,:].min()
+                imdiff[j,i,:,:] /= imdiff[j,i,:,:].max()
     morphed = paddle.zeros_like(im)
     morphed.stop_gradient=True
     for i in range(im.shape[1]):
         morphed[:,i,:,:]=paddle.squeeze(morph_conv(paddle.unsqueeze(imdiff[:,i,:,:],axis=1)))
         for j in range(im.shape[0]):
-            mean = imdiff[j,i,:,:].mean()
+            if type(diff)!=bool:
+                mean = diff[j,i,:,:].mean()
+            else:
+                mean = imdiff[j,i,:,:].mean()
             morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')*(morphed[j,i,:,:]>=mean*81).astype('float32')
             morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(morphed[j,i,:,:]>=mean).astype('float32')
-    return morphed
+    return morphed, imdiff
 
 def gaussian(kernel_size, sigma,channels=3):
     x_coord = paddle.arange(kernel_size)
@@ -945,11 +952,11 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_gan_G'] = self.loss_G_GAN
 
         if self.use_mxdog==1:
-            self.cX = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-            self.sX = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            self.cX,cxdiff = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            self.sX,sxdiff = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             self.cXF = self.nets['net_enc'](self.cX)
             self.sXF = self.nets['net_enc'](self.sX)
-            stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            stylized_dog,cdogdiff = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             self.cdogF = self.nets['net_enc'](stylized_dog)
 
             mxdog_content = self.calc_content_loss(self.ttF['r31'], self.cXF['r31'])
@@ -1017,11 +1024,11 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
         if self.use_mxdog==1:
-            self.cX = xdog(self.cp.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-            self.sX = xdog(self.sp.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            self.cX = xdog(self.cp.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,cxdiff)
+            self.sX = xdog(self.sp.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,sxdiff)
             self.cXF = self.nets['net_enc'](self.cX)
             self.sXF = self.nets['net_enc'](self.sX)
-            stylized_dog = xdog(self.p_stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            stylized_dog = xdog(self.p_stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,cdogdiff)
             self.cdogF = self.nets['net_enc'](stylized_dog)
 
             mxdog_content = self.calc_content_loss(self.tpF['r31'], self.cXF['r31'])

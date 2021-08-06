@@ -32,6 +32,7 @@ model:
   style_weight: 5
   ada_alpha: .19
   style_patch_alpha: 0
+  use_mxdog: 1
 
 dataset:
   train:

@@ -799,7 +799,8 @@ class LapStyleRevFirstThumb(BaseModel):
                  content_weight=1.0,
                  style_weight=3.0,
                  ada_alpha=1.0,
-                 style_patch_alpha=.5):
+                 style_patch_alpha=.5,
+                 use_mxdog=0):
 
         super(LapStyleRevFirstThumb, self).__init__()
 
@@ -831,6 +832,28 @@ class LapStyleRevFirstThumb(BaseModel):
         self.style_weight = style_weight
         self.ada_alpha = ada_alpha
         self.style_patch_alpha = style_patch_alpha
+        self.use_mxdog = use_mxdog
+        if self.use_mxdog==1:
+            self.gaussian_filter = paddle.nn.Conv2D(1, 1,13,
+                                groups=1, bias_attr=False,
+                                padding=6, padding_mode='reflect',
+                                                weight_attr=paddle.ParamAttr(
+                                                    initializer=paddle.fluid.initializer.NumpyArrayInitializer(
+                                                        value=gaussian(13, 1).numpy()), trainable=False)
+                                                )
+            self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,13,
+                                    groups=1, bias_attr=False,
+                                    padding=6, padding_mode='reflect',
+                                    weight_attr = paddle.ParamAttr(
+                                            initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(13, 1*1.6).numpy()), trainable=False)
+                                        )
+
+            self.morph_conv = paddle.nn.Conv2D(1,1,9,padding=4,groups=1,
+                                               padding_mode='reflect',bias_attr=False,
+                                               weight_attr = paddle.ParamAttr(
+                                            initializer=paddle.fluid.initializer.Constant(
+                                                            value=1), trainable=False)
+                                        )
 
     def setup_input(self, input):
 
@@ -921,10 +944,31 @@ class LapStyleRevFirstThumb(BaseModel):
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)
         self.losses['loss_gan_G'] = self.loss_G_GAN
 
+        if self.use_mxdog==1:
+            self.cX = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            self.sX = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            self.visual_items['cx'] = self.cX
+            self.visual_items['sx'] = self.sX
+            self.cXF = self.nets['net_enc'](self.cX)
+            self.sXF = self.nets['net_enc'](self.sX)
+            stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            self.cdogF = self.nets['net_enc'](stylized_dog)
+
+            mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])
+            mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])
+            mxdog_content_img = self.calc_style_loss(self.cdogF['r31'],self.sXF['r31'])
+
+            self.losses['loss_MD'] = mxdog_content*.01
+            self.losses['loss_CnsC'] = mxdog_content_contraint*20
+            self.losses['loss_CnsS'] = mxdog_content_img*100
+            mxdogloss=mxdog_content * .005 + mxdog_content_contraint *10 + mxdog_content_img * 50
+        else:
+            mxdogloss=0
+
         self.loss = self.loss_G_GAN + self.loss_s * self.style_weight +\
                     self.loss_content * self.content_weight+\
                     self.loss_style_remd * 16 +\
-                    self.loss_content_relt * 16
+                    self.loss_content_relt * 16 + mxdogloss
         self.loss.backward()
         optimizer.step()
 

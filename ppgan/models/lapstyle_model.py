@@ -260,7 +260,7 @@ class LapStyleDraXDOG(BaseModel):
     def backward_Dec(self):
 
         self.cX,_ = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-        self.sX,) = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        self.sX,_ = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
         self.visual_items['cx'] = self.cX
         self.visual_items['sx'] = self.sX
         self.cXF = self.nets['net_enc'](self.cX)

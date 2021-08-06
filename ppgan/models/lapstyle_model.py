@@ -1028,6 +1028,8 @@ class LapStyleRevFirstThumb(BaseModel):
             self.sX,_ = xdog(self.sp.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,diff=sxdiff)
             self.cXF = self.nets['net_enc'](self.cX)
             self.sXF = self.nets['net_enc'](self.sX)
+            self.visual_items['cx'] = self.cX
+            self.visual_items['sx'] = self.sX
             stylized_dog,_ = xdog(self.p_stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,diff=cdogdiff)
             self.cdogF = self.nets['net_enc'](stylized_dog)
 

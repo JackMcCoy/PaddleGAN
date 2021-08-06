@@ -886,22 +886,14 @@ class LapStyleRevFirstThumb(BaseModel):
         self.visual_items['stylized_small'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
 
-        if self.use_mxdog==1:
-            self.cX = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-            revnet_input = paddle.concat(x=[self.cX,self.pyr_ci[0], stylized_up], axis=1)
-        else:
-            revnet_input = paddle.concat(x=[self.pyr_ci[0], stylized_up], axis=1)
+        revnet_input = paddle.concat(x=[self.pyr_ci[0], stylized_up], axis=1)
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach())
         #self.ttF_res=self.ttF_res.detach()
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
 
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
         p_stylized_up = paddle.slice(stylized_up,axes=[2,3],starts=[self.position[0],self.position[2]],ends=[self.position[1],self.position[3]])
-        if self.use_mxdog==1:
-            cpX = xdog(self.cp.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-            p_revnet_input = paddle.concat(x=[cpX,self.pyr_cp[0], p_stylized_up], axis=1)
-        else:
-            p_revnet_input = paddle.concat(x=[self.pyr_cp[0], p_stylized_up], axis=1)
+        p_revnet_input = paddle.concat(x=[self.pyr_cp[0], p_stylized_up], axis=1)
         p_stylized_rev_lap,stylized_feats = self.nets['net_rev'](p_revnet_input.detach(),stylized_feats.detach(),self.ada_alpha)
         p_stylized_rev = fold_laplace_pyramid([p_stylized_rev_lap, p_stylized_up.detach()])
 
@@ -953,6 +945,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_gan_G'] = self.loss_G_GAN
 
         if self.use_mxdog==1:
+            self.cX = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             self.sX = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             self.visual_items['cx'] = self.cX
             self.visual_items['sx'] = self.sX
@@ -961,12 +954,14 @@ class LapStyleRevFirstThumb(BaseModel):
             stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             self.cdogF = self.nets['net_enc'](stylized_dog)
 
+            mxdog_content = self.calc_content_loss(self.ttF['r31'], self.cXF['r31'])
             mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])
             mxdog_content_img = self.calc_style_loss(self.cdogF['r31'],self.sXF['r31'])
 
+            self.losses['loss_MD'] = mxdog_content*.01
             self.losses['loss_CnsC'] = mxdog_content_contraint*20
             self.losses['loss_CnsS'] = mxdog_content_img*100
-            mxdogloss=mxdog_content_contraint *10 + mxdog_content_img * 50
+            mxdogloss=mxdog_content * .005 + mxdog_content_contraint *10 + mxdog_content_img * 50
         else:
             mxdogloss=0
 

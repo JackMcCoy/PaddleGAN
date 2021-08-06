@@ -954,7 +954,7 @@ class LapStyleRevFirstThumb(BaseModel):
             stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             self.cdogF = self.nets['net_enc'](stylized_dog)
 
-            mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])
+            mxdog_content = self.calc_content_loss(self.ttF['r31'], self.cXF['r31'])
             mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])
             mxdog_content_img = self.calc_style_loss(self.cdogF['r31'],self.sXF['r31'])
 

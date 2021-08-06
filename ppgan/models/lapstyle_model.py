@@ -57,11 +57,10 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.1, diff=False, position=F
         for j in range(im.shape[0]):
             if type(diff)!=bool:
                 mean = imdiff[j,i,:,:].mean()
-                cropped_mean = imdiff[j,i,math.floor(position[0][j]/2):math.floor(position[1][j]/2),math.floor(position[2][j]/2):math.floor(position[3][j]/2)]
+                cropped_mean = imdiff[j,i,math.floor(position[0][j]/2):math.floor(position[1][j]/2),math.floor(position[2][j]/2):math.floor(position[3][j]/2)].mean()
                 mean = diff[j,i,:,:].mean()*(cropped_mean/mean)
             else:
                 mean = imdiff[j,i,:,:].mean()
-                print(mean)
             morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')*(morphed[j,i,:,:]>=mean*81).astype('float32')
             morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(morphed[j,i,:,:]>=mean).astype('float32')
     return morphed, imdiff
@@ -955,6 +954,8 @@ class LapStyleRevFirstThumb(BaseModel):
             self.sX,sxdiff = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             self.cXF = self.nets['net_enc'](self.cX)
             self.sXF = self.nets['net_enc'](self.sX)
+            self.visual_items['cx'] = self.cX
+            self.visual_items['sx'] = self.sX
             stylized_dog,cdogdiff = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             self.cdogF = self.nets['net_enc'](stylized_dog)
 
@@ -1026,7 +1027,6 @@ class LapStyleRevFirstThumb(BaseModel):
             self.cX,_ = xdog(self.cp.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,diff=cxdiff,position=self.position)
             self.cXF = self.nets['net_enc'](self.cX)
             self.visual_items['cx'] = self.cX
-            self.visual_items['sx'] = self.sX
             stylized_dog,_ = xdog(self.p_stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             self.cdogF = self.nets['net_enc'](stylized_dog)
 

@@ -964,10 +964,9 @@ class LapStyleRevFirstThumb(BaseModel):
             mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])
             mxdog_content_img = self.calc_style_loss(self.cdogF['r31'],self.sXF['r31'])
 
-            self.losses['loss_MD'] = mxdog_content*.01
             self.losses['loss_CnsC'] = mxdog_content_contraint*20
             self.losses['loss_CnsS'] = mxdog_content_img*100
-            mxdogloss=mxdog_content * .005 + mxdog_content_contraint *10 + mxdog_content_img * 50
+            mxdogloss=mxdog_content_contraint *10 + mxdog_content_img * 50
         else:
             mxdogloss=0
 

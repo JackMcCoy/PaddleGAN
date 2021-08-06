@@ -218,18 +218,18 @@ class LapStyleDraXDOG(BaseModel):
         self.style_layers = style_layers
         self.content_weight = content_weight
         self.style_weight = style_weight
-        self.gaussian_filter = paddle.nn.Conv2D(1, 1,13,
+        self.gaussian_filter = paddle.nn.Conv2D(1, 1,7,
                                 groups=1, bias_attr=False,
-                                padding=6, padding_mode='reflect',
+                                padding=3, padding_mode='reflect',
                                                 weight_attr=paddle.ParamAttr(
                                                     initializer=paddle.fluid.initializer.NumpyArrayInitializer(
-                                                        value=gaussian(13, 1).numpy()), trainable=False)
+                                                        value=gaussian(7, 1).numpy()), trainable=False)
                                                 )
-        self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,13,
+        self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,11,
                                 groups=1, bias_attr=False,
-                                padding=6, padding_mode='reflect',
+                                padding=5, padding_mode='reflect',
                                 weight_attr = paddle.ParamAttr(
-                                        initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(13, 1*1.6).numpy()), trainable=False)
+                                        initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(11, 1*1.83).numpy()), trainable=False)
                                     )
 
         self.morph_conv = paddle.nn.Conv2D(1,1,9,padding=4,groups=1,
@@ -1029,7 +1029,6 @@ class LapStyleRevFirstThumb(BaseModel):
             self.visual_items['cx'] = self.cX
             stylized_dog,_ = xdog(self.p_stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             self.cdogF = self.nets['net_enc'](stylized_dog)
-            self.visual_items['cxp'] = self.cX
             mxdog_content = self.calc_content_loss(self.tpF['r31'], self.cXF['r31'])
             mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])
             mxdog_content_img = self.calc_style_loss(self.cdogF['r31'],self.sXF['r31'])

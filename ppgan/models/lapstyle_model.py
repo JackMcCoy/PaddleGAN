@@ -31,7 +31,7 @@ from ..utils.filesystem import makedirs, save, load
 
 
 
-def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.1  , diff=False):
+def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.1, diff=False, position=False):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
@@ -48,19 +48,17 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.1  , diff=False):
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
     for j in range(im.shape[0]):
         for i in range(im.shape[1]):
-            if type(diff)!=bool:
-                imdiff[j,i,:,:] -= diff[j,i,:,:].min()
-                imdiff[j,i,:,:] /= diff[j,i,:,:].max()
-            else:
-                imdiff[j,i,:,:] -= imdiff[j,i,:,:].min()
-                imdiff[j,i,:,:] /= imdiff[j,i,:,:].max()
+            imdiff[j,i,:,:] -= imdiff[j,i,:,:].min()
+            imdiff[j,i,:,:] /= imdiff[j,i,:,:].max()
     morphed = paddle.zeros_like(im)
     morphed.stop_gradient=True
     for i in range(im.shape[1]):
         morphed[:,i,:,:]=paddle.squeeze(morph_conv(paddle.unsqueeze(imdiff[:,i,:,:],axis=1)))
         for j in range(im.shape[0]):
             if type(diff)!=bool:
-                mean = diff[j,i,:,:].mean()
+                mean = imdiff[j,i,:,:].mean()
+                cropped_mean = imdiff[j,i,position[0]:position[1],position[2]:position[3]]
+                mean = diff[j,i,:,:].mean()*(cropped_mean/mean)
             else:
                 mean = imdiff[j,i,:,:].mean()
             morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')*(morphed[j,i,:,:]>=mean*81).astype('float32')
@@ -1024,13 +1022,11 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
         if self.use_mxdog==1:
-            self.cX,_ = xdog(self.cp.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,diff=cxdiff)
-            self.sX,_ = xdog(self.sp.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,diff=sxdiff)
+            self.cX,_ = xdog(self.cp.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,diff=cxdiff,position=self.position)
             self.cXF = self.nets['net_enc'](self.cX)
-            self.sXF = self.nets['net_enc'](self.sX)
             self.visual_items['cx'] = self.cX
             self.visual_items['sx'] = self.sX
-            stylized_dog,_ = xdog(self.p_stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,diff=cdogdiff)
+            stylized_dog,_ = xdog(self.p_stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             self.cdogF = self.nets['net_enc'](stylized_dog)
 
             mxdog_content = self.calc_content_loss(self.tpF['r31'], self.cXF['r31'])

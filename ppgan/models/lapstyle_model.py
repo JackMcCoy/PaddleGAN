@@ -864,13 +864,13 @@ class LapStyleRevFirstThumb(BaseModel):
                                 padding=4, padding_mode='reflect',
                                                 weight_attr=paddle.ParamAttr(
                                                     initializer=paddle.fluid.initializer.NumpyArrayInitializer(
-                                                        value=gaussian(13, 1).numpy()), trainable=False)
+                                                        value=gaussian(7, 1).numpy()), trainable=False)
                                                 )
             self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,11,
                                     groups=1, bias_attr=False,
                                     padding=5, padding_mode='reflect',
                                     weight_attr = paddle.ParamAttr(
-                                            initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(13, 1*1.83).numpy()), trainable=False)
+                                            initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(11, 1*1.83).numpy()), trainable=False)
                                         )
 
             self.morph_conv = paddle.nn.Conv2D(1,1,9,padding=4,groups=1,

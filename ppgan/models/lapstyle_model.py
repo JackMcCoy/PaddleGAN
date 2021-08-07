@@ -40,8 +40,8 @@ def xdog(im, g, g2,morph_conv,gamma=.98, phi=200, eps=-.1, diff=False, position=
     imf1=paddle.zeros_like(im)
     imf1.stop_gradient=True
     imf2.stop_gradient=True
-    imf2=paddle.squeeze(g2(paddle.unsqueeze(im,axis=1)))
-    imf1=paddle.squeeze(g(paddle.unsqueeze(im,axis=1)))
+    imf2=g2(im)
+    imf1=g(im)
     #imf2 = g2(im.detach())
     imdiff = imf1 - gamma * imf2
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))

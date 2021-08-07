@@ -856,18 +856,18 @@ class LapStyleRevFirstThumb(BaseModel):
         self.style_patch_alpha = style_patch_alpha
         self.use_mxdog = use_mxdog
         if self.use_mxdog==1:
-            self.gaussian_filter = paddle.nn.Conv2D(1, 1,13,
+            self.gaussian_filter = paddle.nn.Conv2D(1, 1,7,
                                 groups=1, bias_attr=False,
-                                padding=6, padding_mode='reflect',
+                                padding=4, padding_mode='reflect',
                                                 weight_attr=paddle.ParamAttr(
                                                     initializer=paddle.fluid.initializer.NumpyArrayInitializer(
                                                         value=gaussian(13, 1).numpy()), trainable=False)
                                                 )
-            self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,13,
+            self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,11,
                                     groups=1, bias_attr=False,
-                                    padding=6, padding_mode='reflect',
+                                    padding=5, padding_mode='reflect',
                                     weight_attr = paddle.ParamAttr(
-                                            initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(13, 1*1.6).numpy()), trainable=False)
+                                            initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(13, 1*1.83).numpy()), trainable=False)
                                         )
 
             self.morph_conv = paddle.nn.Conv2D(1,1,9,padding=4,groups=1,
@@ -989,7 +989,7 @@ class LapStyleRevFirstThumb(BaseModel):
             self.losses['loss_MD_p'] = mxdog_content*.01
             self.losses['loss_CnsC_p'] = mxdog_content_contraint*20
             self.losses['loss_CnsS_p'] = mxdog_content_img*100
-            mxdogloss=mxdog_content * .005 + mxdog_content_contraint *10 + mxdog_content_img * 50
+            mxdogloss=mxdog_content * .1 + mxdog_content_contraint *200 + mxdog_content_img * 1000
         else:
             mxdogloss=0
 
@@ -1059,7 +1059,7 @@ class LapStyleRevFirstThumb(BaseModel):
             self.losses['loss_MD'] = mxdog_content*.01
             self.losses['loss_CnsC'] = mxdog_content_contraint*20
             self.losses['loss_CnsS'] = mxdog_content_img*100
-            mxdogloss=mxdog_content * .005 + mxdog_content_contraint *10 + mxdog_content_img * 50
+            mxdogloss=mxdog_content * .1 + mxdog_content_contraint *200 + mxdog_content_img * 1000
         else:
             mxdogloss=0
 

@@ -365,7 +365,7 @@ def make_laplace_conv_pyramid(x, levels,kernel):
     pyramid = []
     current = x
     for i in range(levels):
-        lap = torch.zeros_like(current)
+        lap = paddle.zeros_like(current)
         for i in range(3):
             l = kernel(current[:,i,:,:])
             l -= lap.min()

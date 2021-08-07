@@ -887,9 +887,9 @@ class LapStyleRevFirstThumb(BaseModel):
         self.sp = input['sp']
         self.visual_items['cp'] = self.cp
 
-        self.pyr_ci = make_laplace_conv_pyramid(self.ci, 1)
-        self.pyr_si = make_laplace_conv_pyramid(self.si, 1)
-        self.pyr_cp = make_laplace_conv_pyramid(self.cp, 1)
+        self.pyr_ci = make_laplace_conv_pyramid(self.ci, 1,self.lap_filter)
+        self.pyr_si = make_laplace_conv_pyramid(self.si, 1,self.lap_filter)
+        self.pyr_cp = make_laplace_conv_pyramid(self.cp, 1,self.lap_filter)
         self.pyr_ci.append(self.ci)
         self.pyr_si.append(self.si)
         self.pyr_cp.append(self.cp)

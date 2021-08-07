@@ -48,8 +48,8 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.1, diff=False, position=F
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
     imdiff -= imdiff.min(axis=[0,1])
     imdiff /= imdiff.max(axis=[0,1])
-    morphed.stop_gradient=True
     morphed=morph_conv(imdiff)
+    morphed.stop_gradient=True
     for i in range(im.shape[1]):
         for j in range(im.shape[0]):
             mean = imdiff[j,i,:,:].mean()
@@ -977,10 +977,10 @@ class LapStyleRevFirstThumb(BaseModel):
             mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])
             mxdog_content_img = self.calc_style_loss(self.cdogF['r31'],self.sXF['r31'])
 
-            self.losses['loss_MD_p'] = mxdog_content*.01
-            self.losses['loss_CnsC_p'] = mxdog_content_contraint*20
-            self.losses['loss_CnsS_p'] = mxdog_content_img*100
-            mxdogloss=mxdog_content * .1 + mxdog_content_contraint *200 + mxdog_content_img * 1000
+            self.losses['loss_MD_p'] = mxdog_content*.05
+            self.losses['loss_CnsC_p'] = mxdog_content_contraint*100
+            self.losses['loss_CnsS_p'] = mxdog_content_img*500
+            mxdogloss=mxdog_content * .05 + mxdog_content_contraint *100 + mxdog_content_img * 500
         else:
             mxdogloss=0
 
@@ -1047,10 +1047,10 @@ class LapStyleRevFirstThumb(BaseModel):
             mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])
             mxdog_content_img = self.calc_style_loss(self.cdogF['r31'],self.sXF['r31'])
 
-            self.losses['loss_MD'] = mxdog_content*.01
-            self.losses['loss_CnsC'] = mxdog_content_contraint*20
-            self.losses['loss_CnsS'] = mxdog_content_img*100
-            mxdogloss=mxdog_content * .1 + mxdog_content_contraint *200 + mxdog_content_img * 1000
+            self.losses['loss_MD'] = mxdog_content*.05
+            self.losses['loss_CnsC'] = mxdog_content_contraint*100
+            self.losses['loss_CnsS'] = mxdog_content_img*500
+            mxdogloss=mxdog_content * .05 + mxdog_content_contraint *100 + mxdog_content_img * 500
         else:
             mxdogloss=0
 

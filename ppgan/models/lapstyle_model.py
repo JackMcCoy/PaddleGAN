@@ -884,8 +884,8 @@ class LapStyleRevFirstThumb(BaseModel):
                                                 value=np.repeat(
                                                     np.array([[[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]]])
                                                     ,3,axis=1)
-                                                , trainable=False)
-                                        )
+
+                                        ), trainable=False)
                                                )
 
     def setup_input(self, input):

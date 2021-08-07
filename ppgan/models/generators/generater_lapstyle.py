@@ -788,6 +788,8 @@ class RevisionNet32Feats(nn.Layer):
             nn.Conv2D(input_nc, 128, (3, 3)),
             nn.ReLU()
         ]
+        test = nn.Conv2D(input_nc, 128, (3, 3))
+        print(test.weight)
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(128, 128, (3, 3), stride=1),

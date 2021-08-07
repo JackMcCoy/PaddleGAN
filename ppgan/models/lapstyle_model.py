@@ -55,7 +55,7 @@ def xdog(im, g, g2,morph_conv,gamma=.99, phi=200, eps=-.1, diff=False, position=
     passedlow= paddle.multiply((imdiff>= mean).astype('float32'),(morphed>= 8.8).astype('float32'))
     passed = morph_conv(passedlow)
     passed= (passed>0).astype('float32')
-    return passed, imdiff
+    return passed
 
 def gaussian(kernel_size, sigma,channels=3):
     x_coord = paddle.arange(kernel_size)
@@ -967,8 +967,8 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_gan_G'] = self.loss_G_GAN
 
         if self.use_mxdog==1:
-            self.cX,cxdiff = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-            self.sX,sxdiff = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            self.cX = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            self.sX = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             self.cXF = self.nets['net_enc'](self.cX)
             self.sXF = self.nets['net_enc'](self.sX)
             self.visual_items['cx'] = self.cX
@@ -983,7 +983,7 @@ class LapStyleRevFirstThumb(BaseModel):
             self.losses['loss_MD_p'] = mxdog_content*.05
             self.losses['loss_CnsC_p'] = mxdog_content_contraint*100
             self.losses['loss_CnsS_p'] = mxdog_content_img*500
-            mxdogloss=mxdog_content * .05 + mxdog_content_contraint *100 + mxdog_content_img * 500
+            mxdogloss=mxdog_content * .025 + mxdog_content_contraint *50 + mxdog_content_img * 250
         else:
             mxdogloss=0
 
@@ -1041,10 +1041,10 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
         if self.use_mxdog==1:
-            self.cX,_ = xdog(self.cp.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,diff=cxdiff,position=self.position)
+            self.cX = xdog(self.cp.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,diff=cxdiff,position=self.position)
             self.cXF = self.nets['net_enc'](self.cX)
             self.visual_items['cx'] = self.cX
-            stylized_dog,_ = xdog(self.p_stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            stylized_dog = xdog(self.p_stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             self.cdogF = self.nets['net_enc'](stylized_dog)
             mxdog_content = self.calc_content_loss(self.tpF['r31'], self.cXF['r31'])
             mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])
@@ -1053,7 +1053,7 @@ class LapStyleRevFirstThumb(BaseModel):
             self.losses['loss_MD'] = mxdog_content*.05
             self.losses['loss_CnsC'] = mxdog_content_contraint*100
             self.losses['loss_CnsS'] = mxdog_content_img*500
-            mxdogloss=mxdog_content * .05 + mxdog_content_contraint *100 + mxdog_content_img * 500
+            mxdogloss=mxdog_content * .025 + mxdog_content_contraint *50 + mxdog_content_img * 250
         else:
             mxdogloss=0
 

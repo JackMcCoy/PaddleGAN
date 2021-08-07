@@ -215,7 +215,7 @@ class LapStyleDraXDOG(BaseModel):
                                 padding=3, padding_mode='reflect',
                                                 weight_attr=paddle.ParamAttr(
                                                     initializer=paddle.fluid.initializer.NumpyArrayInitializer(
-                                                        value=np.repeat(gaussian(7, 1).numpy(),3,axis=0), trainable=False))
+                                                        value=np.repeat(gaussian(7, 1).numpy(),3,axis=0), trainable=False)
 
         self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3,19,
                                 groups=3, bias_attr=False,

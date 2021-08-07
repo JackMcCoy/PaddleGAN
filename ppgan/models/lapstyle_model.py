@@ -915,6 +915,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.visual_items['stylized_small'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
 
+        print(self.pyr_ci[0].shape)
         revnet_input = paddle.concat(x=[self.pyr_ci[0], stylized_up], axis=1)
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach())
         #self.ttF_res=self.ttF_res.detach()

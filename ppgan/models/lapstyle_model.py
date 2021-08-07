@@ -54,7 +54,7 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.1, diff=False, position=F
     mean-paddle.expand(mean,morphed.shape)
     passedlow= (imdiff > mean).astype('float32')*(morphed>=mean*81).astype('float32')
     passed = morph_conv(passedlow)
-    passed= (passed>=mean).astype('float32')
+    passed= (passed>=1).astype('float32')
     return passed, imdiff
 
 def gaussian(kernel_size, sigma,channels=3):

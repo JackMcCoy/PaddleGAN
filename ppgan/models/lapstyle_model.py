@@ -238,7 +238,7 @@ class LapStyleDraXDOG(BaseModel):
                                         initializer=paddle.fluid.initializer.Constant(
                                                         value=1), trainable=False)
                                     )
-        print(self.morph_conv.weight)
+        print(gaussian(7, 1))
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)
         self.set_requires_grad([self.gaussian_filter_2],False)

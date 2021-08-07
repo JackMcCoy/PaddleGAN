@@ -365,9 +365,12 @@ def make_laplace_conv_pyramid(x, levels,kernel):
     pyramid = []
     current = x
     for i in range(levels):
-        lap = kernel(current)
-        lap -= lap.min()
-        lap /= lap.max()
+        lap = torch.zeros_like(current)
+        for i in range(3):
+            l = kernel(current[:,i,:,:])
+            l -= lap.min()
+            l /= lap.max()
+            lap[:,i,:,:]=l
         pyramid.append(lap)
         current = tensor_resample(
             current,

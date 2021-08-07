@@ -47,14 +47,14 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.1, diff=False, position=F
     imdiff = imf1 - gamma * imf2
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
     imdiff -= paddle.expand_as(imdiff.min(axis=[0,1,2],keepdim=True),imdiff)
-    imdiff /= paddle.expand_as(imdiff.max(axis=[0,1,2],keepdim=True),imdiff)
+    immax = paddle.expand_as(imdiff.max(axis=[0,1,2],keepdim=True),imdiff)
+    imdiff /= immax
     morphed=morph_conv(imdiff)
     morphed.stop_gradient=True
     mean = imdiff.mean(axis=[0,1,2],keepdim=True)
     mean=paddle.expand_as(mean,morphed)
-    print(imdiff)
-    print(morphed)
-    passedlow= paddle.greater_than(imdiff, mean).astype('float32')*paddle.greater_than(morphed, mean*81*3*5).astype('float32')
+    print(immax)
+    passedlow= paddle.logical_and(paddle.greater_than(imdiff, immax*81),paddle.greater_than(morphed, mean*81*3*5)).astype('float32')
     passed = morph_conv(passedlow)
     passed= (passed>=1).astype('float32')
     return passed, imdiff

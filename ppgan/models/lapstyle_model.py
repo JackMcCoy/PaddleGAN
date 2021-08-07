@@ -210,7 +210,7 @@ class LapStyleDraXDOG(BaseModel):
         self.style_layers = style_layers
         self.content_weight = content_weight
         self.style_weight = style_weight
-        g=np.repeat(np.repeat(np.array(gaussian(7, 1).numpy()),3,axis=1),3,axis=0)
+        g=np.repeat(np.array(gaussian(7, 1).numpy()),3,axis=1)
         print(g.shape)
         self.gaussian_filter = paddle.nn.Conv2D(3, 3,7,
                                 groups=3, bias_attr=False,

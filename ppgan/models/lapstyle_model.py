@@ -50,12 +50,11 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.1, diff=False, position=F
     imdiff /= imdiff.max(axis=[0,1])
     morphed=morph_conv(imdiff)
     morphed.stop_gradient=True
-    passed= paddle.zeros_like(morphed)
-    for i in range(im.shape[1]):
-        for j in range(im.shape[0]):
-            mean = imdiff[j,i,:,:].mean()
-            passed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')*(morphed[j,i,:,:]>=mean*81).astype('float32')
-            passed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(morphed[j,i,:,:]>=mean).astype('float32')
+    mean = imdiff.mean(axis[0,1])
+    mean-paddle.expand(mean,morphed.shape)
+    passedlow= (imdiff > mean).astype('float32')*(morphed>=mean*81).astype('float32')
+    passed = morph_conv(passedlow)
+    passed= (passed>=mean).astype('float32')
     return passed, imdiff
 
 def gaussian(kernel_size, sigma,channels=3):

@@ -861,7 +861,7 @@ class LapStyleRevFirstThumb(BaseModel):
         if self.use_mxdog==1:
             self.gaussian_filter = paddle.nn.Conv2D(1, 1,7,
                                 groups=1, bias_attr=False,
-                                padding=4, padding_mode='reflect',
+                                padding=3, padding_mode='reflect',
                                                 weight_attr=paddle.ParamAttr(
                                                     initializer=paddle.fluid.initializer.NumpyArrayInitializer(
                                                         value=gaussian(7, 1).numpy()), trainable=False)

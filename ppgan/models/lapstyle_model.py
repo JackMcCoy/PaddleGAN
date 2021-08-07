@@ -365,11 +365,9 @@ def make_laplace_conv_pyramid(x, levels,kernel):
     pyramid = []
     current = x
     for i in range(levels):
-        lap = paddle.zeros_like(current)
-        for i in range(3):
-            lap[:,i,:,:] = kernel(paddle.unsqueeze(current[:,i,:,:],axis=0))
-        l -= lap.min()
-        l /= lap.max()
+        lap = kernel(paddle.unsqueeze(current[:,i,:,:],axis=0))
+        lap -= lap.min()
+        lap /= lap.max()
         pyramid.append(lap)
         current = tensor_resample(
             current,
@@ -878,7 +876,7 @@ class LapStyleRevFirstThumb(BaseModel):
                                             initializer=paddle.fluid.initializer.Constant(
                                                             value=1), trainable=False)
                                         )
-            l = np.repeat(np.array([[[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]]])
+            l = np.repeat(np.array([[[[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]]]])
                                                     ,3,axis=1)
             print(l)
             print(l.shape)

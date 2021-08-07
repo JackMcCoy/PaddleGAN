@@ -876,7 +876,7 @@ class LapStyleRevFirstThumb(BaseModel):
                                             initializer=paddle.fluid.initializer.Constant(
                                                             value=1), trainable=False)
                                         )
-            l = np.repeat(np.array([[[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]]])
+            l = np.repeat(np.array([[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]])
                                                     ,3,axis=0)
             print(l)
             print(l.shape)

@@ -14,7 +14,7 @@ model:
   draftnet_encode:
     name: Encoder
   draftnet_decode:
-    name: DecoderNet
+    name: DecoderNetDeep
   revnet_deep_generator:
     name: RevisionNetDeepThumb
   calc_style_emd_loss:

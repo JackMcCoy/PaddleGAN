@@ -849,21 +849,21 @@ class LapStyleRevFirstThumb(BaseModel):
         if self.use_mxdog==1:
             g=np.repeat(gaussian(7, 1).numpy(),3,axis=0)
             g2=np.repeat(gaussian(19, 3).numpy(),3,axis=0)
-            self.gaussian_filter = paddle.nn.Conv2D(1, 1,7,
-                                groups=1, bias_attr=False,
+            self.gaussian_filter = paddle.nn.Conv2D(3, 3,7,
+                                groups=3, bias_attr=False,
                                 padding=3, padding_mode='reflect',
                                                 weight_attr=paddle.ParamAttr(
                                                     initializer=paddle.fluid.initializer.NumpyArrayInitializer(
                                                         value=g), trainable=False)
                                                 )
-            self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,11,
-                                    groups=1, bias_attr=False,
-                                    padding=5, padding_mode='reflect',
+            self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3,19,
+                                    groups=3, bias_attr=False,
+                                    padding=9, padding_mode='reflect',
                                     weight_attr = paddle.ParamAttr(
                                             initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=g2), trainable=False)
                                         )
 
-            self.morph_conv = paddle.nn.Conv2D(3,3,9,padding=4,groups=1,
+            self.morph_conv = paddle.nn.Conv2D(3,3,9,padding=4,groups=3,
                                                padding_mode='reflect',bias_attr=False,
                                                weight_attr = paddle.ParamAttr(
                                             initializer=paddle.fluid.initializer.Constant(
@@ -871,7 +871,7 @@ class LapStyleRevFirstThumb(BaseModel):
                                         )
             l = np.repeat(np.array([np.repeat(np.array([[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]]),3,axis=0)]),3,axis=0)
             self.lap_filter = paddle.nn.Conv2D(3,3,(3,3),stride=1,bias_attr=False,
-                                    padding=1, padding_mode='reflect',
+                                    padding=1, groups=3,padding_mode='reflect',
                                     weight_attr = paddle.ParamAttr(
                                             initializer=paddle.fluid.initializer.NumpyArrayInitializer(
                                                 value=l), trainable=False)

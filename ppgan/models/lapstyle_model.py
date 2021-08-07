@@ -79,7 +79,7 @@ def gaussian(kernel_size, sigma,channels=3):
     gaussian_kernel = gaussian_kernel / paddle.sum(gaussian_kernel)
 
     # Reshape to 2d depthwise convolutional weight
-    gaussian_kernel = paddle.expand(gaussian_kernel(1, 3, kernel_size, kernel_size))
+    gaussian_kernel = paddle.expand(gaussian_kernel,(1, 3, kernel_size, kernel_size))
 
     return gaussian_kernel
 

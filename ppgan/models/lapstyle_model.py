@@ -336,6 +336,9 @@ def laplacian(x):
         tensor_resample(x, [x.shape[2] // 2, x.shape[3] // 2]),
         [x.shape[2], x.shape[3]])
 
+def laplacian_conv(x,kernel):
+    lap = kernel(x)
+    return lap
 
 def make_laplace_pyramid(x, levels):
     """
@@ -1434,6 +1437,14 @@ class LapStyleRevSecondPatch(BaseModel):
         self.nets['netD_patch'] = build_discriminator(revnet_discriminator)
         init_weights(self.nets['netD_patch'])
 
+        l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
+        self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
+                                           padding=1, groups=3, padding_mode='reflect',
+                                           weight_attr=paddle.ParamAttr(
+                                               initializer=paddle.fluid.initializer.NumpyArrayInitializer(
+                                                   value=l), trainable=False)
+                                           )
+
         # define loss functions
         self.calc_style_emd_loss = build_criterion(calc_style_emd_loss)
         self.calc_content_relt_loss = build_criterion(calc_content_relt_loss)
@@ -1553,10 +1564,10 @@ class LapStyleRevSecondPatch(BaseModel):
 
             self.positions = input['position_stack']
             self.size_stack = input['size_stack']
-            self.laplacians.append(laplacian(self.content_stack[0]).detach())
-            self.laplacians.append(laplacian(self.content_stack[1]).detach())
-            self.laplacians.append(laplacian(self.content_stack[2]).detach())
-            self.laplacians.append(laplacian(self.content_stack[3]).detach())
+            self.laplacians.append(laplacian_conv(self.content_stack[0],self.lap_filter).detach())
+            self.laplacians.append(laplacian_conv(self.content_stack[1],self.lap_filter).detach())
+            self.laplacians.append(laplacian_conv(self.content_stack[2],self.lap_filter).detach())
+            self.laplacians.append(laplacian_conv(self.content_stack[3],self.lap_filter).detach())
         else:
             self.labels=[]
             self.content_stack=[input['ci']]

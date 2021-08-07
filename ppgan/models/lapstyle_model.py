@@ -223,7 +223,6 @@ class LapStyleDraXDOG(BaseModel):
                                 padding=9, padding_mode='reflect',
                                 weight_attr = paddle.ParamAttr(
                                         initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=g), trainable=False))
-                                    )
 
         self.morph_conv = paddle.nn.Conv2D(3,3,3,padding=1,groups=3,
                                            padding_mode='reflect',bias_attr=False,

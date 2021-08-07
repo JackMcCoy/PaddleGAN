@@ -307,7 +307,7 @@ class LapStyleDraXDOG(BaseModel):
 
         self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
                     self.l_identity1 * 50 + self.l_identity2 * 1 + \
-                    mxdog_content * .025 + mxdog_content_contraint *50 + mxdog_content_img * 250+\
+                    mxdog_content * .0125 + mxdog_content_contraint *25 + mxdog_content_img * 125+\
                     self.loss_content_relt * 28 +self.loss_style_remd * 18
         self.loss.backward()
 
@@ -847,18 +847,20 @@ class LapStyleRevFirstThumb(BaseModel):
         self.style_patch_alpha = style_patch_alpha
         self.use_mxdog = use_mxdog
         if self.use_mxdog==1:
+            g=np.repeat(gaussian(7, 1).numpy(),3,axis=0)
+            g2=np.repeat(gaussian(19, 3).numpy(),3,axis=0)
             self.gaussian_filter = paddle.nn.Conv2D(1, 1,7,
                                 groups=1, bias_attr=False,
                                 padding=3, padding_mode='reflect',
                                                 weight_attr=paddle.ParamAttr(
                                                     initializer=paddle.fluid.initializer.NumpyArrayInitializer(
-                                                        value=gaussian(7, 1).numpy()), trainable=False)
+                                                        value=g), trainable=False)
                                                 )
             self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,11,
                                     groups=1, bias_attr=False,
                                     padding=5, padding_mode='reflect',
                                     weight_attr = paddle.ParamAttr(
-                                            initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(11, 1*1.83).numpy()), trainable=False)
+                                            initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=g2), trainable=False)
                                         )
 
             self.morph_conv = paddle.nn.Conv2D(3,3,9,padding=4,groups=1,
@@ -867,7 +869,7 @@ class LapStyleRevFirstThumb(BaseModel):
                                             initializer=paddle.fluid.initializer.Constant(
                                                             value=1), trainable=False)
                                         )
-            l = np.repeat(np.array([np.repeat(np.array([[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]]),3,axis=0)]),3,axis=0)
+            l = np.repeat(paddle.Tensor([[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]).reshape([1,1,3,3]).numpy(),3,axis=0)
             self.lap_filter = paddle.nn.Conv2D(3,3,(3,3),stride=1,bias_attr=False,
                                     padding=1, padding_mode='reflect',
                                     weight_attr = paddle.ParamAttr(
@@ -885,9 +887,9 @@ class LapStyleRevFirstThumb(BaseModel):
         self.sp = input['sp']
         self.visual_items['cp'] = self.cp
 
-        self.pyr_ci = make_laplace_pyramid(self.ci, 1)
-        self.pyr_si = make_laplace_pyramid(self.si, 1)
-        self.pyr_cp = make_laplace_pyramid(self.cp, 1)
+        self.pyr_ci = make_laplace_conv_pyramid(self.ci, 1)
+        self.pyr_si = make_laplace_conv_pyramid(self.si, 1)
+        self.pyr_cp = make_laplace_conv_pyramid(self.cp, 1)
         self.pyr_ci.append(self.ci)
         self.pyr_si.append(self.si)
         self.pyr_cp.append(self.cp)

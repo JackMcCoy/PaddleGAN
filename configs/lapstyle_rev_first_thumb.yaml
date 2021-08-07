@@ -14,7 +14,7 @@ model:
   draftnet_encode:
     name: Encoder
   draftnet_decode:
-    name: DecoderNet
+    name: DecoderNetDeep
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:

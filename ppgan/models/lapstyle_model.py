@@ -46,24 +46,16 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.1, diff=False, position=F
     #imf2 = g2(im.detach())
     imdiff = imf1 - gamma * imf2
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
-    for j in range(im.shape[0]):
-        for i in range(im.shape[1]):
-            imdiff[j,i,:,:] -= imdiff[j,i,:,:].min()
-            imdiff[j,i,:,:] /= imdiff[j,i,:,:].max()
-    morphed = paddle.zeros_like(im)
+    imdiff[j,i,:,:] -= imdiff[j,i,:,:].min(axis=[0,1])
+    imdiff[j,i,:,:] /= imdiff[j,i,:,:].max(axis=[0,1])
     morphed.stop_gradient=True
-    for i in range(im.shape[1]):
-        morphed[:,i,:,:]=paddle.squeeze(morph_conv(paddle.unsqueeze(imdiff[:,i,:,:],axis=1)))
-        for j in range(im.shape[0]):
-            if type(diff)!=bool:
-                mean = imdiff[j,i,:,:].mean()
-                cropped_mean = imdiff[j,i,math.floor(position[0][j]/2):math.floor(position[1][j]/2),math.floor(position[2][j]/2):math.floor(position[3][j]/2)].mean()
-                mean = diff[j,i,:,:].mean()*(cropped_mean/mean)
-            else:
-                mean = imdiff[j,i,:,:].mean()
-            morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')*(morphed[j,i,:,:]>=mean*81).astype('float32')
-            morphed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(morphed[j,i,:,:]>=mean).astype('float32')
-    return morphed, imdiff
+
+    morphed=morph_conv(imdiff)
+    for j in range(im.shape[0]):
+        mean = imdiff[j,i,:,:].mean()
+        passed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')*(morphed[j,i,:,:]>=mean*81).astype('float32')
+        passed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(morphed[j,i,:,:]>=mean).astype('float32')
+    return passed, imdiff
 
 def gaussian(kernel_size, sigma,channels=3):
     x_coord = paddle.arange(kernel_size)
@@ -868,15 +860,13 @@ class LapStyleRevFirstThumb(BaseModel):
                                             initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(11, 1*1.83).numpy()), trainable=False)
                                         )
 
-            self.morph_conv = paddle.nn.Conv2D(1,1,9,padding=4,groups=1,
+            self.morph_conv = paddle.nn.Conv2D(3,3,9,padding=4,groups=1,
                                                padding_mode='reflect',bias_attr=False,
                                                weight_attr = paddle.ParamAttr(
                                             initializer=paddle.fluid.initializer.Constant(
                                                             value=1), trainable=False)
                                         )
             l = np.repeat(np.array([np.repeat(np.array([[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]]),3,axis=0)]),3,axis=0)
-            print(l)
-            print(l.shape)
             self.lap_filter = paddle.nn.Conv2D(3,3,(3,3),stride=1,bias_attr=False,
                                     padding=1, padding_mode='reflect',
                                     weight_attr = paddle.ParamAttr(
@@ -915,7 +905,6 @@ class LapStyleRevFirstThumb(BaseModel):
         self.visual_items['stylized_small'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
 
-        print(self.pyr_ci[0].shape)
         revnet_input = paddle.concat(x=[self.pyr_ci[0], stylized_up], axis=1)
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach())
         #self.ttF_res=self.ttF_res.detach()

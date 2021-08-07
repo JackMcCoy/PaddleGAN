@@ -49,12 +49,12 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.1, diff=False, position=F
     imdiff[j,i,:,:] -= imdiff[j,i,:,:].min(axis=[0,1])
     imdiff[j,i,:,:] /= imdiff[j,i,:,:].max(axis=[0,1])
     morphed.stop_gradient=True
-
     morphed=morph_conv(imdiff)
-    for j in range(im.shape[0]):
-        mean = imdiff[j,i,:,:].mean()
-        passed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')*(morphed[j,i,:,:]>=mean*81).astype('float32')
-        passed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(morphed[j,i,:,:]>=mean).astype('float32')
+    for i in range(im.shape[1]):
+        for j in range(im.shape[0]):
+            mean = imdiff[j,i,:,:].mean()
+            passed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(imdiff[j,i,:,:] > mean).astype('float32')*(morphed[j,i,:,:]>=mean*81).astype('float32')
+            passed[j,i,:,:]= paddle.zeros_like(morphed[j,i,:,:])+(morphed[j,i,:,:]>=mean).astype('float32')
     return passed, imdiff
 
 def gaussian(kernel_size, sigma,channels=3):

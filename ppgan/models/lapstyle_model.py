@@ -1041,7 +1041,7 @@ class LapStyleRevFirstThumb(BaseModel):
         self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
 
         if self.use_mxdog==1:
-            self.cX = xdog(self.cp.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,diff=cxdiff,position=self.position)
+            self.cX = xdog(self.cp.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             self.cXF = self.nets['net_enc'](self.cX)
             self.visual_items['cx'] = self.cX
             stylized_dog = xdog(self.p_stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)

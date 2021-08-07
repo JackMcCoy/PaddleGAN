@@ -365,12 +365,7 @@ def make_laplace_conv_pyramid(x, levels,kernel):
     pyramid = []
     current = x
     for i in range(levels):
-        lap = paddle.zeros_like(current)
-        for i in range(lap.shape[0]):
-            l = kernel(paddle.unsqueeze(current[i,:,:,:],axis=0))
-            l -= lap.min()
-            l /= lap.max()
-            lap[i,:,:,:]=l
+        lap = kernel(current)
         pyramid.append(lap)
         current = tensor_resample(
             current,

@@ -973,7 +973,7 @@ class LapStyleRevFirstThumb(BaseModel):
             self.sXF = self.nets['net_enc'](self.sX)
             self.visual_items['cx'] = self.cX
             self.visual_items['sx'] = self.sX
-            stylized_dog,cdogdiff = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             self.cdogF = self.nets['net_enc'](stylized_dog)
 
             mxdog_content = self.calc_content_loss(self.ttF['r31'], self.cXF['r31'])

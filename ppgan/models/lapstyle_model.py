@@ -869,7 +869,7 @@ class LapStyleRevFirstThumb(BaseModel):
                                             initializer=paddle.fluid.initializer.Constant(
                                                             value=1), trainable=False)
                                         )
-            l = np.repeat(np.array([np.repeat(np.array([[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]]),3,axis=0)]),3,axis=0)
+            l = np.array([np.repeat(np.array([[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]]),3,axis=0)])
             self.lap_filter = paddle.nn.Conv2D(3,3,(3,3),stride=1,bias_attr=False,
                                     padding=1, groups=3,padding_mode='reflect',
                                     weight_attr = paddle.ParamAttr(

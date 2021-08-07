@@ -876,7 +876,7 @@ class LapStyleRevFirstThumb(BaseModel):
                                             initializer=paddle.fluid.initializer.Constant(
                                                             value=1), trainable=False)
                                         )
-            self.lap_filter = paddle.nn.Conv2D(1, 1,3,
+            self.lap_filter = paddle.nn.Conv2D(3, 3,3,
                                     groups=1, bias_attr=False,
                                     padding=1, padding_mode='reflect',
                                     weight_attr = paddle.ParamAttr(

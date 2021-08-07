@@ -358,6 +358,23 @@ def make_laplace_pyramid(x, levels):
     pyramid.append(current)
     return pyramid
 
+def make_laplace_conv_pyramid(x, levels,kernel):
+    """
+    Make Laplacian Pyramid
+    """
+    pyramid = []
+    current = x
+    for i in range(levels):
+        lap = kernel(current)
+        lap -= lap.min()
+        lap /= lap.max()
+        pyramid.append(lap)
+        current = tensor_resample(
+            current,
+            (max(current.shape[2] // 2, 1), max(current.shape[3] // 2, 1)))
+    pyramid.append(current)
+    return pyramid
+
 
 def fold_laplace_pyramid(pyramid):
     """
@@ -859,6 +876,12 @@ class LapStyleRevFirstThumb(BaseModel):
                                             initializer=paddle.fluid.initializer.Constant(
                                                             value=1), trainable=False)
                                         )
+            self.lap_filter = paddle.nn.Conv2D(1, 1,3,
+                                    groups=1, bias_attr=False,
+                                    padding=1, padding_mode='reflect',
+                                    weight_attr = paddle.ParamAttr(
+                                            initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=np.array([[-8,-8,-8],[-8,1,-8],[-8,-8,-8]])), trainable=False)
+                                        )
 
     def setup_input(self, input):
 
@@ -870,9 +893,9 @@ class LapStyleRevFirstThumb(BaseModel):
         self.sp = input['sp']
         self.visual_items['cp'] = self.cp
 
-        self.pyr_ci = make_laplace_pyramid(self.ci, 1)
-        self.pyr_si = make_laplace_pyramid(self.si, 1)
-        self.pyr_cp = make_laplace_pyramid(self.cp, 1)
+        self.pyr_ci = make_laplace_conv_pyramid(self.ci, 1,self.lap_filter)
+        self.pyr_si = make_laplace_conv_pyramid(self.si, 1,self.lap_filter)
+        self.pyr_cp = make_laplace_conv_pyramid(self.cp, 1,self.lap_filter)
         self.pyr_ci.append(self.ci)
         self.pyr_si.append(self.si)
         self.pyr_cp.append(self.cp)

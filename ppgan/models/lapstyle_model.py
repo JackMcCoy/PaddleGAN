@@ -983,7 +983,7 @@ class LapStyleRevFirstThumb(BaseModel):
             self.losses['loss_MD_p'] = mxdog_content*.05
             self.losses['loss_CnsC_p'] = mxdog_content_contraint*100
             self.losses['loss_CnsS_p'] = mxdog_content_img*500
-            mxdogloss=mxdog_content * .025 + mxdog_content_contraint *50 + mxdog_content_img * 250
+            mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + mxdog_content_img * 125
         else:
             mxdogloss=0
 
@@ -1053,7 +1053,7 @@ class LapStyleRevFirstThumb(BaseModel):
             self.losses['loss_MD'] = mxdog_content*.05
             self.losses['loss_CnsC'] = mxdog_content_contraint*100
             self.losses['loss_CnsS'] = mxdog_content_img*500
-            mxdogloss=mxdog_content * .025 + mxdog_content_contraint *50 + mxdog_content_img * 250
+            mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + mxdog_content_img * 125
         else:
             mxdogloss=0
 

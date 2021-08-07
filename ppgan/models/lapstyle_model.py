@@ -880,7 +880,7 @@ class LapStyleRevFirstThumb(BaseModel):
                                     groups=1, bias_attr=False,
                                     padding=1, padding_mode='reflect',
                                     weight_attr = paddle.ParamAttr(
-                                            initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=np.array([[-8,-8,-8],[-8,1,-8],[-8,-8,-8]])), trainable=False)
+                                            initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=np.array([[[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]]])), trainable=False)
                                         )
 
     def setup_input(self, input):

@@ -40,9 +40,8 @@ def xdog(im, g, g2,morph_conv,gamma=.98, phi=200, eps=-.1, diff=False, position=
     imf1=paddle.zeros_like(im)
     imf1.stop_gradient=True
     imf2.stop_gradient=True
-    for i in range(im.shape[1]):
-        imf2[:,i,:,:]=paddle.squeeze(g2(paddle.unsqueeze(im[:,i,:,:],axis=1)))
-        imf1[:,i,:,:]=paddle.squeeze(g(paddle.unsqueeze(im[:,i,:,:],axis=1)))
+    imf2=paddle.squeeze(g2(paddle.unsqueeze(im,axis=1)))
+    imf1=paddle.squeeze(g(paddle.unsqueeze(im,axis=1)))
     #imf2 = g2(im.detach())
     imdiff = imf1 - gamma * imf2
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
@@ -211,18 +210,18 @@ class LapStyleDraXDOG(BaseModel):
         self.style_layers = style_layers
         self.content_weight = content_weight
         self.style_weight = style_weight
-        self.gaussian_filter = paddle.nn.Conv2D(1, 1,7,
-                                groups=1, bias_attr=False,
+        self.gaussian_filter = paddle.nn.Conv2D(3, 3,7,
+                                groups=3, bias_attr=False,
                                 padding=3, padding_mode='reflect',
                                                 weight_attr=paddle.ParamAttr(
                                                     initializer=paddle.fluid.initializer.NumpyArrayInitializer(
-                                                        value=gaussian(7, 1).numpy()), trainable=False)
+                                                        value=np.repeat(gaussian(7, 1)).numpy()), trainable=False)
                                                 )
-        self.gaussian_filter_2 = paddle.nn.Conv2D(1, 1,19,
-                                groups=1, bias_attr=False,
+        self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3,19,
+                                groups=3, bias_attr=False,
                                 padding=9, padding_mode='reflect',
                                 weight_attr = paddle.ParamAttr(
-                                        initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=gaussian(19, 3).numpy()), trainable=False)
+                                        initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=np.repeat(gaussian(19, 3).numpy(),3)), trainable=False)
                                     )
 
         self.morph_conv = paddle.nn.Conv2D(3,3,3,padding=1,groups=3,

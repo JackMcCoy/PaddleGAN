@@ -883,7 +883,7 @@ class LapStyleRevFirstThumb(BaseModel):
                                             initializer=paddle.fluid.initializer.NumpyArrayInitializer(
                                                 value=np.repeat(
                                                     np.array([[[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]]])
-                                                    ,3,axis=1)
+                                                    ,2,axis=1)
 
                                         ), trainable=False)
                                                )

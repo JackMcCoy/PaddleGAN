@@ -876,8 +876,7 @@ class LapStyleRevFirstThumb(BaseModel):
                                             initializer=paddle.fluid.initializer.Constant(
                                                             value=1), trainable=False)
                                         )
-            l = np.repeat(np.array([[[[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]]]])
-                                                    ,3,axis=1)
+            l = np.array([[[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]],[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]],[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]]])
             print(l)
             print(l.shape)
             self.lap_filter = paddle.nn.Conv2D(3, 3,3,
@@ -897,7 +896,6 @@ class LapStyleRevFirstThumb(BaseModel):
         self.cp = input['cp']
         self.sp = input['sp']
         self.visual_items['cp'] = self.cp
-        print(self.cp)
 
         self.pyr_ci = make_laplace_conv_pyramid(self.ci, 1,self.lap_filter)
         self.pyr_si = make_laplace_conv_pyramid(self.si, 1,self.lap_filter)

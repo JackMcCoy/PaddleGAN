@@ -882,8 +882,8 @@ class LapStyleRevFirstThumb(BaseModel):
                                     weight_attr = paddle.ParamAttr(
                                             initializer=paddle.fluid.initializer.NumpyArrayInitializer(
                                                 value=np.repeat(
-                                                    np.array([[[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]]])
-                                                    ,3,axis=1)
+                                                    np.array([[[-8,-8,-8],[-8,1,-8],[-8,-8,-8]]])
+                                                    ,3,axis=0)
 
                                         ), trainable=False)
                                                )

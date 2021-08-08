@@ -49,7 +49,7 @@ def xdog(im, g, g2,morph_conv,gamma=.99, phi=200, eps=-.1, morph_cutoff=8.85,mor
     immax = paddle.expand_as(imdiff.max(axis=[2,3],keepdim=True),imdiff)
     imdiff /= immax
     mean = imdiff.mean(axis=[2,3],keepdim=True)
-    mean=paddle.expand_as(mean,morphed)
+    mean=paddle.expand_as(mean,imdiff)
     for i in range(morphs):
         morphed=morph_conv(imdiff)
         morphed.stop_gradient=True

@@ -1415,7 +1415,8 @@ class LapStyleRevSecondPatch(BaseModel):
                  ada_alpha_2=1.0,
                  gan_thumb_weight=1.0,
                  gan_patch_weight=1.0,
-                 use_mdog=0):
+                 use_mdog=0,
+                 morph_cutoff=47.9):
 
         super(LapStyleRevSecondPatch, self).__init__()
 
@@ -1462,6 +1463,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.gan_thumb_weight = gan_thumb_weight
         self.gan_patch_weight = gan_patch_weight
         self.use_mdog = use_mdog
+        self.morph_cutoff = morph_cutoff
 
         if self.use_mdog == 1:
             g = np.repeat(gaussian(7, 1).numpy(), 3, axis=0)
@@ -1761,10 +1763,10 @@ class LapStyleRevSecondPatch(BaseModel):
         self.p_loss_style_remd = 0
 
         if self.use_mdog==1:
-            cX = xdog(self.content_stack[2].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=48)
+            cX = xdog(self.content_stack[2].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff)
             cXF = self.nets['net_enc'](cX)
             self.visual_items['cx'] = cX
-            stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=48)
+            stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff)
             cdogF = self.nets['net_enc'](stylized_dog)
 
             mxdog_content = self.calc_content_loss(tpF['r31'], cXF['r31'])
@@ -1783,7 +1785,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                     tpF['r41'], spF['r41'])
                 if self.use_mdog==1:
-                    sX = xdog(j.detach(), self.gaussian_filter, self.gaussian_filter_2, self.morph_conv,morph_cutoff=48)
+                    sX = xdog(j.detach(), self.gaussian_filter, self.gaussian_filter_2, self.morph_conv,morph_cutoff=self.morph_cutoff)
                     sXF = self.nets['net_enc'](sX)
                     mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
                     style_counter += 1
@@ -1845,10 +1847,10 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['loss_content_p2'] = loss_content_p
 
         if self.use_mdog==1:
-            cX = xdog(self.content_stack[3].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=48)
+            cX = xdog(self.content_stack[3].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff)
             cXF = self.nets['net_enc'](cX)
             self.visual_items['cxp'] = cX
-            stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=48)
+            stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff)
             cdogF = self.nets['net_enc'](stylized_dog)
 
             mxdog_content = self.calc_content_loss(tpF['r31'], cXF['r31'])
@@ -1869,7 +1871,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                     tpF['r41'], spF['r41'])
                 if self.use_mdog==1:
-                    sX = xdog(j.detach(), self.gaussian_filter, self.gaussian_filter_2, self.morph_conv,morph_cutoff=48)
+                    sX = xdog(j.detach(), self.gaussian_filter, self.gaussian_filter_2, self.morph_conv,morph_cutoff=self.morph_cutoff)
                     sXF = self.nets['net_enc'](sX)
                     mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
                     style_counter+=1

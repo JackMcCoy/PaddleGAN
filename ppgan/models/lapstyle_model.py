@@ -1753,7 +1753,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['loss_patch'] = self.loss_patch
 
         self.loss_content_p = 0
-        for layer in self.content_layers[:-1]:
+        for layer in self.content_layers:
             self.loss_content_p += paddle.clip(self.calc_content_loss(tpF[layer],
                                                       cF[layer],
                                                       norm=True), 1e-5, 1e5)
@@ -1778,7 +1778,7 @@ class LapStyleRevSecondPatch(BaseModel):
         for i in reshaped:
             for j in paddle.split(i, 2, 3):
                 spF = self.nets['net_enc'](j.detach())
-                for layer in self.content_layers[:-1]:
+                for layer in self.content_layers:
                     self.loss_ps += paddle.clip(self.calc_style_loss(tpF[layer],
                                                           spF[layer]), 1e-5, 1e5)
                 self.p_loss_style_remd += self.calc_style_emd_loss(
@@ -1840,7 +1840,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['loss_patch2'] = loss_patch
 
         loss_content_p = 0
-        for layer in self.content_layers[:-1]:
+        for layer in self.content_layers:
             loss_content_p += paddle.clip(self.calc_content_loss(tpF[layer],
                                                       cF[layer],
                                                       norm=True), 1e-5, 1e5)
@@ -1864,7 +1864,7 @@ class LapStyleRevSecondPatch(BaseModel):
         for i in reshaped:
             for j in paddle.split(i, 2, 3):
                 spF = self.nets['net_enc'](j.detach())
-                for layer in self.content_layers[:-1]:
+                for layer in self.content_layers:
                     loss_ps += paddle.clip(self.calc_style_loss(tpF[layer],
                                                           spF[layer]), 1e-5, 1e5)
                 p_loss_style_remd += self.calc_style_emd_loss(

@@ -2178,8 +2178,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
                  gan_patch_weight=1.0,
                  use_mdog=0,
                  morph_cutoff=47.9,
-                 rev3_iter=3000,
-                 rev4_iter=6000):
+                 rev3_iter=3002,
+                 rev4_iter=6002):
 
         super(LapStyleRevSecondMXDOG, self).__init__()
 
@@ -2350,8 +2350,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.cX = xdog(self.content_stack[i+1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
         else:
             self.cX = xdog(self.content_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
-            for j in range(i+1):
+            for j in range(i):
                 self.cX = crop_upsized(self.cX,self.positions[j],self.size_stack[j])
+            self.cX = F.interpolate(self.cX,size=(256,256))
         cXF = self.nets['net_enc'](self.cX)
         self.visual_items['cx_'+str(i+1)] = self.cX
         stylized_dog = xdog(self.stylized[i],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)

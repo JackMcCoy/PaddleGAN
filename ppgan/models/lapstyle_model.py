@@ -562,7 +562,7 @@ class LapStyleRevFirstMXDOG(BaseModel):
         self.nets['net_rev'] = build_generator(revnet_generator)
         init_weights(self.nets['net_rev'])
         self.nets['netD_first'] = build_discriminator(revnet_first_discriminator)
-        init_weights(self.nets['netD'])
+        init_weights(self.nets['netD_first'])
 
         # define loss functions
         self.calc_style_emd_loss = build_criterion(calc_style_emd_loss)

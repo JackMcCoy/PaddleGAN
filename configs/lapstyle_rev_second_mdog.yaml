@@ -5,7 +5,7 @@ min_max:
   (0., 1.)
 
 model:
-  name: LapStyleRevSecondPatch
+  name: LapStyleRevSecondMXDOG
   revnet_generator:
     name: RevisionNet
   revnet_discriminator:

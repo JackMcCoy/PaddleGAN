@@ -1811,7 +1811,7 @@ class LapStyleRevSecondPatch(BaseModel):
         """gan loss"""
         pred_fake_p = self.nets['netD'](self.stylized)
         self.loss_Gp_GAN = paddle.clip(self.gan_criterion(pred_fake_p, True), 1e-5, 1e5)
-        self.losses['loss_gan_Gp'] = self.loss_Gp_GAN
+        self.losses['loss_gan_Gp'] = self.loss_Gp_GAN*self.gan_thumb_weight
 
 
         self.loss = self.loss_Gp_GAN *self.gan_thumb_weight +self.loss_ps/4 * self.style_weight +\
@@ -1889,7 +1889,7 @@ class LapStyleRevSecondPatch(BaseModel):
         """gan loss"""
         pred_fake_p = self.nets['netD_patch'](self.p_stylized)
         loss_Gp_GAN = paddle.clip(self.gan_criterion(pred_fake_p, True), 1e-5, 1e5)
-        self.losses['loss_gan_Gp2'] = loss_Gp_GAN
+        self.losses['loss_gan_Gp2'] = loss_Gp_GAN * self.gan_patch_weight
 
         if self.use_mdog==1:
             self.losses['loss_MD_p2'] = mxdog_content*.0125

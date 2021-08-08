@@ -1771,6 +1771,7 @@ class LapStyleRevSecondPatch(BaseModel):
             mxdog_content_contraint = self.calc_content_loss(cdogF['r31'], cXF['r31'])
 
         mxdog_style=0
+        style_counter=0
         reshaped = paddle.split(self.style_stack[2], 2, 2)
         for i in reshaped:
             for j in paddle.split(i, 2, 3):
@@ -1785,6 +1786,9 @@ class LapStyleRevSecondPatch(BaseModel):
                     sX = xdog(j.detach(), self.gaussian_filter, self.gaussian_filter_2, self.morph_conv,morph_cutoff=48)
                     sXF = self.nets['net_enc'](sX)
                     mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
+                    style_counter += 1
+                    if style_counter == 4:
+                        self.visual_items['sx'] = sX
         self.losses['loss_ps'] = self.loss_ps/4
         self.p_loss_content_relt = self.calc_content_relt_loss(
             tpF['r31'], cF['r31']) + self.calc_content_relt_loss(

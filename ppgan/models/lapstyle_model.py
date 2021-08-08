@@ -561,7 +561,7 @@ class LapStyleRevFirstMXDOG(BaseModel):
         # define revision-net params
         self.nets['net_rev'] = build_generator(revnet_generator)
         init_weights(self.nets['net_rev'])
-        self.nets['netD'] = build_discriminator(revnet_first_discriminator)
+        self.nets['netD_first'] = build_discriminator(revnet_first_discriminator)
         init_weights(self.nets['netD'])
 
         # define loss functions
@@ -660,7 +660,7 @@ class LapStyleRevFirstMXDOG(BaseModel):
         self.losses['loss_style_remd'] = self.loss_style_remd
         self.losses['loss_content_relt'] = self.loss_content_relt
         """gan loss"""
-        pred_fake = self.nets['netD'](self.stylized)
+        pred_fake = self.nets['netD_first'](self.stylized)
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)
         self.losses['loss_gan_G'] = self.loss_G_GAN
 
@@ -689,9 +689,9 @@ class LapStyleRevFirstMXDOG(BaseModel):
 
     def backward_D(self):
         """Calculate GAN loss for the discriminator"""
-        pred_fake = self.nets['netD'](self.stylized.detach())
+        pred_fake = self.nets['netD_first'](self.stylized.detach())
         self.loss_D_fake = self.gan_criterion(pred_fake, False)
-        pred_real = self.nets['netD'](self.pyr_si[2])
+        pred_real = self.nets['netD_first'](self.pyr_si[2])
         self.loss_D_real = self.gan_criterion(pred_real, True)
         self.loss_D = (self.loss_D_fake + self.loss_D_real) * 0.5
 
@@ -710,7 +710,7 @@ class LapStyleRevFirstMXDOG(BaseModel):
         optimizers['optimD'].step()
 
         # update G
-        self.set_requires_grad(self.nets['netD'], False)
+        self.set_requires_grad(self.nets['netD_first'], False)
         optimizers['optimG'].clear_grad()
         self.backward_G()
         optimizers['optimG'].step()

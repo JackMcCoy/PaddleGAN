@@ -65,7 +65,7 @@ optimizer:
   optimD:
     name: Adam
     net_names:
-      - netD
+      - netD_first
     beta1: 0.9
     beta2: 0.999
 

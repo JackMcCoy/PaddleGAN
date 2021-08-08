@@ -2306,7 +2306,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.visual_items['ci_3'] = self.content_stack[2]
             self.visual_items['stylized_rev_third'] = stylized_rev_patch
             self.stylized.append(stylized_rev_patch)
-        if self.iters>=self.rev_4_iter:
+        if self.iters>=self.rev4_iter:
             stylized_up = F.interpolate(stylized_rev_patch, scale_factor=2)
             stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
             self.patches_in.append(stylized_up.detach())

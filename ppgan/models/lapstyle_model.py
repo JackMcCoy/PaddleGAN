@@ -2372,13 +2372,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 self.p_loss_style_remd += self.calc_style_emd_loss(
                     tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                     tpF['r41'], spF['r41'])
-                if self.use_mdog==1:
-                    sX = xdog(j.detach(), self.gaussian_filter, self.gaussian_filter_2, self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
-                    sXF = self.nets['net_enc'](sX)
-                    mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
-                    style_counter += 1
-                    if style_counter == 4:
-                        self.visual_items['sx_'+str(i+1)] = sX
+                sX = xdog(j.detach(), self.gaussian_filter, self.gaussian_filter_2, self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
+                sXF = self.nets['net_enc'](sX)
+                mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
+                style_counter += 1
+                if style_counter == 4:
+                    self.visual_items['sx_'+str(i+1)] = sX
         self.losses['loss_ps_'+str(i+1)] = self.loss_ps/4
         self.p_loss_content_relt = self.calc_content_relt_loss(
             tpF['r31'], cF['r31']) + self.calc_content_relt_loss(

@@ -704,7 +704,7 @@ class LapStyleRevFirstMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        self.set_requires_grad(self.nets['netD'], True)
+        self.set_requires_grad(self.nets['netD_first'], True)
         optimizers['optimD'].clear_grad()
         self.backward_D()
         optimizers['optimD'].step()

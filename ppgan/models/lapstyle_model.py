@@ -2422,8 +2422,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         self.loss_D_patch.backward()
 
-        self.losses['D_fake_loss_'+str(i+1)] = self.loss_Dp_fake
-        self.losses['D_real_loss_'+str(i+1)] = pred_Dp_real/4
 
     def train_iter(self, optimizers=None):
         loops=0

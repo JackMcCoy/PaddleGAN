@@ -17,7 +17,7 @@ model:
   draftnet_decode:
     name: DecoderNetDeep
   revnet_deep_generator:
-    name: RevisionNet
+    name: RevisionNetThumb
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:

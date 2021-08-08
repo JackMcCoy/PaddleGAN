@@ -1787,8 +1787,8 @@ class LapStyleRevSecondPatch(BaseModel):
                     mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
         self.losses['loss_ps'] = self.loss_ps
         self.p_loss_content_relt = self.calc_content_relt_loss(
-            tpF['r31'], self.cF['r31']) + self.calc_content_relt_loss(
-            tpF['r41'], self.cF['r41'])
+            tpF['r31'], cF['r31']) + self.calc_content_relt_loss(
+            tpF['r41'], cF['r41'])
         self.p_loss_style_remd = paddle.clip(self.p_loss_style_remd, 1e-5, 1e5)
         self.p_loss_content_relt = paddle.clip(self.p_loss_content_relt, 1e-5, 1e5)
         self.losses['p_loss_style_remd'] = self.p_loss_style_remd

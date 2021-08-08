@@ -5,9 +5,9 @@ min_max:
   (0., 1.)
 
 model:
-  name: LapStyleRevSecondMXDOG
+  name: LapStyleRevSecondPatch
   revnet_generator:
-    name: RevisionNet
+    name: RevisionNetDeepThumb
   revnet_discriminator:
     name: LapStyleDiscriminator
     num_channels: 16
@@ -79,6 +79,12 @@ optimizer:
     name: Adam
     net_names:
       - netD
+    beta1: 0.9
+    beta2: 0.999
+  optimD_patch:
+    name: Adam
+    net_names:
+      - netD_patch
     beta1: 0.9
     beta2: 0.999
 

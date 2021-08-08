@@ -673,9 +673,9 @@ class LapStyleRevFirstMXDOG(BaseModel):
         stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
         self.cdogF = self.nets['net_enc'](stylized_dog)
 
-        mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])
-        mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])
-        mxdog_content_img = self.calc_style_loss(self.cdogF['r31'],self.sXF['r31'])
+        mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])+self.calc_content_loss(self.tF['r41'], self.cXF['r41'])
+        mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])+self.calc_content_loss(self.cdogF['r41'], self.cXF['r41'])
+        mxdog_content_img = self.calc_style_loss(self.cdogF['r31'],self.sXF['r31'])+self.calc_style_loss(self.cdogF['r41'],self.sXF['r41'])
 
         self.losses['loss_MD_p'] = mxdog_content*.05
         self.losses['loss_CnsC_p'] = mxdog_content_contraint*100
@@ -2154,6 +2154,302 @@ class LapStyleRevSecondPatch(BaseModel):
         optimizers['optimG'].clear_grad()
         self.backward_G_p()
         optimizers['optimG'].step()
+
+@MODELS.register()
+class LapStyleRevSecondMXDOG(BaseModel):
+    def __init__(self,
+                 revnet_generator,
+                 revnet_discriminator,
+                 draftnet_encode,
+                 draftnet_decode,
+                 revnet_deep_generator,
+                 calc_style_emd_loss=None,
+                 calc_content_relt_loss=None,
+                 calc_content_loss=None,
+                 calc_style_loss=None,
+                 gan_criterion=None,
+                 content_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
+                 style_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
+                 content_weight=1.0,
+                 style_weight=3.0,
+                 ada_alpha=1.0,
+                 ada_alpha_2=1.0,
+                 gan_thumb_weight=1.0,
+                 gan_patch_weight=1.0,
+                 use_mdog=0,
+                 morph_cutoff=47.9,
+                 rev3_iter=10000,
+                 rev4_iter=20000):
+
+        super(LapStyleRevSecondMXDOG, self).__init__()
+
+        self.scaler = paddle.amp.GradScaler(init_loss_scaling=1024)
+        # define draftnet params
+        self.nets['net_enc'] = build_generator(draftnet_encode)
+        self.nets['net_dec'] = build_generator(draftnet_decode)
+        self.set_requires_grad([self.nets['net_enc']], False)
+        self.set_requires_grad([self.nets['net_enc']], False)
+
+        # define the first revnet params
+        self.nets['net_rev'] = build_generator(revnet_generator)
+        self.set_requires_grad([self.nets['net_rev']], False)
+
+        # define the second revnet params
+        self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
+        init_weights(self.nets['net_rev_2'])
+        self.nets['netD'] = build_discriminator(revnet_discriminator)
+        init_weights(self.nets['netD'])
+
+        l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
+        self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
+                                           padding=1, groups=3, padding_mode='reflect',
+                                           weight_attr=paddle.ParamAttr(
+                                               initializer=paddle.fluid.initializer.NumpyArrayInitializer(
+                                                   value=l), trainable=False)
+                                           )
+
+        # define loss functions
+        self.calc_style_emd_loss = build_criterion(calc_style_emd_loss)
+        self.calc_content_relt_loss = build_criterion(calc_content_relt_loss)
+        self.calc_content_loss = build_criterion(calc_content_loss)
+        self.calc_style_loss = build_criterion(calc_style_loss)
+        self.gan_criterion = build_criterion(gan_criterion)
+
+        self.content_layers = content_layers
+        self.style_layers = style_layers
+        self.content_weight = content_weight
+        self.style_weight = style_weight
+        self.ada_alpha = ada_alpha
+        self.ada_alpha_2 = ada_alpha_2
+        self.gan_thumb_weight = gan_thumb_weight
+        self.gan_patch_weight = gan_patch_weight
+        self.morph_cutoff = morph_cutoff
+        self.rev3_iter = rev3_iter
+        self.rev4_iter = rev4_iter
+        g = np.repeat(gaussian(7, 1).numpy(), 3, axis=0)
+        g2 = np.repeat(gaussian(19, 3).numpy(), 3, axis=0)
+        self.gaussian_filter = paddle.nn.Conv2D(3, 3, 7,
+                                                groups=3, bias_attr=False,
+                                                padding=3, padding_mode='reflect',
+                                                weight_attr=paddle.ParamAttr(
+                                                    initializer=paddle.fluid.initializer.NumpyArrayInitializer(
+                                                        value=g), trainable=False)
+                                                )
+        self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3, 19,
+                                                  groups=3, bias_attr=False,
+                                                  padding=9, padding_mode='reflect',
+                                                  weight_attr=paddle.ParamAttr(
+                                                      initializer=paddle.fluid.initializer.NumpyArrayInitializer(
+                                                          value=g2), trainable=False)
+                                                  )
+
+        self.morph_conv = paddle.nn.Conv2D(3, 3, 3, padding=1, groups=3,
+                                           padding_mode='reflect', bias_attr=False,
+                                           weight_attr=paddle.ParamAttr(
+                                               initializer=paddle.fluid.initializer.Constant(
+                                                   value=1), trainable=False)
+                                           )
+        self.iters = 0
+
+    def setup_input(self, input):
+        self.iters+=1
+        if self.is_train:
+            self.content_stack = []
+            self.style_stack = [paddle.to_tensor(input['style_stack_1']),paddle.to_tensor(input['style_stack_2']),paddle.to_tensor(input['style_stack_3'])]
+            self.laplacians=[]
+            for i in range(1,6):
+                if 'content_stack_'+str(i) in input:
+                    self.content_stack.append(paddle.to_tensor(input['content_stack_'+str(i)]))
+            self.visual_items['ci'] = self.content_stack[0]
+
+            self.positions = input['position_stack']
+            self.size_stack = input['size_stack']
+            self.laplacians.append(laplacian_conv(self.content_stack[0],self.lap_filter).detach())
+            self.laplacians.append(laplacian_conv(self.content_stack[1],self.lap_filter).detach())
+            self.laplacians.append(laplacian_conv(self.content_stack[2],self.lap_filter).detach())
+            self.laplacians.append(laplacian_conv(self.content_stack[3],self.lap_filter).detach())
+
+    def forward(self):
+        """Run forward pass; called by both functions <optimize_parameters> and <test>."""
+        cF = self.nets['net_enc'](F.interpolate(self.content_stack[0],scale_factor=.5))
+        sF = self.nets['net_enc'](F.interpolate(self.style_stack[0], scale_factor=.5))
+
+        stylized_small= self.nets['net_dec'](cF, sF)
+        self.visual_items['stylized_small'] = stylized_small
+        stylized_up = F.interpolate(stylized_small, scale_factor=2)
+
+        revnet_input = paddle.concat(x=[self.laplacians[0], stylized_up], axis=1)
+        #rev_net thumb only calcs as patch if second parameter is passed
+        stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input)
+        stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
+        self.visual_items['stylized_rev_first'] = stylized_rev
+        stylized_up = F.interpolate(stylized_rev, scale_factor=2)
+        stylized_up = crop_upsized(stylized_up,self.positions[0],self.size_stack[0])
+        self.patches_in = [stylized_up.detach()]
+        revnet_input = paddle.concat(x=[self.laplacians[1], stylized_up], axis=1)
+        stylized_rev_lap_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats,self.ada_alpha)
+        stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up])
+        self.visual_items['ci_2'] = self.content_stack[1]
+        self.stylized= [stylized_rev_second]
+
+        self.visual_items['stylized_rev_second'] = stylized_rev_second
+
+        if self.iters>=self.rev3_iter:
+            stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
+            stylized_up = crop_upsized(stylized_up,self.positions[1],self.size_stack[1])
+            self.patches_in.append(stylized_up.detach())
+
+            revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up.detach()], axis=1)
+            stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha_2)
+            stylized_rev_patch = fold_laplace_patch(
+                [stylized_rev_patch, stylized_up.detach()])
+            self.visual_items['ci_3'] = self.content_stack[2]
+            self.visual_items['stylized_rev_third'] = stylized_rev_patch
+            self.stylized.append(stylized_rev_patch)
+        if self.iters>=self.rev_4_iter:
+            stylized_up = F.interpolate(stylized_rev_patch, scale_factor=2)
+            stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
+            self.patches_in.append(stylized_up.detach())
+
+            revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up.detach()], axis=1)
+            stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha_2)
+            stylized_rev_patch_second = fold_laplace_patch(
+                [stylized_rev_patch_second, stylized_up.detach()])
+            self.visual_items['ci_4'] = self.content_stack[3]
+            self.visual_items['stylized_rev_fourth'] = stylized_rev_patch_second
+
+            self.stylized.append(stylized_rev_patch_second)
+
+    def backward_G(self,i):
+        cF = self.nets['net_enc'](self.content_stack[i+1])
+
+        with paddle.no_grad():
+            tt_cropF = self.nets['net_enc'](self.patches_in[i])
+
+        tpF = self.nets['net_enc'](self.stylized[i])
+
+        """patch loss"""
+        self.loss_patch = 0
+        # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
+        #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
+        for layer in [self.content_layers[-2]]:
+            self.loss_patch += paddle.clip(self.calc_content_loss(tpF[layer],
+                                                      tt_cropF[layer]), 1e-5, 1e5)
+        self.losses['loss_patch_'+str(i+1)] = self.loss_patch
+
+        self.loss_content_p = 0
+        for layer in self.content_layers:
+            self.loss_content_p += paddle.clip(self.calc_content_loss(tpF[layer],
+                                                      cF[layer],
+                                                      norm=True), 1e-5, 1e5)
+        self.losses['loss_content_'+str(i+1)] = self.loss_content_p
+
+        self.loss_ps = 0
+        self.p_loss_style_remd = 0
+        if i ==0:
+            self.cX = xdog(self.content_stack[i+1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
+        else:
+            self.cX = xdog(self.content_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
+            for j in range(i+1):
+                self.cX = crop_upsized(self.cX,self.positions[j],self.size_stack[j])
+        cXF = self.nets['net_enc'](self.cX)
+        self.visual_items['cx_'+str(i+1)] = self.cX
+        stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
+        cdogF = self.nets['net_enc'](stylized_dog)
+
+        mxdog_content = self.calc_content_loss(tpF['r31'], cXF['r31'])
+        mxdog_content_contraint = self.calc_content_loss(cdogF['r31'], cXF['r31'])
+
+        mxdog_style=0
+        style_counter=0
+        reshaped = paddle.split(self.style_stack[2], 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                spF = self.nets['net_enc'](j.detach())
+                for layer in self.content_layers:
+                    self.loss_ps += paddle.clip(self.calc_style_loss(tpF[layer],
+                                                          spF[layer]), 1e-5, 1e5)
+                self.p_loss_style_remd += self.calc_style_emd_loss(
+                    tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
+                    tpF['r41'], spF['r41'])
+                if self.use_mdog==1:
+                    sX = xdog(j.detach(), self.gaussian_filter, self.gaussian_filter_2, self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
+                    sXF = self.nets['net_enc'](sX)
+                    mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
+                    style_counter += 1
+                    if style_counter == 4:
+                        self.visual_items['sx_'+str(i+1)] = sX
+        self.losses['loss_ps_'+str(i+1)] = self.loss_ps/4
+        self.p_loss_content_relt = self.calc_content_relt_loss(
+            tpF['r31'], cF['r31']) + self.calc_content_relt_loss(
+            tpF['r41'], cF['r41'])
+        self.p_loss_style_remd = paddle.clip(self.p_loss_style_remd, 1e-5, 1e5)
+        self.p_loss_content_relt = paddle.clip(self.p_loss_content_relt, 1e-5, 1e5)
+        self.losses['p_loss_style_remd_'+str(i+1)] = self.p_loss_style_remd/4
+        self.losses['p_loss_content_relt_'+str(i+1)] = self.p_loss_content_relt
+
+        if self.use_mdog==1:
+            self.losses['loss_MD_'+str(i+1)] = mxdog_content*.0125
+            self.losses['loss_CnsC_'+str(i+1)] = mxdog_content_contraint*25
+            self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*125/4
+            mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + (mxdog_style/4) * 125
+        else:
+            mxdogloss=0
+
+        """gan loss"""
+        pred_fake_p = self.nets['netD'](self.stylized)
+        self.loss_Gp_GAN = paddle.clip(self.gan_criterion(pred_fake_p, True), 1e-5, 1e5)
+        self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
+
+
+        self.loss = self.loss_Gp_GAN *self.gan_thumb_weight +self.loss_ps/4 * self.style_weight +\
+                    self.loss_content_p * self.content_weight +\
+                    self.loss_patch +\
+                    self.p_loss_style_remd/4 * 18 + self.p_loss_content_relt * 18 + mxdogloss
+        self.loss.backward()
+
+        return self.loss
+
+    def backward_D(self,i):
+        """Calculate GAN loss for the discriminator"""
+        pred_p_fake = self.nets['netD'](self.stylized[i].detach())
+        self.loss_Dp_fake = paddle.clip(self.gan_criterion(pred_p_fake, False), 1e-5, 1e5)
+
+        pred_Dp_real = 0
+        reshaped = paddle.split(self.style_stack[i+1], 2, 2)
+        for i in reshaped:
+            for j in paddle.split(i, 2, 3):
+                self.loss_Dp_real = self.nets['netD'](j.detach())
+                pred_Dp_real += paddle.clip(self.gan_criterion(self.loss_Dp_real, True), 1e-5, 1e5)
+        self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real/4) * 0.5
+
+        self.loss_D_patch.backward()
+
+        self.losses['D_fake_loss_'+str(i+1)] = self.loss_Dp_fake
+        self.losses['D_real_loss_'+str(i+1)] = pred_Dp_real/4
+
+    def train_iter(self, optimizers=None):
+        loops=0
+        if self.iters>=self.rev3_iter:
+            loops+=1
+        if self.iters>=self.rev4_iter:
+            loops+=1
+        # compute fake images: G(A)
+        self.forward()
+        # update D
+        self.set_requires_grad(self.nets['netD'], True)
+        for i in range(loops+1):
+            optimizers['optimD'].clear_grad()
+            self.backward_D(i)
+            optimizers['optimD'].step()
+
+        # update G
+        self.set_requires_grad(self.nets['netD'], False)
+        for i in range(loops+1)
+            optimizers['optimG'].clear_grad()
+            self.backward_G(i)
+            optimizers['optimG'].step()
+            optimizers['optimG'].clear_grad()
 
 def random_crop_coords(size):
     halfsize=math.floor(size/2)

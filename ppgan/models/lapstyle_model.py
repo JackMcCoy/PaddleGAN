@@ -1734,7 +1734,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.p_stylized = stylized_rev_patch_second
 
     def backward_G(self):
-        cF = self.nets['net_enc'](self.content_stack[-2])
+        cF = self.nets['net_enc'](self.content_stack[2])
 
         with paddle.no_grad():
             tt_cropF = self.nets['net_enc'](self.first_patch_in)
@@ -1761,7 +1761,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.p_loss_style_remd = 0
 
         if self.use_mdog==1:
-            cX = xdog(self.content_stack[-2].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            cX = xdog(self.content_stack[2].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             cXF = self.nets['net_enc'](cX)
             self.visual_items['cx'] = cX
             stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
@@ -1817,7 +1817,7 @@ class LapStyleRevSecondPatch(BaseModel):
         return self.loss
 
     def backward_G_p(self):
-        cF = self.nets['net_enc'](self.content_stack[-1])
+        cF = self.nets['net_enc'](self.content_stack[3])
 
         with paddle.no_grad():
             tt_cropF = self.nets['net_enc'](self.second_patch_in)
@@ -1841,7 +1841,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['loss_content_p2'] = loss_content_p
 
         if self.use_mdog==1:
-            cX = xdog(self.content_stack[-1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+            cX = xdog(self.content_stack[3].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             cXF = self.nets['net_enc'](cX)
             self.visual_items['cx'] = cX
             stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
@@ -1882,9 +1882,9 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['loss_gan_Gp2'] = loss_Gp_GAN
 
         if self.use_mdog==1:
-            self.losses['loss_MD_p'] = mxdog_content*.05
-            self.losses['loss_CnsC_p'] = mxdog_content_contraint*100
-            self.losses['loss_CnsS_p'] = mxdog_style*125/4
+            self.losses['loss_MD_p2'] = mxdog_content*.05
+            self.losses['loss_CnsC_p2'] = mxdog_content_contraint*100
+            self.losses['loss_CnsS_p2'] = mxdog_style*125/4
             mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + (mxdog_style/4) * 125
         else:
             mxdogloss=0

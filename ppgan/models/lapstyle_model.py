@@ -1760,7 +1760,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.loss_ps = 0
         self.p_loss_style_remd = 0
 
-        if self.use_mxdog==1:
+        if self.use_mdog==1:
             cX = xdog(self.content_stack[-2].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             cXF = self.nets['net_enc'](cX)
             self.visual_items['cx'] = cX
@@ -1794,7 +1794,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['p_loss_style_remd'] = self.p_loss_style_remd
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
-        if self.use_mxdog==1:
+        if self.use_mdog==1:
             self.losses['loss_MD_p'] = mxdog_content*.05
             self.losses['loss_CnsC_p'] = mxdog_content_contraint*100
             self.losses['loss_CnsS_p'] = mxdog_style*125/4
@@ -1840,7 +1840,7 @@ class LapStyleRevSecondPatch(BaseModel):
                                                       norm=True), 1e-5, 1e5)
         self.losses['loss_content_p2'] = loss_content_p
 
-        if self.use_mxdog==1:
+        if self.use_mdog==1:
             cX = xdog(self.content_stack[-1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
             cXF = self.nets['net_enc'](cX)
             self.visual_items['cx'] = cX
@@ -1881,7 +1881,7 @@ class LapStyleRevSecondPatch(BaseModel):
         loss_Gp_GAN = paddle.clip(self.gan_criterion(pred_fake_p, True), 1e-5, 1e5)
         self.losses['loss_gan_Gp2'] = loss_Gp_GAN
 
-        if self.use_mxdog==1:
+        if self.use_mdog==1:
             self.losses['loss_MD_p'] = mxdog_content*.05
             self.losses['loss_CnsC_p'] = mxdog_content_contraint*100
             self.losses['loss_CnsS_p'] = mxdog_style*125/4

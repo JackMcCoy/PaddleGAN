@@ -2354,7 +2354,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 self.cX = crop_upsized(self.cX,self.positions[j],self.size_stack[j])
         cXF = self.nets['net_enc'](self.cX)
         self.visual_items['cx_'+str(i+1)] = self.cX
-        stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
+        stylized_dog = xdog(self.stylized[i],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
         cdogF = self.nets['net_enc'](stylized_dog)
 
         mxdog_content = self.calc_content_loss(tpF['r31'], cXF['r31'])
@@ -2363,8 +2363,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
         mxdog_style=0
         style_counter=0
         reshaped = paddle.split(self.style_stack[2], 2, 2)
-        for i in reshaped:
-            for j in paddle.split(i, 2, 3):
+        for k in reshaped:
+            for j in paddle.split(k, 2, 3):
                 spF = self.nets['net_enc'](j.detach())
                 for layer in self.content_layers:
                     self.loss_ps += paddle.clip(self.calc_style_loss(tpF[layer],

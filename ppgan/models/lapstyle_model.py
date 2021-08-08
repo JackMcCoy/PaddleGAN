@@ -1867,7 +1867,8 @@ class LapStyleRevSecondPatch(BaseModel):
                 if self.use_mdog==1:
                     sX = xdog(j.detach(), self.gaussian_filter, self.gaussian_filter_2, self.morph_conv,morph_cutoff=48)
                     sXF = self.nets['net_enc'](sX)
-                    mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])style_counter+=1
+                    mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
+                    style_counter+=1
                     if style_counter==4:
                         self.visual_items['sxp']=sX
         self.losses['loss_ps2'] = loss_ps

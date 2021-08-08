@@ -2387,13 +2387,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['p_loss_style_remd_'+str(i+1)] = self.p_loss_style_remd/4
         self.losses['p_loss_content_relt_'+str(i+1)] = self.p_loss_content_relt
 
-        if self.use_mdog==1:
-            self.losses['loss_MD_'+str(i+1)] = mxdog_content*.0125
-            self.losses['loss_CnsC_'+str(i+1)] = mxdog_content_contraint*25
-            self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*125/4
-            mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + (mxdog_style/4) * 125
-        else:
-            mxdogloss=0
+        self.losses['loss_MD_'+str(i+1)] = mxdog_content*.0125
+        self.losses['loss_CnsC_'+str(i+1)] = mxdog_content_contraint*25
+        self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*125/4
+        mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + (mxdog_style/4) * 125
+
 
         """gan loss"""
         pred_fake_p = self.nets['netD'](self.stylized)

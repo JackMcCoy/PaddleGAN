@@ -2178,8 +2178,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
                  gan_patch_weight=1.0,
                  use_mdog=0,
                  morph_cutoff=47.9,
-                 rev3_iter=10000,
-                 rev4_iter=20000):
+                 rev3_iter=3000,
+                 rev4_iter=6000):
 
         super(LapStyleRevSecondMXDOG, self).__init__()
 

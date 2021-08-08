@@ -37,7 +37,7 @@ model:
   gan_thumb_weight: 1.5
   gan_patch_weight: 2
   use_mdog: 1
-  morph_cutoff: 47.9
+  morph_cutoff: 24.44
 
 dataset:
   train:

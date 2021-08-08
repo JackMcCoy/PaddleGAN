@@ -1481,11 +1481,11 @@ class LapStyleRevSecondPatch(BaseModel):
                                                               value=g2), trainable=False)
                                                       )
 
-            self.morph_conv = paddle.nn.Conv2D(3, 3, 7, padding=1, groups=3,
+            self.morph_conv = paddle.nn.Conv2D(3, 3, 7, padding=3, groups=3,
                                                padding_mode='reflect', bias_attr=False,
                                                weight_attr=paddle.ParamAttr(
                                                    initializer=paddle.fluid.initializer.Constant(
-                                                       value=3), trainable=False)
+                                                       value=1), trainable=False)
                                                )
 
     def test_iter(self, output_dir=None,metrics=None):

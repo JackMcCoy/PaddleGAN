@@ -34,8 +34,8 @@ model:
   style_weight: 5
   ada_alpha: .19
   ada_alpha_2: .02
-  gan_thumb_weight: 1.25
-  gan_patch_weight: 1.5
+  gan_thumb_weight: 1.5
+  gan_patch_weight: 2
   use_mdog: 1
   morph_cutoff: 8.9
 

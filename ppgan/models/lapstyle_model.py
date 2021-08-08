@@ -31,7 +31,7 @@ from ..utils.filesystem import makedirs, save, load
 
 
 
-def xdog(im, g, g2,morph_conv,gamma=.99, phi=200, eps=-.1, morph_cutoff=8.85):
+def xdog(im, g, g2,morph_conv,gamma=.99, phi=200, eps=-.1, morph_cutoff=8.85,morphs=1):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
@@ -48,13 +48,15 @@ def xdog(im, g, g2,morph_conv,gamma=.99, phi=200, eps=-.1, morph_cutoff=8.85):
     imdiff -= paddle.expand_as(imdiff.min(axis=[2,3],keepdim=True),imdiff)
     immax = paddle.expand_as(imdiff.max(axis=[2,3],keepdim=True),imdiff)
     imdiff /= immax
-    morphed=morph_conv(imdiff)
-    morphed.stop_gradient=True
     mean = imdiff.mean(axis=[2,3],keepdim=True)
     mean=paddle.expand_as(mean,morphed)
-    passedlow= paddle.multiply((imdiff>= mean).astype('float32'),(morphed>= morph_cutoff).astype('float32'))
-    passed = morph_conv(passedlow)
-    passed= (passed>0).astype('float32')
+    for i in range(morphs):
+        morphed=morph_conv(imdiff)
+        morphed.stop_gradient=True
+        passedlow= paddle.multiply((imdiff>= mean).astype('float32'),(morphed>= morph_cutoff).astype('float32'))
+    for i in range(morphs):
+        passed = morph_conv(passedlow)
+        passed= (passed>0).astype('float32')
     return passed
 
 def gaussian(kernel_size, sigma,channels=3):
@@ -1763,10 +1765,10 @@ class LapStyleRevSecondPatch(BaseModel):
         self.p_loss_style_remd = 0
 
         if self.use_mdog==1:
-            cX = xdog(self.content_stack[2].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff)
+            cX = xdog(self.content_stack[2].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
             cXF = self.nets['net_enc'](cX)
             self.visual_items['cx'] = cX
-            stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff)
+            stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
             cdogF = self.nets['net_enc'](stylized_dog)
 
             mxdog_content = self.calc_content_loss(tpF['r31'], cXF['r31'])
@@ -1785,7 +1787,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                     tpF['r41'], spF['r41'])
                 if self.use_mdog==1:
-                    sX = xdog(j.detach(), self.gaussian_filter, self.gaussian_filter_2, self.morph_conv,morph_cutoff=self.morph_cutoff)
+                    sX = xdog(j.detach(), self.gaussian_filter, self.gaussian_filter_2, self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
                     sXF = self.nets['net_enc'](sX)
                     mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
                     style_counter += 1
@@ -1847,10 +1849,10 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['loss_content_p2'] = loss_content_p
 
         if self.use_mdog==1:
-            cX = xdog(self.content_stack[3].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff)
+            cX = xdog(self.content_stack[3].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
             cXF = self.nets['net_enc'](cX)
             self.visual_items['cxp'] = cX
-            stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff)
+            stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
             cdogF = self.nets['net_enc'](stylized_dog)
 
             mxdog_content = self.calc_content_loss(tpF['r31'], cXF['r31'])
@@ -1871,7 +1873,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                     tpF['r41'], spF['r41'])
                 if self.use_mdog==1:
-                    sX = xdog(j.detach(), self.gaussian_filter, self.gaussian_filter_2, self.morph_conv,morph_cutoff=self.morph_cutoff)
+                    sX = xdog(j.detach(), self.gaussian_filter, self.gaussian_filter_2, self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
                     sXF = self.nets['net_enc'](sX)
                     mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
                     style_counter+=1

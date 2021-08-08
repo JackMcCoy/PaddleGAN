@@ -559,9 +559,9 @@ class LapStyleRevFirstMXDOG(BaseModel):
         self.set_requires_grad([self.nets['net_enc']], False)
 
         # define revision-net params
-        self.nets['net_rev'] = build_generator(revnet_first_generator)
+        self.nets['net_rev'] = build_generator(revnet_generator)
         init_weights(self.nets['net_rev'])
-        self.nets['netD'] = build_discriminator(revnet_discriminator)
+        self.nets['netD'] = build_discriminator(revnet_first_discriminator)
         init_weights(self.nets['netD'])
 
         # define loss functions

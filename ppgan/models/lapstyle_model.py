@@ -1785,18 +1785,18 @@ class LapStyleRevSecondPatch(BaseModel):
                     sX = xdog(j.detach(), self.gaussian_filter, self.gaussian_filter_2, self.morph_conv,morph_cutoff=48)
                     sXF = self.nets['net_enc'](sX)
                     mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
-        self.losses['loss_ps'] = self.loss_ps
+        self.losses['loss_ps'] = self.loss_ps/4
         self.p_loss_content_relt = self.calc_content_relt_loss(
             tpF['r31'], cF['r31']) + self.calc_content_relt_loss(
             tpF['r41'], cF['r41'])
         self.p_loss_style_remd = paddle.clip(self.p_loss_style_remd, 1e-5, 1e5)
         self.p_loss_content_relt = paddle.clip(self.p_loss_content_relt, 1e-5, 1e5)
-        self.losses['p_loss_style_remd'] = self.p_loss_style_remd
+        self.losses['p_loss_style_remd'] = self.p_loss_style_remd/4
         self.losses['p_loss_content_relt'] = self.p_loss_content_relt
 
         if self.use_mdog==1:
-            self.losses['loss_MD_p'] = mxdog_content*.05
-            self.losses['loss_CnsC_p'] = mxdog_content_contraint*100
+            self.losses['loss_MD_p'] = mxdog_content*.0125
+            self.losses['loss_CnsC_p'] = mxdog_content_contraint*25
             self.losses['loss_CnsS_p'] = mxdog_style*125/4
             mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + (mxdog_style/4) * 125
         else:
@@ -1871,13 +1871,13 @@ class LapStyleRevSecondPatch(BaseModel):
                     style_counter+=1
                     if style_counter==4:
                         self.visual_items['sxp']=sX
-        self.losses['loss_ps2'] = loss_ps
+        self.losses['loss_ps2'] = loss_ps/4
         p_loss_content_relt = self.calc_content_relt_loss(
             tpF['r31'], cF['r31']) + self.calc_content_relt_loss(
             tpF['r41'], cF['r41'])
         p_loss_style_remd = paddle.clip(p_loss_style_remd, 1e-5, 1e5)
         p_loss_content_relt = paddle.clip(p_loss_content_relt, 1e-5, 1e5)
-        self.losses['p_loss_style_remd2'] = self.p_loss_style_remd
+        self.losses['p_loss_style_remd2'] = self.p_loss_style_remd/4
         self.losses['p_loss_content_relt2'] = self.p_loss_content_relt
 
         """gan loss"""
@@ -1886,8 +1886,8 @@ class LapStyleRevSecondPatch(BaseModel):
         self.losses['loss_gan_Gp2'] = loss_Gp_GAN
 
         if self.use_mdog==1:
-            self.losses['loss_MD_p2'] = mxdog_content*.05
-            self.losses['loss_CnsC_p2'] = mxdog_content_contraint*100
+            self.losses['loss_MD_p2'] = mxdog_content*.0125
+            self.losses['loss_CnsC_p2'] = mxdog_content_contraint*25
             self.losses['loss_CnsS_p2'] = mxdog_style*125/4
             mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + (mxdog_style/4) * 125
         else:
@@ -1917,7 +1917,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.loss_D_patch.backward()
 
         self.losses['D_fake_loss'] = self.loss_Dp_fake
-        self.losses['D_real_loss'] = pred_Dp_real
+        self.losses['D_real_loss'] = pred_Dp_real/4
 
     def backward_Dpatch(self):
         """Calculate GAN loss for the discriminator"""
@@ -1935,7 +1935,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.loss_D_patch.backward()
 
         self.losses['Dp_fake_loss'] = self.loss_Dp_fake
-        self.losses['Dp_real_loss'] = pred_Dp_real
+        self.losses['Dp_real_loss'] = pred_Dp_real/4
 
     def train_iter(self, optimizers=None):
         # compute fake images: G(A)

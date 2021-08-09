@@ -2360,7 +2360,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         mxdog_style=0
         style_counter=0
-        reshaped = F.interpolate(paddle.split(self.style_stack[i], 2, 2),size=(512,512))
+        reshaped = paddle.split(F.interpolate(self.style_stack[i],size=(512,512)), 2, 2)
         for k in reshaped:
             for j in paddle.split(k, 2, 3):
                 spF = self.nets['net_enc'](j.detach())

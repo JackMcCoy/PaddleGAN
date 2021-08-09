@@ -2374,7 +2374,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             sX = paddle.slice(self.sX,axes=[2,3],starts=[self.positions[j][1].astype('int32'),self.positions[j][0].astype('int32')],ends=[self.positions[j][3].astype('int32'),self.positions[j][2].astype('int32')])
         cX = F.interpolate(cX,size=(256,256))
         cXF = self.nets['net_enc'](cX.detach())
-        stylized_dog = xdog(self.stylized[i],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
+        stylized_dog = xdog(self.stylized[i],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv_2,morph_cutoff=76,morphs=1)
         cdogF = self.nets['net_enc'](stylized_dog)
         reshaped = paddle.split(F.interpolate(sX,size=(512,512)), 2, 2)
         for k in reshaped:

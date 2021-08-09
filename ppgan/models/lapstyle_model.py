@@ -2386,11 +2386,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
             reshaped_cx = paddle.slice(cX,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
         if not reshaped.shape[-1]==512:
             reshaped = F.interpolate(reshaped,size=(512,512))
-            reshaped_cx = F.interpolate(cX,size=(512,512))
+            reshaped_sx = F.interpolate(sX,size=(512,512))
         reshaped = paddle.split(reshaped, 2, 2)
-        reshaped_cx = paddle.split(reshaped_cx,2,2)
+        reshaped_sx = paddle.split(reshaped_sx,2,2)
         for idx,k in enumerate(reshaped):
-            split_cx = paddle.split(reshaped_cx[idx],2)
+            split_sx = paddle.split(reshaped_sx[idx],2)
             for itx,j in enumerate(paddle.split(k, 2, 3)):
                 spF = self.nets['net_enc'](j.detach())
                 for layer in self.content_layers:
@@ -2399,7 +2399,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 self.p_loss_style_remd += self.calc_style_emd_loss(
                     tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                     tpF['r41'], spF['r41'])
-                sXF = self.nets['net_enc'](split_cx[itx])
+                sXF = self.nets['net_enc'](split_sx[itx])
                 mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
                 style_counter += 1
                 if style_counter==4:

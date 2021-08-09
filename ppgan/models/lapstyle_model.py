@@ -2159,9 +2159,9 @@ class LapStyleRevSecondPatch(BaseModel):
 class LapStyleRevSecondMXDOG(BaseModel):
     def __init__(self,
                  revnet_generator,
-                 revnet_discriminator,
-                 revnet_discriminator2,
-                 revnet_discriminator3,
+                 revnet_discriminator_1,
+                 revnet_discriminator_2,
+                 revnet_discriminator_3,
                  draftnet_encode,
                  draftnet_decode,
                  revnet_deep_generator,
@@ -2199,11 +2199,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # define the second revnet params
         self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
         init_weights(self.nets['net_rev_2'])
-        self.nets['netD_1'] = build_discriminator(revnet_discriminator)
+        self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
         init_weights(self.nets['netD_1'])
-        self.nets['netD_2'] = build_discriminator(revnet_discriminator2)
+        self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
         init_weights(self.nets['netD_2'])
-        self.nets['netD_3'] = build_discriminator(revnet_discriminator2)
+        self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
         init_weights(self.nets['netD_3'])
         self.discriminators=[self.nets['netD_1'],self.nets['netD_2'],self.nets['netD_3']]
 

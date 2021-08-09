@@ -2360,9 +2360,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
         if type(self.cX)==bool:
             self.cX = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv_2,morph_cutoff=76,morphs=1)
             self.sX = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
-        else:
-            cX = self.cX
-            sX = self.sX
+        cX = self.cX
+        sX = self.sX
         for j in range(i+1):
             sX = paddle.slice(self.cX,axes=[2,3],starts=[self.positions[j][1].astype('int32'),self.positions[j][0].astype('int32')],ends=[self.positions[j][3].astype('int32'),self.positions[j][2].astype('int32')])
             if i>0:

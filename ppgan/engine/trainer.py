@@ -284,7 +284,7 @@ class Trainer:
         message += f'lr: {self.current_learning_rate:.3e} '
 
         for k, v in losses.items():
-            message += '%s: %.2E ' % (k, Decimal(v.value()))
+            message += '%s: %.2E ' % (k, Decimal(v.numpy().value))
             if self.enable_visualdl:
                 self.vdl_logger.add_scalar(k, v, step=self.global_steps)
 

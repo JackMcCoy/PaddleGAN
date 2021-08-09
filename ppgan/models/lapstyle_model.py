@@ -2379,7 +2379,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         mxdog_content_contraint = self.calc_content_loss(cdogF['r31'], cXF['r31'])
 
         reshaped = self.style_stack[1]
-        for j in len(i):
+        for j in range(i):
             k = random_crop_coords(reshaped.shape[-1])
             reshaped=paddle.slice(reshaped,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
         if not reshaped.shape[-1]==512:

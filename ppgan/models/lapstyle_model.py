@@ -2261,7 +2261,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.iters+=1
         if self.is_train:
             self.content_stack = []
-            self.style_stack = [paddle.to_tensor(input['style_stack_1']),paddle.to_tensor(input['style_stack_2']),paddle.to_tensor(input['style_stack_3'])]
+            self.style_stack = [paddle.to_tensor(input['style_stack_1']),paddle.to_tensor(input['style_stack_2']),paddle.to_tensor(input['style_stack_3']),paddle.to_tensor(input['style_stack_4'])]
             self.laplacians=[]
             for i in range(1,6):
                 if 'content_stack_'+str(i) in input:

@@ -2443,7 +2443,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss_D_patch = (loss_Dp_fake + pred_Dp_real/4) * 0.5
         self.losses['Dp_fake_loss_'+str(i)] = loss_Dp_fake
         self.losses['Dp_real_loss_'+str(i)] = pred_Dp_real/4
-        self.loss_D_patch.backward()
+        return self.loss_D_patch
 
 
     def train_iter(self, optimizers=None):
@@ -2456,10 +2456,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.forward()
         # update D
         self.set_requires_grad(self.nets['netD_multi'], True)
+        loss_d=0
+        optimizers['optimD'].clear_grad()
         for i in range(loops+1):
-            optimizers['optimD'].clear_grad()
-            self.backward_D(i)
-            optimizers['optimD'].step()
+            loss_d+=self.backward_D(i)
+        loss_d.backwards()
+        optimizers['optimD'].step()
 
         # update G
         self.set_requires_grad(self.nets['netD_multi'], False)

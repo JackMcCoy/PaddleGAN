@@ -2382,6 +2382,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 sXF = self.nets['net_enc'](j)
                 mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
                 style_counter += 1
+                if style_counter==4:
+                    self.visual_items['sX_'+str(i)]=j
         mxdog_content = self.calc_content_loss(tpF['r31'], cXF['r31'])
         mxdog_content_contraint = self.calc_content_loss(cdogF['r31'], cXF['r31'])
 

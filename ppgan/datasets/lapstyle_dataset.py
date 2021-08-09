@@ -385,6 +385,7 @@ class MultiPatchSet(Dataset):
         for idx,i in enumerate(style_stack):
             output['style_stack_'+str(idx+1)]=i
         output['position_stack']=position_stack
+        output['content']=content_img
         output['size_stack']=size_stack
         return output
 

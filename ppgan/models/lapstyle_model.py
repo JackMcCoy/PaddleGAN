@@ -2262,6 +2262,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                     self.content_stack.append(paddle.to_tensor(input['content_stack_'+str(i)]))
             self.visual_items['ci'] = self.content_stack[0]
 
+            self.content=input['content']
             self.positions = input['position_stack']
             self.size_stack = input['size_stack']
             self.laplacians.append(laplacian_conv(self.content_stack[0],self.lap_filter).detach())
@@ -2346,7 +2347,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         self.loss_ps = 0
         self.p_loss_style_remd = 0
-        self.cX = xdog(self.content_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
+        self.cX = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
         for j in range(i+1):
             self.cX = crop_upsized(self.cX,self.positions[j],self.size_stack[j])
         self.cX = F.interpolate(self.cX,size=(256,256))

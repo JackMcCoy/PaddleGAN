@@ -16,7 +16,7 @@ model:
   draftnet_decode:
     name: DecoderNetDeep
   revnet_deep_generator:
-    name: RevisionNetThumb
+    name: RevisionNetDeepThumb
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:
@@ -88,7 +88,7 @@ validate:
 
 log_config:
   interval: 10
-  visiual_interval: 50
+  visiual_interval: 150
 
 snapshot_config:
-  interval: 1000
+  interval: 1500

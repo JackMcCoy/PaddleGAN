@@ -2276,6 +2276,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.laplacians.append(laplacian_conv(self.content_stack[2],self.lap_filter).detach())
             self.laplacians.append(laplacian_conv(self.content_stack[3],self.lap_filter).detach())
             self.cX = False
+            self.sX = False
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
@@ -2354,20 +2355,30 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         self.loss_ps = 0
         self.p_loss_style_remd = 0
+        mxdog_style=0
+        style_counter=0
         if type(self.cX)==bool:
             self.cX = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv_2,morph_cutoff=76,morphs=1)
+            self.sX = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
+        else:
+            cX = self.cX
+            sX = self.sX
         for j in range(i+1):
             cX = paddle.slice(self.cX,axes=[2,3],starts=[self.positions[j][1].astype('int32'),self.positions[j][0].astype('int32')],ends=[self.positions[j][3].astype('int32'),self.positions[j][2].astype('int32')])
+            sX = paddle.slice(self.sX,axes=[2,3],stars=[self.positions[j][1].astype('int32')*2,self.positions[j][0].astype('int32')*2],ends=[self.positions[j][3].astype('int32')*2,self.positions[j][2].astype('int32')*2])
         cX = F.interpolate(cX,size=(256,256))
         cXF = self.nets['net_enc'](cX.detach())
         stylized_dog = xdog(self.stylized[i],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
         cdogF = self.nets['net_enc'](stylized_dog)
-
+        reshaped = paddle.split(F.interpolate(sX,size=(512,512)), 2, 2)
+        for k in reshaped:
+            for j in paddle.split(k, 2, 3):
+                sXF = self.nets['net_enc'](j)
+                mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
+                style_counter += 1
         mxdog_content = self.calc_content_loss(tpF['r31'], cXF['r31'])
         mxdog_content_contraint = self.calc_content_loss(cdogF['r31'], cXF['r31'])
 
-        mxdog_style=0
-        style_counter=0
         reshaped = paddle.split(F.interpolate(self.style_stack[i],size=(512,512)), 2, 2)
         for k in reshaped:
             for j in paddle.split(k, 2, 3):
@@ -2378,10 +2389,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 self.p_loss_style_remd += self.calc_style_emd_loss(
                     tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                     tpF['r41'], spF['r41'])
-                sX = xdog(j.detach(), self.gaussian_filter, self.gaussian_filter_2, self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
-                sXF = self.nets['net_enc'](sX)
-                mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
-                style_counter += 1
         self.losses['loss_ps_'+str(i+1)] = self.loss_ps/4
         self.p_loss_content_relt = self.calc_content_relt_loss(
             tpF['r31'], cF['r31']) + self.calc_content_relt_loss(

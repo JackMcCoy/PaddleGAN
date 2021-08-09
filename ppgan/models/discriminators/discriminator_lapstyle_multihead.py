@@ -19,9 +19,8 @@ import paddle.nn.functional as F
 from .builder import DISCRIMINATORS
 
 class LapStyleSingleDiscriminator(nn.Layer):
-    def __init__(self, num_channels=32,dropout_rate=.5):
+    def __init__(self, num_channels=32,dropout_rate=.5,num_layer=3):
         super(LapStyleSingleDiscriminator, self).__init__()
-        num_layer = 3
         num_channel = num_channels
         self.head = nn.Sequential(
             ('conv',
@@ -61,7 +60,7 @@ class LapStyleMultiresDiscriminator(nn.Layer):
         self.output_resolutions=[]
         for i in range(num_halvings):
             if i>0:
-                net=LapStyleSingleDiscriminator(num_channels=int(num_channels/(2*i)))
+                net=LapStyleSingleDiscriminator(num_channels=int(num_channels/(2*i)),num_layer=i+1*3)
             else:
                 net=LapStyleSingleDiscriminator(num_channels=num_channels)
             resolutions.append(net)

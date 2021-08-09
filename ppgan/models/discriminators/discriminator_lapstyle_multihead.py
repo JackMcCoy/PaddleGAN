@@ -58,7 +58,7 @@ class LapStyleMultiresDiscriminator(nn.Layer):
         num_layer = 3
         self.resolutions=[]
         self.output_resolutions=[]
-        for i in range(num_halvings):
+        for i in range(num_halvings+1):
             if i>0:
                 net=LapStyleSingleDiscriminator(num_channels=int(num_channels/(2*i)),num_layer=i+1*3)
                 print(type(net))

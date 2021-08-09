@@ -2269,7 +2269,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.visual_items['ci'] = self.content_stack[0]
 
             self.content=input['content']
-            self.style=input['style']
             self.positions = input['position_stack']
             self.size_stack = input['size_stack']
             self.laplacians.append(laplacian_conv(self.content_stack[0],self.lap_filter).detach())

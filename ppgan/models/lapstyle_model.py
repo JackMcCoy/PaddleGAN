@@ -2386,7 +2386,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             reshaped_cx = paddle.slice(cX,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
         if not reshaped.shape[-1]==512:
             reshaped = F.interpolate(reshaped,size=(512,512))
-            reshaped_cx = F.interpolate(reshaped_cx,size=(512,512))
+            reshaped_cx = F.interpolate(cX,size=(512,512))
         reshaped = paddle.split(reshaped, 2, 2)
         reshaped_cx = paddle.split(reshaped_cx,2,2)
         for idx,k in enumerate(reshaped):

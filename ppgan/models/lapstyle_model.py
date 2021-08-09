@@ -2414,16 +2414,16 @@ class LapStyleRevSecondMXDOG(BaseModel):
     def backward_D(self,i):
         """Calculate GAN loss for the discriminator"""
         pred_p_fake = self.nets['netD'](self.stylized[i].detach())
-        self.loss_Dp_fake = paddle.clip(self.gan_criterion(pred_p_fake, False), 1e-5, 1e5)
+        loss_Dp_fake = paddle.clip(self.gan_criterion(pred_p_fake, False), 1e-5, 1e5)
 
         pred_Dp_real = 0
         reshaped = paddle.split(self.style_stack[i+1], 2, 2)
         for i in reshaped:
             for j in paddle.split(i, 2, 3):
-                self.loss_Dp_real = self.nets['netD'](j.detach())
-                pred_Dp_real += paddle.clip(self.gan_criterion(self.loss_Dp_real, True), 1e-5, 1e5)
-        self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real/4) * 0.5
-        self.losses['Dp_fake_loss_'+str(i)] = self.loss_Dp_fake
+                loss_Dp_real = self.nets['netD'](j.detach())
+                pred_Dp_real += paddle.clip(self.gan_criterion(loss_Dp_real, True), 1e-5, 1e5)
+        self.loss_D_patch = (loss_Dp_fake + pred_Dp_real/4) * 0.5
+        self.losses['Dp_fake_loss_'+str(i)] = loss_Dp_fake
         self.losses['Dp_real_loss_'+str(i)] = pred_Dp_real
         self.loss_D_patch.backward()
 

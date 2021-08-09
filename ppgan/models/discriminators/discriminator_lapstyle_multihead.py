@@ -18,6 +18,7 @@ import paddle.nn.functional as F
 
 from .builder import DISCRIMINATORS
 
+@DISCRIMINATORS.register()
 class LapStyleSingleDiscriminator(nn.Layer):
     def __init__(self, num_channels=32,dropout_rate=.5,num_layer=3):
         super(LapStyleSingleDiscriminator, self).__init__()

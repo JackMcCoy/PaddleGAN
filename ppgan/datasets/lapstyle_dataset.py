@@ -390,6 +390,7 @@ class MultiPatchSet(Dataset):
             output['style_stack_'+str(idx+1)]=i
         output['position_stack']=position_stack
         output['content']=self.img(np.array(content_img))
+        output['style']=self.img(np.array(style_img))
         output['size_stack']=size_stack
         return output
 

@@ -2269,6 +2269,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.visual_items['ci'] = self.content_stack[0]
 
             self.content=input['content']
+            self.style=input['style']
             self.positions = input['position_stack']
             self.size_stack = input['size_stack']
             self.laplacians.append(laplacian_conv(self.content_stack[0],self.lap_filter).detach())
@@ -2359,13 +2360,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
         style_counter=0
         if type(self.cX)==bool:
             self.cX = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv_2,morph_cutoff=76,morphs=1)
-            self.sX = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
+            self.sX = xdog(self.style.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
         cX = self.cX
         sX = self.sX
         for j in range(i+1):
-            sX = paddle.slice(sX,axes=[2,3],starts=[self.positions[j][1].astype('int32'),self.positions[j][0].astype('int32')],ends=[self.positions[j][3].astype('int32'),self.positions[j][2].astype('int32')])
-            if i>0:
-                sX = paddle.slice(sX,axes=[2,3],starts=[self.positions[j-i][1].astype('int32')*2,self.positions[j-1][0].astype('int32')*2],ends=[self.positions[j-1][3].astype('int32')*2,self.positions[j-1][2].astype('int32')*2])
+            cX = paddle.slice(self.cX,axes=[2,3],starts=[self.positions[j][1].astype('int32'),self.positions[j][0].astype('int32')],ends=[self.positions[j][3].astype('int32'),self.positions[j][2].astype('int32')])
+            sX = paddle.slice(self.sX,axes=[2,3],starts=[self.positions[j][1].astype('int32'),self.positions[j][0].astype('int32')],ends=[self.positions[j][3].astype('int32'),self.positions[j][2].astype('int32')])
         cX = F.interpolate(cX,size=(256,256))
         cXF = self.nets['net_enc'](cX.detach())
         stylized_dog = xdog(self.stylized[i],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)

@@ -2307,7 +2307,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         if self.iters>=self.rev3_iter:
             stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
             stylized_up = crop_upsized(stylized_up,self.positions[1],self.size_stack[1])
-            self.patches_in.append(stylized_up.detach())
+            self.patches_in.append(stylized_up)
 
             revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up.detach()], axis=1)
             stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha_2)
@@ -2319,7 +2319,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         if self.iters>=self.rev4_iter:
             stylized_up = F.interpolate(stylized_rev_patch, scale_factor=2)
             stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
-            self.patches_in.append(stylized_up.detach())
+            self.patches_in.append(stylized_up)
 
             revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up.detach()], axis=1)
             stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha_2)

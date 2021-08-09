@@ -2418,8 +2418,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         pred_Dp_real = 0
         reshaped = paddle.split(self.style_stack[i+1], 2, 2)
-        for i in reshaped:
-            for j in paddle.split(i, 2, 3):
+        for k in reshaped:
+            for j in paddle.split(k, 2, 3):
                 loss_Dp_real = self.nets['netD'](j.detach())
                 pred_Dp_real += paddle.clip(self.gan_criterion(loss_Dp_real, True), 1e-5, 1e5)
         self.loss_D_patch = (loss_Dp_fake + pred_Dp_real/4) * 0.5

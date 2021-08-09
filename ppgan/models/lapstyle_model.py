@@ -2346,13 +2346,10 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         self.loss_ps = 0
         self.p_loss_style_remd = 0
-        if i ==0:
-            self.cX = xdog(self.content_stack[i+1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
-        else:
-            self.cX = xdog(self.content_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
-            for j in range(i):
-                self.cX = crop_upsized(self.cX,self.positions[j],self.size_stack[j])
-            self.cX = F.interpolate(self.cX,size=(256,256))
+        self.cX = xdog(self.content_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
+        for j in range(i+i):
+            self.cX = crop_upsized(self.cX,self.positions[j],self.size_stack[j])
+        self.cX = F.interpolate(self.cX,size=(256,256))
         cXF = self.nets['net_enc'](self.cX)
         self.visual_items['cx_'+str(i+1)] = self.cX
         stylized_dog = xdog(self.stylized[i],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)

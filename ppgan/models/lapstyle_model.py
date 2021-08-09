@@ -2197,8 +2197,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # define the second revnet params
         self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
         init_weights(self.nets['net_rev_2'])
-        self.nets['netD'] = build_discriminator(revnet_discriminator)
-        init_weights(self.nets['netD'])
+        self.nets['netD_multi'] = build_discriminator(revnet_discriminator)
+        init_weights(self.nets['netD_multi'])
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2405,8 +2405,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
 
         """gan loss"""
-        pred_fake_p = self.nets['netD'](self.stylized[i])
-        self.loss_Gp_GAN = paddle.clip(self.gan_criterion(pred_fake_p, True), 1e-5, 1e5)
+        pred_fake_p = self.nets['netD_multi'](self.stylized[i],i)
+        self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 
 
@@ -2420,14 +2420,14 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
     def backward_D(self,i):
         """Calculate GAN loss for the discriminator"""
-        pred_p_fake = self.nets['netD'](self.stylized[i].detach())
+        pred_p_fake = self.nets['netD_multi'](self.stylized[i].detach(),i)
         loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
         pred_Dp_real = 0
         reshaped = paddle.split(self.style_stack[i+1], 2, 2)
         for k in reshaped:
             for j in paddle.split(k, 2, 3):
-                loss_Dp_real = self.nets['netD'](j.detach())
+                loss_Dp_real = self.nets['netD_multi'](j.detach(),i)
                 pred_Dp_real += self.gan_criterion(loss_Dp_real, True)
         self.loss_D_patch = (loss_Dp_fake + pred_Dp_real/4) * 0.5
         self.losses['Dp_fake_loss_'+str(i)] = loss_Dp_fake
@@ -2444,14 +2444,14 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        self.set_requires_grad(self.nets['netD'], True)
+        self.set_requires_grad(self.nets['netD_multi'], True)
         for i in range(loops+1):
             optimizers['optimD'].clear_grad()
             self.backward_D(i)
             optimizers['optimD'].step()
 
         # update G
-        self.set_requires_grad(self.nets['netD'], False)
+        self.set_requires_grad(self.nets['netD_multi'], False)
         for i in range(loops+1):
             optimizers['optimG'].clear_grad()
             self.backward_G(i)

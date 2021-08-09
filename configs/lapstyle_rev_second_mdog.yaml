@@ -9,8 +9,9 @@ model:
   revnet_generator:
     name: RevisionNet
   revnet_discriminator:
-    name: LapStyleDiscriminator
-    num_channels: 16
+    name: LapStyleMultiresDiscriminator
+    num_channels: 64
+    num_halvings: 2
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -78,7 +79,7 @@ optimizer:
   optimD:
     name: Adam
     net_names:
-      - netD
+      - netD_multi
     beta1: 0.9
     beta2: 0.999
 
@@ -88,7 +89,7 @@ validate:
 
 log_config:
   interval: 10
-  visiual_interval: 150
+  visiual_interval: 50
 
 snapshot_config:
-  interval: 1500
+  interval: 1000

@@ -59,7 +59,6 @@ class LapStyleMultiresDiscriminator(nn.Layer):
         num_layer = 3
         resolutions=[]
         self.output_resolutions=[]
-        num_channel = num_channels
         for i in range(num_halvings):
             if i>0:
                 net=LapStyleSingleDiscriminator(num_channels=int(num_channels/(2*i)))
@@ -68,12 +67,6 @@ class LapStyleMultiresDiscriminator(nn.Layer):
             resolutions.append(net)
         self.resolutions = nn.LayerList(resolutions)
 
-    def forward(self, x):
-        self.output_resolutions = []
-        for reso in self.resolutions:
-            self.output_resolutions.append(reso(x))
-        #x = paddle.transpose(paddle.to_tensor(self.output_resolutions),(1,2,0,3,4))
-        x = self.output_resolutions[0]
-        for i in self.output_resolutions[1:]:
-            x+=i
-        return x
+    def forward(self, x,i):
+        out = self.resolutions[i](x)
+        return out

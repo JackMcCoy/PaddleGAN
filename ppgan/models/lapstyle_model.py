@@ -2321,7 +2321,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.stylized.append(stylized_rev_patch_second)
 
     def backward_G(self,i):
-        cF = self.nets['net_enc'](self.content_stack[i+1])
+        cF = self.nets['net_enc'](self.content_stack[i])
 
         with paddle.no_grad():
             tt_cropF = self.nets['net_enc'](self.patches_in[i])
@@ -2360,7 +2360,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         mxdog_style=0
         style_counter=0
-        reshaped = paddle.split(self.style_stack[2], 2, 2)
+        reshaped = paddle.split(self.style_stack[i], 2, 2)
         for k in reshaped:
             for j in paddle.split(k, 2, 3):
                 spF = self.nets['net_enc'](j.detach())

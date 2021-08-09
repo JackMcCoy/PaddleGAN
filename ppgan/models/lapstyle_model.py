@@ -2379,7 +2379,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         mxdog_content = self.calc_content_loss(tpF['r31'], cXF['r31'])
         mxdog_content_contraint = self.calc_content_loss(cdogF['r31'], cXF['r31'])
 
-        reshaped = paddle.split(F.interpolate(self.style_stack[i],size=(512,512)), 2, 2)
+        reshaped = paddle.split(F.interpolate(self.style_stack[-i+1],size=(512,512)), 2, 2)
         for k in reshaped:
             for j in paddle.split(k, 2, 3):
                 spF = self.nets['net_enc'](j.detach())
@@ -2424,7 +2424,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
         pred_Dp_real = 0
-        reshaped = paddle.split(self.style_stack[i+1], 2, 2)
+        reshaped = paddle.split(self.style_stack[-i+1], 2, 2)
         for k in reshaped:
             for j in paddle.split(k, 2, 3):
                 loss_Dp_real = self.nets['netD_multi'](j.detach(),i)

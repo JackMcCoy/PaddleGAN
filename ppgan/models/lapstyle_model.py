@@ -2456,10 +2456,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.forward()
         # update D
         self.set_requires_grad(self.nets['netD_multi'], True)
-        loss_d=0
+        loss_d=[]
         optimizers['optimD'].clear_grad()
         for i in range(loops+1):
-            loss_d+=self.backward_D(i)
+            loss_d.append(self.backward_D(i))
+        loss_d = loss_d[0]+loss_d[1]+loss_d[2]
         loss_d.backwards()
         optimizers['optimD'].step()
 

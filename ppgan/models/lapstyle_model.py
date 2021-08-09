@@ -2364,7 +2364,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             cX = self.cX
             sX = self.sX
         for j in range(i+1):
-            cX = paddle.slice(self.cX,axes=[2,3],starts=[self.positions[j][1].astype('int32'),self.positions[j][0].astype('int32')],ends=[self.positions[j][3].astype('int32'),self.positions[j][2].astype('int32')])
+            sX = paddle.slice(self.cX,axes=[2,3],starts=[self.positions[j][1].astype('int32'),self.positions[j][0].astype('int32')],ends=[self.positions[j][3].astype('int32'),self.positions[j][2].astype('int32')])
             if i>0:
                 sX = paddle.slice(self.sX,axes=[2,3],starts=[self.positions[j-i][1].astype('int32')*2,self.positions[j-1][0].astype('int32')*2],ends=[self.positions[j-1][3].astype('int32')*2,self.positions[j-1][2].astype('int32')*2])
         cX = F.interpolate(cX,size=(256,256))

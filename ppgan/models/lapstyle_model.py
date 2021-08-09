@@ -2383,7 +2383,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             k = random_crop_coords(reshaped.shape[-1])
             reshaped=paddle.slice(stylized_up.detach(),axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
         if not reshaped.shape[-1]==512:
-            reshaped = F.interpolate(size=(512,512))
+            reshaped = F.interpolate(reshaped,size=(512,512))
         reshaped = paddle.split(reshaped, 2, 2)
         for k in reshaped:
             for j in paddle.split(k, 2, 3):
@@ -2434,7 +2434,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             k = random_crop_coords(reshaped.shape[-1])
             reshaped=paddle.slice(stylized_up.detach(),axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
         if not reshaped.shape[-1]==512:
-            reshaped = F.interpolate(size=(512,512))
+            reshaped = F.interpolate(reshaped,size=(512,512))
         reshaped = paddle.split(reshaped, 2, 2)
         print(self.style_stack[-i+1].shape)
         for k in reshaped:

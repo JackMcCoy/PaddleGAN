@@ -2179,7 +2179,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                  use_mdog=0,
                  morph_cutoff=47.9,
                  rev3_iter=0,
-                 rev4_iter=3000):
+                 rev4_iter=0):
 
         super(LapStyleRevSecondMXDOG, self).__init__()
 

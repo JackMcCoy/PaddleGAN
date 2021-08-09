@@ -2353,7 +2353,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         self.loss_ps = 0
         self.p_loss_style_remd = 0
-        self.cX = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=3)
+        self.cX = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv_2,morph_cutoff=24.9,morphs=2)
         for j in range(i+1):
             self.cX = paddle.slice(self.cX,axes=[2,3],starts=[self.positions[j][1].astype('int32'),self.positions[j][0].astype('int32')],ends=[self.positions[j][3].astype('int32'),self.positions[j][2].astype('int32')])
         self.cX = F.interpolate(self.cX,size=(256,256))

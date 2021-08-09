@@ -2423,7 +2423,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 self.loss_Dp_real = self.nets['netD'](j.detach())
                 pred_Dp_real += paddle.clip(self.gan_criterion(self.loss_Dp_real, True), 1e-5, 1e5)
         self.loss_D_patch = (self.loss_Dp_fake + pred_Dp_real/4) * 0.5
-
+        self.losses['Dp_fake_loss'] = self.loss_Dp_fake
+        self.losses['Dp_real_loss'] = pred_Dp_real
         self.loss_D_patch.backward()
 
 

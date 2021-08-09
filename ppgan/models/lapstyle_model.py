@@ -2243,7 +2243,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                                                           value=g2), trainable=False)
                                                   )
 
-        self.morph_conv = paddle.nn.Conv2D(3, 3, 3, padding=1, groups=3,
+        self.morph_conv = paddle.nn.Conv2D(3, 3, 7, padding=4, groups=3,
                                            padding_mode='reflect', bias_attr=False,
                                            weight_attr=paddle.ParamAttr(
                                                initializer=paddle.fluid.initializer.Constant(

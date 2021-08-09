@@ -2275,6 +2275,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.laplacians.append(laplacian_conv(self.content_stack[1],self.lap_filter).detach())
             self.laplacians.append(laplacian_conv(self.content_stack[2],self.lap_filter).detach())
             self.laplacians.append(laplacian_conv(self.content_stack[3],self.lap_filter).detach())
+            self.cX = False
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
@@ -2353,12 +2354,13 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         self.loss_ps = 0
         self.p_loss_style_remd = 0
-        self.cX = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv_2,morph_cutoff=80,morphs=1)
+        if type(self.cX)==bool:
+            self.cX = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv_2,morph_cutoff=80,morphs=1)
         for j in range(i+1):
-            self.cX = paddle.slice(self.cX,axes=[2,3],starts=[self.positions[j][1].astype('int32'),self.positions[j][0].astype('int32')],ends=[self.positions[j][3].astype('int32'),self.positions[j][2].astype('int32')])
-        self.cX = F.interpolate(self.cX,size=(256,256))
-        cXF = self.nets['net_enc'](self.cX)
-        self.visual_items['cx_'+str(i+1)] = self.cX
+            cX = paddle.slice(self.cX,axes=[2,3],starts=[self.positions[j][1].astype('int32'),self.positions[j][0].astype('int32')],ends=[self.positions[j][3].astype('int32'),self.positions[j][2].astype('int32')])
+        cX = F.interpolate(cX,size=(256,256))
+        cXF = self.nets['net_enc'](cX)
+        self.visual_items['cx_'+str(i+1)] = cX
         stylized_dog = xdog(self.stylized[i],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
         cdogF = self.nets['net_enc'](stylized_dog)
 

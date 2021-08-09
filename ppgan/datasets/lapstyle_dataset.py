@@ -373,13 +373,12 @@ class MultiPatchSet(Dataset):
 
         style_stack.append(self.img(np.array(style_img.resize((self.crop_size*2,self.crop_size*2)))))
 
-        pos=get_crop_bounds(self.crop_size*4,style_img.width,style_img.height)
-        style_patch = np.array(style_img.crop(box=(pos[0],pos[1],pos[2],pos[3])).resize((self.crop_size*2,self.crop_size*2)))
-        style_stack.append(self.img(np.array(self.transform_patch(style_patch))))
-
-        style_patch = style_img
         pos=get_crop_bounds(self.crop_size*2,style_img.width,style_img.height)
-        style_patch = style_img.crop(box=(pos[0],pos[1],pos[2],pos[3]))
+        style_patch = np.array(style_img.crop(box=(pos[0],pos[1],pos[2],pos[3])).resize((self.crop_size*2,self.crop_size*2)))
+        style_stack.append(self.img(style_patch))
+
+        pos=get_crop_bounds(self.crop_size*4,style_img.width,style_img.height)
+        style_patch = style_img.crop(box=(pos[0],pos[1],pos[2],pos[3])).resize((self.crop_size*2,self.crop_size*2))
         style_stack.append(self.img(np.array(style_patch)))
         output = {}
         for idx,i in enumerate(content_stack):

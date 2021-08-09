@@ -15,6 +15,7 @@
 import os
 import time
 import copy
+from decimal import Decimal
 
 import logging
 import datetime
@@ -283,7 +284,7 @@ class Trainer:
         message += f'lr: {self.current_learning_rate:.3e} '
 
         for k, v in losses.items():
-            message += '%s: %.3f ' % (k, v)
+            message += '%s: %.2E ' % (k, Decimal(v))
             if self.enable_visualdl:
                 self.vdl_logger.add_scalar(k, v, step=self.global_steps)
 

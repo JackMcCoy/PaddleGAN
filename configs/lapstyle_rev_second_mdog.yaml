@@ -8,10 +8,18 @@ model:
   name: LapStyleRevSecondMXDOG
   revnet_generator:
     name: RevisionNet
-  revnet_discriminator:
-    name: LapStyleMultiresDiscriminator
+  revnet_discriminator_1:
+    name: LapStyleSingleDiscriminator
     num_channels: 64
-    num_halvings: 2
+    num_layer: 3
+  revnet_discriminator_2:
+    name: LapStyleSingleDiscriminator
+    num_channels: 32
+    num_layer: 6
+  revnet_discriminator_3:
+    name: LapStyleSingleDiscriminator
+    num_channels: 16
+    num_layer: 9
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -76,10 +84,22 @@ optimizer:
       - net_rev_2
     beta1: 0.9
     beta2: 0.999
-  optimD:
+  optimD1:
     name: Adam
     net_names:
-      - netD_multi
+      - netD_1
+    beta1: 0.9
+    beta2: 0.999
+  optimD2:
+    name: Adam
+    net_names:
+      - netD_2
+    beta1: 0.9
+    beta2: 0.999
+  optimD3:
+    name: Adam
+    net_names:
+      - netD_3
     beta1: 0.9
     beta2: 0.999
 

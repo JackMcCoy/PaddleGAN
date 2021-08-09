@@ -64,7 +64,7 @@ class LapStyleMultiresDiscriminator(nn.Layer):
             else:
                 net=LapStyleSingleDiscriminator(num_channels=num_channels)
             resolutions.append(net)
-        self.resolutions = nn.LayerList(resolutions)
+        self.resolutions = [resolutions]
 
     def forward(self, x,i):
         out = self.resolutions[i](x)

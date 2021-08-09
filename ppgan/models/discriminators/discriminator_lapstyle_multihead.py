@@ -56,15 +56,16 @@ class LapStyleMultiresDiscriminator(nn.Layer):
     def __init__(self, num_channels=32,num_halvings=2):
         super(LapStyleMultiresDiscriminator, self).__init__()
         num_layer = 3
-        resolutions=[]
+        self.resolutions=[]
         self.output_resolutions=[]
         for i in range(num_halvings):
             if i>0:
                 net=LapStyleSingleDiscriminator(num_channels=int(num_channels/(2*i)),num_layer=i+1*3)
+                print(type(net))
             else:
                 net=LapStyleSingleDiscriminator(num_channels=num_channels)
-            resolutions.append(net)
-        self.resolutions = [resolutions]
+                print(type(net))
+            self.resolutions.append(net)
 
     def forward(self, x,i):
         out = self.resolutions[i](x)

@@ -2714,9 +2714,6 @@ class LapStyleRevSecondMiddle(BaseModel):
                     tpF['r41'], spF['r41'])
                 sXF = self.nets['net_enc'](split_sx[itx])
                 mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
-                style_counter += 1
-                if style_counter==4:
-                    self.visual_items['sX_'+str(i)]=split_sx[itx]
 
         self.losses['loss_ps_'+str(i+1)] = self.loss_ps/4
         self.p_loss_content_relt = self.calc_content_relt_loss(

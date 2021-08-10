@@ -675,14 +675,14 @@ class LapStyleRevFirstMXDOG(BaseModel):
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)
         self.losses['loss_gan_G'] = self.loss_G_GAN
 
-        self.cX = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-        self.sX = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        self.cX,_ = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
+        self.sX,_ = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
         self.cXF = self.nets['net_enc'](self.cX)
         self.sXF = self.nets['net_enc'](self.sX)
         self.visual_items['cx'] = self.cX
         self.visual_items['sx'] = self.sX
-        stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-        self.cdogF = self.nets['net_enc'](stylized_dog)
+        stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
+        self.cdogF,_ = self.nets['net_enc'](stylized_dog)
 
         mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])
         mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])

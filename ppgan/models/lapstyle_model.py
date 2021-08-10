@@ -2560,7 +2560,7 @@ class LapStyleRevSecondMiddle(BaseModel):
     def setup_input(self, input):
         if self.is_train:
             self.content_stack = []
-            self.style_stack = [paddle.to_tensor(input['style_stack_1'])]
+            self.style_stack = [paddle.to_tensor(input['style_stack_1']),paddle.to_tensor(input['style_stack_2'])]
             self.laplacians=[]
             for i in range(1,5):
                 if 'content_stack_'+str(i) in input:

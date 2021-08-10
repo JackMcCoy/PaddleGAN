@@ -2669,7 +2669,7 @@ class LapStyleRevSecondMiddle(BaseModel):
         self.losses['p_loss_content_relt_'+str(i+1)] = self.p_loss_content_relt
 
         """gan loss"""
-        pred_fake_p = self.discriminators[i](self.stylized[i])
+        pred_fake_p = self.discriminators[0](self.stylized[i])
         self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 

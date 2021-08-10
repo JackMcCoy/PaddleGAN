@@ -31,7 +31,7 @@ from ..utils.filesystem import makedirs, save, load
 
 
 
-def xdog(im, g, g2,morph_conv,gamma=.99, phi=200, eps=-.1, morph_cutoff=8.85,morphs=1):
+def xdog(im, g, g2,morph_conv,gamma=.99, phi=200, eps=-.1, morph_cutoff=8.85,morphs=1,minmax=False):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
@@ -45,19 +45,27 @@ def xdog(im, g, g2,morph_conv,gamma=.99, phi=200, eps=-.1, morph_cutoff=8.85,mor
     #imf2 = g2(im.detach())
     imdiff = imf1 - gamma * imf2
     imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
-    imdiff -= paddle.expand_as(imdiff.min(axis=[2,3],keepdim=True),imdiff)
-    immax = paddle.expand_as(imdiff.max(axis=[2,3],keepdim=True),imdiff)
-    imdiff /= immax
-    mean = imdiff.mean(axis=[2,3],keepdim=True)
-    mean=paddle.expand_as(mean,imdiff)
+    if type(minmax)==bool:
+        min = imdiff.min(axis=[2,3],keepdim=True)
+        max = imdiff.max(axis=[2,3],keepdim=True)
+    else:
+        min=minmax[0]
+        max=minmax[1]
+    imdiff -= paddle.expand_as(min,imdiff)
+    imdiff /= paddle.expand_as(max,imdiff)
+    if type(minmax)==bool:
+        mean = imdiff.mean(axis=[2,3],keepdim=True)
+    else:
+        mean=minmax[2]
+    exmean=paddle.expand_as(mean,imdiff)
     for i in range(morphs):
         morphed=morph_conv(imdiff)
         morphed.stop_gradient=True
-        passedlow= paddle.multiply((imdiff>= mean).astype('float32'),(morphed>= morph_cutoff).astype('float32'))
+        passedlow= paddle.multiply((imdiff>= exmean).astype('float32'),(morphed>= morph_cutoff).astype('float32'))
     for i in range(morphs):
         passed = morph_conv(passedlow)
         passed= (passed>0).astype('float32')
-    return passed
+    return passed, [min,max,mean]
 
 def gaussian(kernel_size, sigma,channels=3):
     x_coord = paddle.arange(kernel_size)
@@ -2678,13 +2686,9 @@ class LapStyleRevSecondMiddle(BaseModel):
         mxdog_style=0
         style_counter=0
         if type(self.cX)==bool:
-            self.cX = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv_2,morph_cutoff=76,morphs=1)
-            self.sX = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
-        cX = self.cX
-        sX = self.sX
-        for j in range(i+1):
-            cX = paddle.slice(self.cX,axes=[2,3],starts=[self.positions[j][1].astype('int32'),self.positions[j][0].astype('int32')],ends=[self.positions[j][3].astype('int32'),self.positions[j][2].astype('int32')])
-        cX = F.interpolate(cX,size=(256,256))
+            _,cxminmax = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
+            _,sxminmax = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
+        cX = xdog(self.content_stack[i].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,minmax=cxminmax)
         cXF = self.nets['net_enc'](cX.detach())
         stylized_dog = xdog(self.stylized[i],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv_2,morph_cutoff=76,morphs=1)
         cdogF = self.nets['net_enc'](stylized_dog)
@@ -2696,14 +2700,10 @@ class LapStyleRevSecondMiddle(BaseModel):
         for j in range(i):
             k = random_crop_coords(reshaped.shape[-1])
             reshaped=paddle.slice(reshaped,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
-            sX = paddle.slice(sX,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
         if not reshaped.shape[-1]==512:
             reshaped = F.interpolate(reshaped,size=(512,512))
-            sX = F.interpolate(sX,size=(512,512))
         reshaped = paddle.split(reshaped, 2, 2)
-        reshaped_sx = paddle.split(sX,2,2)
         for idx,k in enumerate(reshaped):
-            split_sx = paddle.split(reshaped_sx[idx],2, 3)
             for itx,j in enumerate(paddle.split(k, 2, 3)):
                 spF = self.nets['net_enc'](j.detach())
                 for layer in self.content_layers:
@@ -2712,7 +2712,7 @@ class LapStyleRevSecondMiddle(BaseModel):
                 self.p_loss_style_remd += self.calc_style_emd_loss(
                     tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                     tpF['r41'], spF['r41'])
-                sXF = self.nets['net_enc'](split_sx[itx])
+                sXF = xdog(j.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,minmax=sxminmax)
                 mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
                 style_counter += 1
                 if style_counter==4:

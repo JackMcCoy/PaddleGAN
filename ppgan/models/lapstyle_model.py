@@ -2530,6 +2530,7 @@ class LapStyleRevSecondMiddle(BaseModel):
         init_weights(self.nets['net_rev_2'])
         self.nets['netD'] = build_discriminator(revnet_discriminator)
         init_weights(self.nets['netD'])
+        self.discriminators=[self.nets['netD']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,

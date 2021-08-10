@@ -2719,7 +2719,7 @@ class LapStyleRevSecondMiddle(BaseModel):
             self.set_requires_grad(a, False)
 
         # update G
-        for i in range(loops+1):
+        for i in range(loops):
             optimizers['optimG'].clear_grad()
             self.backward_G(i)
             optimizers['optimG'].step()

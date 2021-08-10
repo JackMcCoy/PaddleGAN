@@ -2242,9 +2242,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
                                                     initializer=paddle.fluid.initializer.NumpyArrayInitializer(
                                                         value=g), trainable=False)
                                                 )
-        self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3, 19,
+        self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3, 23,
                                                   groups=3, bias_attr=False,
-                                                  padding=9, padding_mode='reflect',
+                                                  padding=11, padding_mode='reflect',
                                                   weight_attr=paddle.ParamAttr(
                                                       initializer=paddle.fluid.initializer.NumpyArrayInitializer(
                                                           value=g2), trainable=False)

@@ -241,7 +241,7 @@ class LapStyleDraXDOG(BaseModel):
                                 padding=2, padding_mode='reflect',
                                                 weight_attr=paddle.ParamAttr(
                                                     initializer=paddle.fluid.initializer.NumpyArrayInitializer(
-                                                        value=g),trainable=False))
+                                                        value=g3),trainable=False))
         print(gaussian(7, 1))
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)

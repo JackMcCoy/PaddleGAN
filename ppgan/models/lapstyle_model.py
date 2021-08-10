@@ -2678,7 +2678,6 @@ class LapStyleRevSecondMiddle(BaseModel):
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch +\
                     self.p_loss_style_remd/4 * 10 + self.p_loss_content_relt * 16
-        self.loss.backward()
 
         return self.loss
 
@@ -2702,7 +2701,7 @@ class LapStyleRevSecondMiddle(BaseModel):
         self.loss_D_patch = (loss_Dp_fake + pred_Dp_real/4) * 0.5
         self.losses['Dp_fake_loss_'+str(i)] = loss_Dp_fake
         self.losses['Dp_real_loss_'+str(i)] = pred_Dp_real/4
-        self.loss_D_patch.backward()
+        return self.loss_D_patch
 
 
     def train_iter(self, optimizers=None):
@@ -2711,19 +2710,21 @@ class LapStyleRevSecondMiddle(BaseModel):
         self.forward()
         # update D
 
-        for a,b,i in zip(self.discriminators,[optimizers['optimD']],[0]):
-            self.set_requires_grad(a, True)
-            b.clear_grad()
-            self.backward_D(a,i)
-            b.step()
-            self.set_requires_grad(a, False)
+        self.set_requires_grad(self.nets['netD'], True)
+        optimizers['optimD'].clear_grad()
+        l1=self.backward_D(self.nets['netD'],0)
+        l2=self.backward_D(self.nets['netD'],0)
+        (l1+l2).backward()
+        optimizers['optimD'].step()
+        self.set_requires_grad(self.nets['netD'], False)
 
         # update G
-        for i in range(loops):
-            optimizers['optimG'].clear_grad()
-            self.backward_G(i)
-            optimizers['optimG'].step()
-            optimizers['optimG'].clear_grad()
+        optimizers['optimG'].clear_grad()
+        l1=self.backward_G(0)
+        l2=self.backward_G(0)
+        (l1+l2).backward()
+        optimizers['optimG'].step()
+        optimizers['optimG'].clear_grad()
 
 def random_crop_coords(size):
     halfsize=math.floor(size/2)

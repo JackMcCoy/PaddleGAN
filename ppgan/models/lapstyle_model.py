@@ -2390,7 +2390,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         reshaped = paddle.split(reshaped, 2, 2)
         reshaped_sx = paddle.split(sX,2,2)
         for idx,k in enumerate(reshaped):
-            split_sx = paddle.split(reshaped_sx[idx],2)
+            split_sx = paddle.split(reshaped_sx[idx],2, 3)
             for itx,j in enumerate(paddle.split(k, 2, 3)):
                 spF = self.nets['net_enc'](j.detach())
                 for layer in self.content_layers:

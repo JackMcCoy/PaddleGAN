@@ -2377,9 +2377,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
         mxdog_style=0
         style_counter=0
         if type(self.cX)==bool:
-            _,cxminmax = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,morphs=2)
+            _,cxminmax = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
             _,sxminmax = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
-        cX,_ = xdog(self.content_stack[i].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,morphs=2,minmax=cxminmax)
+        cX,_ = xdog(self.content_stack[i].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,minmax=cxminmax)
         self.visual_items['cX_'+str(i)]=cX
         cXF = self.nets['net_enc'](cX.detach())
         stylized_dog,_ = xdog(self.stylized[i],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,minmax=cxminmax)

@@ -2336,7 +2336,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
             self.stylized.append(stylized_rev_patch_second)
 
-     def backward_G(self,i):
+    def backward_G(self,i):
         cF = self.nets['net_enc'](self.content_stack[i])
 
         with paddle.no_grad():

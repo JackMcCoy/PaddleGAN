@@ -2349,15 +2349,15 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
         #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
         for layer in [self.content_layers[-2]]:
-            self.loss_patch += paddle.clip(self.calc_content_loss(tpF[layer],
-                                                      tt_cropF[layer]), 1e-5, 1e5)
+            self.loss_patch += self.calc_content_loss(tpF[layer],
+                                                      tt_cropF[layer])
         self.losses['loss_patch_'+str(i+1)] = self.loss_patch
 
         self.loss_content_p = 0
         for layer in self.content_layers:
-            self.loss_content_p += paddle.clip(self.calc_content_loss(tpF[layer],
+            self.loss_content_p += self.calc_content_loss(tpF[layer],
                                                       cF[layer],
-                                                      norm=True), 1e-5, 1e5)
+                                                      norm=True)
         self.losses['loss_content_'+str(i+1)] = self.loss_content_p
 
         self.loss_ps = 0
@@ -2399,11 +2399,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 self.p_loss_style_remd += self.calc_style_emd_loss(
                     tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                     tpF['r41'], spF['r41'])
-                sXF = self.nets['net_enc'](split_sx[itx])
-                mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
-                style_counter += 1
-                if style_counter==4:
-                    self.visual_items['sX_'+str(i)]=j
+                if not i==3:
+                    sXF = self.nets['net_enc'](split_sx[itx])
+                    mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
+                    style_counter += 1
+                    if style_counter==4:
+                        self.visual_items['sX_'+str(i)]=split_sx[itx]
         self.losses['loss_ps_'+str(i+1)] = self.loss_ps/4
         self.p_loss_content_relt = self.calc_content_relt_loss(
             tpF['r31'], cF['r31']) + self.calc_content_relt_loss(
@@ -2425,10 +2426,10 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 
 
-        self.loss = self.loss_Gp_GAN *(self.gan_thumb_weight+(i*1.6)) +self.loss_ps/4 * self.style_weight +\
+        self.loss = self.loss_Gp_GAN *self.gan_thumb_weight +self.loss_ps/4 * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch +\
-                    self.p_loss_style_remd/4 * (18*(i+1.6)) + self.p_loss_content_relt * (18*(i+1.6)) + mxdogloss
+                    self.p_loss_style_remd/4 * 10 + self.p_loss_content_relt * 16 + mxdogloss
         self.loss.backward()
 
         return self.loss

@@ -2579,7 +2579,7 @@ class LapStyleRevSecondMiddle(BaseModel):
                                                initializer=paddle.fluid.initializer.Constant(
                                                    value=1), trainable=False)
                                            )
-        self.morph_conv_2 = paddle.nn.Conv2D(3, 3, 25, padding=9, groups=3,
+        self.morph_conv_2 = paddle.nn.Conv2D(3, 3, 21, padding=10, groups=3,
                                            padding_mode='reflect', bias_attr=False,
                                            weight_attr=paddle.ParamAttr(
                                                initializer=paddle.fluid.initializer.Constant(
@@ -2678,8 +2678,8 @@ class LapStyleRevSecondMiddle(BaseModel):
         mxdog_style=0
         style_counter=0
         if type(self.cX)==bool:
-            self.cX = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv_2,morph_cutoff=76,morphs=1)
-            self.sX = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
+            self.cX = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv_2,morph_cutoff=600,morphs=1)
+            self.sX = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv_2,morph_cutoff=600,morphs=1)
         cX = self.cX
         sX = self.sX
         for j in range(i+1):

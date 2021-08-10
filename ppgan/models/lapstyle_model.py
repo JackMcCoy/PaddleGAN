@@ -681,8 +681,8 @@ class LapStyleRevFirstMXDOG(BaseModel):
         self.sXF = self.nets['net_enc'](self.sX)
         self.visual_items['cx'] = self.cX
         self.visual_items['sx'] = self.sX
-        stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
-        self.cdogF,_ = self.nets['net_enc'](stylized_dog)
+        stylized_dog,_ = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
+        self.cdogF = self.nets['net_enc'](stylized_dog)
 
         mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])
         mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])

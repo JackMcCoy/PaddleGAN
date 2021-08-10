@@ -2740,7 +2740,7 @@ class LapStyleRevSecondMiddle(BaseModel):
         self.loss = self.loss_Gp_GAN *self.gan_thumb_weight +self.loss_ps/4 * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch +\
-                    self.p_loss_style_remd/4 * 10 + self.p_loss_content_relt * 16 + mxdogloss
+                    self.p_loss_style_remd/4 * 22 + self.p_loss_content_relt * 22 + mxdogloss
 
         return self.loss
 

@@ -2528,7 +2528,7 @@ class LapStyleRevSecondMiddle(BaseModel):
         # define the second revnet params
         self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
         init_weights(self.nets['net_rev_2'])
-        self.nets['netD'] = build_discriminator(revnet_discriminator_1)
+        self.nets['netD'] = build_discriminator(revnet_discriminator)
         init_weights(self.nets['netD'])
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)

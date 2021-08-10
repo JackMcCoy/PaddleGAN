@@ -1,0 +1,93 @@
+total_iters: 100000
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/vangogh_starry/
+checkpoints_dir: checkpoints
+min_max:
+  (0., 1.)
+
+model:
+  name: LapStyleRevSecondMiddle
+  revnet_generator:
+    name: RevisionNet
+  revnet_discriminator:
+    name: LapStyleSingleDiscriminator
+    num_channels: 32
+    num_layer: 4
+  draftnet_encode:
+    name: Encoder
+  draftnet_decode:
+    name: DecoderNetDeep
+  revnet_deep_generator:
+    name: RevisionNetThumb
+  calc_style_emd_loss:
+    name: CalcStyleEmdLoss
+  calc_content_relt_loss:
+    name: CalcContentReltLoss
+  calc_content_loss:
+    name: CalcContentLoss
+  calc_style_loss:
+    name: CalcStyleLoss
+  gan_criterion:
+    name: GANLoss
+    gan_mode: vanilla
+  content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
+  style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
+  content_weight: 1
+  style_weight: 5
+  ada_alpha: .19
+  ada_alpha_2: .02
+  gan_thumb_weight: 1.5
+  gan_patch_weight: 2
+
+dataset:
+  train:
+    name: MultiPatchSet
+    content_root: /content/gdrive/My Drive/img_style/large_pics/
+    style_root: /content/PaddleGAN/starrypatched2048.png
+    load_size: 2048
+    crop_size: 256
+    thumb_size: 256
+    patch_depth: 3
+    style_upsize: 1
+    num_workers: 16
+    batch_size: 5
+  test:
+    name: LapStyleThumbsetInference
+    content_root: /content/gdrive/My Drive/img_style/inference_test/
+    style_root: /content/PaddleGAN/starrypatched2048.png
+    load_size: 2048
+    crop_size: 256
+    thumb_size: 256
+    style_upsize: 1
+    patch_depth: 4
+    num_workers: 0
+    batch_size: 1
+
+lr_scheduler:
+  name: NonLinearDecay
+  learning_rate: 5e-4
+  lr_decay: 5e-5
+
+optimizer:
+  optimG:
+    name: Adam
+    net_names:
+      - net_rev_2
+    beta1: 0.9
+    beta2: 0.999
+  optimD:
+    name: Adam
+    net_names:
+      - netD
+    beta1: 0.9
+    beta2: 0.999
+
+validate:
+  interval: 100000
+  save_img: false
+
+log_config:
+  interval: 10
+  visiual_interval: 50
+
+snapshot_config:
+  interval: 1000

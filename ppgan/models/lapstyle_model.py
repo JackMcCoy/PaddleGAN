@@ -2490,7 +2490,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 class LapStyleRevSecondMiddle(BaseModel):
     def __init__(self,
                  revnet_generator,
-                 revnet_discriminator_1,
+                 revnet_discriminator,
                  draftnet_encode,
                  draftnet_decode,
                  revnet_deep_generator,

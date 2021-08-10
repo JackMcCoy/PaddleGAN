@@ -2713,7 +2713,7 @@ class LapStyleRevSecondMiddle(BaseModel):
         self.set_requires_grad(self.nets['netD'], True)
         optimizers['optimD'].clear_grad()
         l1=self.backward_D(self.nets['netD'],0)
-        l2=self.backward_D(self.nets['netD'],0)
+        l2=self.backward_D(self.nets['netD'],1)
         (l1+l2).backward()
         optimizers['optimD'].step()
         self.set_requires_grad(self.nets['netD'], False)
@@ -2721,7 +2721,7 @@ class LapStyleRevSecondMiddle(BaseModel):
         # update G
         optimizers['optimG'].clear_grad()
         l1=self.backward_G(0)
-        l2=self.backward_G(0)
+        l2=self.backward_G(1)
         (l1+l2).backward()
         optimizers['optimG'].step()
         optimizers['optimG'].clear_grad()

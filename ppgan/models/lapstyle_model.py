@@ -2555,6 +2555,7 @@ class LapStyleRevSecondMiddle(BaseModel):
         self.ada_alpha_2 = ada_alpha_2
         self.gan_thumb_weight = gan_thumb_weight
         self.gan_patch_weight = gan_patch_weight
+        self.morph_cutoff = morph_cutoff
 
 
     def setup_input(self, input):
@@ -2573,6 +2574,8 @@ class LapStyleRevSecondMiddle(BaseModel):
             self.laplacians.append(laplacian_conv(self.content_stack[0],self.lap_filter).detach())
             self.laplacians.append(laplacian_conv(self.content_stack[1],self.lap_filter).detach())
             self.laplacians.append(laplacian_conv(self.content_stack[2],self.lap_filter).detach())
+            self.sX=False
+            self.cX = False
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
@@ -2642,14 +2645,35 @@ class LapStyleRevSecondMiddle(BaseModel):
         self.loss_ps = 0
         self.p_loss_style_remd = 0
 
+        mxdog_style=0
+        style_counter=0
+        if type(self.cX)==bool:
+            self.cX = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv_2,morph_cutoff=76,morphs=1)
+            self.sX = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
+        cX = self.cX
+        sX = self.sX
+        for j in range(i+1):
+            cX = paddle.slice(self.cX,axes=[2,3],starts=[self.positions[j][1].astype('int32'),self.positions[j][0].astype('int32')],ends=[self.positions[j][3].astype('int32'),self.positions[j][2].astype('int32')])
+        cX = F.interpolate(cX,size=(256,256))
+        cXF = self.nets['net_enc'](cX.detach())
+        stylized_dog = xdog(self.stylized[i],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv_2,morph_cutoff=76,morphs=1)
+        cdogF = self.nets['net_enc'](stylized_dog)
+
+        mxdog_content = self.calc_content_loss(tpF['r31'], cXF['r31'])
+        mxdog_content_contraint = self.calc_content_loss(cdogF['r31'], cXF['r31'])
+
         reshaped = self.style_stack[1]
         for j in range(i):
             k = random_crop_coords(reshaped.shape[-1])
             reshaped=paddle.slice(reshaped,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
+            sX = paddle.slice(sX,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
         if not reshaped.shape[-1]==512:
             reshaped = F.interpolate(reshaped,size=(512,512))
+            sX = F.interpolate(sX,size=(512,512))
         reshaped = paddle.split(reshaped, 2, 2)
+        reshaped_sx = paddle.split(sX,2,2)
         for idx,k in enumerate(reshaped):
+            split_sx = paddle.split(reshaped_sx[idx],2, 3)
             for itx,j in enumerate(paddle.split(k, 2, 3)):
                 spF = self.nets['net_enc'](j.detach())
                 for layer in self.content_layers:
@@ -2658,6 +2682,11 @@ class LapStyleRevSecondMiddle(BaseModel):
                 self.p_loss_style_remd += self.calc_style_emd_loss(
                     tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                     tpF['r41'], spF['r41'])
+                sXF = self.nets['net_enc'](split_sx[itx])
+                mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
+                style_counter += 1
+                if style_counter==4:
+                    self.visual_items['sX_'+str(i)]=split_sx[itx]
 
         self.losses['loss_ps_'+str(i+1)] = self.loss_ps/4
         self.p_loss_content_relt = self.calc_content_relt_loss(
@@ -2673,11 +2702,15 @@ class LapStyleRevSecondMiddle(BaseModel):
         self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 
+        self.losses['loss_MD_'+str(i+1)] = mxdog_content*.0125
+        self.losses['loss_CnsC_'+str(i+1)] = mxdog_content_contraint*25
+        self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*125/4
+        mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + (mxdog_style/4) * 125
 
         self.loss = self.loss_Gp_GAN *self.gan_thumb_weight +self.loss_ps/4 * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch +\
-                    self.p_loss_style_remd/4 * 10 + self.p_loss_content_relt * 16
+                    self.p_loss_style_remd/4 * 10 + self.p_loss_content_relt * 16 + mxdogloss
 
         return self.loss
 

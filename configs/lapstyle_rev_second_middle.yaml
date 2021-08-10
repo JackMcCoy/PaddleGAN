@@ -37,7 +37,7 @@ model:
   ada_alpha_2: .02
   gan_thumb_weight: 1.5
   gan_patch_weight: 2
-  morph_cutoff: 8.95
+  morph_cutoff: 600
 
 dataset:
   train:

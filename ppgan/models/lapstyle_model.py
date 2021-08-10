@@ -222,6 +222,7 @@ class LapStyleDraXDOG(BaseModel):
         self.style_weight = style_weight
         g=np.repeat(gaussian(7, 1).numpy(),3,axis=0)
         g2=np.repeat(gaussian(19, 1.5).numpy(),3,axis=0)
+        g3 = np.repeat(gaussian(3, 1.25).numpy(), 3, axis=0)
         print(g.shape)
         self.gaussian_filter = paddle.nn.Conv2D(3, 3,7,
                                 groups=3, bias_attr=False,
@@ -235,12 +236,12 @@ class LapStyleDraXDOG(BaseModel):
                                 weight_attr = paddle.ParamAttr(
                                         initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=g2), trainable=False))
 
-        self.morph_conv = paddle.nn.Conv2D(3,3,3,padding=1,groups=3,
-                                           padding_mode='reflect',bias_attr=False,
-                                           weight_attr = paddle.ParamAttr(
-                                        initializer=paddle.fluid.initializer.Constant(
-                                                        value=1), trainable=False)
-                                    )
+        self.morph_conv = paddle.nn.Conv2D(3, 3,5,
+                                groups=3, bias_attr=False,
+                                padding=2, padding_mode='reflect',
+                                                weight_attr=paddle.ParamAttr(
+                                                    initializer=paddle.fluid.initializer.NumpyArrayInitializer(
+                                                        value=g),trainable=False))
         print(gaussian(7, 1))
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)
@@ -262,13 +263,13 @@ class LapStyleDraXDOG(BaseModel):
 
     def backward_Dec(self):
 
-        self.cX,_ = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-        self.sX,_ = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        self.cX,_ = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=.8,morphs=2)
+        self.sX,_ = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=.8,morphs=2)
         self.visual_items['cx'] = self.cX
         self.visual_items['sx'] = self.sX
         self.cXF = self.nets['net_enc'](self.cX)
         self.sXF = self.nets['net_enc'](self.sX)
-        stylized_dog,_ = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
+        stylized_dog,_ = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=.8,morphs=2)
         self.cdogF = self.nets['net_enc'](stylized_dog)
 
         self.tF = self.nets['net_enc'](self.stylized)

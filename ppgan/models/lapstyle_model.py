@@ -268,7 +268,7 @@ class LapStyleDraXDOG(BaseModel):
         self.visual_items['sx'] = self.sX
         self.cXF = self.nets['net_enc'](self.cX)
         self.sXF = self.nets['net_enc'](self.sX)
-        stylized_dog,_ = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        stylized_dog,_ = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
         self.cdogF = self.nets['net_enc'](stylized_dog)
 
         self.tF = self.nets['net_enc'](self.stylized)

@@ -2362,6 +2362,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         self.loss_ps = 0
         self.p_loss_style_remd = 0
+
+        '''
         mxdog_style=0
         style_counter=0
         if type(self.cX)==bool:
@@ -2378,19 +2380,20 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         mxdog_content = self.calc_content_loss(tpF['r31'], cXF['r31'])
         mxdog_content_contraint = self.calc_content_loss(cdogF['r31'], cXF['r31'])
+        '''
 
         reshaped = self.style_stack[1]
         for j in range(i):
             k = random_crop_coords(reshaped.shape[-1])
             reshaped=paddle.slice(reshaped,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
-            sX = paddle.slice(sX,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
+            #sX = paddle.slice(sX,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
         if not reshaped.shape[-1]==512:
             reshaped = F.interpolate(reshaped,size=(512,512))
-            sX = F.interpolate(sX,size=(512,512))
+            #sX = F.interpolate(sX,size=(512,512))
         reshaped = paddle.split(reshaped, 2, 2)
-        reshaped_sx = paddle.split(sX,2,2)
+        #reshaped_sx = paddle.split(sX,2,2)
         for idx,k in enumerate(reshaped):
-            split_sx = paddle.split(reshaped_sx[idx],2, 3)
+            #split_sx = paddle.split(reshaped_sx[idx],2, 3)
             for itx,j in enumerate(paddle.split(k, 2, 3)):
                 spF = self.nets['net_enc'](j.detach())
                 for layer in self.content_layers:
@@ -2399,11 +2402,14 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 self.p_loss_style_remd += self.calc_style_emd_loss(
                     tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                     tpF['r41'], spF['r41'])
-                sXF = self.nets['net_enc'](split_sx[itx])
-                mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
-                style_counter += 1
-                if style_counter==4:
-                    self.visual_items['sX_'+str(i)]=split_sx[itx]
+                '''
+                if not i==3:
+                    sXF = self.nets['net_enc'](split_sx[itx])
+                    mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
+                    style_counter += 1
+                    if style_counter==4:
+                        self.visual_items['sX_'+str(i)]=split_sx[itx]
+                '''
         self.losses['loss_ps_'+str(i+1)] = self.loss_ps/4
         self.p_loss_content_relt = self.calc_content_relt_loss(
             tpF['r31'], cF['r31']) + self.calc_content_relt_loss(
@@ -2413,10 +2419,10 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['p_loss_style_remd_'+str(i+1)] = self.p_loss_style_remd/4
         self.losses['p_loss_content_relt_'+str(i+1)] = self.p_loss_content_relt
 
-        self.losses['loss_MD_'+str(i+1)] = mxdog_content*.0125
-        self.losses['loss_CnsC_'+str(i+1)] = mxdog_content_contraint*25
-        self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*125/4
-        mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + (mxdog_style/4) * 125
+        #self.losses['loss_MD_'+str(i+1)] = mxdog_content*.0125
+        #self.losses['loss_CnsC_'+str(i+1)] = mxdog_content_contraint*25
+        #self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*125/4
+        #mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + (mxdog_style/4) * 125
 
 
         """gan loss"""
@@ -2428,7 +2434,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss = self.loss_Gp_GAN *self.gan_thumb_weight +self.loss_ps/4 * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch +\
-                    self.p_loss_style_remd/4 * 10 + self.p_loss_content_relt * 16 + mxdogloss
+                    self.p_loss_style_remd/4 * 10 + self.p_loss_content_relt * 16
         self.loss.backward()
 
         return self.loss

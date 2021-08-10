@@ -2556,6 +2556,36 @@ class LapStyleRevSecondMiddle(BaseModel):
         self.gan_thumb_weight = gan_thumb_weight
         self.gan_patch_weight = gan_patch_weight
         self.morph_cutoff = morph_cutoff
+        g = np.repeat(gaussian(7, 1).numpy(), 3, axis=0)
+        g2 = np.repeat(gaussian(19, 3).numpy(), 3, axis=0)
+        self.gaussian_filter = paddle.nn.Conv2D(3, 3, 7,
+                                                groups=3, bias_attr=False,
+                                                padding=3, padding_mode='reflect',
+                                                weight_attr=paddle.ParamAttr(
+                                                    initializer=paddle.fluid.initializer.NumpyArrayInitializer(
+                                                        value=g), trainable=False)
+                                                )
+        self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3, 25,
+                                                  groups=3, bias_attr=False,
+                                                  padding=9, padding_mode='reflect',
+                                                  weight_attr=paddle.ParamAttr(
+                                                      initializer=paddle.fluid.initializer.NumpyArrayInitializer(
+                                                          value=g2), trainable=False)
+                                                  )
+
+        self.morph_conv = paddle.nn.Conv2D(3, 3, 3, padding=1, groups=3,
+                                           padding_mode='reflect', bias_attr=False,
+                                           weight_attr=paddle.ParamAttr(
+                                               initializer=paddle.fluid.initializer.Constant(
+                                                   value=1), trainable=False)
+                                           )
+        self.morph_conv_2 = paddle.nn.Conv2D(3, 3, 11, padding=5, groups=3,
+                                           padding_mode='reflect', bias_attr=False,
+                                           weight_attr=paddle.ParamAttr(
+                                               initializer=paddle.fluid.initializer.Constant(
+                                                   value=1), trainable=False)
+                                           )
+
 
 
     def setup_input(self, input):

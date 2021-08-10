@@ -2579,7 +2579,7 @@ class LapStyleRevSecondMiddle(BaseModel):
                                                initializer=paddle.fluid.initializer.Constant(
                                                    value=1), trainable=False)
                                            )
-        self.morph_conv_2 = paddle.nn.Conv2D(3, 3, 25, padding=10, groups=3,
+        self.morph_conv_2 = paddle.nn.Conv2D(3, 3, 25, padding=11, groups=3,
                                            padding_mode='reflect', bias_attr=False,
                                            weight_attr=paddle.ParamAttr(
                                                initializer=paddle.fluid.initializer.Constant(

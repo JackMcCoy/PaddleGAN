@@ -45,13 +45,13 @@ dataset:
     name: MultiPatchSet
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
     style_root: /content/PaddleGAN/starrypatched2048.png
-    load_size: 2048
+    load_size: 512
     crop_size: 256
     thumb_size: 256
     patch_depth: 3
     style_upsize: 1
-    num_workers: 1
-    batch_size: 1
+    num_workers: 5
+    batch_size: 5
   test:
     name: LapStyleThumbsetInference
     content_root: /content/gdrive/My Drive/img_style/inference_test/

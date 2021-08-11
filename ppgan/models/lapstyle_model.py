@@ -31,7 +31,7 @@ from ..utils.filesystem import makedirs, save, load
 
 
 
-def xdog(im, g, g2,morph_conv,gamma=.99, phi=50, eps=-.5, morph_cutoff=8.85,morphs=1,minmax=False):
+def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.5, morph_cutoff=8.85,morphs=1,minmax=False):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
@@ -675,13 +675,13 @@ class LapStyleRevFirstMXDOG(BaseModel):
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)
         self.losses['loss_gan_G'] = self.loss_G_GAN
 
-        self.cX = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
-        self.sX = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        self.cX,_ = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
+        self.sX,_ = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
         self.cXF = self.nets['net_enc'](self.cX)
         self.sXF = self.nets['net_enc'](self.sX)
         self.visual_items['cx'] = self.cX
         self.visual_items['sx'] = self.sX
-        stylized_dog = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv)
+        stylized_dog,_ = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
         self.cdogF = self.nets['net_enc'](stylized_dog)
 
         mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])
@@ -2374,37 +2374,28 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss_ps = 0
         self.p_loss_style_remd = 0
 
-        '''
         mxdog_style=0
         style_counter=0
         if type(self.cX)==bool:
-            self.cX = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv_2,morph_cutoff=76,morphs=1)
-            self.sX = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
-        cX = self.cX
-        sX = self.sX
-        for j in range(i+1):
-            cX = paddle.slice(self.cX,axes=[2,3],starts=[self.positions[j][1].astype('int32'),self.positions[j][0].astype('int32')],ends=[self.positions[j][3].astype('int32'),self.positions[j][2].astype('int32')])
-        cX = F.interpolate(cX,size=(256,256))
+            _,cxminmax = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
+            _,sxminmax = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
+        cX,_ = xdog(self.content_stack[i].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,minmax=cxminmax)
+        self.visual_items['cX_'+str(i)]=cX
         cXF = self.nets['net_enc'](cX.detach())
-        stylized_dog = xdog(self.stylized[i],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv_2,morph_cutoff=76,morphs=1)
+        stylized_dog,_ = xdog(self.stylized[i],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,minmax=cxminmax)
         cdogF = self.nets['net_enc'](stylized_dog)
 
         mxdog_content = self.calc_content_loss(tpF['r31'], cXF['r31'])
         mxdog_content_contraint = self.calc_content_loss(cdogF['r31'], cXF['r31'])
-        '''
 
         reshaped = self.style_stack[1]
         for j in range(i):
             k = random_crop_coords(reshaped.shape[-1])
             reshaped=paddle.slice(reshaped,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
-            #sX = paddle.slice(sX,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
         if not reshaped.shape[-1]==512:
             reshaped = F.interpolate(reshaped,size=(512,512))
-            #sX = F.interpolate(sX,size=(512,512))
         reshaped = paddle.split(reshaped, 2, 2)
-        #reshaped_sx = paddle.split(sX,2,2)
         for idx,k in enumerate(reshaped):
-            #split_sx = paddle.split(reshaped_sx[idx],2, 3)
             for itx,j in enumerate(paddle.split(k, 2, 3)):
                 spF = self.nets['net_enc'](j.detach())
                 for layer in self.content_layers:
@@ -2413,14 +2404,13 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 self.p_loss_style_remd += self.calc_style_emd_loss(
                     tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                     tpF['r41'], spF['r41'])
-                '''
-                if not i==3:
-                    sXF = self.nets['net_enc'](split_sx[itx])
-                    mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
-                    style_counter += 1
-                    if style_counter==4:
-                        self.visual_items['sX_'+str(i)]=split_sx[itx]
-                '''
+                sX,_ = xdog(j.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,minmax=sxminmax)
+                sXF = self.nets['net_enc'](sX)
+                mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
+                style_counter += 1
+                if style_counter==4:
+                    self.visual_items['sX_'+str(i)]=sX
+
         self.losses['loss_ps_'+str(i+1)] = self.loss_ps/4
         self.p_loss_content_relt = self.calc_content_relt_loss(
             tpF['r31'], cF['r31']) + self.calc_content_relt_loss(
@@ -2430,10 +2420,10 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['p_loss_style_remd_'+str(i+1)] = self.p_loss_style_remd/4
         self.losses['p_loss_content_relt_'+str(i+1)] = self.p_loss_content_relt
 
-        #self.losses['loss_MD_'+str(i+1)] = mxdog_content*.0125
-        #self.losses['loss_CnsC_'+str(i+1)] = mxdog_content_contraint*25
-        #self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*125/4
-        #mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + (mxdog_style/4) * 125
+        self.losses['loss_MD_'+str(i+1)] = mxdog_content*.0125
+        self.losses['loss_CnsC_'+str(i+1)] = mxdog_content_contraint*25
+        self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*125/4
+        mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + (mxdog_style/4) * 125
 
 
         """gan loss"""
@@ -2445,8 +2435,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss = self.loss_Gp_GAN *self.gan_thumb_weight +self.loss_ps/4 * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch +\
-                    self.p_loss_style_remd/4 * 10 + self.p_loss_content_relt * 16
-        self.loss.backward()
+                    self.p_loss_style_remd/4 * 28 + self.p_loss_content_relt * 28
 
         return self.loss
 
@@ -2489,13 +2478,14 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.backward_D(a,i)
             b.step()
             self.set_requires_grad(a, False)
-
+        optimizers['optimG'].clear_grad()
+        g_losses=[]
         # update G
         for i in range(loops+1):
-            optimizers['optimG'].clear_grad()
-            self.backward_G(i)
-            optimizers['optimG'].step()
-            optimizers['optimG'].clear_grad()
+            g_losses.append(self.backward_G(i))
+        (g_losses[0]+g_losses[1]+g_losses[2]).backward()
+        optimizers['optimG'].step()
+        optimizers['optimG'].clear_grad()
 
 @MODELS.register()
 class LapStyleRevSecondMiddle(BaseModel):

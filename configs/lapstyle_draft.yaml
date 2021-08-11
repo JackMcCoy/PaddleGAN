@@ -1,5 +1,5 @@
 total_iters: 200000
-output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/vangogh/
+output_dir: /content/gdrive/My Drive/img_style/PaddleGAN/output_dir/vangogh_starry/
 checkpoints_dir: checkpoints
 min_max:
   (0., 1.)
@@ -20,19 +20,19 @@ model:
     name: CalcStyleLoss
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
-  content_weight: 1
+  content_weight: 2
   style_weight: 5
-  morph_cutoff: .75
+  morph_cutoff: .99
 
 
 dataset:
   train:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/gdrive/My Drive/img_style/styles/
+    style_root: /content/gdrive/My Drive/img_style/styles/starrypatched1024.png
     load_size: 134
     crop_size: 128
-    style_upsize: 1.2
+    style_upsize: 1.1
     num_workers: 16
     batch_size: 5
   test:
@@ -64,7 +64,7 @@ validate:
 
 log_config:
   interval: 10
-  visiual_interval: 500
+  visiual_interval: 100
 
 snapshot_config:
   interval: 1000

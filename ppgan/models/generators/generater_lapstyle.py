@@ -18,7 +18,12 @@ from ...utils.download import get_path_from_url
 from PIL import Image
 from .builder import GENERATORS
 
+if 1:
+    import pycuda.autoinit
+    import pycuda.gpuarray as gpuarray
+    import skcuda.linalg as linalg
 
+    linalg.init()
 
 
 def cal_maxpool_size(w, h, count=3):
@@ -176,7 +181,7 @@ def calc_k(image,
 
     new_clusters = paddle.argsort(paddle.norm(cluster_centers,axis=1),descending=False).numpy().tolist()
     new_clusters = [new_clusters.index(j) for j in range(k)]
-    cluster_centers_norm, _ = torch.sort(paddle.norm(cluster_centers,axis=1))
+    cluster_centers_norm, _ = paddle.sort(paddle.norm(cluster_centers,axis=1))
     cluster_centers_norm = cluster_centers_norm - paddle.min(cluster_centers_norm)
     cluster_centers_norm = cluster_centers_norm / paddle.max(cluster_centers_norm)
 
@@ -188,6 +193,81 @@ def calc_k(image,
     label = paddle.reshape(new_labels, (h, w))
 
     return label, cluster_centers_norm
+
+def svd(a):
+    a = a.numpy()
+    a_gpu = gpuarray.to_gpu(a)
+    u_gpu, s_gpu, vh_gpu = linalg.svd(a_gpu, 'S', 'S')
+    return (u_gpu,vh_gpu,vh_gpu)
+
+@GENERATORS.register()
+class DecoderKMeans(nn.Layer):
+    """Decoder of Drafting module.
+    Paper:
+        Drafting and Revision: Laplacian Pyramid Network for Fast High-Quality
+        Artistic Style Transfer.
+    """
+
+    def __init__(self):
+        super(DecoderKMeans, self).__init__()
+
+        self.resblock_41 = ResnetBlock(512)
+        self.convblock_41 = ConvBlock(512, 256)
+        self.resblock_31 = ResnetBlock(256)
+        self.convblock_31 = ConvBlock(256, 128)
+
+        self.convblock_21 = ConvBlock(128, 128)
+        self.convblock_22 = ConvBlock(128, 64)
+
+        self.convblock_11 = ConvBlock(64, 64)
+        self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
+
+        self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                        nn.Conv2D(64, 3, (3, 3)))
+
+    def forward(self, ci,si,cF, sF,alpha=1):
+        cs = []
+
+        for cp, sp, cf, sf in zip(ci, si, cF, sF):
+            content_label, content_center_norm = calc_k(cp)
+            style_label, style_center_norm = calc_k(sp)
+
+            match = cluster_matching(content_label, style_label, content_center_norm, style_center_norm)
+
+            cs_feature = paddle.zeros_like(cf)
+            for i, j in match.items():
+                cl = paddle.expand_as(paddle.unsqueeze((content_label == i),axis=0),cf)
+                sl = paddle.zeros_like(sf)
+                for jj in j:
+                    sl += paddle.expand_as(paddle.unsqueeze((style_label == jj),axis=0),sf)
+                sl = sl.astype('bool')
+                sub_sf = paddle.reshape(sf[sl], sf.shape[0], -1)
+                cs_feature += labeled_whiten_and_color(cf, sub_sf, self.alpha, cl)
+
+            cs.append(paddle.unsqueeze(cs_feature.unsqueeze,axis=0)
+
+        cs = paddle.concat(cs, axis=0)
+        out = adaptive_instance_normalization(cF['r41'], sF['r41'])
+        out = self.resblock_41(out)
+        out = self.convblock_41(out)
+
+        out = self.upsample(out)
+        out += adaptive_instance_normalization(cF['r31'], sF['r31'])
+        out = self.resblock_31(out)
+        out = self.convblock_31(out)
+
+        out = self.upsample(out)
+        out += adaptive_instance_normalization(cF['r21'], sF['r21'])
+        out = self.convblock_21(out)
+        out = self.convblock_22(out)
+
+        out = self.upsample(out)
+        out = self.convblock_11(out)
+        out = self.final_conv(out)
+        return out
+
+
+
 
 def calc_mean_std(feat, eps=1e-5):
     """calculate mean and standard deviation.
@@ -219,31 +299,37 @@ def labeled_whiten_and_color(f_c, f_s, alpha, clabel):
 
         num_nonzero = paddle.sum(clabel).item() / cc
         c_mean = paddle.sum(cf, 1) / num_nonzero
-        c_mean = paddle.reshape(c_mean,(cc, 1, 1)) * clabel
+        c_mean = paddle,reshape(c_mean,(cc, 1, 1)) * clabel
 
         cf = paddle.reshape(cf,(cc, ch, cw)) - c_mean
         cf = paddle.reshape(cf,(cc, -1))
 
         c_cov = paddle.mm(cf, cf.t()) / (num_nonzero - 1)
-        c_u, c_e, c_v = torch.svd(c_cov)
+        c_u, c_e, c_v = svd(c_cov)
+
+        c_e = paddle.Tensor(c_e.get())
+        c_v = paddle.Tensor(c_v.get())
+
         c_d = c_e.pow(-0.5)
 
-        w_step1 = torch.mm(c_v, torch.diag(c_d))
-        w_step2 = torch.mm(w_step1, (c_v.t()))
-        whitened = torch.mm(w_step2, cf)
+        w_step1 = paddle.mm(c_v, paddle.diag(c_d))
+        w_step2 = paddle.mm(w_step1, (c_v.t()))
+        whitened = paddle.mm(w_step2, cf)
 
         sf = f_s
         sc, shw = sf.shape
-        s_mean = torch.mean(f_s, 1, keepdim=True)
+        s_mean = paddle.mean(f_s, 1, keepdim=True)
         sf = sf - s_mean
 
-        s_cov = torch.mm(sf, sf.t()) / (shw - 1)
-        s_u, s_e, s_v = torch.svd(s_cov)
+        s_cov = paddle.mm(sf, sf.t()) / (shw - 1)
+        s_u, s_e, s_v = svd(s_cov)
         s_d = s_e.pow(0.5)
 
-        c_step1 = torch.mm(s_v, torch.diag(s_d))
-        c_step2 = torch.mm(c_step1, s_v.t())
-        colored = torch.mm(c_step2, whitened).reshape(cc, ch, cw)
+        s_v = paddle.Tensor(s_v/get())
+
+        c_step1 = paddle.mm(s_v, paddle.diag(s_d))
+        c_step2 = paddle.mm(c_step1, s_v.t())
+        colored = paddle.mm(c_step2, whitened).reshape(cc, ch, cw)
 
         colored = colored + s_mean.reshape(sc, 1, 1) * clabel
         colored_feature = alpha * colored + (1 - alpha) * (f_c * clabel)

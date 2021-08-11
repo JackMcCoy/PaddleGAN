@@ -16,7 +16,7 @@ import paddle
 import paddle.nn as nn
 from ...utils.download import get_path_from_url
 from PIL import Image
-import colorsys
+from skimage import color
 import numpy as np
 from .builder import GENERATORS
 
@@ -142,13 +142,12 @@ def calc_k(image,
     img = img.resize((w, h))
     #     img = img.filter(ImageFilter.GaussianBlur(gb))
 
-    img = colorsys.rgb_2_lab(img)
+    img = color.rgb2lab(img).reshape(w * h, -1)
 
     k = 2
 
     KMeans = KMeansGPU
     img = paddle.to_tensor(img)
-    img = paddle.transpose(img,(2,1,0)).reshape(w * h, -1)
 
     k_means_estimator = KMeans(k)
     k_means_estimator.fit(img)

@@ -15,7 +15,7 @@
 import paddle
 import paddle.nn as nn
 from ...utils.download import get_path_from_url
-from PIL import Image
+from PIL import Image,color
 import numpy as np
 from .builder import GENERATORS
 

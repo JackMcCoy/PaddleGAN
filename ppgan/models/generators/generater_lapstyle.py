@@ -15,7 +15,8 @@
 import paddle
 import paddle.nn as nn
 from ...utils.download import get_path_from_url
-from PIL import Image,color
+from PIL import Image
+import colorsys
 import numpy as np
 from .builder import GENERATORS
 
@@ -141,7 +142,7 @@ def calc_k(image,
     img = img.resize((w, h))
     #     img = img.filter(ImageFilter.GaussianBlur(gb))
 
-    img = color.rgb2lab(img).reshape(w * h, -1)
+    img = colorsys.rgb2lab(img).reshape(w * h, -1)
 
     k = 2
 

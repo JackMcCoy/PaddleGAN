@@ -142,12 +142,13 @@ def calc_k(image,
     img = img.resize((w, h))
     #     img = img.filter(ImageFilter.GaussianBlur(gb))
 
-    img = colorsys.rgb2lab(img).reshape(w * h, -1)
+    img = colorsys.rgb_2_lab(img)
 
     k = 2
 
     KMeans = KMeansGPU
     img = paddle.to_tensor(img)
+    img = paddle.transpose(img,(2,1,0)).reshape(w * h, -1)
 
     k_means_estimator = KMeans(k)
     k_means_estimator.fit(img)

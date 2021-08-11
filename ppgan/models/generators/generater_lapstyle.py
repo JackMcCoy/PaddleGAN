@@ -131,7 +131,8 @@ def calc_k(image,
            max_cluster=5,
            threshold_min=0.1,
            threshold_max=0.7):
-    img = Image.fromarray(image.numpy()).convert('RGB')
+    img = paddle.transpose(image,0,2).numpy().astype(np.uint8)
+    img = Image.fromarray(img).convert('RGB')
     w, h = img.size
     #     gb = 0.5 if max(w, h) < 1440 else 0
     w, h = cal_maxpool_size(w, h, 3)

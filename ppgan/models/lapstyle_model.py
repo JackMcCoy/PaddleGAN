@@ -2463,7 +2463,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
 
     def train_iter(self, optimizers=None):
-        loops=1
+        loops=0
         if self.iters>=self.rev3_iter:
             loops+=1
         if self.iters>=self.rev4_iter:
@@ -2483,7 +2483,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # update G
         for i in range(loops+1):
             g_losses.append(self.backward_G(i))
-        (g_losses[0]+g_losses[1]+g_losses[2]).backward()
+        (g_losses[0]+g_losses[1]+g_losses[2]*1.25).backward()
         optimizers['optimG'].step()
         optimizers['optimG'].clear_grad()
 

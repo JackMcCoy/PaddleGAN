@@ -55,6 +55,7 @@ class KMeansGPU:
     def _initial_state(self, data):
         # initial cluster centers by kmeans++ or random
         if self.init == 'kmeans++':
+            print(data.shape)
             n, c = data.shape
             dis = paddle.zeros((n, self.n_clusters))
             initial_state = paddle.zeros((self.n_clusters, c))

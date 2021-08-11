@@ -2463,7 +2463,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
 
     def train_iter(self, optimizers=None):
-        loops=0
+        loops=1
         if self.iters>=self.rev3_iter:
             loops+=1
         if self.iters>=self.rev4_iter:

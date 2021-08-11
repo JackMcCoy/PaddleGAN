@@ -2342,7 +2342,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.stylized.append(stylized_rev_patch_second)
 
     def backward_G(self,i):
-        cF = self.nets['net_enc'](self.content_stack[i])
+        cF = self.nets['net_enc'](self.content_stack[i+1])
 
         with paddle.no_grad():
             tt_cropF = self.nets['net_enc'](self.patches_in[i])
@@ -2373,7 +2373,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         if type(self.cX)==bool:
             _,cxminmax = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
             _,sxminmax = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
-        cX,_ = xdog(self.content_stack[i].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,minmax=cxminmax)
+        cX,_ = xdog(self.content_stack[i+1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,minmax=cxminmax)
         self.visual_items['cX_'+str(i)]=cX
         cXF = self.nets['net_enc'](cX.detach())
         stylized_dog,_ = xdog(self.stylized[i],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,minmax=cxminmax)

@@ -244,11 +244,10 @@ class DecoderKMeans(nn.Layer):
                 sub_sf = paddle.reshape(sf[sl], sf.shape[0], -1)
                 cs_feature += labeled_whiten_and_color(cf, sub_sf, self.alpha, cl)
 
-            cs.append(paddle.unsqueeze(cs_feature.unsqueeze,axis=0)
+            cs.append(paddle.unsqueeze(cs_feature.unsqueeze,axis=0))
 
         cs = paddle.concat(cs, axis=0)
-        out = adaptive_instance_normalization(cF['r41'], sF['r41'])
-        out = self.resblock_41(out)
+        out = self.resblock_41(cs)
         out = self.convblock_41(out)
 
         out = self.upsample(out)

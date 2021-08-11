@@ -40,7 +40,7 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 3
-  style_weight: 1
+  style_weight: 3
   ada_alpha: .19
   ada_alpha_2: .02
   gan_thumb_weight: 1.5

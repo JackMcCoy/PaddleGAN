@@ -229,15 +229,15 @@ class DecoderKMeans(nn.Layer):
         cs = []
         print(ci.shape)
         for i in range(ci.shape[0]):
-            cp = paddle.unsqueeze(ci[i,:,:,:])
-            sp = paddle.unsqueeze(si[i, :, :, :])
+            cp = paddle.unsqueeze(ci[i,:,:,:],axis=0)
+            sp = paddle.unsqueeze(si[i, :, :, :],axis=0)
             content_label, content_center_norm = calc_k(cp)
             style_label, style_center_norm = calc_k(sp)
 
             match = cluster_matching(content_label, style_label, content_center_norm, style_center_norm)
 
-            cf=paddle.unsqueeze(cF['r11'][i,:,:,:])
-            sf=paddle.unsqueeze(sF['r11'][i,:,:,:])
+            cf=paddle.unsqueeze(cF['r11'][i,:,:,:],axis=0)
+            sf=paddle.unsqueeze(sF['r11'][i,:,:,:],axis=0)
             cs_feature = paddle.zeros_like(cf)
             for i, j in match.items():
                 cl = paddle.expand_as(paddle.unsqueeze((content_label == i),axis=0),cf)

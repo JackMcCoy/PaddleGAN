@@ -228,12 +228,14 @@ class DecoderKMeans(nn.Layer):
     def forward(self, ci,si,cF, sF,alpha=1):
         cs = []
 
-        for cp, sp, cf, sf in zip(ci, si, cF, sF):
-            content_label, content_center_norm = calc_k(cp)
-            style_label, style_center_norm = calc_k(sp)
+        for i in range(ci.shape[0]):
+            content_label, content_center_norm = calc_k(ci[i,:,:,:])
+            style_label, style_center_norm = calc_k(si[i,:,:,:])
 
             match = cluster_matching(content_label, style_label, content_center_norm, style_center_norm)
 
+            cf=cF['r11'][i,:,:,:]
+            sf=sF['r11'][i,:,:,:]
             cs_feature = paddle.zeros_like(cf)
             for i, j in match.items():
                 cl = paddle.expand_as(paddle.unsqueeze((content_label == i),axis=0),cf)
@@ -242,11 +244,12 @@ class DecoderKMeans(nn.Layer):
                     sl += paddle.expand_as(paddle.unsqueeze((style_label == jj),axis=0),sf)
                 sl = sl.astype('bool')
                 sub_sf = paddle.reshape(sf[sl], sf.shape[0], -1)
-                cs_feature += labeled_whiten_and_color(cf, sub_sf, self.alpha, cl)
+                cs_feature += labeled_whiten_and_color(cf, sub_sf, self.alpha, cl[i,:,:,:])
 
             cs.append(paddle.unsqueeze(cs_feature.unsqueeze,axis=0))
 
         cs = paddle.concat(cs, axis=0)
+        out = adaptive_instance_normalization(cF['r41'], sF['r41'])
         out = self.resblock_41(cs)
         out = self.convblock_41(out)
 
@@ -261,6 +264,7 @@ class DecoderKMeans(nn.Layer):
         out = self.convblock_22(out)
 
         out = self.upsample(out)
+        out += cs
         out = self.convblock_11(out)
         out = self.final_conv(out)
         return out

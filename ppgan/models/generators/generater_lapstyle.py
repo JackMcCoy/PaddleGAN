@@ -230,8 +230,8 @@ class DecoderKMeans(nn.Layer):
         cs = []
         print(ci.shape)
         for i in range(ci.shape[0]):
-            cp = ci[i,:,:,:],axis=0
-            sp = si[i, :, :, :],axis=0
+            cp = ci[i,:,:,:]
+            sp = si[i, :, :, :]
             print(cp.shape)
             content_label, content_center_norm = calc_k(cp)
             style_label, style_center_norm = calc_k(sp)

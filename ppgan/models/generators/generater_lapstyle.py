@@ -65,7 +65,7 @@ class KMeansGPU:
 
             for k in range(1, self.n_clusters):
                 pr = paddle.sum(dis, axis=1) / paddle.sum(dis)
-                initial_state[k, :] = data[int(np.random.choice(np.arange(n), 1, p=pr.to('cpu').numpy()))]
+                initial_state[k, :] = data[int(np.random.choice(np.arange(n), 1, p=pr.numpy()))]
                 dis[:, k] = paddle.sum((data - initial_state[k, :]) ** 2, axis=1)
         else:
             n = data.shape[0]

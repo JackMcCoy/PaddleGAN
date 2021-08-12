@@ -2171,6 +2171,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
     def __init__(self,
                  revnet_generator,
                  revnet_discriminator_1,
+                 revnet_discriminator_2,
+                 revnet_discriminator_3,
                  draftnet_encode,
                  draftnet_decode,
                  revnet_deep_generator,
@@ -2189,8 +2191,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
                  gan_patch_weight=1.0,
                  use_mdog=0,
                  morph_cutoff=47.9,
-                 rev3_iter=100000,
-                 rev4_iter=100000):
+                 rev3_iter=0,
+                 rev4_iter=0):
 
         super(LapStyleRevSecondMXDOG, self).__init__()
 
@@ -2208,9 +2210,13 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # define the second revnet params
         self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
         init_weights(self.nets['net_rev_2'])
-        self.nets['netD'] = build_discriminator(revnet_discriminator_1)
-        init_weights(self.nets['netD'])
-        self.discriminators=[self.nets['netD']]
+        self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
+        init_weights(self.nets['netD_1'])
+        self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
+        init_weights(self.nets['netD_2'])
+        self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
+        init_weights(self.nets['netD_3'])
+        self.discriminators=[self.nets['netD_1'],self.nets['netD_2'],self.nets['netD_3']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2285,8 +2291,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.size_stack = input['size_stack']
             self.laplacians.append(laplacian_conv(self.content_stack[0],self.lap_filter).detach())
             self.laplacians.append(laplacian_conv(self.content_stack[1],self.lap_filter).detach())
-            #self.laplacians.append(laplacian_conv(self.content_stack[2],self.lap_filter).detach())
-            #self.laplacians.append(laplacian_conv(self.content_stack[3],self.lap_filter).detach())
+            self.laplacians.append(laplacian_conv(self.content_stack[2],self.lap_filter).detach())
+            self.laplacians.append(laplacian_conv(self.content_stack[3],self.lap_filter).detach())
             self.cX = False
             self.sX = False
 
@@ -2398,11 +2404,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 self.p_loss_style_remd += self.calc_style_emd_loss(
                     tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                     tpF['r41'], spF['r41'])
-
                 sX,_ = xdog(j.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,minmax=sxminmax)
                 sXF = self.nets['net_enc'](sX)
                 mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
                 style_counter += 1
+                if style_counter==4:
+                    self.visual_items['sX_'+str(i)]=sX
 
         self.losses['loss_ps_'+str(i+1)] = self.loss_ps/4
         self.p_loss_content_relt = self.calc_content_relt_loss(
@@ -2418,16 +2425,17 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*125/4
         mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + (mxdog_style/4) * 125
 
+
         """gan loss"""
         pred_fake_p = self.discriminators[i](self.stylized[i])
         self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 
 
-        self.loss = self.loss_Gp_GAN*(max(i*10*i,2)) +self.loss_ps/4 * self.style_weight +\
+        self.loss = self.loss_Gp_GAN*(min(i*10*i,2)) *self.gan_thumb_weight +self.loss_ps/4 * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
-                    self.loss_patch*(max(i*10,1)) +\
-                    self.p_loss_style_remd/4 * 16 + self.p_loss_content_relt * 16 + (mxdogloss/(max(2*10**i,1)))
+                    self.loss_patch*(min(i*10,1)) +\
+                    self.p_loss_style_remd/4 * 28 + self.p_loss_content_relt * 28 + (mxdogloss/(max(2*i,1)))
 
         return self.loss
 
@@ -2464,7 +2472,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.forward()
         # update D
 
-        for a,b,i in zip(self.discriminators,[optimizers['optimD']],list(range(1))):
+        for a,b,i in zip(self.discriminators,[optimizers['optimD1'],optimizers['optimD2'],optimizers['optimD3']],list(range(3))):
             self.set_requires_grad(a, True)
             b.clear_grad()
             self.backward_D(a,i)
@@ -2474,11 +2482,10 @@ class LapStyleRevSecondMXDOG(BaseModel):
         g_losses=[]
         # update G
         for i in range(loops+1):
-            loss=self.backward_G(i)
-            loss = loss if i<2 else loss*1.25
-            loss.backward()
-            optimizers['optimG'].step()
-            optimizers['optimG'].clear_grad()
+            g_losses.append(self.backward_G(i))
+        (g_losses[0]+g_losses[1]+g_losses[2]).backward()
+        optimizers['optimG'].step()
+        optimizers['optimG'].clear_grad()
 
 @MODELS.register()
 class LapStyleRevSecondMiddle(BaseModel):

@@ -12,12 +12,20 @@ model:
     name: LapStyleSingleDiscriminator
     num_channels: 64
     num_layer: 3
+  revnet_discriminator_2:
+    name: LapStyleSingleDiscriminator
+    num_channels: 32
+    num_layer: 6
+  revnet_discriminator_3:
+    name: LapStyleSingleDiscriminator
+    num_channels: 16
+    num_layer: 9
   draftnet_encode:
     name: Encoder
   draftnet_decode:
     name: DecoderNetDeep
   revnet_deep_generator:
-    name: RevisionNetThumb
+    name: RevisionNetDeepThumb
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:
@@ -43,24 +51,24 @@ model:
 dataset:
   train:
     name: MultiPatchSet
-    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
+    content_root: /content/gdrive/My Drive/img_style/large_pics/
     style_root: /content/PaddleGAN/starrypatched2048.png
-    load_size: 512
+    load_size: 2048
     crop_size: 256
     thumb_size: 256
-    patch_depth: 1
+    patch_depth: 3
     style_upsize: 1
-    num_workers: 5
-    batch_size: 5
+    num_workers: 1
+    batch_size: 1
   test:
     name: LapStyleThumbsetInference
     content_root: /content/gdrive/My Drive/img_style/inference_test/
     style_root: /content/PaddleGAN/starrypatched2048.png
-    load_size: 612
+    load_size: 2048
     crop_size: 256
     thumb_size: 256
     style_upsize: 1
-    patch_depth: 1
+    patch_depth: 4
     num_workers: 0
     batch_size: 1
 
@@ -76,10 +84,22 @@ optimizer:
       - net_rev_2
     beta1: 0.9
     beta2: 0.999
-  optimD:
+  optimD1:
     name: Adam
     net_names:
-      - netD
+      - netD_1
+    beta1: 0.9
+    beta2: 0.999
+  optimD2:
+    name: Adam
+    net_names:
+      - netD_2
+    beta1: 0.9
+    beta2: 0.999
+  optimD3:
+    name: Adam
+    net_names:
+      - netD_3
     beta1: 0.9
     beta2: 0.999
 

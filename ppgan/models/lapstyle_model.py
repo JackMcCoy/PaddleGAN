@@ -2433,7 +2433,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         self.loss = self.loss_Gp_GAN +self.loss_ps/4 * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
-                    self.loss_patch * (2+i*.75) +\
+                    self.loss_patch * 2.75 +\
                     self.p_loss_style_remd/4 * 10.5 + self.p_loss_content_relt * 16 + mxdogloss
 
         return self.loss

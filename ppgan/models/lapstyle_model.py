@@ -2482,7 +2482,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # update G
         for i in range(loops+1):
             g_losses.append(self.backward_G(i))
-        (g_losses[0]+g_losses[1]+g_losses[2]*1.25).backward()
+        (g_losses[0]+g_losses[1]).backward()
         optimizers['optimG'].step()
         optimizers['optimG'].clear_grad()
 

@@ -43,7 +43,7 @@ model:
   style_weight: 5
   ada_alpha: .19
   ada_alpha_2: .02
-  gan_thumb_weight: 1.5
+  gan_thumb_weight: 1
   gan_patch_weight: 2
   use_mdog: 1
   morph_cutoff: 8.95
@@ -57,7 +57,7 @@ dataset:
     crop_size: 256
     thumb_size: 256
     patch_depth: 3
-    style_upsize: 1
+    style_upsize: 1.15
     num_workers: 1
     batch_size: 1
   test:

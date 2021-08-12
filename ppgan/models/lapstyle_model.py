@@ -2465,17 +2465,18 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
 
     def train_iter(self, optimizers=None):
-        loops=0
+        loops=1
         '''
         if self.iters>=self.rev3_iter:
             loops+=1
         if self.iters>=self.rev4_iter:
             loops+=1
+        '''
         # compute fake images: G(A)
         self.forward()
         # update D
 
-        for a,b,i in zip(self.discriminators,[optimizers['optimD1'],optimizers['optimD2']],list(range(2))):
+        for a,b,i in zip(self.discriminators,[optimizers['optimD3']],[2]):
             self.set_requires_grad(a, True)
             b.clear_grad()
             self.backward_D(a,i)
@@ -2486,7 +2487,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # update G
         for i in range(loops+1):
             g_losses.append(self.backward_G(i))
-        (g_losses[0]+g_losses[1]).backward()
+        (g_losses[0]).backward()
         optimizers['optimG'].step()
         optimizers['optimG'].clear_grad()
 

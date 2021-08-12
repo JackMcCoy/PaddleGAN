@@ -2213,10 +2213,10 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
         init_weights(self.nets['netD_1'])
         self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
-        init_weights(self.nets['netD_2'])
-        self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
-        init_weights(self.nets['netD_3'])
-        self.discriminators=[self.nets['netD_1'],self.nets['netD_2'],self.nets['netD_3']]
+        #init_weights(self.nets['netD_2'])
+        #self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
+        #init_weights(self.nets['netD_3'])
+        self.discriminators=[self.nets['netD_1'],self.nets['netD_2']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2472,7 +2472,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.forward()
         # update D
 
-        for a,b,i in zip(self.discriminators,[optimizers['optimD1'],optimizers['optimD2'],optimizers['optimD3']],list(range(3))):
+        for a,b,i in zip(self.discriminators,[optimizers['optimD1'],optimizers['optimD2']],list(range(2))):
             self.set_requires_grad(a, True)
             b.clear_grad()
             self.backward_D(a,i)

@@ -32,7 +32,7 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
-  style_weight: 5
+  style_weight: 1
   ada_alpha: .19
   ada_alpha_2: .02
   gan_thumb_weight: 1
@@ -49,7 +49,7 @@ dataset:
     crop_size: 256
     thumb_size: 256
     patch_depth: 3
-    style_upsize: 1
+    style_upsize: 1.1
     num_workers: 2
     batch_size: 2
   test:

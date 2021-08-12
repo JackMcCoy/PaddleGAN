@@ -2447,7 +2447,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         pred_Dp_real = 0
         reshaped = self.style_stack[1]
-        for j in range(i+1):
+        for j in range(i):
             k = random_crop_coords(reshaped.shape[-1])
             reshaped=paddle.slice(reshaped,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
         if not reshaped.shape[-1]==512:

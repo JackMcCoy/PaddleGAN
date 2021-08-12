@@ -2191,7 +2191,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                  use_mdog=0,
                  morph_cutoff=47.9,
                  rev3_iter=0,
-                 rev4_iter=100000):
+                 rev4_iter=0):
 
         super(LapStyleRevSecondMXDOG, self).__init__()
 
@@ -2208,14 +2208,17 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         # define the second revnet params
         self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
-        init_weights(self.nets['net_rev_2'])
-        self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
-        init_weights(self.nets['netD_1'])
-        self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
+        self.set_requires_grad([self.nets['net_rev']], False)
+        #init_weights(self.nets['net_rev_2'])
+        #self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
+        #init_weights(self.nets['netD_1'])
+        #self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
         #init_weights(self.nets['netD_2'])
-        #self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
-        #init_weights(self.nets['netD_3'])
-        self.discriminators=[self.nets['netD_1'],self.nets['netD_2']]
+        self.nets['net_rev_3'] = build_generator(revnet_generator)
+        init_weights(self.nets['net_rev_3'])
+        self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
+        init_weights(self.nets['netD_3'])
+        self.discriminators=[self.nets['netD_3']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2291,7 +2294,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.laplacians.append(laplacian_conv(self.content_stack[0],self.lap_filter).detach())
             self.laplacians.append(laplacian_conv(self.content_stack[1],self.lap_filter).detach())
             self.laplacians.append(laplacian_conv(self.content_stack[2],self.lap_filter).detach())
-            #self.laplacians.append(laplacian_conv(self.content_stack[3],self.lap_filter).detach())
+            self.laplacians.append(laplacian_conv(self.content_stack[3],self.lap_filter).detach())
             self.cX = False
             self.sX = False
 
@@ -2338,7 +2341,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.patches_in.append(stylized_up)
 
             revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up.detach()], axis=1)
-            stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha_2)
+            stylized_rev_patch_second,_ = self.nets['net_rev_3'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha_2)
             stylized_rev_patch_second = fold_laplace_patch(
                 [stylized_rev_patch_second, stylized_up.detach()])
             self.visual_items['ci_4'] = self.content_stack[3]
@@ -2463,6 +2466,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
     def train_iter(self, optimizers=None):
         loops=0
+        '''
         if self.iters>=self.rev3_iter:
             loops+=1
         if self.iters>=self.rev4_iter:

@@ -2213,7 +2213,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #init_weights(self.nets['netD_1'])
         #self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
         #init_weights(self.nets['netD_2'])
-        self.nets['net_rev_3'] = build_generator(revnet_generator)
+        self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
         init_weights(self.nets['net_rev_3'])
         self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
         init_weights(self.nets['netD_3'])

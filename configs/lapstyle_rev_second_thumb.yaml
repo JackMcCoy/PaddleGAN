@@ -7,16 +7,16 @@ min_max:
 model:
   name: LapStyleRevSecondPatch
   revnet_generator:
-    name: RevisionNetDeepThumb
+    name: RevisionNet
   revnet_discriminator:
     name: LapStyleDiscriminator
     num_channels: 16
   draftnet_encode:
     name: Encoder
   draftnet_decode:
-    name: DecoderNet
+    name: DecoderNetDeep
   revnet_deep_generator:
-    name: RevisionNetDeepThumb
+    name: RevisionNetThumb
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:
@@ -30,7 +30,7 @@ model:
     gan_mode: vanilla
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
-  content_weight: 4
+  content_weight: 1
   style_weight: 5
   ada_alpha: .19
   ada_alpha_2: .02

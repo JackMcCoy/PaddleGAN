@@ -1693,7 +1693,7 @@ class LapStyleRevSecondPatch(BaseModel):
     def test_iter(self, output_dir=None,metrics=None):
         self.eval()
         self.output_dir=output_dir
-        self.laplacians=[laplacian(self.content_stack[0])]
+        self.laplacians=[laplacian_conv(self.content_stack[0],self.lap_filter)]
         self.out_images=[]
         print('content_size='+str(self.content.shape))
         for i in [.25,.5,1]:

@@ -9,9 +9,9 @@ model:
   revnet_generator:
     name: RevisionNet
   revnet_discriminator_3:
-    name: LapStyleSingleDiscriminator
-    num_channels: 16
-    num_layer: 9
+    name: LapStyleMultiresDiscriminator
+    num_channels: 64
+    num_halvings: 3
   draftnet_encode:
     name: Encoder
   draftnet_decode:

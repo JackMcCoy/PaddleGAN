@@ -2271,9 +2271,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.stylized.append(stylized_rev_patch_second)
 
     def backward_Dec(self):
+        ci=F.interpolate(self.content_stack[0],scale_factor=.5)
+        si=F.interpolate(self.style_stack[0],scale_factor=.5)
         self.tF = self.nets['net_enc'](self.stylized[0])
-        self.cF =self.nets['net_enc'](F.interpolate(self.content_stack[0],scale_factor=.5))
-        self.sF = self.nets['net_enc'](F.interpolate(self.style_stack[0],scale_factor=.5))
+        self.cF =self.nets['net_enc'](ci)
+        self.sF = self.nets['net_enc'](si)
         """content loss"""
         self.loss_c = 0
         for layer in self.content_layers:
@@ -2288,7 +2290,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['loss_s'] = self.loss_s
         """IDENTITY LOSSES"""
         self.Icc = self.nets['net_dec'](self.cF, self.cF)
-        self.l_identity1 = self.calc_content_loss(self.Icc, self.ci)
+        self.l_identity1 = self.calc_content_loss(self.Icc, ci)
         self.Fcc = self.nets['net_enc'](self.Icc)
         self.l_identity2 = 0
         for layer in self.content_layers[:-1]:

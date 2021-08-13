@@ -1649,17 +1649,25 @@ class LapStyleRevSecondPatch(BaseModel):
         self.gan_thumb_weight = gan_thumb_weight
         self.gan_patch_weight = gan_patch_weight
 
+        l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
+        self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
+                                           padding=1, groups=3, padding_mode='reflect',
+                                           weight_attr=paddle.ParamAttr(
+                                               initializer=paddle.fluid.initializer.NumpyArrayInitializer(
+                                                   value=l), trainable=False)
+                                           )
+
     def test_iter(self, output_dir=None,metrics=None):
         self.eval()
         self.output_dir=output_dir
-        self.laplacians=[laplacian(self.content_stack[0])]
+        self.laplacians=[laplacian_conv(self.content_stack[0],self.lap_kernel)]
         self.out_images=[]
         print('content_size='+str(self.content.shape))
         for i in [.25,.5,1]:
             if i==1:
-                self.laplacians.append(laplacian(self.content))
+                self.laplacians.append(laplacian_conv(self.content),self.lap_kernel)
             else:
-                self.laplacians.append(laplacian(F.interpolate(self.content, scale_factor=i)))
+                self.laplacians.append(laplacian_conv(F.interpolate(self.content, scale_factor=i)),,self.lap_kernel)
         with paddle.no_grad():
             cF = self.nets['net_enc'](F.interpolate(self.content_stack[0],scale_factor=.5))
             sF = self.nets['net_enc'](F.interpolate(self.style_stack[0], scale_factor=.5))

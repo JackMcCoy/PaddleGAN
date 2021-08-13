@@ -9,7 +9,7 @@ model:
   generator_encode:
     name: Encoder
   generator_decode:
-    name: DecoderKMeans
+    name: DecoderNetDeep
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:
@@ -20,7 +20,7 @@ model:
     name: CalcStyleLoss
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
-  content_weight: 2
+  content_weight: 1
   style_weight: 5
   morph_cutoff: .99
 

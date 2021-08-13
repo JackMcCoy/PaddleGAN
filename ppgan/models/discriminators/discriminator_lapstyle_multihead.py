@@ -68,6 +68,9 @@ class LapStyleMultiresDiscriminator(nn.Layer):
                 print(type(net))
             self.resolutions.append(net)
 
-    def forward(self, x,i):
-        out = self.resolutions[i](x)
+    def forward(self, x):
+        netouts = []
+        for i in self.resolutions:
+            netouts.append(i(x))
+        out=paddle.concatenate(netwouts).sum()
         return out

@@ -2119,12 +2119,13 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         # define the first revnet params
         self.nets['net_rev'] = build_generator(revnet_generator)
-        self.set_requires_grad([self.nets['net_rev']], False)
+        init_weights(self.nets['net_rev_2'])
+        #self.set_requires_grad([self.nets['net_rev']], False)
 
         # define the second revnet params
         self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
-        self.set_requires_grad([self.nets['net_rev_2']], False)
-        #init_weights(self.nets['net_rev_2'])
+        #self.set_requires_grad([self.nets['net_rev_2']], False)
+        init_weights(self.nets['net_rev_2'])
         #self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
         #init_weights(self.nets['netD_1'])
         #self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
@@ -2226,6 +2227,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #rev_net thumb only calcs as patch if second parameter is passed
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input)
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
+        self.stylized = [stylized_rev]
         self.visual_items['stylized_rev_first'] = stylized_rev
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
         stylized_up = crop_upsized(stylized_up,self.positions[0],self.size_stack[0])
@@ -2234,7 +2236,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         stylized_rev_lap_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats,self.ada_alpha)
         stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up])
         self.visual_items['ci_2'] = self.content_stack[1]
-        self.stylized= [stylized_rev_second]
+        self.stylized.append(stylized_rev_second)
 
         self.visual_items['stylized_rev_second'] = stylized_rev_second
 
@@ -2270,19 +2272,20 @@ class LapStyleRevSecondMXDOG(BaseModel):
     def backward_G(self,i):
         cF = self.nets['net_enc'](self.content_stack[i+1])
 
-        with paddle.no_grad():
-            tt_cropF = self.nets['net_enc'](self.patches_in[i])
 
         tpF = self.nets['net_enc'](self.stylized[i])
 
         """patch loss"""
         self.loss_patch = 0
-        # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
-        #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
-        for layer in [self.content_layers[-2]]:
-            self.loss_patch += self.calc_content_loss(tpF[layer],
-                                                      tt_cropF[layer])
-        self.losses['loss_patch_'+str(i+1)] = self.loss_patch
+        if i!=0:
+            with paddle.no_grad():
+            tt_cropF = self.nets['net_enc'](self.patches_in[i])
+            # self.loss_patch= self.calc_content_loss(self.tpF['r41'],self.tt_cropF['r41'])#+\
+            #                self.calc_content_loss(self.tpF['r51'],self.tt_cropF['r51'])
+            for layer in [self.content_layers[-2]]:
+                self.loss_patch += self.calc_content_loss(tpF[layer],
+                                                          tt_cropF[layer])
+            self.losses['loss_patch_'+str(i+1)] = self.loss_patch
 
         self.loss_content_p = 0
         for layer in self.content_layers:
@@ -2402,9 +2405,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
         optimizers['optimG'].clear_grad()
         g_losses=[]
         # update G
-        for i in [2]:
+        for i in range(4):
             g_losses.append(self.backward_G(i))
-        (g_losses[0]).backward()
+        (g_losses[0]+g_losses[1]+g_losses[2]+g_losses[3]).backward()
         optimizers['optimG'].step()
         optimizers['optimG'].clear_grad()
 

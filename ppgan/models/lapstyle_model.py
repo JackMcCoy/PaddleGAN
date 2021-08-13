@@ -201,7 +201,8 @@ class LapStyleDraXDOG(BaseModel):
                  style_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
                  content_weight=1.0,
                  style_weight=3.0,
-                 morph_cutoff=8):
+                 morph_cutoff=8,
+                 gamma=.96):
 
         super(LapStyleDraXDOG, self).__init__()
 
@@ -222,6 +223,7 @@ class LapStyleDraXDOG(BaseModel):
         self.content_weight = content_weight
         self.style_weight = style_weight
         self.morph_cutoff=morph_cutoff
+        self.gamma=gamma
         g = np.repeat(gaussian(7, 1).numpy(), 3, axis=0)
         g2 = np.repeat(gaussian(19, 3).numpy(), 3, axis=0)
         self.gaussian_filter = paddle.nn.Conv2D(3, 3, 7,
@@ -267,13 +269,13 @@ class LapStyleDraXDOG(BaseModel):
 
     def backward_Dec(self):
 
-        self.cX,_ = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
-        self.sX,_ = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
+        self.cX,_ = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=2)
+        self.sX,_ = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=2)
         self.visual_items['cx'] = self.cX
         self.visual_items['sx'] = self.sX
         self.cXF = self.nets['net_enc'](self.cX)
         self.sXF = self.nets['net_enc'](self.sX)
-        stylized_dog,_ = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
+        stylized_dog,_ = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=2)
         self.cdogF = self.nets['net_enc'](stylized_dog)
 
         self.tF = self.nets['net_enc'](self.stylized)

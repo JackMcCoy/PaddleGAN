@@ -2308,9 +2308,25 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['loss_style_remd'] = self.loss_style_remd
         self.losses['loss_content_relt'] = self.loss_content_relt
 
+        cX,_ = xdog(ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
+        sX,_ = xdog(si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
+        cXF = self.nets['net_enc'](cX)
+        sXF = self.nets['net_enc'](sX)
+        stylized_dog,_ = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
+        cdogF = self.nets['net_enc'](stylized_dog)
+
+        mxdog_content = self.calc_content_loss(self.tF['r31'], cXF['r31'])
+        mxdog_content_contraint = self.calc_content_loss(cdogF['r31'], cXF['r31'])
+        mxdog_content_img = self.calc_style_loss(cdogF['r31'],sXF['r31'])
+
+        self.losses['loss_MD'] = mxdog_content*.01
+        self.losses['loss_CnsC'] = mxdog_content_contraint*20
+        self.losses['loss_CnsS'] = mxdog_content_img*100
+
         self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
-                    self.l_identity1 * 50 + self.l_identity2 * 1 + self.loss_style_remd * 10 + \
-                    self.loss_content_relt * 16
+                    self.l_identity1 * 50 + self.l_identity2 * 1 + \
+                    mxdog_content * .0125 + mxdog_content_contraint *25 + mxdog_content_img * 125+\
+                    self.loss_content_relt * 28 +self.loss_style_remd * 18
 
         return self.loss
 

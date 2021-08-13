@@ -2220,6 +2220,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         sF = self.nets['net_enc'](F.interpolate(self.style_stack[0], scale_factor=.5))
 
         stylized_small= self.nets['net_dec'](cF, sF)
+        self.stylized=[stylized_small]
         self.visual_items['stylized_small'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
 
@@ -2227,7 +2228,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #rev_net thumb only calcs as patch if second parameter is passed
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input)
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
-        self.stylized = [stylized_rev]
+        self.stylized.append(stylized_rev)
         self.visual_items['stylized_rev_first'] = stylized_rev
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
         stylized_up = crop_upsized(stylized_up,self.positions[0],self.size_stack[0])
@@ -2269,11 +2270,53 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
             self.stylized.append(stylized_rev_patch_second)
 
+    def backward_Dec(self):
+        self.tF = self.nets['net_enc'](self.stylized[0])
+        self.cF =self.nets['net_enc'](F.interpolate(self.content_stack[0],scale_factor=.5))
+        self.sF = self.nets['net_enc'](F.interpolate(self.style_stack[0],scale_factor=.5))
+        """content loss"""
+        self.loss_c = 0
+        for layer in self.content_layers:
+            self.loss_c += self.calc_content_loss(self.tF[layer],
+                                                  self.cF[layer],
+                                                  norm=True)
+        self.losses['loss_c'] = self.loss_c
+        """style loss"""
+        self.loss_s = 0
+        for layer in self.style_layers:
+            self.loss_s += self.calc_style_loss(self.tF[layer], self.sF[layer])
+        self.losses['loss_s'] = self.loss_s
+        """IDENTITY LOSSES"""
+        self.Icc = self.nets['net_dec'](self.cF, self.cF)
+        self.l_identity1 = self.calc_content_loss(self.Icc, self.ci)
+        self.Fcc = self.nets['net_enc'](self.Icc)
+        self.l_identity2 = 0
+        for layer in self.content_layers[:-1]:
+            self.l_identity2 += self.calc_content_loss(self.Fcc[layer],
+                                                       self.cF[layer])
+        self.losses['l_identity1'] = self.l_identity1
+        self.losses['l_identity2'] = self.l_identity2
+        """relative loss"""
+        self.loss_style_remd = self.calc_style_emd_loss(
+            self.tF['r31'], self.sF['r31']) + self.calc_style_emd_loss(
+                self.tF['r41'], self.sF['r41'])
+        self.loss_content_relt = self.calc_content_relt_loss(
+            self.tF['r31'], self.cF['r31']) + self.calc_content_relt_loss(
+                self.tF['r41'], self.cF['r41'])
+        self.losses['loss_style_remd'] = self.loss_style_remd
+        self.losses['loss_content_relt'] = self.loss_content_relt
+
+        self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
+                    self.l_identity1 * 50 + self.l_identity2 * 1 + self.loss_style_remd * 10 + \
+                    self.loss_content_relt * 16
+
+        return self.loss
+
     def backward_G(self,i):
         cF = self.nets['net_enc'](self.content_stack[i])
 
 
-        tpF = self.nets['net_enc'](self.stylized[i])
+        tpF = self.nets['net_enc'](self.stylized[i+1])
 
         """patch loss"""
         self.loss_patch = 0
@@ -2410,11 +2453,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
             optimizers['optimD3'].step()
         self.set_requires_grad(self.nets['netD_3'], False)
         optimizers['optimG'].clear_grad()
-        g_losses=[]
+        g_losses=[self.backward_Dec()]
         # update G
         for i in range(4):
             g_losses.append(self.backward_G(i))
-        (g_losses[0]+g_losses[1]+g_losses[2]+g_losses[3]*1.25).backward()
+        (g_losses[0]+g_losses[1]+g_losses[2]+g_losses[3]+g_losses[4]*1.25).backward()
         optimizers['optimG'].step()
         optimizers['optimG'].clear_grad()
 

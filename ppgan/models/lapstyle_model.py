@@ -2404,7 +2404,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + (mxdog_style/4) * 125
 
         """gan loss"""
-        pred_fake_p = self.discriminators[0](self.stylized[i])
+        pred_fake_p = self.discriminators[0](self.stylized[i+1])
         self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 

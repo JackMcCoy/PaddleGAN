@@ -69,7 +69,5 @@ class LapStyleMultiresDiscriminator(nn.Layer):
             self.resolutions.append(net)
 
     def forward(self, x):
-        out=0
-        for i in self.resolutions:
-            out+=i(x)
+        out=self.resolutions[0](x)+self.resolutions[1](x)+self.resolutions[2](x)
         return out

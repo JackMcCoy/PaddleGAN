@@ -1665,7 +1665,7 @@ class LapStyleRevSecondPatch(BaseModel):
         print('content_size='+str(self.content.shape))
         for i in [.25,.5,1]:
             if i==1:
-                self.laplacians.append(laplacian_conv(self.content),self.lap_kernel)
+                self.laplacians.append(laplacian_conv(self.content,self.lap_kernel))
             else:
                 self.laplacians.append(laplacian_conv(F.interpolate(self.content, scale_factor=i),self.lap_kernel))
         with paddle.no_grad():

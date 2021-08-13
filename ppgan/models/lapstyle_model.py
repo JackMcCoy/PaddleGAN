@@ -2263,7 +2263,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up], axis=1)
             stylized_rev_patch_second,_ = self.nets['net_rev_3'](revnet_input,stylized_feats,self.ada_alpha_2)
             stylized_rev_patch_second = fold_laplace_patch(
-                [stylized_rev_patch_second, stylized_up)])
+                [stylized_rev_patch_second, stylized_up])
             self.visual_items['ci_4'] = self.content_stack[3]
             self.visual_items['stylized_rev_fourth'] = stylized_rev_patch_second
 

@@ -429,7 +429,6 @@ class LapStyleThumbsetInference(Dataset):
 
     def __getitem__(self, index):
         """Get training sample
-
         return:
             ci: content image with shape [C,W,H],
             si: style image with shape [C,W,H],
@@ -527,7 +526,6 @@ class LapStyleThumbsetInference(Dataset):
 
     def img(self, img):
         """make image with [0,255] and HWC to [0,1] and CHW
-
         return:
             img: image with shape [3,W,H] and value [0, 1].
         """

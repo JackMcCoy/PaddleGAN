@@ -2378,8 +2378,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
                     loss_Dp_real = dec(j.detach())
                     pred_Dp_real += self.gan_criterion(loss_Dp_real, True)
         else:
+            reshaped = F.interpolate(reshaped,size=(256,256))
             loss_Dp_real = dec(reshaped.detach())
-            pred_Dp_real += self.gan_criterion(loss_Dp_real, True)
+            pred_Dp_real += self.gan_criterion(loss_Dp_real, True)*4
         self.loss_D_patch = (loss_Dp_fake + pred_Dp_real/4) * 0.5
         self.losses['Dp_fake_loss_'+str(i)] = loss_Dp_fake
         self.losses['Dp_real_loss_'+str(i)] = pred_Dp_real/4

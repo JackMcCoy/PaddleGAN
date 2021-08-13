@@ -2279,7 +2279,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss_patch = 0
         if i!=0:
             with paddle.no_grad():
-                tt_cropF = self.nets['net_enc'](self.patches_in[i])
+                tt_cropF = self.nets['net_enc'](self.patches_in[i-1])
             for layer in [self.content_layers[-2]]:
                 self.loss_patch += self.calc_content_loss(tpF[layer],
                                                           tt_cropF[layer])

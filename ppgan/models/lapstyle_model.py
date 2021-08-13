@@ -2115,8 +2115,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.nets['net_enc'] = build_generator(draftnet_encode)
         self.nets['net_dec'] = build_generator(draftnet_decode)
         self.set_requires_grad([self.nets['net_enc']], False)
-        #self.set_requires_grad([self.nets['net_dec']], False)
-        init_weights(self.nets['net_dec'])
+        self.set_requires_grad([self.nets['net_dec']], False)
+        #init_weights(self.nets['net_dec'])
 
         # define the first revnet params
         self.nets['net_rev'] = build_generator(revnet_generator)
@@ -2472,11 +2472,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
             optimizers['optimD3'].step()
         self.set_requires_grad(self.nets['netD_3'], False)
         optimizers['optimG'].clear_grad()
-        g_losses=[self.backward_Dec()]
+        g_losses=[]
         # update G
         for i in range(4):
             g_losses.append(self.backward_G(i))
-        (g_losses[0]+g_losses[1]+g_losses[2]+g_losses[3]+g_losses[4]).backward()
+        (g_losses[0]+g_losses[1]+g_losses[2]+g_losses[3]*1.25).backward()
         optimizers['optimG'].step()
         optimizers['optimG'].clear_grad()
 

@@ -2366,16 +2366,20 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         pred_Dp_real = 0
         reshaped = self.style_stack[1]
-        for j in range(i):
-            k = random_crop_coords(reshaped.shape[-1])
-            reshaped=paddle.slice(reshaped,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
-        if not reshaped.shape[-1]==512:
-            reshaped = F.interpolate(reshaped,size=(512,512))
-        reshaped = paddle.split(reshaped, 2, 2)
-        for k in reshaped:
-            for j in paddle.split(k, 2, 3):
-                loss_Dp_real = dec(j.detach())
-                pred_Dp_real += self.gan_criterion(loss_Dp_real, True)
+        if i>0:
+            for j in range(i):
+                k = random_crop_coords(reshaped.shape[-1])
+                reshaped=paddle.slice(reshaped,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
+            if not reshaped.shape[-1]==512:
+                reshaped = F.interpolate(reshaped,size=(512,512))
+            reshaped = paddle.split(reshaped, 2, 2)
+            for k in reshaped:
+                for j in paddle.split(k, 2, 3):
+                    loss_Dp_real = dec(j.detach())
+                    pred_Dp_real += self.gan_criterion(loss_Dp_real, True)
+        else:
+            loss_Dp_real = dec(reshaped.detach())
+            pred_Dp_real += self.gan_criterion(loss_Dp_real, True)
         self.loss_D_patch = (loss_Dp_fake + pred_Dp_real/4) * 0.5
         self.losses['Dp_fake_loss_'+str(i)] = loss_Dp_fake
         self.losses['Dp_real_loss_'+str(i)] = pred_Dp_real/4
@@ -2394,11 +2398,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.forward()
         # update D
 
-        for a,b,i in zip(self.discriminators,[optimizers['optimD3']],[2]):
-            self.set_requires_grad(a, True)
+        for i in range(4):
+            self.set_requires_grad(self.nets['netD_3'], True)
             b.clear_grad()
-            self.backward_D(a,i)
-            b.step()
+            self.backward_D(self.nets['netD_3'],i)
+            optimizers['optimD3'].step()
             self.set_requires_grad(a, False)
         optimizers['optimG'].clear_grad()
         g_losses=[]

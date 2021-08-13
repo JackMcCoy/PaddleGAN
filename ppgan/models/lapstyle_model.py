@@ -2119,7 +2119,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         # define the first revnet params
         self.nets['net_rev'] = build_generator(revnet_generator)
-        init_weights(self.nets['net_rev_2'])
+        init_weights(self.nets['net_rev'])
         #self.set_requires_grad([self.nets['net_rev']], False)
 
         # define the second revnet params

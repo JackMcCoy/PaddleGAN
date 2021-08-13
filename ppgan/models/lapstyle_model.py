@@ -1867,7 +1867,7 @@ class LapStyleRevSecondPatch(BaseModel):
                             print('continue, line 1341')
                             continue
                         revnet_input_3 = paddle.concat(x=[lap_3, stylized_up_4.detach()], axis=1)
-                        stylized_rev_patch_second,_ = self.nets['net_rev_3'](revnet_input_3.detach(),stylized_feats_2.detach(),self.ada_alpha)
+                        stylized_rev_patch_second,_ = self.nets['net_rev_3'](revnet_input_3.detach(),stylized_feats_2.detach(),self.ada_alpha_2)
                         stylized_rev_patch_second = fold_laplace_patch(
                             [stylized_rev_patch_second, stylized_up_4.detach()])
                         image_numpy=tensor2img(stylized_rev_patch_second,min_max=(0., 1.))
@@ -2210,7 +2210,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         # define the second revnet params
         self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
-        self.set_requires_grad([self.nets['net_rev']], False)
+        self.set_requires_grad([self.nets['net_rev_2']], False)
         #init_weights(self.nets['net_rev_2'])
         #self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
         #init_weights(self.nets['netD_1'])

@@ -260,7 +260,7 @@ class LapStyleDraXDOG(BaseModel):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
-        self.stylized = self.nets['net_dec'](self.ci,self.si,self.cF, self.sF)
+        self.stylized = self.nets['net_dec'](self.cF, self.sF)
         self.visual_items['stylized'] = self.stylized
 
     def backward_Dec(self):

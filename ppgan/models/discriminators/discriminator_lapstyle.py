@@ -56,9 +56,8 @@ class LapStyleDiscriminator(nn.Layer):
 
 @DISCRIMINATORS.register()
 class LapStyleSpectralDiscriminator(nn.Layer):
-    def __init__(self, num_channels=32):
+    def __init__(self, num_channels=32,num_layer=3):
         super(LapStyleSpectralDiscriminator, self).__init__()
-        num_layer = 3
         num_channel = num_channels
         self.head = nn.Sequential(
             ('conv',spectral_norm(nn.Conv2D(3, num_channel, kernel_size=3, stride=1, padding=1))),

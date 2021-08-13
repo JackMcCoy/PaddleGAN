@@ -1650,7 +1650,7 @@ class LapStyleRevSecondPatch(BaseModel):
         self.gan_patch_weight = gan_patch_weight
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
-        self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
+        self.lap_kernel = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
                                            padding=1, groups=3, padding_mode='reflect',
                                            weight_attr=paddle.ParamAttr(
                                                initializer=paddle.fluid.initializer.NumpyArrayInitializer(

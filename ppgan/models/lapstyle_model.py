@@ -2312,7 +2312,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         sX,_ = xdog(si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
         cXF = self.nets['net_enc'](cX)
         sXF = self.nets['net_enc'](sX)
-        stylized_dog,_ = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
+        stylized_dog,_ = xdog(self.stylized[0],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morph_cutoff=self.morph_cutoff,morphs=2)
         cdogF = self.nets['net_enc'](stylized_dog)
 
         mxdog_content = self.calc_content_loss(self.tF['r31'], cXF['r31'])

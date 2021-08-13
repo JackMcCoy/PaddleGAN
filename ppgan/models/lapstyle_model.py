@@ -1630,6 +1630,10 @@ class LapStyleRevSecondPatch(BaseModel):
         # define the second revnet params
         self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
         init_weights(self.nets['net_rev_2'])
+
+        self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
+        init_weights(self.nets['net_rev_3'])
+
         self.nets['netD'] = build_discriminator(revnet_discriminator)
         init_weights(self.nets['netD'])
         self.nets['netD_patch'] = build_discriminator(revnet_discriminator)
@@ -1896,7 +1900,7 @@ class LapStyleRevSecondPatch(BaseModel):
             stylized_feats = self.stylized_feats
         stylized_up = crop_upsized(stylized_up,self.positions[0],self.size_stack[0])
         revnet_input = paddle.concat(x=[self.laplacians[1], stylized_up], axis=1)
-        stylized_rev_lap_second,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats,self.ada_alpha)
+        stylized_rev_lap_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats,self.ada_alpha)
         stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up])
         self.visual_items['ci_2'] = self.content_stack[1]
         self.stylized= stylized_rev_second
@@ -1906,9 +1910,6 @@ class LapStyleRevSecondPatch(BaseModel):
         stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
         stylized_up = crop_upsized(stylized_up,self.positions[1],self.size_stack[1])
         self.first_patch_in = stylized_up.detach()
-
-        stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
-        stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
 
         revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up.detach()], axis=1)
         stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha_2)
@@ -1922,7 +1923,11 @@ class LapStyleRevSecondPatch(BaseModel):
         self.second_patch_in = stylized_up.detach()
 
         revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up.detach()], axis=1)
-        stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha_2)
+
+        stylized_feats = self.nets['net_rev_3'].DownBlock(revnet_input.detach())
+        stylized_feats = self.nets['net_rev_3'].resblock(stylized_feats)
+
+        stylized_rev_patch_second,_ = self.nets['net_rev_3'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha_2)
         stylized_rev_patch_second = fold_laplace_patch(
             [stylized_rev_patch_second, stylized_up.detach()])
         self.visual_items['ci_4'] = self.content_stack[3]
@@ -2377,7 +2382,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         self.loss_ps = 0
         self.p_loss_style_remd = 0
-        
+
         mxdog_style=0
         style_counter=0
         if type(self.cX)==bool:

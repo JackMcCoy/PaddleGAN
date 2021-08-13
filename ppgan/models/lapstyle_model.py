@@ -2335,7 +2335,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
                         tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                         tpF['r41'], spF['r41'])
                     sX,_ = xdog(j.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
-                    sX,_ = xdog(j.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
                     sXF = self.nets['net_enc'](sX)
                     mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
                     style_counter += 1
@@ -2350,8 +2349,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.p_loss_style_remd += self.calc_style_emd_loss(
                 tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                 tpF['r41'], spF['r41'])
-            sX,_ = xdog(j.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
-            sX,_ = xdog(j.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
+            sX,_ = xdog(self.style_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
             sXF = self.nets['net_enc'](sX)
             mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
 

@@ -2408,7 +2408,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
     def backward_D(self,dec,i):
         """Calculate GAN loss for the discriminator"""
-        pred_p_fake = dec(self.stylized[i].detach())
+        pred_p_fake = dec(self.stylized[i+1].detach())
         loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
         pred_Dp_real = 0

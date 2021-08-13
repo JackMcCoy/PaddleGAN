@@ -1709,7 +1709,7 @@ class LapStyleRevSecondPatch(BaseModel):
             self.stylized_up = F.interpolate(stylized_small, scale_factor=2)
             revnet_input = paddle.concat(x=[self.laplacians[0], self.stylized_up], axis=1)
             # rev_net thumb only calcs as patch if second parameter is passed
-            stylized_rev_lap, self.stylized_feats = self.nets['net_rev'](revnet_input)
+            stylized_rev_lap = self.nets['net_rev'](revnet_input)
             stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
             self.stylized_slice = F.interpolate(stylized_rev, scale_factor=2)
             print('stylized_slice.shape = '+str(self.stylized_slice.shape))
@@ -1736,7 +1736,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     self.second_set = 'b' if idx+1>orig_len_x or idx2+1>orig_len_y else 'a'
                     self.outer_loop=(i,j)
                     self.positions=[[i,j,i+self.in_size_x,j+self.in_size_y]]#!
-                    self.test_forward(self.stylized_slice,self.stylized_feats)
+                    self.test_forward(self.stylized_slice)
             positions = [(int(re.split('_|\.',i)[0]),int(re.split('_|\.',i)[1])) for i in self.labels]
             set_letter = [re.split('_|\.',i)[2] for i in self.labels]
             max_x = 0
@@ -1809,7 +1809,7 @@ class LapStyleRevSecondPatch(BaseModel):
         lap = paddle.slice(self.laplacians[1],axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
                              ends=[self.positions[0][2],self.positions[0][3]])
         revnet_input = paddle.concat(x=[lap, stylized_up], axis=1)
-        stylized_rev_lap_second,stylized_feats = self.nets['net_rev'](revnet_input.detach(),stylized_feats,self.ada_alpha)
+        stylized_rev_lap_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach())
         stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up])
         stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
         size_x = stylized_up.shape[-2]
@@ -1834,8 +1834,6 @@ class LapStyleRevSecondPatch(BaseModel):
                              ends=[i+in_size_x,j+in_size_y])
                 self.first_patch_in = stylized_up_2.detach()
 
-                stylized_feats_2 = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
-                stylized_feats_2 = self.nets['net_rev_2'].resblock(stylized_feats_2)
                 lap_2 = paddle.slice(self.laplacians[2],axes=[2,3],starts=[self.outer_loop[0]*2+i,self.outer_loop[1]*2+j],
                                    ends=[self.outer_loop[0]*2+i+in_size_x,self.outer_loop[1]*2+j+in_size_y])
                 if lap_2.shape[-2]!=in_size_x or lap_2.shape[-1]!=in_size_y:
@@ -1845,7 +1843,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     print('continue, line 1314')
                     continue
                 revnet_input_2 = paddle.concat(x=[lap_2, stylized_up_2.detach()], axis=1)
-                stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input_2.detach(),stylized_feats_2.detach(),self.ada_alpha)
+                stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input_2.detach(),stylized_feats.detach(),self.ada_alpha)
                 stylized_rev_patch = fold_laplace_patch(
                     [stylized_rev_patch, stylized_up_2.detach()])
 
@@ -1869,7 +1867,7 @@ class LapStyleRevSecondPatch(BaseModel):
                             print('continue, line 1341')
                             continue
                         revnet_input_3 = paddle.concat(x=[lap_3, stylized_up_4.detach()], axis=1)
-                        stylized_rev_patch_second,_ = self.nets['net_rev_2'](revnet_input_3.detach(),stylized_feats_2.detach(),self.ada_alpha)
+                        stylized_rev_patch_second,_ = self.nets['net_rev_3'](revnet_input_3.detach(),stylized_feats_2.detach(),self.ada_alpha)
                         stylized_rev_patch_second = fold_laplace_patch(
                             [stylized_rev_patch_second, stylized_up_4.detach()])
                         image_numpy=tensor2img(stylized_rev_patch_second,min_max=(0., 1.))

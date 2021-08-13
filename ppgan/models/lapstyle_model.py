@@ -1843,7 +1843,7 @@ class LapStyleRevSecondPatch(BaseModel):
                     print('continue, line 1314')
                     continue
                 revnet_input_2 = paddle.concat(x=[lap_2, stylized_up_2.detach()], axis=1)
-                stylized_rev_patch,stylized_feats_2 = self.nets['net_rev_2'](revnet_input_2.detach(),stylized_feats.detach(),self.ada_alpha)
+                stylized_rev_patch,stylized_feats_2 = self.nets['net_rev_2'](revnet_input_2.detach(),stylized_feats.detach(),self.ada_alpha_2)
                 stylized_rev_patch = fold_laplace_patch(
                     [stylized_rev_patch, stylized_up_2.detach()])
 

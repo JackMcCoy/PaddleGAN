@@ -72,5 +72,5 @@ class LapStyleMultiresDiscriminator(nn.Layer):
         netouts = []
         for i in self.resolutions:
             netouts.append(i(x))
-        out=paddle.concatenate(netwouts).sum()
+        out=paddle.concat(netwouts).sum()
         return out

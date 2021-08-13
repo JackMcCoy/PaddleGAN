@@ -1667,7 +1667,7 @@ class LapStyleRevSecondPatch(BaseModel):
             if i==1:
                 self.laplacians.append(laplacian_conv(self.content),self.lap_kernel)
             else:
-                self.laplacians.append(laplacian_conv(F.interpolate(self.content, scale_factor=i)),,self.lap_kernel)
+                self.laplacians.append(laplacian_conv(F.interpolate(self.content, scale_factor=i)),self.lap_kernel)
         with paddle.no_grad():
             cF = self.nets['net_enc'](F.interpolate(self.content_stack[0],scale_factor=.5))
             sF = self.nets['net_enc'](F.interpolate(self.style_stack[0], scale_factor=.5))

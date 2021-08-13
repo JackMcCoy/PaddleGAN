@@ -221,29 +221,31 @@ class LapStyleDraXDOG(BaseModel):
         self.style_layers = style_layers
         self.content_weight = content_weight
         self.style_weight = style_weight
-        g=np.repeat(gaussian(7, 1).numpy(),3,axis=0)
-        g2=np.repeat(gaussian(19, 3).numpy(),3,axis=0)
-        g3 = np.repeat(gaussian(3, 1.25).numpy(), 3, axis=0)
-        print(g.shape)
-        self.morph_cutoff = morph_cutoff
-        self.gaussian_filter = paddle.nn.Conv2D(3, 3,7,
-                                groups=3, bias_attr=False,
-                                padding=3, padding_mode='reflect',
+        self.morph_cutoff=morph_cutoff
+        g = np.repeat(gaussian(7, 1).numpy(), 3, axis=0)
+        g2 = np.repeat(gaussian(19, 3).numpy(), 3, axis=0)
+        self.gaussian_filter = paddle.nn.Conv2D(3, 3, 7,
+                                                groups=3, bias_attr=False,
+                                                padding=3, padding_mode='reflect',
                                                 weight_attr=paddle.ParamAttr(
                                                     initializer=paddle.fluid.initializer.NumpyArrayInitializer(
-                                                        value=g),trainable=False))
-        self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3,19,
-                                groups=3, bias_attr=False,
-                                padding=9, padding_mode='reflect',
-                                weight_attr = paddle.ParamAttr(
-                                        initializer=paddle.fluid.initializer.NumpyArrayInitializer(value=g2), trainable=False))
+                                                        value=g), trainable=False)
+                                                )
+        self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3, 25,
+                                                  groups=3, bias_attr=False,
+                                                  padding=9, padding_mode='reflect',
+                                                  weight_attr=paddle.ParamAttr(
+                                                      initializer=paddle.fluid.initializer.NumpyArrayInitializer(
+                                                          value=g2), trainable=False)
+                                                  )
 
-        self.morph_conv = paddle.nn.Conv2D(3, 3,3,
-                                groups=3, bias_attr=False,
-                                padding=1, padding_mode='reflect',
-                                                weight_attr=paddle.ParamAttr(
-                                                    initializer=paddle.fluid.initializer.NumpyArrayInitializer(
-                                                        value=g3),trainable=False))
+        self.morph_conv = paddle.nn.Conv2D(3, 3, 3, padding=1, groups=3,
+                                           padding_mode='reflect', bias_attr=False,
+                                           weight_attr=paddle.ParamAttr(
+                                               initializer=paddle.fluid.initializer.Constant(
+                                                   value=1), trainable=False)
+                                           )
+
         print(gaussian(7, 1))
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)

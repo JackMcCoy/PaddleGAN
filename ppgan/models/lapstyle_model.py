@@ -2300,7 +2300,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
             _,cxminmax = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
             _,sxminmax = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
         cX,_ = xdog(self.content_stack[i].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,minmax=cxminmax)
-        self.visual_items['cX_'+str(i)]=cX
         cXF = self.nets['net_enc'](cX.detach())
         stylized_dog,_ = xdog(self.stylized[i],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,minmax=cxminmax)
         cdogF = self.nets['net_enc'](stylized_dog)
@@ -2328,8 +2327,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 sXF = self.nets['net_enc'](sX)
                 mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
                 style_counter += 1
-                if style_counter==4:
-                    self.visual_items['sX_'+str(i)]=sX
 
         self.losses['loss_ps_'+str(i+1)] = self.loss_ps/4
         self.p_loss_content_relt = self.calc_content_relt_loss(
@@ -2350,11 +2347,17 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 
+        if i<3:
+            a=10
+            b=16
+        else:
+            a=28
+            b=28
 
         self.loss = self.loss_Gp_GAN * 2.5 +self.loss_ps/4 * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch +\
-                    self.p_loss_style_remd/4 * 28 + self.p_loss_content_relt * 28 + mxdogloss
+                    self.p_loss_style_remd/4 * a + self.p_loss_content_relt * b + mxdogloss
 
         return self.loss
 

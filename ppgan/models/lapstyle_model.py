@@ -1808,7 +1808,7 @@ class LapStyleRevSecondPatch(BaseModel):
                              ends=[self.positions[0][2],self.positions[0][3]])
         lap = paddle.slice(self.laplacians[1],axes=[2,3],starts=[self.positions[0][0],self.positions[0][1]],\
                              ends=[self.positions[0][2],self.positions[0][3]])
-        revnet_input = paddle.concat(x=[lap, stylized_up], axis=1)
+        revnet_input,stylized_feats = paddle.concat(x=[lap, stylized_up], axis=1)
         stylized_rev_lap_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach())
         stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up])
         stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)

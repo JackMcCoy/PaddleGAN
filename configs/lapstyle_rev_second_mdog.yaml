@@ -8,7 +8,7 @@ model:
   name: LapStyleRevSecondMXDOG
   revnet_generator:
     name: RevisionNet
-  revnet_discriminator_2:
+  revnet_discriminator_1:
     name: LapStyleSingleDiscriminator
     num_channels: 64
     num_layer: 3
@@ -84,6 +84,18 @@ optimizer:
       - net_rev
       - net_rev_2
       - net_rev_3
+    beta1: 0.9
+    beta2: 0.999
+  optimD1:
+    name: Adam
+    net_names:
+      - netD_1
+    beta1: 0.9
+    beta2: 0.999
+  optimD2:
+    name: Adam
+    net_names:
+      - netD_2
     beta1: 0.9
     beta2: 0.999
   optimD3:

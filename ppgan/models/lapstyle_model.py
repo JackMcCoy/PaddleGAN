@@ -2431,7 +2431,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        self.set_requires_grad(self.nets['netD_2'], False)
         self.set_requires_grad(self.nets['netD_3'], True)
         for i in range(4):
             optimizers['optimD3'].clear_grad()

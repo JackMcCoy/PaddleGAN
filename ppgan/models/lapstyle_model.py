@@ -2282,7 +2282,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         cF = self.nets['net_enc'](self.content_stack[i])
 
 
-        tpF = self.nets['net_enc'](self.stylized[i+1])
+        tpF = self.nets['net_enc'](self.stylized[i+1]) 
 
         """patch loss"""
         self.loss_patch = 0

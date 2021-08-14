@@ -2090,7 +2090,6 @@ class LapStyleRevSecondPatch(BaseModel):
 class LapStyleRevSecondMXDOG(BaseModel):
     def __init__(self,
                  revnet_generator,
-                 revnet_discriminator_2,
                  revnet_discriminator_3,
                  draftnet_encode,
                  draftnet_decode,
@@ -2138,8 +2137,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #init_weights(self.nets['netD_2'])
         self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
         init_weights(self.nets['net_rev_3'])
-        self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
-        init_weights(self.nets['netD_2'])
         self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
         init_weights(self.nets['netD_3'])
         self.discriminators=[self.nets['netD_3'],self.nets['netD_2']]
@@ -2374,18 +2371,14 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 
-        pred_fake_p2 = self.discriminators[1](self.stylized[i+1])
-        self.loss_Gp_GAN2 = self.gan_criterion(pred_fake_p2, True)
-        self.losses['loss_gan_Gp2_'+str(i+1)] = self.loss_Gp_GAN2*self.gan_thumb_weight
-
         if i<3 and i>0:
             a=16
             b=16
-            c=1
+            c=1.5
         elif i==0:
             a=10
             b=16
-            c=.5
+            c=1
         else:
             a=28
             b=28
@@ -2445,12 +2438,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.backward_D(self.nets['netD_3'],i,'d3')
             optimizers['optimD3'].step()
         self.set_requires_grad(self.nets['netD_3'], False)
-        self.set_requires_grad(self.nets['netD_2'], True)
-        for i in range(4):
-            optimizers['optimD2'].clear_grad()
-            self.backward_D(self.nets['netD_2'],i,'d2')
-            optimizers['optimD2'].step()
-        self.set_requires_grad(self.nets['netD_2'], False)
         optimizers['optimG'].clear_grad()
         g_losses=[]
         # update G

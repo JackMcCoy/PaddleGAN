@@ -276,12 +276,13 @@ class MultiPatchSet(Dataset):
     """
     coco2017 dataset for LapStyle model
     """
-    def __init__(self, content_root, style_root, load_size, crop_size, thumb_size, patch_depth,style_upsize=1):
+    def __init__(self, content_root, style_root, starry_root,load_size, crop_size, thumb_size, patch_depth,style_upsize=1):
         super(MultiPatchSet, self).__init__()
         self.content_root = content_root
         self.paths = os.listdir(self.content_root)
         random.shuffle(self.paths)
         self.style_root = style_root
+        self.starry_root = starry_root
         self.style_paths = [os.path.join(self.style_root,i) for i in os.listdir(self.style_root)] if self.style_root[-1]=='/' else [self.style_root]
         self.load_size = load_size
         self.crop_size = crop_size
@@ -290,9 +291,6 @@ class MultiPatchSet(Dataset):
         self.patch_depth = patch_depth
         self.transform = data_transform(self.crop_size)
         self.transform_patch = data_transform(self.crop_size*2)
-        style_img = cv2.imread(self.style_paths[0])
-        style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)
-        self.style_img = Image.fromarray(style_img)
 
     def __getitem__(self, index):
         """Get training sample
@@ -304,6 +302,7 @@ class MultiPatchSet(Dataset):
         """
         content_stack=[]
         style_stack= []
+        starry_stack=[]
         position_stack = []
         size_stack = []
         path = self.paths[index]
@@ -333,26 +332,54 @@ class MultiPatchSet(Dataset):
                                          Image.BILINEAR)
 
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]
-        small_edge = min(self.style_img.width,self.style_img.height)
-        if small_edge==self.style_img.width:
+        style_img = cv2.imread(style_path)
+        style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)
+        style_img = Image.fromarray(style_img)
+        small_edge = min(style_img.width,style_img.height)
+        if small_edge==style_img.width:
             intermediate_width = math.floor(self.load_size* self.style_upsize)
             final_width = math.ceil(self.thumb_size*self.style_upsize)
-            ratio = style_img.height/self.style_img.width
+            ratio = style_img.height/style_img.width
             intermediate_height = math.floor(self.load_size*ratio* self.style_upsize)
             final_height = math.ceil(self.thumb_size*ratio* self.style_upsize)
         else:
             intermediate_height = math.floor(self.load_size* self.style_upsize)
             final_height = math.ceil(self.thumb_size * self.style_upsize)
-            ratio = self.style_img.width/self.style_img.height
+            ratio = self.style_img.width/style_img.height
             intermediate_width = math.floor(self.load_size* ratio* self.style_upsize)
             final_width = math.ceil(self.thumb_size*ratio* self.style_upsize)
-        style_img = self.style_img.resize((intermediate_width, intermediate_height),
+        style_img = style_img.resize((intermediate_width, intermediate_height),
                                      Image.BILINEAR)
         style_img = style_img.crop(box=get_crop_bounds(self.load_size,style_img.width,style_img.height))
         style_patch = style_img.resize((self.crop_size,self.crop_size))
         style_patch = np.array(style_patch)
         style_patch = self.img(style_patch)
         style_stack.append(style_patch)
+
+        starry_img = cv2.imread(self.starry_path)
+        starry_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)
+        starry_img = Image.fromarray(starry_img)
+        starry_img = min(starry_img.width,starry_img.height)
+        if small_edge==starry_img.width:
+            intermediate_width = math.floor(self.load_size* self.style_upsize)
+            final_width = math.ceil(self.thumb_size*self.style_upsize)
+            ratio = starry_img.height/starry_img.width
+            intermediate_height = math.floor(self.load_size*ratio* self.style_upsize)
+            final_height = math.ceil(self.thumb_size*ratio* self.style_upsize)
+        else:
+            intermediate_height = math.floor(self.load_size* self.style_upsize)
+            final_height = math.ceil(self.thumb_size * self.style_upsize)
+            ratio = starry_img.width/starry_img.height
+            intermediate_width = math.floor(self.load_size* ratio* self.style_upsize)
+            final_width = math.ceil(self.thumb_size*ratio* self.style_upsize)
+        starry_img = starry_img.resize((intermediate_width, intermediate_height),
+                                     Image.BILINEAR)
+        starry_img = starry_img.crop(box=get_crop_bounds(self.load_size,starry_img.width,starry_img.height))
+        starry_img = starry_img.resize((self.crop_size,self.crop_size))
+        starry_img = np.array(starry_img)
+        starry_img = self.img(starry_img)
+        starry_stack.append(starry_img)
+
         content_img = content_img.crop(box=get_crop_bounds(self.load_size,content_img.width,content_img.height))
         content_patch = content_img.resize((self.crop_size,self.crop_size))
         content_patch = np.array(content_patch)
@@ -372,12 +399,15 @@ class MultiPatchSet(Dataset):
             content_stack.append(content_patch)
 
         style_stack.append(self.img(np.array(style_img)))
+        starry_stack.append(self.img(np.array(starry_img)))
 
         output = {}
         for idx,i in enumerate(content_stack):
             output['content_stack_'+str(idx+1)]=i
         for idx,i in enumerate(style_stack):
             output['style_stack_'+str(idx+1)]=i
+        for idx,i in enumerate(starry_stack):
+            output['starry_stack_'+str(idx+1)]=i
         output['position_stack']=position_stack
         output['content']=self.img(np.array(content_img))
         output['size_stack']=size_stack

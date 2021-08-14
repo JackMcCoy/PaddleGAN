@@ -359,7 +359,7 @@ class MultiPatchSet(Dataset):
         starry_img = cv2.imread(self.starry_path)
         starry_img = cv2.cvtColor(starry_img, cv2.COLOR_BGR2RGB)
         starry_img = Image.fromarray(starry_img)
-        starry_img = min(starry_img.width,starry_img.height)
+        small_edge = min(starry_img.width,starry_img.height)
         if small_edge==starry_img.width:
             intermediate_width = math.floor(self.load_size* self.style_upsize)
             final_width = math.ceil(self.thumb_size*self.style_upsize)

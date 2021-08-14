@@ -2378,10 +2378,14 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss_Gp_GAN2 = self.gan_criterion(pred_fake_p2, True)
         self.losses['loss_gan_Gp2_'+str(i+1)] = self.loss_Gp_GAN2*self.gan_thumb_weight
 
-        if i<3:
+        if i<3 and i>0:
             a=16
             b=16
             c=1
+        elif i==0:
+            a=10
+            b=16
+            c=.5
         else:
             a=28
             b=28

@@ -2437,23 +2437,24 @@ class LapStyleRevSecondMXDOG(BaseModel):
         if self.iters>=self.rev4_iter:
             loops+=1
         '''
-        # compute fake images: G(A)
-        self.forward()
-        # update D
-        for a,b,c in zip(self.discriminators,[optimizers['optimD1'],optimizers['optimD2'],optimizers['optimD3'],optimizers['optimD4']],list(range(4))):
-            self.set_requires_grad(a, True)
-            b.clear_grad()
-            self.backward_D(a,c,str(c))
-            b.step()
-            self.set_requires_grad(a, False)
-        optimizers['optimG'].clear_grad()
-        g_losses=[]
-        # update G
-        for i in range(4):
-            g_losses.append(self.backward_G(i))
-        (g_losses[0]+g_losses[1]+g_losses[2]+g_losses[3]).backward()
-        optimizers['optimG'].step()
-        optimizers['optimG'].clear_grad()
+        for j in range(2):
+            # compute fake images: G(A)
+            self.forward()
+            # update D
+            for a,b,c in zip(self.discriminators,[optimizers['optimD1'],optimizers['optimD2'],optimizers['optimD3'],optimizers['optimD4']],list(range(4))):
+                self.set_requires_grad(a, True)
+                b.clear_grad()
+                self.backward_D(a,c,str(c))
+                b.step()
+                self.set_requires_grad(a, False)
+            optimizers['optimG'].clear_grad()
+            g_losses=[]
+            # update G
+            for i in range(4):
+                g_losses.append(self.backward_G(i))
+            (g_losses[0]+g_losses[1]+g_losses[2]+g_losses[3]).backward()
+            optimizers['optimG'].step()
+            optimizers['optimG'].clear_grad()
 
 @MODELS.register()
 class LapStyleRevSecondMiddle(BaseModel):

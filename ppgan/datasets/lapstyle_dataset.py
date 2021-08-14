@@ -374,11 +374,11 @@ class MultiPatchSet(Dataset):
             final_width = math.ceil(self.thumb_size*ratio* self.style_upsize)
         starry_img = starry_img.resize((intermediate_width, intermediate_height),
                                      Image.BILINEAR)
-        starry_patch = starry_img.crop(box=get_crop_bounds(self.load_size,starry_img.width,starry_img.height))
-        starry_patch = starry_patch.resize((self.crop_size,self.crop_size))
+        starry_img = starry_img.crop(box=get_crop_bounds(self.load_size,starry_img.width,starry_img.height))
+        starry_patch = starry_img.resize((self.crop_size,self.crop_size))
         starry_patch = np.array(starry_patch)
         starry_patch = self.img(starry_patch)
-        starry_stack.append(starry_img)
+        starry_stack.append(starry_patch)
 
         content_img = content_img.crop(box=get_crop_bounds(self.load_size,content_img.width,content_img.height))
         content_patch = content_img.resize((self.crop_size,self.crop_size))

@@ -345,7 +345,7 @@ class MultiPatchSet(Dataset):
         else:
             intermediate_height = math.floor(self.load_size* self.style_upsize)
             final_height = math.ceil(self.thumb_size * self.style_upsize)
-            ratio = self.style_img.width/style_img.height
+            ratio = style_img.width/style_img.height
             intermediate_width = math.floor(self.load_size* ratio* self.style_upsize)
             final_width = math.ceil(self.thumb_size*ratio* self.style_upsize)
         style_img = style_img.resize((intermediate_width, intermediate_height),

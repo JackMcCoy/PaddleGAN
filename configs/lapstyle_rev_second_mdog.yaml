@@ -10,7 +10,7 @@ model:
     name: RevisionNet
   revnet_discriminator_1:
     name: LapStyleSingleDiscriminator
-    num_channels: 32
+    num_channels: 16
     num_layer: 5
   revnet_discriminator_2:
     name: LapStyleSingleDiscriminator
@@ -22,7 +22,7 @@ model:
     num_layer: 5
   revnet_discriminator_4:
     name: LapStyleSingleDiscriminator
-    num_channels: 32
+    num_channels: 64
     num_layer: 5
   draftnet_encode:
     name: Encoder

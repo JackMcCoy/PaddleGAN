@@ -357,7 +357,7 @@ class MultiPatchSet(Dataset):
         style_stack.append(style_patch)
 
         starry_img = cv2.imread(self.starry_path)
-        starry_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)
+        starry_img = cv2.cvtColor(starry_img, cv2.COLOR_BGR2RGB)
         starry_img = Image.fromarray(starry_img)
         starry_img = min(starry_img.width,starry_img.height)
         if small_edge==starry_img.width:

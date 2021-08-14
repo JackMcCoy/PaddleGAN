@@ -2440,7 +2440,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
         '''
         for j in range(2):
             if j==1:
-                print('starry')
                 self.style_stack=self.starry_stack
             # compute fake images: G(A)
             self.forward()

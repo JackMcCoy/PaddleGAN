@@ -56,7 +56,7 @@ dataset:
   train:
     name: MultiPatchSet
     content_root: /content/gdrive/My Drive/img_style/large_pics/
-    style_root: /content/gdrive/My Drive/styles/
+    style_root: /content/gdrive/My Drive/img_style/styles/
     load_size: 2048
     crop_size: 256
     thumb_size: 256

@@ -2212,7 +2212,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
         if self.is_train:
             self.content_stack = []
             self.style_stack = [paddle.to_tensor(input['style_stack_1']),paddle.to_tensor(input['style_stack_2'])]
-            self.starry_stack = [paddle.to_tensor(input['starry_stack_1']),paddle.to_tensor(input['starry_stack_2'])]
             self.laplacians=[]
             for i in range(1,6):
                 if 'content_stack_'+str(i) in input:
@@ -2439,8 +2438,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
             loops+=1
         '''
         for j in range(2):
-            if j==1:
-                self.style_stack=self.starry_stack
             # compute fake images: G(A)
             self.forward()
             # update D

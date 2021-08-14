@@ -276,13 +276,12 @@ class MultiPatchSet(Dataset):
     """
     coco2017 dataset for LapStyle model
     """
-    def __init__(self, content_root, style_root, starry_root,load_size, crop_size, thumb_size, patch_depth,style_upsize=1):
+    def __init__(self, content_root, style_root, load_size, crop_size, thumb_size, patch_depth,style_upsize=1):
         super(MultiPatchSet, self).__init__()
         self.content_root = content_root
         self.paths = os.listdir(self.content_root)
         random.shuffle(self.paths)
         self.style_root = style_root
-        self.starry_root = starry_root
         self.style_paths = [os.path.join(self.style_root,i) for i in os.listdir(self.style_root)] if self.style_root[-1]=='/' else [self.style_root]
         self.load_size = load_size
         self.crop_size = crop_size

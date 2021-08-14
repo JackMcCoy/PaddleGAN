@@ -57,7 +57,6 @@ dataset:
     name: MultiPatchSet
     content_root: /content/gdrive/My Drive/img_style/large_pics/
     style_root: /content/gdrive/My Drive/img_style/styles/
-    starry_root: /content/PaddleGAN/starrywcypress.png
     load_size: 2048
     crop_size: 256
     thumb_size: 256

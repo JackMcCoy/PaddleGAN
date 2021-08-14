@@ -8,6 +8,14 @@ model:
   name: LapStyleRevSecondMXDOG
   revnet_generator:
     name: RevisionNet
+  revnet_discriminator_2:
+    name: LapStyleSingleDiscriminator
+    num_channels: 64
+    num_layer: 3
+  revnet_discriminator_2:
+    name: LapStyleSingleDiscriminator
+    num_channels: 32
+    num_layer: 6
   revnet_discriminator_3:
     name: LapStyleSingleDiscriminator
     num_channels: 16

@@ -2090,6 +2090,8 @@ class LapStyleRevSecondPatch(BaseModel):
 class LapStyleRevSecondMXDOG(BaseModel):
     def __init__(self,
                  revnet_generator,
+                 revnet_discriminator_1,
+                 revnet_discriminator_2,
                  revnet_discriminator_3,
                  draftnet_encode,
                  draftnet_decode,
@@ -2137,9 +2139,13 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #init_weights(self.nets['netD_2'])
         self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
         init_weights(self.nets['net_rev_3'])
+        self.nets['netD_1'] = build_discriminator(revnet_discriminator_3)
+        init_weights(self.nets['netD_1'])
+        self.nets['netD_2'] = build_discriminator(revnet_discriminator_3)
+        init_weights(self.nets['netD_2'])
         self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
         init_weights(self.nets['netD_3'])
-        self.discriminators=[self.nets['netD_3']]
+        self.discriminators=[self.nets['netD_1'],self.nets['netD_2'],self.nets['netD_2'],self.nets['netD_3']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2367,7 +2373,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + mxdog_style * 125
 
         """gan loss"""
-        pred_fake_p = self.discriminators[0](self.stylized[i+1])
+        pred_fake_p = self.discriminators[i](self.stylized[i+1])
         self.loss_Gp_GAN = self.gan_criterion(pred_fake_p, True)
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 
@@ -2431,12 +2437,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        self.set_requires_grad(self.nets['netD_3'], True)
-        for i in range(4):
-            optimizers['optimD3'].clear_grad()
-            self.backward_D(self.nets['netD_3'],i,'d3')
-            optimizers['optimD3'].step()
-        self.set_requires_grad(self.nets['netD_3'], False)
+        for a,b,c in zip(discriminators,[optimizers['optimD1'],optimizers['optimD2'],optimizers['optimD2'],optimizers['optimD3']],list(range(4))):
+            self.set_requires_grad(a, True)
+            b.clear_grad()
+            self.backward_D(a,c,str(c))
+            b.step()
+            self.set_requires_grad(a, False)
         optimizers['optimG'].clear_grad()
         g_losses=[]
         # update G

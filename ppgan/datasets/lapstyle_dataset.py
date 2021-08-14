@@ -282,7 +282,7 @@ class MultiPatchSet(Dataset):
         self.paths = os.listdir(self.content_root)
         random.shuffle(self.paths)
         self.style_root = style_root
-        self.starry_root = starry_root
+        self.starry_path = starry_root
         self.style_paths = [os.path.join(self.style_root,i) for i in os.listdir(self.style_root)] if self.style_root[-1]=='/' else [self.style_root]
         self.load_size = load_size
         self.crop_size = crop_size

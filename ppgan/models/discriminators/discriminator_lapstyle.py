@@ -75,7 +75,7 @@ class OptimizedBlock(nn.Layer):
                                         nn.Conv2D(dim, dim, (3, 3)),
                                         nn.SpectralNorm(out_size),
                                         nn.AvgPool2D(kernel_size=2,stride=2))
-        self.residual_connection = nn.Sequential(nn.Conv2D(in_channels, dim, (3, 3)),
+        self.residual_connection = nn.Sequential(nn.Conv2D(in_channels, dim, (1,1)),
                                         nn.SpectralNorm(out_size),
                                         nn.AvgPool2D(kernel_size=2,stride=2))
 
@@ -104,7 +104,7 @@ class ResBlock(nn.Layer):
                                         nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(dim, dim, (3, 3)),
                                         nn.SpectralNorm(out_size),)
-        self.residual_connection = nn.Sequential(nn.Conv2D(dim, dim, (3, 3)),
+        self.residual_connection = nn.Sequential(nn.Conv2D(dim, dim, (1,1)),
                                         nn.SpectralNorm(out_size))
 
     def forward(self, x):

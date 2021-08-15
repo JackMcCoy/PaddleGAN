@@ -190,5 +190,4 @@ class LapStyleSpectralDiscriminator(nn.Layer):
         x = self.tail(x)
         x = nn.functional.avg_pool2d(x,x.shape[3],stride=1)
         print(x.shape)
-        x = paddle.reshape(x,(-1,64))
         return self.fc(x)

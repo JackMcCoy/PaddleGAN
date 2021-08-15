@@ -129,10 +129,11 @@ def max_singular_value(W, u=None, Ip=1):
     if u is None:
         u = paddle.normal(mean=0,std=1,shape=(1, W.shape(0)))
     _u = u
+    print(W.shape)
     for _ in range(Ip):
-        _v = _l2normalize(paddle.matmul(_u, W.value()), eps=1e-12)
-        _u = _l2normalize(paddle.matmul(_v, paddle.transpose(W.value(), [1, 0])), eps=1e-12)
-    sigma = paddle.sum(nn.functional.linear(_u, paddle.transpose(W.value(), [1, 0])) * _v)
+        _v = _l2normalize(paddle.matmul(_u, W), eps=1e-12)
+        _u = _l2normalize(paddle.matmul(_v, paddle.transpose(W, [1, 0])), eps=1e-12)
+    sigma = paddle.sum(nn.functional.linear(_u, paddle.transpose(W, [1, 0])) * _v)
     return sigma, _u
 
 class SNLinear(Linear):

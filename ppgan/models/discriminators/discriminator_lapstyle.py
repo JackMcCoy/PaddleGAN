@@ -105,7 +105,7 @@ class ResBlock(nn.Layer):
                                         nn.SpectralNorm(out_size))
 
     def forward(self, x):
-        out = self.residual_connection(x) + self.conv_block(x)
+        out = x + self.conv_block(x)
         return out
 
 def normal_(x, mean=0., std=1.):

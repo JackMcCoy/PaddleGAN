@@ -100,10 +100,7 @@ class ResBlock(nn.Layer):
                                         nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(dim, dim, (3, 3)),
                                         nn.SpectralNorm(out_size),
-                                        nn.ReLU(),
-                                        nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        nn.Conv2D(dim, dim, (3, 3)),
-                                        nn.SpectralNorm(out_size),)
+                                        )
         self.residual_connection = nn.Sequential(nn.Conv2D(dim, dim, (1,1)),
                                         nn.SpectralNorm(out_size))
 

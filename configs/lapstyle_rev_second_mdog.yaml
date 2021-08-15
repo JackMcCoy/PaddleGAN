@@ -13,10 +13,6 @@ model:
     num_channels: 64
     num_layer: 9
   revnet_discriminator_2:
-    name: LapStyleSpectralDiscriminator
-    num_channels: 64
-    num_layer: 9
-  revnet_discriminator_3:
     name: LapStyleSingleDiscriminator
     num_channels: 16
     num_layer: 9

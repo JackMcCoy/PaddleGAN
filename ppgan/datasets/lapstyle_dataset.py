@@ -290,8 +290,6 @@ class MultiPatchSet(Dataset):
         self.patch_depth = patch_depth
         self.transform = data_transform(self.crop_size)
         self.transform_patch = data_transform(self.crop_size*2)
-        self.style_img = cv2.imread(self.style_root)
-        self.style_img = cv2.cvtColor(self.style_img, cv2.COLOR_BGR2RGB)
 
     def __getitem__(self, index):
         """Get training sample
@@ -332,8 +330,9 @@ class MultiPatchSet(Dataset):
                                          Image.BILINEAR)
 
         style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]
-
-        style_img = Image.fromarray(self.style_img)
+        style_img = cv2.imread(style_path)
+        style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)
+        style_img = Image.fromarray(style_img)
         small_edge = min(style_img.width,style_img.height)
         if small_edge==style_img.width:
             intermediate_width = math.floor(self.load_size* self.style_upsize)

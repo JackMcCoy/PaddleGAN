@@ -14,7 +14,7 @@
 
 import paddle
 import paddle.nn as nn
-from paddle.nn.layers import Linear
+from paddle.nn.layer import Linear
 
 from .builder import DISCRIMINATORS
 

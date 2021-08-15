@@ -96,13 +96,11 @@ class ResBlock(nn.Layer):
     def __init__(self, dim):
         super(ResBlock, self).__init__()
         out_size=(1,dim,256,256)
-        self.conv_block = nn.Sequential(nn.ReLU(),
-                                        nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+        self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(dim, dim, (3, 3)),
                                         nn.SpectralNorm(out_size),
+                                        nn.ReLU(),
                                         )
-        self.residual_connection = nn.Sequential(nn.Conv2D(dim, dim, (1,1)),
-                                        nn.SpectralNorm(out_size))
 
     def forward(self, x):
         out = x + self.conv_block(x)

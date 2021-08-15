@@ -2108,9 +2108,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                  gan_thumb_weight=1.0,
                  gan_patch_weight=1.0,
                  use_mdog=0,
-                 morph_cutoff=47.9,
-                 rev3_iter=0,
-                 rev4_iter=0):
+                 morph_cutoff=47.9):
 
         super(LapStyleRevSecondMXDOG, self).__init__()
 
@@ -2165,8 +2163,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.gan_thumb_weight = gan_thumb_weight
         self.gan_patch_weight = gan_patch_weight
         self.morph_cutoff = morph_cutoff
-        self.rev3_iter = rev3_iter
-        self.rev4_iter = rev4_iter
         g = np.repeat(gaussian(7, 1).numpy(), 3, axis=0)
         g2 = np.repeat(gaussian(19, 3).numpy(), 3, axis=0)
         self.gaussian_filter = paddle.nn.Conv2D(3, 3, 7,
@@ -2196,10 +2192,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
                                                initializer=paddle.fluid.initializer.Constant(
                                                    value=1), trainable=False)
                                            )
-        self.iters = 0
 
     def setup_input(self, input):
-        self.iters+=1
         if self.is_train:
             self.content_stack = []
             self.style_stack = [paddle.to_tensor(input['style_stack_1']),paddle.to_tensor(input['style_stack_2'])]
@@ -2246,34 +2240,34 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         self.visual_items['stylized_rev_second'] = stylized_rev_second
 
-        if self.iters>=self.rev3_iter:
-            stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
-            stylized_up = crop_upsized(stylized_up,self.positions[1],self.size_stack[1])
-            self.patches_in.append(stylized_up)
+        stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
+        stylized_up = crop_upsized(stylized_up,self.positions[1],self.size_stack[1])
+        self.patches_in.append(stylized_up)
 
-            revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up], axis=1)
-            stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input,stylized_feats,self.ada_alpha_2)
-            stylized_rev_patch = fold_laplace_patch(
-                [stylized_rev_patch, stylized_up])
-            self.visual_items['ci_3'] = self.content_stack[2]
-            self.visual_items['stylized_rev_third'] = stylized_rev_patch
-            self.stylized.append(stylized_rev_patch)
-        if self.iters>=self.rev4_iter:
-            stylized_up = F.interpolate(stylized_rev_patch, scale_factor=2)
-            stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
-            self.patches_in.append(stylized_up)
+        revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up], axis=1)
+        stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input,stylized_feats,self.ada_alpha_2)
+        stylized_rev_patch = fold_laplace_patch(
+            [stylized_rev_patch, stylized_up])
+        self.visual_items['ci_3'] = self.content_stack[2]
+        self.visual_items['stylized_rev_third'] = stylized_rev_patch
+        self.stylized.append(stylized_rev_patch)
 
-            stylized_feats = self.nets['net_rev_3'].DownBlock(revnet_input)
-            stylized_feats = self.nets['net_rev_3'].resblock(stylized_feats)
 
-            revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up], axis=1)
-            stylized_rev_patch_second,_ = self.nets['net_rev_3'](revnet_input,stylized_feats,self.ada_alpha_2)
-            stylized_rev_patch_second = fold_laplace_patch(
-                [stylized_rev_patch_second, stylized_up])
-            self.visual_items['ci_4'] = self.content_stack[3]
-            self.visual_items['stylized_rev_fourth'] = stylized_rev_patch_second
+        stylized_up = F.interpolate(stylized_rev_patch, scale_factor=2)
+        stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
+        self.patches_in.append(stylized_up)
 
-            self.stylized.append(stylized_rev_patch_second)
+        stylized_feats = self.nets['net_rev_3'].DownBlock(revnet_input)
+        stylized_feats = self.nets['net_rev_3'].resblock(stylized_feats)
+
+        revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up], axis=1)
+        stylized_rev_patch_second,_ = self.nets['net_rev_3'](revnet_input,stylized_feats,self.ada_alpha_2)
+        stylized_rev_patch_second = fold_laplace_patch(
+            [stylized_rev_patch_second, stylized_up])
+        self.visual_items['ci_4'] = self.content_stack[3]
+        self.visual_items['stylized_rev_fourth'] = stylized_rev_patch_second
+
+        self.stylized.append(stylized_rev_patch_second)
 
     def backward_G(self,i):
         cF = self.nets['net_enc'](self.content_stack[i])
@@ -2285,7 +2279,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss_patch = 0
         if i!=0:
             tt_cropF = self.nets['net_enc'](self.patches_in[i-1])
-            for layer in [self.content_layers[-2]]:
+            for layer in self.content_layers:
                 self.loss_patch += self.calc_content_loss(tpF[layer],
                                                           tt_cropF[layer])
             self.losses['loss_patch_'+str(i+1)] = self.loss_patch
@@ -2361,10 +2355,10 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['p_loss_style_remd_'+str(i+1)] = self.p_loss_style_remd
         self.losses['p_loss_content_relt_'+str(i+1)] = self.p_loss_content_relt
 
-        self.losses['loss_MD_'+str(i+1)] = mxdog_content*.0125
-        self.losses['loss_CnsC_'+str(i+1)] = mxdog_content_contraint*25
-        self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*125/4
-        mxdogloss=mxdog_content * .0125 + mxdog_content_contraint *25 + mxdog_style * 125
+        self.losses['loss_MD_'+str(i+1)] = mxdog_content*.025
+        self.losses['loss_CnsC_'+str(i+1)] = mxdog_content_contraint*50
+        self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*250
+        mxdogloss=mxdog_content * .025 + mxdog_content_contraint *50 + mxdog_style * 250
 
         """gan loss"""
         pred_fake_p = self.discriminators[0](self.stylized[i+1])

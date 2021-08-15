@@ -104,8 +104,7 @@ class ResBlock(nn.Layer):
                                         nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(dim, dim, (3, 3)),
                                         nn.SpectralNorm(out_size),)
-        self.residual_connection = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        nn.Conv2D(dim, dim, (3, 3)),
+        self.residual_connection = nn.Sequential(nn.Conv2D(dim, dim, (3, 3)),
                                         nn.SpectralNorm(out_size))
 
     def forward(self, x):
@@ -179,7 +178,7 @@ class LapStyleSpectralDiscriminator(nn.Layer):
         for i in range(num_layer - 1):
             self.body.add_sublayer(
                 'conv%d' % (i + 1),
-                ResBlock(num_channel))
+                ResBlock(num_channel,num_channel))
         self.tail = nn.ReLU()
         self.fc = nn.Sequential(SNLinear(num_channels * 16, 1), nn.Sigmoid())
 

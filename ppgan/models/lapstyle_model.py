@@ -2370,7 +2370,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         """gan loss"""
         self.loss_Gp_GAN=0
-        for a in discriminators:
+        for a in self.discriminators:
             pred_fake_p = a(self.stylized[i+1])
             self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
 
@@ -2432,7 +2432,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        for a,b,c in zip(discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2'],self.optimizers['optimD3'],list(range(4))]):
+        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2'],self.optimizers['optimD3'],list(range(4))]):
             self.set_requires_grad(a, True)
             b.clear_grad()
             optimlosses=[]

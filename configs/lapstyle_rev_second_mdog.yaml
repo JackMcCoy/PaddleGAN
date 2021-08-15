@@ -17,7 +17,7 @@ model:
     num_channels: 64
     num_layer: 9
   revnet_discriminator_3:
-    name: LapStyleSpectralDiscriminator
+    name: LapStyleSingleDiscriminator
     num_channels: 16
     num_layer: 9
   draftnet_encode:
@@ -114,4 +114,4 @@ log_config:
   visiual_interval: 50
 
 snapshot_config:
-  interval: 500
+  interval: 1000

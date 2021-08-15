@@ -157,7 +157,7 @@ class SNLinear(Linear):
        """
     def __init__(self, in_features, out_features, bias=True):
         super(SNLinear, self).__init__(in_features, out_features, bias)
-        self.register_buffer('u', paddle.normal(mean=0,std=1,shape=(1, out_features)))
+        self.register_buffer('u', paddle.normal(mean=0,std=1,shape=(1024, out_features)))
 
     @property
     def W_(self):

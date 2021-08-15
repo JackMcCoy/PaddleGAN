@@ -94,7 +94,7 @@ class ResBlock(nn.Layer):
         dim (int): Channel number of intermediate features.
     """
     def __init__(self, dim):
-        super(OptimizedBlock, self).__init__()
+        super(ResBlock, self).__init__()
         out_size=(1,dim,256,256)
         self.conv_block = nn.Sequential(nn.ReLU(),
                                         nn.Pad2D([1, 1, 1, 1], mode='reflect'),

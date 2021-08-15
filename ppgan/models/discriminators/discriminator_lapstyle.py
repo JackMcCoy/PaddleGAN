@@ -159,7 +159,6 @@ class SNLinear(Linear):
         super(SNLinear, self).__init__(in_features, out_features, bias)
         self.register_buffer('u', paddle.normal(mean=0,std=1,shape=(1, out_features))
 
-    @property
     def W_(self):
         w_mat = self.weight.reshape(self.weight.shape(0), -1)
         sigma, _u = max_singular_value(w_mat, self.u)

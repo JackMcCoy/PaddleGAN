@@ -11,7 +11,7 @@ model:
   revnet_discriminator_1:
     name: LapStyleSingleDiscriminator
     num_channels: 16
-    num_layer: 30
+    num_layer: 20
   draftnet_encode:
     name: Encoder
   draftnet_decode:

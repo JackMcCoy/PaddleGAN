@@ -31,7 +31,7 @@ model:
     gan_mode: vanilla
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
-  content_weight: 1.5
+  content_weight: 4
   style_weight: 5
   ada_alpha: .05
   ada_alpha_2: .02
@@ -44,7 +44,7 @@ dataset:
   train:
     name: MultiPatchSet
     content_root: /content/gdrive/My Drive/img_style/large_pics/
-    style_root: /content/PaddleGAN/starrywcypress.png
+    style_root: /content/gdrive/My Drive/img_style/style/starrynightsquare.png
     load_size: 2048
     crop_size: 256
     thumb_size: 256

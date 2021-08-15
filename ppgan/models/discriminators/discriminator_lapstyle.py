@@ -108,7 +108,7 @@ class ResBlock(nn.Layer):
         self.residual_connection = nn.Sequential(nn.Conv2D(dim, dim, (1,1)),
                                         nn.SpectralNorm(out_size),)
     def forward(self, x):
-        out = residual_connection(x) + self.conv_block(x)
+        out = self.residual_connection(x) + self.conv_block(x)
         return out
 
 def normal_(x, mean=0., std=1.):

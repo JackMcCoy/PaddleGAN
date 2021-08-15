@@ -35,9 +35,9 @@ model:
     gan_mode: vanilla
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
-  content_weight: 1
+  content_weight: 2
   style_weight: 5
-  ada_alpha: .05
+  ada_alpha: .1
   ada_alpha_2: .02
   gan_thumb_weight: 1
   gan_patch_weight: 2

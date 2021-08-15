@@ -94,12 +94,6 @@ optimizer:
       - netD_2
     beta1: 0.9
     beta2: 0.999
-  optimD3:
-    name: Adam
-    net_names:
-      - netD_3
-    beta1: 0.9
-    beta2: 0.999
 
 validate:
   interval: 100000

@@ -2307,8 +2307,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
         cXF = self.nets['net_enc'](cX.detach())
         stylized_dog,_ = xdog(self.stylized[i+1],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=cxminmax)
         cdogF = self.nets['net_enc'](stylized_dog)
-
-        mxdog_content = self.calc_content_loss(tpF['r31'], cXF['r31'])
+        mxdog_content=0
+        for layer in self.content_layers:
+            mxdog_content += self.calc_content_loss(tpF[layer], cXF[layer])
         mxdog_content_contraint = self.calc_content_loss(cdogF['r31'], cXF['r31'])
 
         if i>0:
@@ -2337,15 +2338,16 @@ class LapStyleRevSecondMXDOG(BaseModel):
             mxdog_style=mxdog_style/4
         else:
             spF = self.nets['net_enc'](self.style_stack[0].detach())
+            sX,_ = xdog(self.style_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
+            sXF = self.nets['net_enc'](sX)
             for layer in self.content_layers:
                 self.loss_ps += self.calc_style_loss(tpF[layer],
                                                       spF[layer])
+                mxdog_style+=self.calc_style_loss(cdogF[layer], sXF[layer])
             self.p_loss_style_remd += self.calc_style_emd_loss(
                 tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                 tpF['r41'], spF['r41'])
-            sX,_ = xdog(self.style_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
-            sXF = self.nets['net_enc'](sX)
-            mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
+
 
         self.losses['loss_ps_'+str(i+1)] = self.loss_ps
         self.p_loss_content_relt = self.calc_content_relt_loss(
@@ -2355,10 +2357,10 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['p_loss_style_remd_'+str(i+1)] = self.p_loss_style_remd
         self.losses['p_loss_content_relt_'+str(i+1)] = self.p_loss_content_relt
 
-        self.losses['loss_MD_'+str(i+1)] = mxdog_content*.025
+        self.losses['loss_MD_'+str(i+1)] = mxdog_content*.01
         self.losses['loss_CnsC_'+str(i+1)] = mxdog_content_contraint*50
-        self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*250
-        mxdogloss=mxdog_content * .025 + mxdog_content_contraint *50 + mxdog_style * 250
+        self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*51.5
+        mxdogloss=mxdog_content * .01 + mxdog_content_contraint *50 + mxdog_style * 51.5
 
         """gan loss"""
         pred_fake_p = self.discriminators[0](self.stylized[i+1])

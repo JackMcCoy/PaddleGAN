@@ -2092,6 +2092,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                  revnet_generator,
                  revnet_discriminator_1,
                  revnet_discriminator_2,
+                 revnet_discriminator_3,
                  draftnet_encode,
                  draftnet_decode,
                  revnet_deep_generator,
@@ -2140,7 +2141,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
         init_weights(self.nets['netD_1'])
         self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
         init_weights(self.nets['netD_2'])
-        self.discriminators=[self.nets['netD_1'],self.nets['netD_2']]
+        self.nets['netD_3'] = build_discriminator(revnet_discriminator_2)
+        init_weights(self.nets['netD_3'])
+        self.discriminators=[self.nets['netD_1'],self.nets['netD_2'],self.nets['netD_3']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2371,7 +2374,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             pred_fake_p = a(self.stylized[i+1])
             self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
 
-        self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*.5*self.gan_thumb_weight
+        self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*.33*self.gan_thumb_weight
 
         if i==0:
             a=10
@@ -2386,7 +2389,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             b=28
             c=5
 
-        self.loss = self.loss_Gp_GAN *.5 *self.gan_thumb_weight*c +self.loss_ps * self.style_weight +\
+        self.loss = self.loss_Gp_GAN *.334 *self.gan_thumb_weight*c +self.loss_ps * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch +\
                     self.p_loss_style_remd * a + self.p_loss_content_relt * b + mxdogloss
@@ -2433,12 +2436,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2']],list(range(2))):
+        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2'],self.optimizers['optimD3']],list(range(3))):
             self.set_requires_grad(a, True)
             b.clear_grad()
             optimlosses=[]
             for i in range(4):
-                optimlosses.append(self.backward_D(a,c,str(c)))
+                optimlosses.append(self.backward_D(a,i,str(c)))
             (optimlosses[0]+optimlosses[1]+optimlosses[2]+optimlosses[3]).backward()
             b.step()
             self.set_requires_grad(a, False)

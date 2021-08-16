@@ -39,9 +39,9 @@ model:
     gan_mode: vanilla
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
-  content_weight: 2
+  content_weight: 1
   style_weight: 5
-  ada_alpha: .1
+  ada_alpha: .05
   ada_alpha_2: .02
   gan_thumb_weight: 1
   gan_patch_weight: 2
@@ -57,7 +57,7 @@ dataset:
     crop_size: 256
     thumb_size: 256
     patch_depth: 3
-    style_upsize: 1
+    style_upsize: 1.15
     num_workers: 1
     batch_size: 1
   test:

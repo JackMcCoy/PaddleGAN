@@ -15,6 +15,7 @@
 import paddle
 import paddle.nn as nn
 from paddle.nn.layer import Linear
+from paddle.nn.utils import spectral_norm
 
 from .builder import DISCRIMINATORS
 
@@ -68,15 +69,12 @@ class OptimizedBlock(nn.Layer):
         super(OptimizedBlock, self).__init__()
         out_size=(1,dim,256,256)
         self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        nn.Conv2D(in_channels, dim, (3, 3)),
-                                        nn.SpectralNorm(out_size),
+                                        spectral_norm(nn.Conv2D(in_channels, dim, (3, 3))),
                                         nn.ReLU(),
                                         nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        nn.Conv2D(dim, dim, (3, 3)),
-                                        nn.SpectralNorm(out_size),
+                                        spectral_norm(nn.Conv2D(dim, dim, (3, 3))),
                                         nn.AvgPool2D(kernel_size=2,stride=2))
-        self.residual_connection = nn.Sequential(nn.Conv2D(in_channels, dim, (1,1)),
-                                        nn.SpectralNorm(out_size),
+        self.residual_connection = nn.Sequential(spectral_norm(nn.Conv2D(in_channels, dim, (1,1))),
                                         nn.AvgPool2D(kernel_size=2,stride=2))
 
     def forward(self, x):
@@ -98,15 +96,12 @@ class ResBlock(nn.Layer):
         out_size=(1,dim,128,128)
         self.conv_block = nn.Sequential(nn.ReLU(),
                                         nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        nn.Conv2D(dim, dim, (3, 3)),
-                                        nn.SpectralNorm(out_size),
+                                        spectral_norm(nn.Conv2D(dim, dim, (3, 3))),
                                         nn.ReLU(),
                                         nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        nn.Conv2D(dim, dim, (3, 3)),
-                                        nn.SpectralNorm(out_size),
+                                        spectral_norm(nn.Conv2D(dim, dim*2, (3, 3))),
                                         )
-        self.residual_connection = nn.Sequential(nn.Conv2D(dim, dim, (1,1)),
-                                        nn.SpectralNorm(out_size),)
+        self.residual_connection = nn.Sequential(spectral_norm(nn.Conv2D(dim, dim*2, (1,1))))
     def forward(self, x):
         out = self.residual_connection(x) + self.conv_block(x)
         return out
@@ -179,9 +174,9 @@ class LapStyleSpectralDiscriminator(nn.Layer):
         for i in range(num_layer - 1):
             self.body.add_sublayer(
                 'conv%d' % (i + 1),
-                ResBlock(num_channel))
+                ResBlock(num_channel*max(1,2**i)))
         self.tail = nn.Linear(num_channel,1)
-        self.fc = nn.Sequential(nn.SpectralNorm((1024,1024)),nn.Linear(1024 , num_channels),nn.Sigmoid())
+        self.fc = nn.Sequential(spectral_norm(nn.Linear(1024 , num_channels)),nn.Sigmoid())
 
     def forward(self, x):
         x = self.head(x)

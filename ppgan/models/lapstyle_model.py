@@ -2446,7 +2446,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
         g_losses=[]
         # update G
         for i in range(4):
-            print(str(i))
             loss=self.backward_G(i)
             loss.backward()
             optimizers['optimG'].step()

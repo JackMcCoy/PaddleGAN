@@ -177,12 +177,12 @@ class LapStyleSpectralDiscriminator(nn.Layer):
                 'conv%d' % (i + 1),
                 ResBlock(num_channel*max(1,2**i)))
         self.tail = nn.Linear(num_channel,1)
-        self.fc = nn.Sequential(spectral_norm(nn.Linear(64**3 , num_channels)),nn.Sigmoid())
+        self.fc = nn.Sequential(spectral_norm(nn.Linear(64**2 , num_channels)),nn.Sigmoid())
 
     def forward(self, x):
         x = self.head(x)
         x = self.body(x)
-        x = paddle.reshape(x,(-1,64**3))
+        x = paddle.reshape(x,(-1,64**2))
         x = self.fc(x)
         x = paddle.reshape(x,(1,1,256,256))
         return x

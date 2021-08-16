@@ -16,7 +16,7 @@ model:
     padding: 1
   revnet_discriminator_2:
     name: LapStyleSpectralDiscriminator
-    num_channels: 64
+    num_channels: 16
     num_layer: 5
   draftnet_encode:
     name: Encoder

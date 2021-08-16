@@ -2260,7 +2260,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
         self.patches_in.append(stylized_up.detach())
 
-        stylized_feats = self.nets['net_rev_3'].DownBlock(revnet_input)
+        stylized_feats = self.nets['net_rev_3'].DownBlock(revnet_input.detach())
         stylized_feats = self.nets['net_rev_3'].resblock(stylized_feats)
 
         revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up], axis=1)

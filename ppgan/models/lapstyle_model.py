@@ -2347,10 +2347,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
             for layer in self.content_layers:
                 self.loss_ps += self.calc_style_loss(tpF[layer],
                                                       spF[layer])
-                mxdog_style+=self.calc_style_loss(cdogF[layer], sXF[layer])
             self.p_loss_style_remd += self.calc_style_emd_loss(
                 tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                 tpF['r41'], spF['r41'])
+            mxdog_style=self.calc_style_loss(cdogF['r31'], sXF['r31'])
+
 
 
         self.losses['loss_ps_'+str(i+1)] = self.loss_ps
@@ -2364,7 +2365,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['loss_MD_'+str(i+1)] = mxdog_content*.01
         self.losses['loss_CnsC_'+str(i+1)] = mxdog_content_contraint*50
         self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*51.5
-        mxdogloss=mxdog_content * .05 + mxdog_content_contraint *100 + mxdog_style * 250
+        mxdogloss=mxdog_content * .025 + mxdog_content_contraint *100 + mxdog_style * 250
 
         """gan loss"""
         self.loss_Gp_GAN=0

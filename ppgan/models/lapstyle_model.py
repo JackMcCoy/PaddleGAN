@@ -2291,7 +2291,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.losses['loss_patch_'+str(i+1)] = self.loss_patch
 
         self.loss_content_p = 0
-        for layer in [self.content_layers[=2]]:
+        for layer in [self.content_layers[-2]]:
             self.loss_content_p += self.calc_content_loss(tpF[layer],
                                                       cF[layer],
                                                       norm=True)

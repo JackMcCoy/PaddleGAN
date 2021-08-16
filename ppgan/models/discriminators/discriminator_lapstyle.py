@@ -186,10 +186,7 @@ class LapStyleSpectralDiscriminator(nn.Layer):
     def forward(self, x):
         x = self.head(x)
         x = self.body(x)
-        print(x.shape)
         x = paddle.reshape(x,(-1,1024))
-        print(x.shape)
         x = self.fc(x)
-        print(x.shape)
         x = paddle.reshape(x,(1,1,256,256))
         return x

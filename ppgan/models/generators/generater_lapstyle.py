@@ -444,7 +444,7 @@ class ResnetSpectral(nn.Layer):
         dim (int): Channel number of intermediate features.
     """
     def __init__(self, dim):
-        super(ResnetBlock, self).__init__()
+        super(ResnetSpectral, self).__init__()
         self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         spectral_norm(nn.Conv2D(dim, dim, (3, 3))), nn.ReLU(),
                                         nn.Pad2D([1, 1, 1, 1], mode='reflect'),

@@ -170,7 +170,7 @@ class LapStyleSpectralDiscriminator(nn.Layer):
         super(LapStyleSpectralDiscriminator, self).__init__()
         self.num_layer=num_layer
         self.num_channels = num_channels
-        self.head = OptimizedBlock(3,num_channel)
+        self.head = OptimizedBlock(3,num_channels)
         self.body = nn.Sequential()
         for i in range(num_layer - 1):
             self.body.add_sublayer(

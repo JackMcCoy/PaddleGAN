@@ -116,7 +116,7 @@ optimizer:
       - netD_3
     beta1: 0.9
     beta2: 0.999
-  optimD3:
+  optimD4:
     name: Adam
     net_names:
       - netD_4

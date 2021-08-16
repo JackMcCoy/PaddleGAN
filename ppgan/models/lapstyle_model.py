@@ -2141,8 +2141,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
         init_weights(self.nets['netD_1'])
         self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
         init_weights(self.nets['netD_2'])
-        self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
-        init_weights(self.nets['netD_2'])
+        self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
+        init_weights(self.nets['netD_3'])
         self.discriminators=[self.nets['netD_1'],self.nets['netD_2'],self.nets['netD_3']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)

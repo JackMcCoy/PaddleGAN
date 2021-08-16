@@ -19,7 +19,6 @@ from PIL import Image
 from skimage import color
 import numpy as np
 from .builder import GENERATORS
-from paddle.nn.utils import spectral_norm
 
 if 0:
     import pycuda.autoinit
@@ -433,27 +432,6 @@ class ResnetBlock(nn.Layer):
         out = x + self.conv_block(x)
         return out
 
-class ResnetSpectral(nn.Layer):
-    """Residual block.
-
-    It has a style of:
-        ---Pad-Conv-ReLU-Pad-Conv-+-
-         |________________________|
-
-    Args:
-        dim (int): Channel number of intermediate features.
-    """
-    def __init__(self, dim):
-        super(ResnetSpectral, self).__init__()
-        self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        spectral_norm(nn.Conv2D(dim, dim, (3, 3))), nn.ReLU(),
-                                        nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        spectral_norm(nn.Conv2D(dim, dim, (3, 3))))
-
-    def forward(self, x):
-        out = x + self.conv_block(x)
-        return out
-
 
 class ConvBlock(nn.Layer):
     """convolution block.
@@ -795,22 +773,22 @@ class RevisionNet(nn.Layer):
         DownBlock = []
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            spectral_norm(nn.Conv2D(input_nc, 64, (3, 3))),
+            nn.Conv2D(input_nc, 64, (3, 3)),
             nn.ReLU()
         ]
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            spectral_norm(nn.Conv2D(64, 64, (3, 3), stride=2)),
+            nn.Conv2D(64, 64, (3, 3), stride=2),
             nn.ReLU()
         ]
 
-        self.resblock = ResnetSpectral(64)
+        self.resblock = ResnetBlock(64)
 
         UpBlock = []
         UpBlock += [
             nn.Upsample(scale_factor=2, mode='nearest'),
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            spectral_norm(nn.Conv2D(64, 64, (3, 3))),
+            nn.Conv2D(64, 64, (3, 3)),
             nn.ReLU()
         ]
         UpBlock += [
@@ -847,22 +825,22 @@ class RevisionNetThumb(nn.Layer):
         DownBlock = []
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            spectral_norm(nn.Conv2D(input_nc, 64, (3, 3))),
+            nn.Conv2D(input_nc, 64, (3, 3)),
             nn.ReLU()
         ]
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            spectral_norm(nn.Conv2D(64, 64, (3, 3), stride=2)),
+            nn.Conv2D(64, 64, (3, 3), stride=2),
             nn.ReLU()
         ]
 
-        self.resblock = ResnetSpectral(64)
+        self.resblock = ResnetBlock(64)
 
         UpBlock = []
         UpBlock += [
             nn.Upsample(scale_factor=2, mode='nearest'),
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            spectral_norm(nn.Conv2D(64, 64, (3, 3))),
+            nn.Conv2D(64, 64, (3, 3)),
             nn.ReLU()
         ]
         UpBlock += [

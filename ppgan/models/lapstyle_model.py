@@ -2092,6 +2092,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                  revnet_generator,
                  revnet_discriminator_1,
                  revnet_discriminator_2,
+                 revnet_discriminator_3,
                  draftnet_encode,
                  draftnet_decode,
                  revnet_deep_generator,
@@ -2140,7 +2141,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
         init_weights(self.nets['netD_1'])
         self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
         init_weights(self.nets['netD_2'])
-        self.discriminators=[self.nets['netD_1'],self.nets['netD_2']]
+        self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
+        init_weights(self.nets['netD_2'])
+        self.discriminators=[self.nets['netD_1'],self.nets['netD_2'],self.nets['netD_3']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2432,7 +2435,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2']],list(range(3))):
+        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2'],self.optimizers['optimD3']],list(range(3))):
             self.set_requires_grad(a, True)
             b.clear_grad()
             for i in range(4):

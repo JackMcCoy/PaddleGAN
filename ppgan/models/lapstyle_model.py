@@ -2281,7 +2281,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         """patch loss"""
         self.loss_patch = 0
         if i!=0:
-            tt_cropF = self.nets['net_enc'](self.patches_in[i-1])
+            tt_cropF = self.nets['net_enc'](self.patches_in[i-1].detach())
             for layer in [self.content_layers[-2]]:
                 self.loss_patch += self.calc_content_loss(tpF[layer],
                                                           tt_cropF[layer])

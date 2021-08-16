@@ -2228,7 +2228,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         revnet_input = paddle.concat(x=[self.laplacians[0], stylized_up], axis=1)
         #rev_net thumb only calcs as patch if second parameter is passed
-        stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input)
+        stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach())
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
         self.stylized.append(stylized_rev)
         self.visual_items['stylized_rev_first'] = stylized_rev

@@ -795,22 +795,22 @@ class RevisionNet(nn.Layer):
         DownBlock = []
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(input_nc, 64, (3, 3)),
+            spectral_norm(nn.Conv2D(input_nc, 64, (3, 3))),
             nn.ReLU()
         ]
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(64, 64, (3, 3), stride=2),
+            spectral_norm(nn.Conv2D(64, 64, (3, 3), stride=2)),
             nn.ReLU()
         ]
 
-        self.resblock = ResnetBlock(64)
+        self.resblock = ResnetSpectral(64)
 
         UpBlock = []
         UpBlock += [
             nn.Upsample(scale_factor=2, mode='nearest'),
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(64, 64, (3, 3)),
+            spectral_norm(nn.Conv2D(64, 64, (3, 3))),
             nn.ReLU()
         ]
         UpBlock += [

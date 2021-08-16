@@ -14,18 +14,6 @@ model:
     num_layer: 9
     kernel_size: 3
     padding: 1
-  revnet_discriminator_2:
-    name: LapStyleSingleDiscriminator
-    num_channels: 64
-    num_layer: 9
-    kernel_size: 5
-    padding: 2
-  revnet_discriminator_3:
-    name: LapStyleSingleDiscriminator
-    num_channels: 64
-    num_layer: 9
-    kernel_size: 21
-    padding: 10
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -98,19 +86,6 @@ optimizer:
       - netD_1
     beta1: 0.9
     beta2: 0.999
-  optimD2:
-    name: Adam
-    net_names:
-      - netD_2
-    beta1: 0.9
-    beta2: 0.999
-  optimD3:
-    name: Adam
-    net_names:
-      - netD_3
-    beta1: 0.9
-    beta2: 0.999
-
 validate:
   interval: 100000
   save_img: false

@@ -20,12 +20,12 @@ from .builder import DISCRIMINATORS
 
 @DISCRIMINATORS.register()
 class LapStyleSingleDiscriminator(nn.Layer):
-    def __init__(self, num_channels=32,dropout_rate=.5,num_layer=3):
+    def __init__(self, num_channels=32,,kernel_size=3,padding=1,dropout_rate=.5,num_layer=3):
         super(LapStyleSingleDiscriminator, self).__init__()
         num_channel = num_channels
         self.head = nn.Sequential(
             ('conv',
-             nn.Conv2D(3, num_channel, kernel_size=3, stride=1, padding=1)),
+             nn.Conv2D(3, num_channel, kernel_size=kernel_size, stride=1, padding=padding)),
             ('norm', nn.BatchNorm2D(num_channel)),
             ('LeakyRelu', nn.LeakyReLU(0.2)))
         self.body = nn.Sequential()
@@ -34,17 +34,17 @@ class LapStyleSingleDiscriminator(nn.Layer):
                 'conv%d' % (i + 1),
                 nn.Conv2D(num_channel,
                           num_channel,
-                          kernel_size=3,
+                          kernel_size=kernel_size,
                           stride=1,
-                          padding=1))
+                          padding=padding))
             self.body.add_sublayer('norm%d' % (i + 1),
                                    nn.BatchNorm2D(num_channel))
             self.body.add_sublayer('LeakyRelu%d' % (i + 1), nn.LeakyReLU(0.2))
         self.tail = nn.Conv2D(num_channel,
                               1,
-                              kernel_size=3,
+                              kernel_size=kernel_size,
                               stride=1,
-                              padding=1)
+                              padding=padding)
 
     def forward(self, x):
         x = self.head(x)

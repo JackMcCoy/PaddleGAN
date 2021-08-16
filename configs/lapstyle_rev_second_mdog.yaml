@@ -16,13 +16,13 @@ model:
     padding: 1
   revnet_discriminator_2:
     name: LapStyleSingleDiscriminator
-    num_channels: 32
+    num_channels: 64
     num_layer: 9
     kernel_size: 5
     padding: 2
   revnet_discriminator_3:
     name: LapStyleSingleDiscriminator
-    num_channels: 32
+    num_channels: 64
     num_layer: 9
     kernel_size: 21
     padding: 10

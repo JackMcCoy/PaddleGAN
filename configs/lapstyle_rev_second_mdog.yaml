@@ -10,28 +10,22 @@ model:
     name: RevisionNet
   revnet_discriminator_1:
     name: LapStyleSingleDiscriminator
-    num_channels: 32
+    num_channels: 64
     num_layer: 9
     kernel_size: 3
     padding: 1
   revnet_discriminator_2:
     name: LapStyleSingleDiscriminator
-    num_channels: 32
+    num_channels: 64
     num_layer: 9
-    kernel_size: 3
-    padding: 1
+    kernel_size: 5
+    padding: 2
   revnet_discriminator_3:
     name: LapStyleSingleDiscriminator
-    num_channels: 32
+    num_channels: 64
     num_layer: 9
-    kernel_size: 3
-    padding: 1
-  revnet_discriminator_4:
-    name: LapStyleSingleDiscriminator
-    num_channels: 32
-    num_layer: 9
-    kernel_size: 3
-    padding: 1
+    kernel_size: 21
+    padding: 10
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -114,12 +108,6 @@ optimizer:
     name: Adam
     net_names:
       - netD_3
-    beta1: 0.9
-    beta2: 0.999
-  optimD4:
-    name: Adam
-    net_names:
-      - netD_4
     beta1: 0.9
     beta2: 0.999
 

@@ -2093,7 +2093,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
                  revnet_discriminator_1,
                  revnet_discriminator_2,
                  revnet_discriminator_3,
-                 revnet_discriminator_4,
                  draftnet_encode,
                  draftnet_decode,
                  revnet_deep_generator,
@@ -2144,9 +2143,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         init_weights(self.nets['netD_2'])
         self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
         init_weights(self.nets['netD_3'])
-        self.nets['netD_4'] = build_discriminator(revnet_discriminator_4)
-        init_weights(self.nets['netD_4'])
-        self.discriminators=[self.nets['netD_1'],self.nets['netD_2'],self.nets['netD_3'],self.nets['netD_4']]
+        self.discriminators=[self.nets['netD_1'],self.nets['netD_2'],self.nets['netD_3']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2294,7 +2291,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.losses['loss_patch_'+str(i+1)] = self.loss_patch
 
         self.loss_content_p = 0
-        for layer in self.content_layers:
+        for layer in [self.content_layers[=2]]:
             self.loss_content_p += self.calc_content_loss(tpF[layer],
                                                       cF[layer],
                                                       norm=True)
@@ -2316,9 +2313,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         cXF = self.nets['net_enc'](cX.detach())
         stylized_dog,_ = xdog(self.stylized[i+1],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=cxminmax)
         cdogF = self.nets['net_enc'](stylized_dog)
-        mxdog_content=0
-        for layer in self.content_layers:
-            mxdog_content += self.calc_content_loss(tpF[layer], cXF[layer])
+        mxdog_content += self.calc_content_loss(tpF['r31'], cXF['r31'])
         mxdog_content_contraint = self.calc_content_loss(cdogF['r31'], cXF['r31'])
 
         if i>0:
@@ -2438,11 +2433,13 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2'],self.optimizers['optimD3'],self.optimizers['optimD4']],list(range(4))):
+        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2'],self.optimizers['optimD3']],list(range(3))):
             self.set_requires_grad(a, True)
             b.clear_grad()
-            loss=self.backward_D(a,c,str(c))
-            loss.backward()
+            optimlosses=[]
+            for i in range(4):
+                optimlosses.append(self.backward_D(a,i,str(c)))
+            (optimlosses[0]+optimlosses[1]+optimlosses[2]+optimlosses[3]).backward()
             b.step()
             self.set_requires_grad(a, False)
             b.clear_grad()

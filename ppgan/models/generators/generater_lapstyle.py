@@ -815,7 +815,8 @@ class RevisionNet(nn.Layer):
         ]
         UpBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(64, 3, (3, 3))
+            nn.Conv2D(64, 3, (3, 3)),
+            nn.Tanh()
         ]
 
         self.DownBlock = nn.Sequential(*DownBlock)
@@ -867,7 +868,8 @@ class RevisionNetThumb(nn.Layer):
         ]
         UpBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(64, 3, (3, 3))
+            nn.Conv2D(64, 3, (3, 3)),
+            nn.Tanh()
         ]
 
         self.DownBlock = nn.Sequential(*DownBlock)

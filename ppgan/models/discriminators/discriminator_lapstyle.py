@@ -169,7 +169,7 @@ class LapStyleSpectralDiscriminator(nn.Layer):
     def __init__(self, num_channels=32,num_layer=3):
         super(LapStyleSpectralDiscriminator, self).__init__()
         self.num_layer=num_layer
-        num_channel = num_channels
+        self.num_channels = num_channels
         self.head = OptimizedBlock(3,num_channel)
         self.body = nn.Sequential()
         for i in range(num_layer - 1):
@@ -182,7 +182,7 @@ class LapStyleSpectralDiscriminator(nn.Layer):
     def forward(self, x):
         x = self.head(x)
         x = self.body(x)
-        x = paddle.reshape(x,(-1,self.num_channel**2))
+        x = paddle.reshape(x,(-1,self.num_channels**2))
         x = self.fc(x)
         x = paddle.reshape(x,(1,1,256,256))
         return x

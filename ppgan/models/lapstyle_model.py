@@ -2441,8 +2441,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2'],self.optimizers['optimD3'],self.optimizers['optimD4']],list(range(4))):
             self.set_requires_grad(a, True)
             b.clear_grad()
-            optimlosses=[]
-            loss=self.backward_D(a,c,str(c)))
+            loss=self.backward_D(a,c,str(c))
             loss.backward()
             b.step()
             self.set_requires_grad(a, False)

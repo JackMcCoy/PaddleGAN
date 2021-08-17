@@ -2445,6 +2445,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.set_requires_grad(a, True)
             b.clear_grad()
             for i in range(4):
+                print(i)
                 b.clear_grad()
                 loss=self.backward_D(a,i,str(c))
                 loss.backward()

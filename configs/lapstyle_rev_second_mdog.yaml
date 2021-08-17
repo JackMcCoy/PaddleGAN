@@ -85,6 +85,7 @@ optimizer:
   optimG:
     name: Adam
     net_names:
+      - net_dec
       - net_rev
       - net_rev_2
       - net_rev_3

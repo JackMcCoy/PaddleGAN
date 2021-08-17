@@ -2445,21 +2445,23 @@ class LapStyleRevSecondMXDOG(BaseModel):
         for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2'],self.optimizers['optimD3']],list(range(3))):
             self.set_requires_grad(a, True)
             b.clear_grad()
+            loss=0
             for i in range(4):
                 b.clear_grad()
-                loss=self.backward_D(a,i,str(c))
-                loss.backward()
-                b.step()
+                loss+=self.backward_D(a,i,str(c))
+            loss.backward()
+            b.step()
             self.set_requires_grad(a, False)
             b.clear_grad()
         optimizers['optimG'].clear_grad()
         g_losses=[]
         # update G
+        loss=0
         for i in range(4):
-            loss=self.backward_G(i)
-            loss.backward()
-            optimizers['optimG'].step()
-            optimizers['optimG'].clear_grad()
+            loss+=self.backward_G(i)
+        loss.backward()
+        optimizers['optimG'].step()
+        optimizers['optimG'].clear_grad()
 
 @MODELS.register()
 class LapStyleRevSecondMiddle(BaseModel):

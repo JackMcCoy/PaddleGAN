@@ -2408,11 +2408,19 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 reshaped=paddle.slice(reshaped,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
             if not reshaped.shape[-1]==256:
                 reshaped = F.interpolate(reshaped,size=(256,256))
+            if random.choice([0,1])==0:
+                reshaped=paddle.flip(reshaped,-2)
+            if random.choice([0,1])==0:
+                reshaped=paddle.flip(reshaped,-2)
             loss_Dp_real = dec(reshaped.detach())
             pred_Dp_real += self.gan_criterion(loss_Dp_real, True)
             pred_Dp_real=pred_Dp_real
         else:
             reshaped = F.interpolate(reshaped,size=(256,256))
+            if random.choice([0,1])==0:
+                reshaped=paddle.flip(reshaped,-2)
+            if random.choice([0,1])==0:
+                reshaped=paddle.flip(reshaped,-2)
             loss_Dp_real = dec(reshaped.detach())
             pred_Dp_real += self.gan_criterion(loss_Dp_real, True)
         self.loss_D_patch = (loss_Dp_fake + pred_Dp_real) * 0.5

@@ -2398,9 +2398,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
     def backward_D(self,dec,i,name):
         """Calculate GAN loss for the discriminator"""
         fake = self.stylized[i+1].detach()
-        if random.choice([0,1])==0:
+        if random.choice([0,1,2,3])==0:
             fake=paddle.flip(fake,-2)
-        if random.choice([0,1])==0:
+        if random.choice([0,1,2,3])==0:
             fake=paddle.flip(fake,-1)
         pred_p_fake = dec(fake)
         loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
@@ -2413,18 +2413,18 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 reshaped=paddle.slice(reshaped,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
             if not reshaped.shape[-1]==256:
                 reshaped = F.interpolate(reshaped,size=(256,256))
-            if random.choice([0,1])==0:
+            if random.choice([0,1,2,3])==0:
                 reshaped=paddle.flip(reshaped,-2)
-            if random.choice([0,1])==0:
+            if random.choice([0,1,2,3])==0:
                 reshaped=paddle.flip(reshaped,-1)
             loss_Dp_real = dec(reshaped.detach())
             pred_Dp_real += self.gan_criterion(loss_Dp_real, True)
             pred_Dp_real=pred_Dp_real
         else:
             reshaped = F.interpolate(reshaped,size=(256,256))
-            if random.choice([0,1])==0:
+            if random.choice([0,1,2,3])==0:
                 reshaped=paddle.flip(reshaped,-2)
-            if random.choice([0,1])==0:
+            if random.choice([0,1,2,3])==0:
                 reshaped=paddle.flip(reshaped,-2)
             loss_Dp_real = dec(reshaped.detach())
             pred_Dp_real += self.gan_criterion(loss_Dp_real, True)

@@ -52,7 +52,7 @@ dataset:
     thumb_size: 256
     patch_depth: 3
     style_upsize: 1.1
-    num_workers: 9
+    num_workers: 6
     batch_size: 3
   test:
     name: LapStyleThumbsetInference

@@ -2324,22 +2324,24 @@ class LapStyleRevSecondMXDOG(BaseModel):
             if not reshaped.shape[-1]==512:
                 reshaped = F.interpolate(reshaped,size=(512,512))
             reshaped = paddle.split(reshaped, 2, 2)
-            for idx,k in enumerate(reshaped):
-                for itx,j in enumerate(paddle.split(k, 2, 3)):
-                    spF = self.nets['net_enc'](j.detach())
-                    for layer in self.content_layers:
-                        self.loss_ps += self.calc_style_loss(tpF[layer],
-                                                              spF[layer])
-                    self.p_loss_style_remd += self.calc_style_emd_loss(
-                        tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
-                        tpF['r41'], spF['r41'])
-                    sX,_ = xdog(j.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
-                    sXF = self.nets['net_enc'](sX)
-                    mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
-                    style_counter += 1
-            self.loss_ps = self.loss_ps/4
-            self.p_loss_style_remd=self.p_loss_style_remd/4
-            mxdog_style=mxdog_style/4
+            idx = random.choice([0,1])
+            reshaped = reshaped[idx]
+            itx = random.choice([0,1])
+            reshaped = paddle.split(reshaped, 2, 3)[itx]
+            spF = self.nets['net_enc'](reshaped.detach())
+            for layer in self.content_layers:
+                self.loss_ps += self.calc_style_loss(tpF[layer],
+                                                      spF[layer])
+            self.p_loss_style_remd += self.calc_style_emd_loss(
+                tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
+                tpF['r41'], spF['r41'])
+            sX,_ = xdog(j.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
+            sXF = self.nets['net_enc'](sX)
+            mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
+            style_counter += 1
+            self.loss_ps = self.loss_ps
+            self.p_loss_style_remd=self.p_loss_style_remd
+            mxdog_style=mxdog_style
         else:
             spF = self.nets['net_enc'](self.style_stack[0].detach())
             sX,_ = xdog(self.style_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)

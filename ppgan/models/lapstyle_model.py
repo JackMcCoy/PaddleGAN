@@ -2403,7 +2403,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         pred_Dp_real = 0
         reshaped = self.style_stack[1]
         if i>0:
-            for j in range(i+2):
+            for j in range(i+1):
                 k = random_crop_coords(reshaped.shape[-1])
                 reshaped=paddle.slice(reshaped,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
             loss_Dp_real = dec(reshaped.detach())
@@ -2434,6 +2434,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.set_requires_grad(a, True)
             b.clear_grad()
             for i in range(4):
+                print(i)
                 b.clear_grad()
                 loss=self.backward_D(a,i,str(c))
                 loss.backward()

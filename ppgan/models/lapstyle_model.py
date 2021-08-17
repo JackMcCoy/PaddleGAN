@@ -2321,11 +2321,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
             for j in range(i+1):
                 k = random_crop_coords(reshaped.shape[-1])
                 reshaped=paddle.slice(reshaped,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
-            reshaped = paddle.split(reshaped, 2, 2)
-            idx = random.choice([0,1])
-            reshaped = reshaped[idx]
-            itx = random.choice([0,1])
-            reshaped = paddle.split(reshaped, 2, 3)[itx]
+            if i<2:
+                reshaped = paddle.split(reshaped, 2, 2)
+                idx = random.choice([0,1])
+                reshaped = reshaped[idx]
+                itx = random.choice([0,1])
+                reshaped = paddle.split(reshaped, 2, 3)[itx]
             spF = self.nets['net_enc'](reshaped.detach())
             for layer in self.content_layers:
                 self.loss_ps += self.calc_style_loss(tpF[layer],

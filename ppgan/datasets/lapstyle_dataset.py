@@ -276,7 +276,7 @@ class MultiPatchSet(Dataset):
     """
     coco2017 dataset for LapStyle model
     """
-    def __init__(self, content_root, style_root, load_size, crop_size, thumb_size, patch_depth,style_upsize=1):
+    def __init__(self, content_root, style_root, load_size, crop_size, thumb_size, patch_depth,rotate_odds=4,style_upsize=1):
         super(MultiPatchSet, self).__init__()
         self.content_root = content_root
         self.paths = os.listdir(self.content_root)
@@ -290,6 +290,7 @@ class MultiPatchSet(Dataset):
         self.patch_depth = patch_depth
         self.transform = data_transform(self.crop_size)
         self.transform_patch = data_transform(self.crop_size*2)
+        self.rotate_odds = rotate_odds
 
     def __getitem__(self, index):
         """Get training sample
@@ -348,6 +349,9 @@ class MultiPatchSet(Dataset):
             final_width = math.ceil(self.thumb_size*ratio* self.style_upsize)
         style_img = style_img.resize((intermediate_width, intermediate_height),
                                      Image.BILINEAR)
+        if random.choice(list(range(self.rotate_odds)))==0:
+            degrees = random.choice([90,180,270])
+            style_img = style_img.rotate(angle=degrees)
         style_img = style_img.crop(box=get_crop_bounds(self.load_size,style_img.width,style_img.height))
         style_patch = style_img.resize((self.crop_size,self.crop_size))
         style_patch = np.array(style_patch)

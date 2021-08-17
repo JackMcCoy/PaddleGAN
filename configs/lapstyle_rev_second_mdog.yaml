@@ -14,16 +14,6 @@ model:
     num_layer: 9
     kernel_size: 3
     padding: 1
-  revnet_discriminator_2:
-    name: LapStyleSpectralDiscriminator
-    num_channels: 16
-    num_layer: 6
-  revnet_discriminator_3:
-    name: LapStyleSingleDiscriminator
-    num_channels: 64
-    num_layer: 9
-    kernel_size: 5
-    padding: 2
   draftnet_encode:
     name: Encoder
   draftnet_decode:

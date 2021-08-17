@@ -2430,7 +2430,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         tF = self.nets['net_enc'](self.stylized[0])
         """content loss"""
         loss_c = 0
-        for layer in self.content_layers[:-1]:
+        for layer in self.content_layers:
             loss_c += self.calc_content_loss(tF[layer],
                                                   cF[layer],
                                                   norm=True)

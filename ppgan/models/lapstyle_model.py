@@ -2468,7 +2468,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['loss_style_remd'] = loss_style_remd
         self.losses['loss_content_relt'] = loss_content_relt
 
-        loss = loss_c * content_weight + loss_s * style_weight +\
+        loss = loss_c * self.content_weight + loss_s * self.style_weight +\
                     l_identity1 * 50 + l_identity2 * 1 + loss_style_remd * 10 + \
                     loss_content_relt * 16
 

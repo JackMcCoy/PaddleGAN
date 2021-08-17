@@ -2500,7 +2500,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         g_losses=[]
         # update G
         loss = self.backward_Dec()
-        loss.backward.
+        loss.backward()
         optimizers['optimG'].step()
         optimizers['optimG'].clear_grad()
 

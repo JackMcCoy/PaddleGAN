@@ -2408,17 +2408,14 @@ class LapStyleRevSecondMXDOG(BaseModel):
         pred_Dp_real = 0
         reshaped = self.style_stack[1]
         if i>0:
-            for j in range(i):
-                k = random_crop_coords(reshaped.shape[-1])
-                reshaped=paddle.slice(reshaped,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
-            if not reshaped.shape[-1]==512:
-                reshaped = F.interpolate(reshaped,size=(512,512))
             reshaped = paddle.split(reshaped, 2, 2)
-            for k in reshaped:
-                for j in paddle.split(k, 2, 3):
-                    loss_Dp_real = dec(j.detach())
-                    pred_Dp_real += self.gan_criterion(loss_Dp_real, True)
-                pred_Dp_real=pred_Dp_real/4
+            idx = random.choice([0,1])
+            reshaped = reshaped[idx]
+            itx = random.choice([0,1])
+            reshaped = paddle.split(reshaped, 2, 3)[itx]
+            loss_Dp_real = dec(reshaped.detach())
+            pred_Dp_real += self.gan_criterion(loss_Dp_real, True)
+            pred_Dp_real=pred_Dp_real
         else:
             reshaped = F.interpolate(reshaped,size=(256,256))
             loss_Dp_real = dec(reshaped.detach())

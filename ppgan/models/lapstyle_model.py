@@ -2441,6 +2441,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.forward()
         # update D
         for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2'],self.optimizers['optimD3']],list(range(3))):
+            print(c)
             self.set_requires_grad(a, True)
             b.clear_grad()
             for i in range(4):

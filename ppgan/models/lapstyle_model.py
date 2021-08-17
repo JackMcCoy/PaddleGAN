@@ -2229,10 +2229,10 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.visual_items['stylized_small'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
 
-        revnet_input = paddle.concat(x=[self.laplacians[0], stylized_up], axis=1)
+        revnet_input = paddle.concat(x=[self.laplacians[0], stylized_up.detach()], axis=1)
         #rev_net thumb only calcs as patch if second parameter is passed
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach())
-        stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small])
+        stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small.detach()])
         self.stylized.append(stylized_rev)
         self.visual_items['stylized_rev_first'] = stylized_rev
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
@@ -2499,14 +2499,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
         optimizers['optimG'].clear_grad()
         g_losses=[]
         # update G
-        print('dec')
         loss = self.backward_Dec()
         loss.backward()
         optimizers['optimG'].step()
         optimizers['optimG'].clear_grad()
 
         for i in range(4):
-            print(i)
             loss=self.backward_G(i)
             loss.backward()
             optimizers['optimG'].step()

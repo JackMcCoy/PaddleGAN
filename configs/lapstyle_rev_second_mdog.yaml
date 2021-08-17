@@ -45,8 +45,8 @@ model:
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
   style_weight: 5
-  ada_alpha: .05
-  ada_alpha_2: .025
+  ada_alpha: .1
+  ada_alpha_2: .05
   gan_thumb_weight: 1
   gan_patch_weight: 2
   use_mdog: 1
@@ -78,8 +78,8 @@ dataset:
 
 lr_scheduler:
   name: NonLinearDecay
-  learning_rate: 1e-5
-  lr_decay: 5e-5
+  learning_rate: 7e-5
+  lr_decay: 2e-5
 
 optimizer:
   optimG:

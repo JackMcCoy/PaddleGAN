@@ -2137,13 +2137,14 @@ class LapStyleRevSecondMXDOG(BaseModel):
         init_weights(self.nets['net_rev_3'])
         self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
         init_weights(self.nets['netD_1'])
-        '''
-        self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
+        self.nets['netD_2'] = build_discriminator(revnet_discriminator_1)
         init_weights(self.nets['netD_2'])
-        self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
+        self.nets['netD_3'] = build_discriminator(revnet_discriminator_1)
         init_weights(self.nets['netD_3'])
-        '''
-        self.discriminators=[self.nets['netD_1']]
+        self.nets['netD_4'] = build_discriminator(revnet_discriminator_1)
+        init_weights(self.nets['netD_4'])
+
+        self.discriminators=[self.nets['netD_1'],self.nets['netD_2'],self.nets['netD_3'],self.nets['netD_4']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2363,9 +2364,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         """gan loss"""
         self.loss_Gp_GAN=0
-        for a in self.discriminators:
-            pred_fake_p = a(self.stylized[i+1])
-            self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
+        pred_fake_p = self.discriminators[i](self.stylized[i+1])
+        self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
 
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*.5*self.gan_thumb_weight
 
@@ -2477,13 +2477,10 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1']],list(range(1))):
+        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2'],self.optimizers['optimD3'],self.optimizers['optimD4']],list(range(4))):
             self.set_requires_grad(a, True)
             b.clear_grad()
-            loss=0
-            for i in range(4):
-                b.clear_grad()
-                loss+=self.backward_D(a,i,str(c))
+            loss=self.backward_D(a,c,str(c))
             loss.backward()
             b.step()
             self.set_requires_grad(a, False)

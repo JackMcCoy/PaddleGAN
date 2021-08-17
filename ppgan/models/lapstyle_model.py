@@ -2237,10 +2237,10 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.visual_items['stylized_rev_first'] = stylized_rev
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
         stylized_up = crop_upsized(stylized_up,self.positions[0],self.size_stack[0])
-        self.patches_in = [stylized_up]
-        revnet_input = paddle.concat(x=[self.laplacians[1].detach(), stylized_up], axis=1)
-        stylized_rev_lap_second,stylized_feats = self.nets['net_rev_2'](revnet_input,stylized_feats,self.ada_alpha)
-        stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up])
+        self.patches_in = [stylized_up.detach()]
+        revnet_input = paddle.concat(x=[self.laplacians[1].detach(), stylized_up.detach()], axis=1)
+        stylized_rev_lap_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha)
+        stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up.detach()])
         self.visual_items['ci_2'] = self.content_stack[1]
         self.stylized.append(stylized_rev_second)
 
@@ -2251,9 +2251,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.patches_in.append(stylized_up.detach())
 
         revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up], axis=1)
-        stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input,stylized_feats,self.ada_alpha_2)
+        stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha_2)
         stylized_rev_patch = fold_laplace_patch(
-            [stylized_rev_patch, stylized_up])
+            [stylized_rev_patch, stylized_up.detach()])
         self.visual_items['ci_3'] = self.content_stack[2]
         self.visual_items['stylized_rev_third'] = stylized_rev_patch
         self.stylized.append(stylized_rev_patch)
@@ -2261,15 +2261,15 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         stylized_up = F.interpolate(stylized_rev_patch, scale_factor=2)
         stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
-        self.patches_in.append(stylized_up)
+        self.patches_in.append(stylized_up.detach())
 
-        stylized_feats = self.nets['net_rev_3'].DownBlock(revnet_input)
+        stylized_feats = self.nets['net_rev_3'].DownBlock(revnet_input.detach())
         stylized_feats = self.nets['net_rev_3'].resblock(stylized_feats)
 
         revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up], axis=1)
         stylized_rev_patch_second,_ = self.nets['net_rev_3'](revnet_input.detach(),stylized_feats,self.ada_alpha_2)
         stylized_rev_patch_second = fold_laplace_patch(
-            [stylized_rev_patch_second, stylized_up])
+            [stylized_rev_patch_second, stylized_up.detach()])
         self.visual_items['ci_4'] = self.content_stack[3]
         self.visual_items['stylized_rev_fourth'] = stylized_rev_patch_second
 
@@ -2284,7 +2284,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         """patch loss"""
         self.loss_patch = 0
         if i!=0:
-            tt_cropF = self.nets['net_enc'](self.patches_in[i-1])
+            tt_cropF = self.nets['net_enc'](self.patches_in[i-1].detach())
             for layer in [self.content_layers[-2]]:
                 self.loss_patch += self.calc_content_loss(tpF[layer],
                                                           tt_cropF[layer])
@@ -2430,6 +2430,49 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses[name+'_real_loss_'+str(i)] = pred_Dp_real
         return self.loss_D_patch
 
+    def backward_Dec(self):
+        ci = F.interpolate(self.content_stack[0],.5)
+        si = F.interpolate(self.style_stack[0],.5)
+        cF = self.nets['net_enc'](ci)
+        sF = self.nets['net_enc'](si)
+        tF = self.nets['net_enc'](self.stylized[0])
+        """content loss"""
+        loss_c = 0
+        for layer in self.content_layers[:-1]:
+            loss_c += self.calc_content_loss(tF[layer],
+                                                  cF[layer],
+                                                  norm=True)
+        self.losses['loss_c'] = loss_c
+        """style loss"""
+        loss_s = 0
+        for layer in self.style_layers:
+            loss_s += self.calc_style_loss(tF[layer], sF[layer])
+        self.losses['loss_s'] = loss_s
+        """IDENTITY LOSSES"""
+        Icc = self.nets['net_dec'](cF, cF)
+        l_identity1 = self.calc_content_loss(Icc, ci)
+        Fcc = self.nets['net_enc'](Icc)
+        l_identity2 = 0
+        for layer in self.content_layers:
+            l_identity2 += self.calc_content_loss(Fcc[layer],
+                                                       cF[layer])
+        self.losses['l_identity1'] = l_identity1
+        self.losses['l_identity2'] = l_identity2
+        """relative loss"""
+        loss_style_remd = self.calc_style_emd_loss(
+            tF['r31'], sF['r31']) + self.calc_style_emd_loss(
+                tF['r41'], sF['r41'])
+        loss_content_relt = self.calc_content_relt_loss(
+            tF['r31'], cF['r31']) + self.calc_content_relt_loss(
+                tF['r41'], cF['r41'])
+        self.losses['loss_style_remd'] = loss_style_remd
+        self.losses['loss_content_relt'] = loss_content_relt
+
+        loss = loss_c * content_weight + loss_s * style_weight +\
+                    l_identity1 * 50 + l_identity2 * 1 + loss_style_remd * 10 + \
+                    loss_content_relt * 16
+
+        return loss
 
     def train_iter(self, optimizers=None):
         loops=1
@@ -2445,11 +2488,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
         for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2'],self.optimizers['optimD3']],list(range(3))):
             self.set_requires_grad(a, True)
             b.clear_grad()
+            loss=0
             for i in range(4):
                 b.clear_grad()
-                loss=self.backward_D(a,i,str(c))
-                loss.backward()
-                b.step()
+                loss+=self.backward_D(a,i,str(c))
+            loss.backward()
+            b.step()
             self.set_requires_grad(a, False)
             b.clear_grad()
         optimizers['optimG'].clear_grad()
@@ -2458,9 +2502,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
         loss=0
         for i in range(4):
             loss+=self.backward_G(i)
-        loss.backward()
-        optimizers['optimG'].step()
-        optimizers['optimG'].clear_grad()
+            loss.backward()
+            optimizers['optimG'].step()
+            optimizers['optimG'].clear_grad()
 
 @MODELS.register()
 class LapStyleRevSecondMiddle(BaseModel):

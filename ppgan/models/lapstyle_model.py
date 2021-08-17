@@ -2237,10 +2237,10 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.visual_items['stylized_rev_first'] = stylized_rev
         stylized_up = F.interpolate(stylized_rev, scale_factor=2)
         stylized_up = crop_upsized(stylized_up,self.positions[0],self.size_stack[0])
-        self.patches_in = [stylized_up.detach()]
-        revnet_input = paddle.concat(x=[self.laplacians[1].detach(), stylized_up.detach()], axis=1)
-        stylized_rev_lap_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha)
-        stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up.detach()])
+        self.patches_in = [stylized_up]
+        revnet_input = paddle.concat(x=[self.laplacians[1].detach(), stylized_up], axis=1)
+        stylized_rev_lap_second,stylized_feats = self.nets['net_rev_2'](revnet_input,stylized_feats,self.ada_alpha)
+        stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up])
         self.visual_items['ci_2'] = self.content_stack[1]
         self.stylized.append(stylized_rev_second)
 
@@ -2251,9 +2251,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.patches_in.append(stylized_up.detach())
 
         revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up], axis=1)
-        stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha_2)
+        stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input,stylized_feats,self.ada_alpha_2)
         stylized_rev_patch = fold_laplace_patch(
-            [stylized_rev_patch, stylized_up.detach()])
+            [stylized_rev_patch, stylized_up])
         self.visual_items['ci_3'] = self.content_stack[2]
         self.visual_items['stylized_rev_third'] = stylized_rev_patch
         self.stylized.append(stylized_rev_patch)
@@ -2261,15 +2261,15 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         stylized_up = F.interpolate(stylized_rev_patch, scale_factor=2)
         stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
-        self.patches_in.append(stylized_up.detach())
+        self.patches_in.append(stylized_up)
 
-        stylized_feats = self.nets['net_rev_3'].DownBlock(revnet_input.detach())
+        stylized_feats = self.nets['net_rev_3'].DownBlock(revnet_input)
         stylized_feats = self.nets['net_rev_3'].resblock(stylized_feats)
 
         revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up], axis=1)
         stylized_rev_patch_second,_ = self.nets['net_rev_3'](revnet_input.detach(),stylized_feats,self.ada_alpha_2)
         stylized_rev_patch_second = fold_laplace_patch(
-            [stylized_rev_patch_second, stylized_up.detach()])
+            [stylized_rev_patch_second, stylized_up])
         self.visual_items['ci_4'] = self.content_stack[3]
         self.visual_items['stylized_rev_fourth'] = stylized_rev_patch_second
 
@@ -2284,7 +2284,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         """patch loss"""
         self.loss_patch = 0
         if i!=0:
-            tt_cropF = self.nets['net_enc'](self.patches_in[i-1].detach())
+            tt_cropF = self.nets['net_enc'](self.patches_in[i-1])
             for layer in [self.content_layers[-2]]:
                 self.loss_patch += self.calc_content_loss(tpF[layer],
                                                           tt_cropF[layer])

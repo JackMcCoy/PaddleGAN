@@ -2321,7 +2321,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             if not reshaped.shape[-1]==256:
                 reshaped = F.interpolate(reshaped,size=(256,256))
             spF = self.nets['net_enc'](reshaped.detach())
-            for layer in self.content_layers:
+            for layer in self.content_layers[:-1]:
                 self.loss_ps += self.calc_style_loss(tpF[layer],
                                                       spF[layer])
             self.p_loss_style_remd += self.calc_style_emd_loss(
@@ -2338,7 +2338,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             spF = self.nets['net_enc'](self.style_stack[0].detach())
             sX,_ = xdog(self.style_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
             sXF = self.nets['net_enc'](sX)
-            for layer in self.content_layers:
+            for layer in self.content_layers[:-1]:
                 self.loss_ps += self.calc_style_loss(tpF[layer],
                                                       spF[layer])
             self.p_loss_style_remd += self.calc_style_emd_loss(

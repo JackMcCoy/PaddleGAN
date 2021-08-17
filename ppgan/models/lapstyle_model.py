@@ -2431,8 +2431,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
         return self.loss_D_patch
 
     def backward_Dec(self):
-        ci = F.interpolate(self.content_stack[0],.5)
-        si = F.interpolate(self.style_stack[0],.5)
+        ci = F.interpolate(self.content_stack[0],scale_factor=.5)
+        si = F.interpolate(self.style_stack[0],scale_factor=.5)
         cF = self.nets['net_enc'](ci)
         sF = self.nets['net_enc'](si)
         tF = self.nets['net_enc'](self.stylized[0])

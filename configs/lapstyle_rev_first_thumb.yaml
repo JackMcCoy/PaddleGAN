@@ -38,7 +38,7 @@ dataset:
   train:
     name: LapStyleThumbset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/PaddleGAN/starrypatched1024.png
+    style_root: /content/PaddleGAN/starrysquare1024.png
     load_size: 512
     crop_size: 256
     thumb_size: 256

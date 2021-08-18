@@ -675,7 +675,7 @@ class LapStyleRevFirstMXDOG(BaseModel):
         pred_fake = self.nets['netD_first'](self.stylized)
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)
         self.losses['loss_gan_G'] = self.loss_G_GAN
-
+        '''
         self.cX,_ = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
         self.sX,_ = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
         self.cXF = self.nets['net_enc'](self.cX)
@@ -693,9 +693,9 @@ class LapStyleRevFirstMXDOG(BaseModel):
         self.losses['loss_CnsC_p'] = mxdog_content_contraint*100
         self.losses['loss_CnsS_p'] = mxdog_content_img*500
         mxdogloss=mxdog_content * .025 + mxdog_content_contraint *50 + mxdog_content_img * 100
-
+        '''
         self.loss = self.loss_G_GAN + self.loss_c * self.content_weight + self.style_weight * (self.loss_s +\
-                    self.loss_style_remd * 2.5) + self.loss_content_relt * 16 + mxdogloss
+                    self.loss_style_remd * 3) + self.loss_content_relt * 16
         self.loss.backward()
         return self.loss
 

@@ -14,10 +14,6 @@ model:
     num_layer: 3
     kernel_size: 3
     padding: 1
-  revnet_discriminator_2:
-    name: LapStyleSpectralDiscriminator
-    num_channels: 32
-    num_layer: 3
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -80,7 +76,6 @@ optimizer:
     name: Adam
     net_names:
       - net_rev_2
-      - net_rev_3
     beta1: 0.9
     beta2: 0.999
   optimD1:

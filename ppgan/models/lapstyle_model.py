@@ -2088,6 +2088,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
     def __init__(self,
                  revnet_generator,
                  revnet_discriminator_1,
+                 revnet_discriminator_2,
                  draftnet_encode,
                  draftnet_decode,
                  revnet_deep_generator,
@@ -2119,8 +2120,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         # define the first revnet params
         self.nets['net_rev'] = build_generator(revnet_generator)
-        init_weights(self.nets['net_rev'])
-        #self.set_requires_grad([self.nets['net_rev']], False)
+        #init_weights(self.nets['net_rev'])
+        self.set_requires_grad([self.nets['net_rev']], False)
 
         # define the second revnet params
         self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
@@ -2136,12 +2137,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
         init_weights(self.nets['netD_1'])
         self.nets['netD_2'] = build_discriminator(revnet_discriminator_1)
         init_weights(self.nets['netD_2'])
-        self.nets['netD_3'] = build_discriminator(revnet_discriminator_1)
-        init_weights(self.nets['netD_3'])
-        self.nets['netD_4'] = build_discriminator(revnet_discriminator_1)
-        init_weights(self.nets['netD_4'])
 
-        self.discriminators=[self.nets['netD_1'],self.nets['netD_2'],self.nets['netD_3'],self.nets['netD_4']]
+        self.discriminators=[self.nets['netD_1'],self.nets['netD_2']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2336,7 +2333,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             spF = self.nets['net_enc'](self.style_stack[0].detach())
             sX,_ = xdog(self.style_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
             sXF = self.nets['net_enc'](sX)
-            for layer in self.content_layers[:-1]:
+            for layer in self.content_layers:
                 self.loss_ps += self.calc_style_loss(tpF[layer],
                                                       spF[layer])
             self.p_loss_style_remd += self.calc_style_emd_loss(
@@ -2367,19 +2364,19 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*.5*self.gan_thumb_weight
 
         if i==0:
-            a=3
+            a=8
             b=16
             c=1
             d=2
         elif i>0 and i<3:
-            a=3
+            a=8
             b=16
-            c=1
+            c=1.5
             d=2
         else:
-            a=3
+            a=8
             b=16
-            c=5
+            c=4
             d=4
 
         self.loss = self.loss_Gp_GAN *self.gan_thumb_weight*c +self.loss_ps * self.style_weight +\
@@ -2474,11 +2471,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2'],self.optimizers['optimD3'],self.optimizers['optimD4']],list(range(4))):
-            for i in range((c+1)**2):
+        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2']],list(range(2))):
+            for i in range(1,4):
                 self.set_requires_grad(a, True)
                 b.clear_grad()
-                loss=self.backward_D(a,c,str(c))
+                loss=self.backward_D(a,i,str(c))
                 loss.backward()
                 b.step()
                 self.set_requires_grad(a, False)
@@ -2486,12 +2483,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
         optimizers['optimG'].clear_grad()
         g_losses=[]
         # update G
-        loss = self.backward_Dec()
-        loss.backward()
-        optimizers['optimG'].step()
-        optimizers['optimG'].clear_grad()
+        #loss = self.backward_Dec()
+        #loss.backward()
+        #optimizers['optimG'].step()
+        #optimizers['optimG'].clear_grad()
 
-        for i in range(4):
+        for i in range(1,4):
             loss=self.backward_G(i)
             loss.backward()
             optimizers['optimG'].step()

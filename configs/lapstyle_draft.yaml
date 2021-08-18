@@ -31,9 +31,9 @@ dataset:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
     style_root: /content/PaddleGAN/starrysquare1024.png
-    load_size: 134
+    load_size: 128
     crop_size: 128
-    style_upsize: 1.1
+    style_upsize: 1
     num_workers: 16
     batch_size: 5
   test:

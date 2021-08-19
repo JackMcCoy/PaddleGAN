@@ -28,6 +28,8 @@ model:
     name: CalcContentLoss
   calc_style_loss:
     name: CalcStyleLoss
+  mse_loss:
+    name: MSELoss
   gan_criterion:
     name: GANLoss
     gan_mode: vanilla

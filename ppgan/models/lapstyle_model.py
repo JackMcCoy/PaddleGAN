@@ -2092,6 +2092,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
     def __init__(self,
                  revnet_generator,
                  revnet_discriminator_1,
+                 revnet_discriminator_2,
                  draftnet_encode,
                  draftnet_decode,
                  revnet_deep_generator,
@@ -2140,8 +2141,10 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #init_weights(self.nets['net_rev_3'])
         self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
         init_weights(self.nets['netD_1'])
+        self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
+        init_weights(self.nets['netD_2'])
 
-        self.discriminators=[self.nets['netD_1']]
+        self.discriminators=[self.nets['netD_1'],self.nets['netD_2']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2244,20 +2247,20 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.stylized.append(stylized_rev_second)
 
         self.visual_items['stylized_rev_second'] = stylized_rev_second
+
+        stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
+        stylized_up = crop_upsized(stylized_up,self.positions[1],self.size_stack[1])
+        self.patches_in.append(stylized_up.detach())
+
+        revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up], axis=1)
+        stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha_2)
+        stylized_rev_patch = fold_laplace_patch(
+            [stylized_rev_patch, stylized_up.detach()])
+        self.visual_items['ci_3'] = self.content_stack[2]
+        self.visual_items['stylized_rev_third'] = stylized_rev_patch
+        self.stylized.append(stylized_rev_patch)
+
         if 0:
-            stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
-            stylized_up = crop_upsized(stylized_up,self.positions[1],self.size_stack[1])
-            self.patches_in.append(stylized_up.detach())
-
-            revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up], axis=1)
-            stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha_2)
-            stylized_rev_patch = fold_laplace_patch(
-                [stylized_rev_patch, stylized_up.detach()])
-            self.visual_items['ci_3'] = self.content_stack[2]
-            self.visual_items['stylized_rev_third'] = stylized_rev_patch
-            self.stylized.append(stylized_rev_patch)
-
-
             stylized_up = F.interpolate(stylized_rev_patch, scale_factor=2)
             stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
             self.patches_in.append(stylized_up.detach())
@@ -2360,9 +2363,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         """gan loss"""
         self.loss_Gp_GAN=0
-        for h in self.discriminators:
-            pred_fake_p = h(self.stylized[i+1])
-            self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
+        pred_fake_p = self.discriminators[i-1](self.stylized[i+1])
+        self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
 
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 
@@ -2430,7 +2432,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1']],list(range(1))):
+        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2']],list(range(1,3))):
             for i in [1]:
                 self.set_requires_grad(a, True)
                 b.clear_grad()
@@ -2447,7 +2449,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #optimizers['optimG'].step()
         #optimizers['optimG'].clear_grad()
 
-        for i in [1]:
+        for i in [1,2]:
             loss=self.backward_G(i)
             loss.backward()
             optimizers['optimG'].step()

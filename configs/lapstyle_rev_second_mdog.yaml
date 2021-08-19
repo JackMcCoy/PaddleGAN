@@ -14,6 +14,12 @@ model:
     num_layer: 5
     kernel_size: 3
     padding: 1
+  revnet_discriminator_2:
+    name: LapStyleSingleDiscriminator
+    num_channels: 32
+    num_layer: 5
+    kernel_size: 3
+    padding: 1
   draftnet_encode:
     name: Encoder
   draftnet_decode:

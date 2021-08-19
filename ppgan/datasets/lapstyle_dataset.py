@@ -351,7 +351,7 @@ class MultiPatchSet(Dataset):
             style_img = style_img.resize((intermediate_width, intermediate_height),
                                          Image.BILINEAR)
             self.style_img = style_img
-        style_img = self.style_img.crop(box=get_crop_bounds(self.load_size,style_img.width,style_img.height))
+        style_img = self.style_img.crop(box=get_crop_bounds(self.load_size,self.style_img.width,self.style_img.height))
         style_patch = style_img.resize((self.crop_size,self.crop_size))
         style_patch = np.array(style_patch)
         style_patch = self.img(style_patch)

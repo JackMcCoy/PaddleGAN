@@ -2323,7 +2323,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
             #sX,_ = xdog(reshaped.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
             #sXF = self.nets['net_enc'](sX)
             #mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
-            style_counter += 1
             self.loss_ps = self.loss_ps
             self.p_loss_style_remd=self.p_loss_style_remd
             #mxdog_style=mxdog_style

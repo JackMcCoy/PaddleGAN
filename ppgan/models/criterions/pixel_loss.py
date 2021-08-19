@@ -260,6 +260,6 @@ class GramErrors():
             pred (Tensor): of shape (N, C, H, W). Predicted tensor.
             target (Tensor): of shape (N, C, H, W). Ground truth tensor.
         """
-        gram_pred = gram_matrix(pred)
-        gram_target = gram_matrix(target)
+        gram_pred = self.gram_matrix(pred)
+        gram_target = self.gram_matrix(target)
         return self.mse_loss(gram_pred, gram_target)

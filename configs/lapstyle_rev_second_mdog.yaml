@@ -29,7 +29,7 @@ model:
   calc_style_loss:
     name: CalcStyleLoss
   mse_loss:
-    name: MSELoss
+    name: GramErrors
   gan_criterion:
     name: GANLoss
     gan_mode: vanilla

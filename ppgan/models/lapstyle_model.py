@@ -695,7 +695,7 @@ class LapStyleRevFirstMXDOG(BaseModel):
         mxdogloss=mxdog_content * .025 + mxdog_content_contraint *50 + mxdog_content_img * 100
         '''
         self.loss = self.loss_G_GAN + self.loss_c * self.content_weight + self.style_weight * (self.loss_s +\
-                    self.loss_style_remd * 1) + self.loss_content_relt * 16
+                    self.loss_style_remd * 1.25) + self.loss_content_relt * 16
         self.loss.backward()
         return self.loss
 
@@ -2126,18 +2126,16 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
         #self.set_requires_grad([self.nets['net_rev_2']], False)
         init_weights(self.nets['net_rev_2'])
-        '''
+
         #self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
         #init_weights(self.nets['netD_1'])
         #self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
         #init_weights(self.nets['netD_2'])
-        self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
-        init_weights(self.nets['net_rev_3'])
+        #self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
+        #init_weights(self.nets['net_rev_3'])
         self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
         init_weights(self.nets['netD_1'])
-        self.nets['netD_2'] = build_discriminator(revnet_discriminator_1)
-        init_weights(self.nets['netD_2'])
-        '''
+
         self.discriminators=[self.nets['netD_1']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
@@ -2209,8 +2207,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.size_stack = input['size_stack']
             self.laplacians.append(laplacian_conv(self.content_stack[0],self.lap_filter).detach())
             self.laplacians.append(laplacian_conv(self.content_stack[1],self.lap_filter).detach())
-            self.laplacians.append(laplacian_conv(self.content_stack[2],self.lap_filter).detach())
-            self.laplacians.append(laplacian_conv(self.content_stack[3],self.lap_filter).detach())
+            #self.laplacians.append(laplacian_conv(self.content_stack[2],self.lap_filter).detach())
+            #self.laplacians.append(laplacian_conv(self.content_stack[3],self.lap_filter).detach())
             self.cX = False
             self.sX = False
 
@@ -2365,19 +2363,19 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 
         if i==0:
-            a=8
+            a=3
             b=16
             c=1
             d=2
         elif i>0 and i<3:
-            a=8
+            a=3
             b=16
-            c=1.5
+            c=1
             d=2
         else:
-            a=8
+            a=3
             b=16
-            c=4
+            c=3
             d=4
 
         self.loss = self.loss_Gp_GAN *c +self.loss_ps * self.style_weight +\

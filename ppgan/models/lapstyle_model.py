@@ -2133,6 +2133,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #self.set_requires_grad([self.nets['net_rev_2']], False)
         init_weights(self.nets['net_rev_2'])
 
+        self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
+        # self.set_requires_grad([self.nets['net_rev_2']], False)
+        init_weights(self.nets['net_rev_3'])
         #self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
         #init_weights(self.nets['netD_1'])
         #self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
@@ -2252,8 +2255,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
         stylized_up = crop_upsized(stylized_up,self.positions[1],self.size_stack[1])
         self.patches_in.append(stylized_up.detach())
 
+        stylized_feats = self.nets['net_rev_3'].DownBlock(revnet_input.detach())
+        stylized_feats = self.nets['net_rev_3'].resblock(stylized_feats)
+
         revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up], axis=1)
-        stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha_2)
+        stylized_rev_patch,stylized_feats = self.nets['net_rev_3'](revnet_input.detach(),stylized_feats,self.ada_alpha_2)
         stylized_rev_patch = fold_laplace_patch(
             [stylized_rev_patch, stylized_up.detach()])
         self.visual_items['ci_3'] = self.content_stack[2]
@@ -2441,7 +2447,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 b.step()
                 self.set_requires_grad(a, False)
                 b.clear_grad()
-        optimizers['optimG'].clear_grad()
         g_losses=[]
         # update G
         #loss = self.backward_Dec()
@@ -2449,11 +2454,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #optimizers['optimG'].step()
         #optimizers['optimG'].clear_grad()
 
-        for i in [1,2]:
+        for i,b in zip([1,2],[optimizers['optimG'],optimizers['optimG2']]):
+            b.clear_grad()
             loss=self.backward_G(i)
             loss.backward()
-            optimizers['optimG'].step()
-            optimizers['optimG'].clear_grad()
+            b.step()
+            b.clear_grad()
 
 @MODELS.register()
 class LapStyleRevSecondMiddle(BaseModel):

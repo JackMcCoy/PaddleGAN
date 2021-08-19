@@ -54,8 +54,8 @@ dataset:
   train:
     name: MultiPatchSet
     content_root: /content/gdrive/My Drive/img_style/large_pics/
-    style_root: /content/PaddleGAN/starrysquare2048.png
-    load_size: 512
+    style_root: /content/PaddleGAN/starrypatched1024.png
+    load_size: 1024
     crop_size: 256
     thumb_size: 256
     patch_depth: 1

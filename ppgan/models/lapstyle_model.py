@@ -280,7 +280,7 @@ class LapStyleDraXDOG(BaseModel):
         stylized_dog,_ = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=2)
         self.cdogF = self.nets['net_enc'](stylized_dog)
 
-        self.tF = self.nets['net_enc'](self.stylized)
+        self.tF = self.nets['net_enc'](paddle.clip(self.stylized,0,1))
         """content loss"""
         self.loss_c = 0
         for idx, layer in enumerate(self.content_layers):

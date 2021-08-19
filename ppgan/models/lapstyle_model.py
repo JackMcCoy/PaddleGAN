@@ -2377,7 +2377,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             a=16
             b=20
             c=1.75
-            d=2
+            d=2.2
         else:
             a=16
             b=16

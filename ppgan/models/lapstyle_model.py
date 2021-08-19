@@ -2246,7 +2246,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
         stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
         revnet_input = paddle.concat(x=[self.laplacians[1].detach(), stylized_up.detach()], axis=1)
-        stylized_rev_lap_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats.detach(),self.ada_alpha)
+        stylized_rev_lap_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats,self.ada_alpha)
         stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up.detach()])
         self.visual_items['ci_2'] = self.content_stack[1]
         self.stylized.append(stylized_rev_second)

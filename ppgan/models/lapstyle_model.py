@@ -2426,7 +2426,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2']],list(range(2))):
+        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1']],list(range(1))):
             for i in [1]:
                 self.set_requires_grad(a, True)
                 b.clear_grad()

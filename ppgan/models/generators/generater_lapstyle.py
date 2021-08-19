@@ -20,7 +20,7 @@ from skimage import color
 import numpy as np
 from .builder import GENERATORS
 
-if 0:
+if :
     import pycuda.autoinit
     import pycuda.gpuarray as gpuarray
     import skcuda.linalg as linalg
@@ -745,14 +745,9 @@ class Encoder(nn.Layer):
             vgg_net.children())[18:31])  # relu3_1 -> relu4_1
         self.enc_5 = nn.Sequential(*list(
             vgg_net.children())[31:44])  # relu4_1 -> relu5_1
-        self.cnn_normalization_mean = paddle.to_tensor([0.485, 0.456, 0.406])
-        self.cnn_normalization_std = paddle.to_tensor([0.229, 0.224, 0.225])
-        self.cnn_normalization_mean=paddle.reshape(self.cnn_normalization_mean,(-1, 1, 1))
-        self.cnn_normalization_std = paddle.reshape(self.cnn_normalization_std,(-1, 1, 1))
 
     def forward(self, x):
         out = {}
-        x = (x - self.cnn_normalization_mean) / self.cnn_normalization_std
         x = self.enc_1(x)
         out['r11'] = x
         x = self.enc_2(x)

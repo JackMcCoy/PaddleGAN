@@ -280,7 +280,7 @@ class LapStyleDraXDOG(BaseModel):
         stylized_dog,_ = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=2)
         self.cdogF = self.nets['net_enc'](stylized_dog)
 
-        self.tF = self.nets['net_enc'](paddle.clip(self.stylized,0,1))
+        self.tF = self.nets['net_enc'](self.stylized)
         """content loss"""
         self.loss_c = 0
         for idx, layer in enumerate(self.content_layers):
@@ -2384,12 +2384,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
         elif i>0 and i<3:
             a=14
             b=20
-            c=2
+            c=2.5
             d=2.2
         else:
             a=16
             b=16
-            c=3
+            c=4
             d=2
 
         self.loss = self.loss_Gp_GAN *c +self.loss_ps * self.style_weight +\

@@ -2292,7 +2292,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         self.loss_ps = 0
         self.p_loss_style_remd = 0
-
+        '''
         mxdog_style=0
         style_counter=0
         if type(self.cX)==bool:
@@ -2305,7 +2305,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         cdogF = self.nets['net_enc'](stylized_dog)
         mxdog_content = self.calc_content_loss(tpF['r31'], cXF['r31'])
         mxdog_content_contraint = self.calc_content_loss(cdogF['r31'], cXF['r31'])
-
+        '''
         if i>0:
             reshaped = self.style_stack[1].detach()
             for j in range(i):
@@ -2320,24 +2320,24 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.p_loss_style_remd += self.calc_style_emd_loss(
                 tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                 tpF['r41'], spF['r41'])
-            sX,_ = xdog(reshaped.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
-            sXF = self.nets['net_enc'](sX)
-            mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
+            #sX,_ = xdog(reshaped.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
+            #sXF = self.nets['net_enc'](sX)
+            #mxdog_style+=self.calc_style_loss(cdogF['r31'], sXF['r31'])
             style_counter += 1
             self.loss_ps = self.loss_ps
             self.p_loss_style_remd=self.p_loss_style_remd
-            mxdog_style=mxdog_style
+            #mxdog_style=mxdog_style
         else:
             spF = self.nets['net_enc'](self.style_stack[0].detach())
-            sX,_ = xdog(self.style_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
-            sXF = self.nets['net_enc'](sX)
+            #sX,_ = xdog(self.style_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
+            #sXF = self.nets['net_enc'](sX)
             for layer in self.content_layers:
                 self.loss_ps += self.calc_style_loss(tpF[layer],
                                                       spF[layer])
             self.p_loss_style_remd += self.calc_style_emd_loss(
                 tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                 tpF['r41'], spF['r41'])
-            mxdog_style=self.calc_style_loss(cdogF['r31'], sXF['r31'])
+            #mxdog_style=self.calc_style_loss(cdogF['r31'], sXF['r31'])
 
 
 
@@ -2363,25 +2363,25 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 
         if i==0:
-            a=3
-            b=16
+            a=5.25
+            b=20
             c=1
-            d=2
+            d=1
         elif i>0 and i<3:
-            a=3
-            b=16
+            a=5.25
+            b=20
             c=1
-            d=2
+            d=1
         else:
             a=3
             b=16
             c=3
-            d=4
+            d=2
 
         self.loss = self.loss_Gp_GAN *c +self.loss_ps * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch*d +\
-                    self.p_loss_style_remd * a + self.p_loss_content_relt * b + mxdogloss
+                    self.p_loss_style_remd * a + self.p_loss_content_relt * b# + mxdogloss
 
         return self.loss
 

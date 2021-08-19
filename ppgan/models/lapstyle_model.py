@@ -2370,17 +2370,17 @@ class LapStyleRevSecondMXDOG(BaseModel):
             a=9
             b=20
             c=1.5
-            d=1.5
+            d=2
         elif i>0 and i<3:
             a=9
             b=20
             c=1.5
-            d=1.5
+            d=2
         else:
             a=9
             b=16
             c=3
-            d=1.5
+            d=2
 
         self.loss = self.loss_Gp_GAN *c +self.loss_ps * self.style_weight +\
                     self.loss_content_p * self.content_weight +\

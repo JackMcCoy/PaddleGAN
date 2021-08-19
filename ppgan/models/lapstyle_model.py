@@ -699,7 +699,7 @@ class LapStyleRevFirstMXDOG(BaseModel):
         mxdogloss=mxdog_content * .3 + mxdog_content_contraint *50 + mxdog_content_img * 1000
 
         self.loss = self.loss_G_GAN + self.loss_c * self.content_weight + self.style_weight * (self.loss_s +\
-                    self.loss_style_remd * 1.75) + self.loss_content_relt * 20 + mxdogloss
+                    self.loss_style_remd * 3) + self.loss_content_relt * 20 + mxdogloss
         self.loss.backward()
         return self.loss
 

@@ -677,7 +677,6 @@ class Encoder(nn.Layer):
     def __init__(self):
         super(Encoder, self).__init__()
         vgg_net = nn.Sequential(
-            paddle.vision.transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225]),
             nn.Conv2D(3, 3, (1, 1)),
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(3, 64, (3, 3)),
@@ -737,18 +736,19 @@ class Encoder(nn.Layer):
             'https://paddlegan.bj.bcebos.com/models/vgg_normalised.pdparams')
         vgg_net.set_dict(paddle.load(weight_path))
         self.enc_1 = nn.Sequential(*list(
-            vgg_net.children())[:5])  # input -> relu1_1
+            vgg_net.children())[:4])  # input -> relu1_1
         self.enc_2 = nn.Sequential(*list(
-            vgg_net.children())[5:12])  # relu1_1 -> relu2_1
+            vgg_net.children())[4:11])  # relu1_1 -> relu2_1
         self.enc_3 = nn.Sequential(*list(
-            vgg_net.children())[12:19])  # relu2_1 -> relu3_1
+            vgg_net.children())[11:18])  # relu2_1 -> relu3_1
         self.enc_4 = nn.Sequential(*list(
-            vgg_net.children())[19:32])  # relu3_1 -> relu4_1
+            vgg_net.children())[18:31])  # relu3_1 -> relu4_1
         self.enc_5 = nn.Sequential(*list(
-            vgg_net.children())[32:45])  # relu4_1 -> relu5_1
+            vgg_net.children())[31:44])  # relu4_1 -> relu5_1
 
     def forward(self, x):
         out = {}
+        x = paddle.vision.transforms.normalize(x,mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])
         x = self.enc_1(x)
         out['r11'] = x
         x = self.enc_2(x)

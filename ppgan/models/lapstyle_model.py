@@ -2226,7 +2226,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.laplacians.append(laplacian_conv(self.content_stack[0],self.lap_filter).detach())
             self.laplacians.append(laplacian_conv(self.content_stack[1],self.lap_filter).detach())
             self.laplacians.append(laplacian_conv(self.content_stack[2],self.lap_filter).detach())
-            #self.laplacians.append(laplacian_conv(self.content_stack[3],self.lap_filter).detach())
+            self.laplacians.append(laplacian_conv(self.content_stack[3],self.lap_filter).detach())
             self.cX = False
             self.sX = False
 

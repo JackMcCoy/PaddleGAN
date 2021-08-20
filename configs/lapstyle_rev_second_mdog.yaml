@@ -67,10 +67,10 @@ dataset:
     name: MultiPatchSet
     content_root: /content/gdrive/My Drive/img_style/large_pics/
     style_root: /content/PaddleGAN/cypress1023.png
-    load_size: 1024
+    load_size: 2048
     crop_size: 256
     thumb_size: 256
-    patch_depth: 3
+    patch_depth: 4
     style_upsize: 1
     num_workers: 4
     batch_size: 2

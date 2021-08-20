@@ -2345,6 +2345,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.loss_ps = self.loss_ps
             self.p_loss_style_remd=self.p_loss_style_remd
             #mxdog_style=mxdog_style
+            if i==3:
+                self.visual_items['sx']=sX
+                self.visual_items['cX']=stylized_dog
         else:
             spF = self.nets['net_enc'](self.style_stack[0].detach())
             sX,_ = xdog(self.style_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)

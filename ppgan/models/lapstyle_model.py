@@ -2211,7 +2211,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                                                initializer=paddle.fluid.initializer.Constant(
                                                    value=1), trainable=False)
                                            )
-        self.morph_conv_2 = paddle.nn.Conv2D(3, 3, 11, padding=5, groups=3,
+        self.morph_conv_2 = paddle.nn.Conv2D(3, 3, 7, padding=3, groups=3,
                                            padding_mode='reflect', bias_attr=False,
                                            weight_attr=paddle.ParamAttr(
                                                initializer=paddle.fluid.initializer.Constant(
@@ -2301,8 +2301,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
     def backward_G(self,i):
         cF = self.nets['net_enc'](self.content_stack[i].detach())
-
-
+        if i>2:
+            style_conv = self.morph_conv_2
+            morph_cutorr= 11*.9445
+        else:
+            style_conv = self.morph_conv
+            morph_cutorr= 8.5
         tpF = self.nets['net_enc'](self.stylized[i+1]) 
 
         """patch loss"""
@@ -2325,7 +2329,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.p_loss_style_remd = 0
         if type(self.cX)==bool:
             _,cxminmax = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=1)
-            _,sxminmax = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
+            _,sxminmax = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,style_conv,morphs=2,morph_cutoff=morph_cutoff)
         morph_num=2
         cX,_ = xdog(self.content_stack[i].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=1,minmax=cxminmax)
         cXF = self.nets['net_enc'](cX.detach())
@@ -2348,7 +2352,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.p_loss_style_remd += self.calc_style_emd_loss(
                 tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                 tpF['r41'], spF['r41'])
-            sX,_ = xdog(reshaped.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,minmax=sxminmax)
+            sX,_ = xdog(reshaped.detach(),self.gaussian_filter,self.gaussian_filter_2,style_conv,morphs=2,morph_cutoff=morph_cutoff,minmax=sxminmax)
             sXF = self.nets['net_enc'](sX)
             mxdog_style=self.mse_loss(cdogF['r31'], sXF['r31'])+self.mse_loss(cdogF['r41'], sXF['r41'])
             self.loss_ps = self.loss_ps

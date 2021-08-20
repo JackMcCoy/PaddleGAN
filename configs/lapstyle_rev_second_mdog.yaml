@@ -34,7 +34,7 @@ model:
     padding: 1
   spectral_discriminator:
     name: LapStyleSpectralDiscriminator
-    num_channels: 16
+    num_channels: 64
     num_layer: 3
   draftnet_encode:
     name: Encoder

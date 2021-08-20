@@ -2282,22 +2282,22 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.visual_items['ci_3'] = self.content_stack[2]
         self.visual_items['stylized_rev_third'] = stylized_rev_patch
         self.stylized.append(stylized_rev_patch)
-        if 0:
-            stylized_up = F.interpolate(stylized_rev_patch, scale_factor=2)
-            stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
-            self.patches_in.append(stylized_up.detach())
 
-            stylized_feats = self.nets['net_rev_4'].DownBlock(revnet_input.detach())
-            stylized_feats = self.nets['net_rev_4'].resblock(stylized_feats)
+        stylized_up = F.interpolate(stylized_rev_patch, scale_factor=2)
+        stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
+        self.patches_in.append(stylized_up.detach())
 
-            revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up], axis=1)
-            stylized_rev_patch_second,_ = self.nets['net_rev_4'](revnet_input.detach(),stylized_feats,self.ada_alpha_2)
-            stylized_rev_patch_second = fold_laplace_patch(
-                [stylized_rev_patch_second, stylized_up.detach()])
-            self.visual_items['ci_4'] = self.content_stack[3]
-            self.visual_items['stylized_rev_fourth'] = stylized_rev_patch_second
+        stylized_feats = self.nets['net_rev_4'].DownBlock(revnet_input.detach())
+        stylized_feats = self.nets['net_rev_4'].resblock(stylized_feats)
 
-            self.stylized.append(stylized_rev_patch_second)
+        revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up], axis=1)
+        stylized_rev_patch_second,_ = self.nets['net_rev_4'](revnet_input.detach(),stylized_feats,self.ada_alpha_2)
+        stylized_rev_patch_second = fold_laplace_patch(
+            [stylized_rev_patch_second, stylized_up.detach()])
+        self.visual_items['ci_4'] = self.content_stack[3]
+        self.visual_items['stylized_rev_fourth'] = stylized_rev_patch_second
+
+        self.stylized.append(stylized_rev_patch_second)
 
     def backward_G(self,i):
         cF = self.nets['net_enc'](self.content_stack[i].detach())

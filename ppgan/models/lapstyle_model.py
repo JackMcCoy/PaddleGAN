@@ -2093,6 +2093,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
                  revnet_generator,
                  revnet_discriminator_1,
                  revnet_discriminator_2,
+                 revnet_discriminator_3,
+                 revnet_discriminator_4,
                  draftnet_encode,
                  draftnet_decode,
                  revnet_deep_generator,

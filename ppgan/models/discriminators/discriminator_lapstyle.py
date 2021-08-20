@@ -178,13 +178,17 @@ class LapStyleSpectralDiscriminator(nn.Layer):
                 'conv%d' % (i + 1),
                 ResBlock(ndf))
             ndf=ndf*2
-        self.fc = nn.ReLU()
+        self.relu = nn.ReLU()
+        self.fc=SNLinear(num_channels*16, 1)
 
     def forward(self, x):
         x = self.head(x)
         x = self.body(x)
-        x = self.fc(x)
+        x = self.relu(x)
         print(x.shape)
         x = nn.functional.avg_pool2d(x, 32, stride=1)
-        x = paddle.reshape(x,(1,1,256,256))
+        x = paddle.reshape(x,(-1, 1024))
+        print(x.shape)
+        x = self.fc(c)
+        print(x.shape)
         return x

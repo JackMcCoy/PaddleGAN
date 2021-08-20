@@ -1635,10 +1635,13 @@ class LapStyleRevSecondPatch(BaseModel):
         init_weights(self.nets['net_rev_2'])
         self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
         init_weights(self.nets['net_rev_3'])
-        self.nets['netD'] = build_discriminator(revnet_discriminator)
-        init_weights(self.nets['netD'])
-        self.nets['netD_patch'] = build_discriminator(revnet_discriminator)
-        init_weights(self.nets['netD_patch'])
+        self.nets['net_rev_4'] = build_generator(revnet_deep_generator)
+        init_weights(self.nets['net_rev_4'])
+        if self.is_train:
+            self.nets['netD'] = build_discriminator(revnet_discriminator)
+            init_weights(self.nets['netD'])
+            self.nets['netD_patch'] = build_discriminator(revnet_discriminator)
+            init_weights(self.nets['netD_patch'])
 
         # define loss functions
         self.calc_style_emd_loss = build_criterion(calc_style_emd_loss)
@@ -1704,6 +1707,8 @@ class LapStyleRevSecondPatch(BaseModel):
             ranges_x.append(curr_last_x-math.floor(self.in_size_x/3))
             ranges_y.append(curr_last_y-math.floor(self.in_size_y/3))
             self.counter=1
+            self.stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
+            self.stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
             for idx,i in enumerate(ranges_x):
                 self.counter+=1
                 for idx2,j in enumerate(ranges_y):
@@ -1817,7 +1822,9 @@ class LapStyleRevSecondPatch(BaseModel):
                     print('continue, line 1314')
                     continue
                 revnet_input_2 = paddle.concat(x=[lap_2, stylized_up_2.detach()], axis=1)
-                stylized_rev_patch,stylized_feats = self.nets['net_rev_2'](revnet_input_2.detach(),stylized_feats.detach(),self.ada_alpha_2)
+                stylized_feats = self.nets['net_rev_3'].DownBlock(revnet_input.detach())
+                stylized_feats = self.nets['net_rev_3'].resblock(stylized_feats)
+                stylized_rev_patch,stylized_feats = self.nets['net_rev_3'](revnet_input_2.detach(),stylized_feats.detach(),self.ada_alpha_2)
                 stylized_rev_patch = fold_laplace_patch(
                     [stylized_rev_patch, stylized_up_2.detach()])
 
@@ -1841,7 +1848,9 @@ class LapStyleRevSecondPatch(BaseModel):
                             print('continue, line 1341')
                             continue
                         revnet_input_3 = paddle.concat(x=[lap_3, stylized_up_4.detach()], axis=1)
-                        stylized_rev_patch_second,_ = self.nets['net_rev_3'](revnet_input_3.detach(),stylized_feats.detach(),self.ada_alpha_2)
+                        stylized_feats = self.nets['net_rev_4'].DownBlock(revnet_input_2.detach())
+                        stylized_feats = self.nets['net_rev_4'].resblock(stylized_feats)
+                        stylized_rev_patch_second,_ = self.nets['net_rev_4'](revnet_input_3.detach(),stylized_feats.detach(),self.ada_alpha_2)
                         stylized_rev_patch_second = fold_laplace_patch(
                             [stylized_rev_patch_second, stylized_up_4.detach()])
                         image_numpy=tensor2img(stylized_rev_patch_second,min_max=(0., 1.))

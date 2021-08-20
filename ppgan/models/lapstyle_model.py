@@ -2303,10 +2303,10 @@ class LapStyleRevSecondMXDOG(BaseModel):
         cF = self.nets['net_enc'](self.content_stack[i].detach())
         if i>2:
             style_conv = self.morph_conv_2
-            morph_cutorr= 11*.9445
+            morph_cutoff= 11*.9445
         else:
             style_conv = self.morph_conv
-            morph_cutorr= 8.5
+            morph_cutoff= 8.5
         tpF = self.nets['net_enc'](self.stylized[i+1]) 
 
         """patch loss"""

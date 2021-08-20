@@ -235,7 +235,7 @@ class LapStyleDraXDOG(BaseModel):
                                                     initializer=paddle.fluid.initializer.NumpyArrayInitializer(
                                                         value=g), trainable=False)
                                                 )
-        self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3, 25,
+        self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3, 19,
                                                   groups=3, bias_attr=False,
                                                   padding=9, padding_mode='reflect',
                                                   weight_attr=paddle.ParamAttr(
@@ -2315,12 +2315,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss_ps = 0
         self.p_loss_style_remd = 0
         if type(self.cX)==bool:
-            _,cxminmax = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
+            _,cxminmax = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=1)
             _,sxminmax = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2)
         morph_num=2
-        cX,_ = xdog(self.content_stack[i].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=cxminmax)
+        cX,_ = xdog(self.content_stack[i].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=1,minmax=cxminmax)
         cXF = self.nets['net_enc'](cX.detach())
-        stylized_dog,_ = xdog(self.stylized[i+1],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=cxminmax)
+        stylized_dog,_ = xdog(self.stylized[i+1],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=1,minmax=cxminmax)
         cdogF = self.nets['net_enc'](stylized_dog)
         mxdog_content = self.calc_content_loss(tpF['r31'], cXF['r31'])+self.calc_content_loss(tpF['r41'], cXF['r41'])
         mxdog_content_contraint = self.calc_content_loss(cdogF['r31'], cXF['r31'])+self.calc_content_loss(cdogF['r41'], cXF['r41'])
@@ -2347,7 +2347,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             #mxdog_style=mxdog_style
             if i==3:
                 self.visual_items['sx']=sX
-                self.visual_items['cX']=stylized_dog
+                self.visual_items['cX']=cX
         else:
             spF = self.nets['net_enc'](self.style_stack[0].detach())
             sX,_ = xdog(self.style_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)

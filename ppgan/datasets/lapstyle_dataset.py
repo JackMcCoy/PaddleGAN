@@ -291,6 +291,20 @@ class MultiPatchSet(Dataset):
         self.style_img = False
         self.transform = data_transform(self.crop_size)
         self.transform_patch = data_transform(self.crop_size*2)
+        style_img = cv2.imread(self.style_root)
+        style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)
+        style_img = Image.fromarray(style_img)
+        small_edge = min(style_img.width,style_img.height)
+        if small_edge==style_img.width:
+            intermediate_width = math.floor(self.load_size* self.style_upsize)
+            ratio = style_img.height/style_img.width
+            intermediate_height = math.floor(self.load_size*ratio* self.style_upsize)
+        else:
+            intermediate_height = math.floor(self.load_size* self.style_upsize)
+            ratio = style_img.width/style_img.height
+            intermediate_width = math.floor(self.load_size* ratio* self.style_upsize)
+        self.style_img = style_img.resize((intermediate_width, intermediate_height),
+                                     Image.BILINEAR)
 
     def __getitem__(self, index):
         """Get training sample
@@ -330,27 +344,6 @@ class MultiPatchSet(Dataset):
         content_img = content_img.resize((intermediate_width, intermediate_height),
                                          Image.BILINEAR)
 
-        if type(self.style_img)==bool:
-            style_path = random.choice(self.style_paths) if len(self.style_paths)>1 else self.style_paths[0]
-            style_img = cv2.imread(style_path)
-            style_img = cv2.cvtColor(style_img, cv2.COLOR_BGR2RGB)
-            style_img = Image.fromarray(style_img)
-            small_edge = min(style_img.width,style_img.height)
-            if small_edge==style_img.width:
-                intermediate_width = math.floor(self.load_size* self.style_upsize)
-                final_width = math.ceil(self.thumb_size*self.style_upsize)
-                ratio = style_img.height/style_img.width
-                intermediate_height = math.floor(self.load_size*ratio* self.style_upsize)
-                final_height = math.ceil(self.thumb_size*ratio* self.style_upsize)
-            else:
-                intermediate_height = math.floor(self.load_size* self.style_upsize)
-                final_height = math.ceil(self.thumb_size * self.style_upsize)
-                ratio = style_img.width/style_img.height
-                intermediate_width = math.floor(self.load_size* ratio* self.style_upsize)
-                final_width = math.ceil(self.thumb_size*ratio* self.style_upsize)
-            style_img = style_img.resize((intermediate_width, intermediate_height),
-                                         Image.BILINEAR)
-            self.style_img = style_img
         style_img = self.style_img.crop(box=get_crop_bounds(self.load_size,self.style_img.width,self.style_img.height))
         style_patch = style_img.resize((self.crop_size,self.crop_size))
         style_patch = np.array(style_patch)

@@ -72,8 +72,8 @@ dataset:
     thumb_size: 256
     patch_depth: 4
     style_upsize: 1
-    num_workers: 4
-    batch_size: 2
+    num_workers: 2
+    batch_size: 1
   test:
     name: LapStyleThumbsetInference
     content_root: /content/gdrive/My Drive/img_style/inference_test/

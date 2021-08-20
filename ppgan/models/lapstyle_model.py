@@ -2094,6 +2094,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                  revnet_discriminator_1,
                  revnet_discriminator_2,
                  revnet_discriminator_3,
+                 revnet_discriminator_4,
                  draftnet_encode,
                  draftnet_decode,
                  revnet_deep_generator,
@@ -2152,8 +2153,10 @@ class LapStyleRevSecondMXDOG(BaseModel):
         init_weights(self.nets['netD_2'])
         self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
         init_weights(self.nets['netD_3'])
+        self.nets['netD_4'] = build_discriminator(revnet_discriminator_4)
+        init_weights(self.nets['netD_4'])
 
-        self.discriminators=[self.nets['netD_1'],self.nets['netD_2'],self.nets['netD_3']]
+        self.discriminators=[self.nets['netD_1'],self.nets['netD_2'],self.nets['netD_3'],self.nets['netD_4']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2446,7 +2449,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2'],self.optimizers['optimD3']],list(range(1,4))):
+        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2'],self.optimizers['optimD3'],self.optimizers['optimD4']],list(range(4))):
             self.set_requires_grad(a, True)
             b.clear_grad()
             loss=self.backward_D(a,c,str(c))
@@ -2461,7 +2464,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #optimizers['optimG'].step()
         #optimizers['optimG'].clear_grad()
 
-        for i,b in zip([1,2,3],[optimizers['optimG'],optimizers['optimG2'],optimizers['optimG3']]):
+        for i,b in zip([1,2,3,4],[optimizers['optimG'],optimizers['optimG2'],optimizers['optimG3'],optimizers['optimG4']]):
             b.clear_grad()
             loss=self.backward_G(i)
             loss.backward()

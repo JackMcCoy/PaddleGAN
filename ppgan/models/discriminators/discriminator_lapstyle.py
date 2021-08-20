@@ -158,7 +158,7 @@ class SNLinear(Linear):
     def W_(self):
         w_mat = paddle.reshape(self.weight,(self.weight.shape[0], -1))
         sigma, _u = max_singular_value(w_mat, self.u)
-        self.u.copy_(_u)
+        self.u.=(_u)
         return self.weight / sigma
 
     def forward(self, input):

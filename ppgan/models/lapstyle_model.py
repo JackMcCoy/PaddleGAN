@@ -2369,7 +2369,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
             sXF2 = self.nets['net_enc'](F.interpolate(sx,size=(256,256)))
             mxdog_style=0
             mxdog_style+=self.mse_loss(cdogF['r31'], sXF['r31'])+self.mse_loss(cdogF['r41'], sXF['r41'])
-            mxdog_style+=((self.mse_loss(cdogF['r31'], sXF2['r31'])+self.mse_loss(cdogF['r41'], sXF2['r41']))*.25)
             self.loss_ps = self.loss_ps
             self.p_loss_style_remd=self.p_loss_style_remd
             #mxdog_style=mxdog_style

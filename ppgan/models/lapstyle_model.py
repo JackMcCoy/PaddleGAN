@@ -2370,6 +2370,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 tpF['r41'], spF['r41'])
             mxdog_style=self.mse_loss(cdogF['r31'], sXF['r31'])+self.mse_loss(cdogF['r41'], sXF['r41'])
 
+        if i>0:
+            spF2 = self.nets['net_enc'](self.style_stack[0].detach())
+            for layer in self.content_layers:
+                self.loss_ps += (self.calc_style_loss(tpF[layer],
+                                                     spF2[layer])*.5)
+
         self.visual_items['cX']=cX
 
         self.losses['loss_ps_'+str(i+1)] = self.loss_ps

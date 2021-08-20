@@ -2138,8 +2138,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
         #self.set_requires_grad([self.nets['net_rev_2']], False)
         init_weights(self.nets['net_rev_3'])
-        self.nets['net_rev_4'] = build_generator(revnet_deep_generator)
-        self.set_requires_grad([self.nets['net_rev_4']], False)
+        #self.nets['net_rev_4'] = build_generator(revnet_deep_generator)
+        #self.set_requires_grad([self.nets['net_rev_4']], False)
         #init_weights(self.nets['net_rev_4'])
 
         #self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
@@ -2151,12 +2151,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
         #self.set_requires_grad([self.nets['net_rev_2']], False)
         #init_weights(self.nets['netD_1'])
-        '''
+
         self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
         init_weights(self.nets['netD_2'])
-        '''
-        self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
-        init_weights(self.nets['netD_3'])
+
+        #self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
+        #init_weights(self.nets['netD_3'])
         #self.nets['netD_4'] = build_discriminator(revnet_discriminator_4)
         #init_weights(self.nets['netD_4'])
 
@@ -2452,7 +2452,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        for a,b,c in zip(self.discriminators,[self.optimizers['optimD3']],[2]):
+        for a,b,c in zip(self.discriminators,[self.optimizers['optimD2']],[1]):
             self.set_requires_grad(a, True)
             b.clear_grad()
             loss=self.backward_D(a,c,str(c))
@@ -2467,7 +2467,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #optimizers['optimG'].step()
         #optimizers['optimG'].clear_grad()
 
-        for i,b in zip([2],[optimizers['optimG3']]):
+        for i,b in zip([1],[optimizers['optimG2']]):
             b.clear_grad()
             loss=self.backward_G(i)
             loss.backward()

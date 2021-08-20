@@ -92,16 +92,16 @@ lr_scheduler:
   lr_decay: 5e-5
 
 optimizer:
-  optimG:
+  optimG2:
     name: Adam
     net_names:
-      - net_rev
+      - net_rev_2
     beta1: 0.9
     beta2: 0.999
-  optimD1:
+  optimD2:
     name: Adam
     net_names:
-      - netD_1
+      - netD_2
     beta1: 0.9
     beta2: 0.999
 validate:

@@ -176,7 +176,7 @@ class LapStyleSpectralDiscriminator(nn.Layer):
         for i in range(num_layer - 1):
             self.body.add_sublayer(
                 'conv%d' % (i + 1),
-                ResBlock(ndf)
+                ResBlock(ndf))
             ndf=ndf*2
         self.fc = nn.ReLU()
 

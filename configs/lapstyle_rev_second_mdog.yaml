@@ -95,13 +95,13 @@ optimizer:
   optimG3:
     name: Adam
     net_names:
-      - net_rev_3
+      - net_rev_4
     beta1: 0.9
     beta2: 0.999
   optimD3:
     name: Adam
     net_names:
-      - netD_3
+      - netD_4
     beta1: 0.9
     beta2: 0.999
 validate:

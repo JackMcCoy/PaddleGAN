@@ -2464,7 +2464,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #optimizers['optimG'].step()
         #optimizers['optimG'].clear_grad()
 
-        for i,b in zip([1,2,3,4],[optimizers['optimG'],optimizers['optimG2'],optimizers['optimG3'],optimizers['optimG4']]):
+        for i,b in zip([0,1,2,3],[optimizers['optimG'],optimizers['optimG2'],optimizers['optimG3'],optimizers['optimG4']]):
             b.clear_grad()
             loss=self.backward_G(i)
             loss.backward()

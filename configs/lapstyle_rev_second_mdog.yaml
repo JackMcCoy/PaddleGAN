@@ -65,7 +65,7 @@ model:
 dataset:
   train:
     name: MultiPatchSet
-    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
+    content_root: /content/gdrive/My Drive/img_style/large_pics/
     style_root: /content/PaddleGAN/cypress512.png
     load_size: 512
     crop_size: 256
@@ -92,16 +92,16 @@ lr_scheduler:
   lr_decay: 5e-5
 
 optimizer:
-  optimG2:
+  optimG3:
     name: Adam
     net_names:
-      - net_rev_2
+      - net_rev_3
     beta1: 0.9
     beta2: 0.999
-  optimD2:
+  optimD3:
     name: Adam
     net_names:
-      - netD_2
+      - netD_3
     beta1: 0.9
     beta2: 0.999
 validate:

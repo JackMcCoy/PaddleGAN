@@ -191,7 +191,7 @@ class LapStyleSpectralDiscriminator(nn.Layer):
         print(x.shape)
         x = paddle.unsqueeze(paddle.squeeze(x),axis=0)
         print(x.shape)
-        x = self.fc(x)
+        #x = self.fc(x)
         x = paddle.reshape(x, (1, 1, 256, 256))
         print(x.shape)
         print(x)

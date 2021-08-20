@@ -2391,10 +2391,10 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 
         if i==0:
-            a=14
+            a=16
             b=20
-            c=2.5
-            d=2
+            c=1
+            d=0
         elif i>0 and i<3:
             a=26
             b=28
@@ -2410,7 +2410,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             e=2000
             f=2
         else:
-            e=1500
+            e=2000
             f=1
 
         self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*e

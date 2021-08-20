@@ -95,7 +95,7 @@ optimizer:
   optimG2:
     name: Adam
     net_names:
-      - net_rev_2
+      - net_rev
     beta1: 0.9
     beta2: 0.999
   optimD2:

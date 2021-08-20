@@ -2348,9 +2348,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.loss_ps = self.loss_ps
             self.p_loss_style_remd=self.p_loss_style_remd
             #mxdog_style=mxdog_style
-            if i==3:
-                self.visual_items['sx']=sX
-                self.visual_items['cX']=cX
         else:
             spF = self.nets['net_enc'](self.style_stack[0].detach())
             sX,_ = xdog(self.style_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=morph_num,minmax=sxminmax)
@@ -2386,12 +2383,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 
         if i==0:
-            a=10
+            a=12
             b=20
             c=1.5
             d=2
         elif i>0 and i<3:
-            a=17
+            a=20
             b=28
             c=4
             d=3

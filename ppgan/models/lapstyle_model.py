@@ -2396,8 +2396,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
         elif i>0 and i<3:
             a=22
             b=28
-            c=4
-            d=3
+            c=5
+            d=4
         else:
             a=28
             b=28

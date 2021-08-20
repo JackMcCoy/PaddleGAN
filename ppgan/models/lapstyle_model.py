@@ -2374,7 +2374,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             spF2 = self.nets['net_enc'](self.style_stack[0].detach())
             for layer in self.content_layers:
                 self.loss_ps += (self.calc_style_loss(tpF[layer],
-                                                     spF2[layer])*.5)
+                                                     spF2[layer])*.33)
 
         self.visual_items['cX']=cX
 

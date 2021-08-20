@@ -99,9 +99,8 @@ class ResBlock(nn.Layer):
                                         spectral_norm(nn.Conv2D(dim, dim, (3, 3))),
                                         nn.ReLU(),
                                         nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        spectral_norm(nn.Conv2D(dim, dim*2, (3, 3))),
-                                        nn.AvgPool2D(2))
-        self.residual_connection = nn.Sequential(spectral_norm(nn.Conv2D(dim, dim*2, 1)),nn.AvgPool2D(2))
+                                        spectral_norm(nn.Conv2D(dim, dim*2, (3, 3))),)
+        self.residual_connection = nn.Sequential(spectral_norm(nn.Conv2D(dim, dim*2, 1)))
     def forward(self, x):
         out = self.residual_connection(x) + self.conv_block(x)
         return out

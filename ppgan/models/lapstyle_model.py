@@ -2122,30 +2122,30 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.nets['net_enc'] = build_generator(draftnet_encode)
         self.nets['net_dec'] = build_generator(draftnet_decode)
         self.set_requires_grad([self.nets['net_enc']], False)
-        #self.set_requires_grad([self.nets['net_dec']], False)
-        init_weights(self.nets['net_dec'])
+        self.set_requires_grad([self.nets['net_dec']], False)
+        #init_weights(self.nets['net_dec'])
 
         # define the first revnet params
         self.nets['net_rev'] = build_generator(revnet_generator)
-        #init_weights(self.nets['net_rev'])
-        self.set_requires_grad([self.nets['net_rev']], False)
+        init_weights(self.nets['net_rev'])
+        #self.set_requires_grad([self.nets['net_rev']], False)
 
         # define the second revnet params
         self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
-        self.set_requires_grad([self.nets['net_rev_2']], False)
-        #init_weights(self.nets['net_rev_2'])
+        #self.set_requires_grad([self.nets['net_rev_2']], False)
+        init_weights(self.nets['net_rev_2'])
 
         self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
-        self.set_requires_grad([self.nets['net_rev_2']], False)
-        #init_weights(self.nets['net_rev_3'])
+        #self.set_requires_grad([self.nets['net_rev_2']], False)
+        init_weights(self.nets['net_rev_3'])
         self.nets['net_rev_4'] = build_generator(revnet_deep_generator)
         #self.set_requires_grad([self.nets['net_rev_4']], False)
         init_weights(self.nets['net_rev_4'])
 
-        #self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
-        #init_weights(self.nets['netD_1'])
-        #self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
-        #init_weights(self.nets['netD_2'])
+        self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
+        init_weights(self.nets['netD_1'])
+        self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
+        init_weights(self.nets['netD_2'])
         #self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
         #init_weights(self.nets['net_rev_3'])
         #self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
@@ -2153,15 +2153,15 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #init_weights(self.nets['netD_1'])
 
         self.nets['netD_3'] = build_discriminator(revnet_discriminator_2)
-        #init_weights(self.nets['netD_3'])
-        self.set_requires_grad([self.nets['netD_3']], False)
+        init_weights(self.nets['netD_3'])
+        #self.set_requires_grad([self.nets['netD_3']], False)
         #self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
         #init_weights(self.nets['netD_3'])
         self.nets['netD_4'] = build_discriminator(revnet_discriminator_4)
         init_weights(self.nets['netD_4'])
 
 
-        self.discriminators=[self.nets['netD_4']]
+        self.discriminators=[self.nets['netD_1'],self.nets['netD_2'],self.nets['netD_3'],self.nets['netD_4']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2385,7 +2385,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         """gan loss"""
         self.loss_Gp_GAN=0
-        pred_fake_p = self.discriminators[0](self.stylized[i+1])
+        pred_fake_p = self.discriminators[i](self.stylized[i+1])
         self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
 
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
@@ -2464,7 +2464,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        for a,b,c in zip(self.discriminators,[self.optimizers['optimD4']],[3]):
+        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2'],self.optimizers['optimD3'],self.optimizers['optimD4']],list(range(4))):
             self.set_requires_grad(a, True)
             b.clear_grad()
             loss=self.backward_D(a,c,str(c))
@@ -2478,13 +2478,13 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #loss.backward()
         #optimizers['optimG'].step()
         #optimizers['optimG'].clear_grad()
-
-        for i,b in zip([3],[optimizers['optimG4']]):
-            b.clear_grad()
-            loss=self.backward_G(i)
-            loss.backward()
-            b.step()
-            b.clear_grad()
+        loss=0
+        self.optimizers['optimG'].clear_grad()
+        for i in range(4):
+            loss+=self.backward_G(i)
+        loss.backward()
+        self.optimizers['optimG'].step()
+        self.optimizers['optimG'].clear_grad()
 
 @MODELS.register()
 class LapStyleRevSecondMiddle(BaseModel):

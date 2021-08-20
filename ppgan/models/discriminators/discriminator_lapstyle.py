@@ -179,7 +179,7 @@ class LapStyleSpectralDiscriminator(nn.Layer):
                 ResBlock(ndf))
             ndf=ndf*2
         self.relu = nn.ReLU()
-        self.fc=nn.Sequential(SNLinear(num_channels*16, 1),nn.Sigmoid())
+        self.fc=nn.Sequential(SNLinear(256, 1),nn.Sigmoid())
 
     def forward(self, x):
         x = self.head(x)

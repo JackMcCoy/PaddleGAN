@@ -172,10 +172,12 @@ class LapStyleSpectralDiscriminator(nn.Layer):
         self.num_channels = num_channels
         self.head = OptimizedBlock(3,num_channels)
         self.body = nn.Sequential()
+        ndf = num_channels
         for i in range(num_layer - 1):
             self.body.add_sublayer(
                 'conv%d' % (i + 1),
-                ResBlock(num_channels*max(1,2**i)))
+                ResBlock(ndf)
+            ndf=ndf*2
         self.fc = nn.ReLU()
 
     def forward(self, x):

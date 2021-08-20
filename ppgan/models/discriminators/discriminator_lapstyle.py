@@ -100,8 +100,8 @@ class ResBlock(nn.Layer):
                                         nn.ReLU(),
                                         nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         spectral_norm(nn.Conv2D(dim, dim*2, (3, 3))),
-                                        )
-        self.residual_connection = nn.Sequential(spectral_norm(nn.Conv2D(dim, dim*2, (1,1))))
+                                        nn.AvgPool2D(2))
+        self.residual_connection = nn.Sequential(spectral_norm(nn.Conv2D(dim, dim*2, (1,1))),nn.AvgPool2D(2))
     def forward(self, x):
         out = self.residual_connection(x) + self.conv_block(x)
         return out
@@ -182,6 +182,7 @@ class LapStyleSpectralDiscriminator(nn.Layer):
         x = self.head(x)
         x = self.body(x)
         x = self.fc(x)
-        x = nn.functional.avg_pool2d(x, 3, stride=1)
+        print(x.shape)
+        x = nn.functional.avg_pool2d(x, 256, stride=1)
         x = paddle.reshape(x,(1,1,256,256))
         return x

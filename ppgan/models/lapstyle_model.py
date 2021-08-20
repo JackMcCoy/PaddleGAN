@@ -2104,6 +2104,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                  revnet_discriminator_2,
                  revnet_discriminator_3,
                  revnet_discriminator_4,
+                 spectral_discriminator,
                  draftnet_encode,
                  draftnet_decode,
                  revnet_deep_generator,
@@ -2168,6 +2169,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #init_weights(self.nets['netD_3'])
         self.nets['netD_4'] = build_discriminator(revnet_discriminator_4)
         init_weights(self.nets['netD_4'])
+
+        self.nets['spectral_D'] = build_discriminator(spectral_discriminator)
+        init_weights(self.nets['spectral_D'])
 
 
         self.discriminators=[self.nets['netD_1'],self.nets['netD_2'],self.nets['netD_3'],self.nets['netD_4']]
@@ -2401,7 +2405,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss_Gp_GAN=0
         pred_fake_p = self.discriminators[i](self.stylized[i+1])
         self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
-
+        pred_fake_p = self.nets['spectral_D'](self.stylized[i+1])
+        self.loss_Gp_GAN += (self.gan_criterion(pred_fake_p, True)*.25)
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 
         if i==0:
@@ -2485,12 +2490,14 @@ class LapStyleRevSecondMXDOG(BaseModel):
             b.step()
             self.set_requires_grad(a, False)
             b.clear_grad()
-        g_losses=[]
-        # update G
-        #loss = self.backward_Dec()
-        #loss.backward()
-        #optimizers['optimG'].step()
-        #optimizers['optimG'].clear_grad()
+        self.set_requires_grad(self.optimizers['optimSD'],True)
+        loss=0
+        self.optimizers['optimSD'].clear_grad()
+        for i in range(4):
+            loss+=self.backward_D(self.nets['spectral_D'],i,str(i))
+        loss.backward()
+        self.optimizers['optimSD'].step()
+        self.set_requires_grad(self.optimizers['optimSD'],False)
 
         for i,b in zip(range(4),[self.optimizers['optimG1'],self.optimizers['optimG2'],self.optimizers['optimG3'],self.optimizers['optimG4']]):
             b.clear_grad()

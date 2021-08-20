@@ -2127,13 +2127,13 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         # define the first revnet params
         self.nets['net_rev'] = build_generator(revnet_generator)
-        init_weights(self.nets['net_rev'])
-        #self.set_requires_grad([self.nets['net_rev']], False)
+        #init_weights(self.nets['net_rev'])
+        self.set_requires_grad([self.nets['net_rev']], False)
 
         # define the second revnet params
         self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
-        self.set_requires_grad([self.nets['net_rev_2']], False)
-        #init_weights(self.nets['net_rev_2'])
+        #self.set_requires_grad([self.nets['net_rev_2']], False)
+        init_weights(self.nets['net_rev_2'])
 
         self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
         self.set_requires_grad([self.nets['net_rev_2']], False)
@@ -2148,20 +2148,20 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #init_weights(self.nets['netD_2'])
         #self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
         #init_weights(self.nets['net_rev_3'])
-        self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
+        #self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
         #self.set_requires_grad([self.nets['net_rev_2']], False)
-        init_weights(self.nets['netD_1'])
-        '''
+        #init_weights(self.nets['netD_1'])
+
         self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
         init_weights(self.nets['netD_2'])
-       
+        '''
         self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
         init_weights(self.nets['netD_3'])
         self.nets['netD_4'] = build_discriminator(revnet_discriminator_4)
         init_weights(self.nets['netD_4'])
         '''
 
-        self.discriminators=[self.nets['netD_1']]
+        self.discriminators=[self.nets['netD_2']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2254,20 +2254,20 @@ class LapStyleRevSecondMXDOG(BaseModel):
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small.detach()])
         self.stylized.append(stylized_rev)
         self.visual_items['stylized_rev_first'] = stylized_rev
+
+        stylized_up = F.interpolate(stylized_rev, scale_factor=2)
+        stylized_up = crop_upsized(stylized_up,self.positions[0],self.size_stack[0])
+        self.patches_in = [stylized_up.detach()]
+        stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
+        stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
+        revnet_input = paddle.concat(x=[self.laplacians[1].detach(), stylized_up.detach()], axis=1)
+        stylized_rev_lap_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats,self.ada_alpha)
+        stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up.detach()])
+        self.visual_items['ci_2'] = self.content_stack[1]
+        self.stylized.append(stylized_rev_second)
+
+        self.visual_items['stylized_rev_second'] = stylized_rev_second
         if 0:
-            stylized_up = F.interpolate(stylized_rev, scale_factor=2)
-            stylized_up = crop_upsized(stylized_up,self.positions[0],self.size_stack[0])
-            self.patches_in = [stylized_up.detach()]
-            stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
-            stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
-            revnet_input = paddle.concat(x=[self.laplacians[1].detach(), stylized_up.detach()], axis=1)
-            stylized_rev_lap_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats,self.ada_alpha)
-            stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up.detach()])
-            self.visual_items['ci_2'] = self.content_stack[1]
-            self.stylized.append(stylized_rev_second)
-
-            self.visual_items['stylized_rev_second'] = stylized_rev_second
-
             stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
             stylized_up = crop_upsized(stylized_up,self.positions[1],self.size_stack[1])
             self.patches_in.append(stylized_up.detach())
@@ -2452,7 +2452,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1']],list(range(1))):
+        for a,b,c in zip(self.discriminators,[self.optimizers['optimD2']],[1]):
             self.set_requires_grad(a, True)
             b.clear_grad()
             loss=self.backward_D(a,c,str(c))
@@ -2467,7 +2467,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         #optimizers['optimG'].step()
         #optimizers['optimG'].clear_grad()
 
-        for i,b in zip([0],[optimizers['optimG']]):
+        for i,b in zip([1],[optimizers['optimG2']]):
             b.clear_grad()
             loss=self.backward_G(i)
             loss.backward()

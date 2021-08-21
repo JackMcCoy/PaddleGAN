@@ -1708,7 +1708,7 @@ class LapStyleRevSecondPatch(BaseModel):
             ranges_y.append(curr_last_y-math.floor(self.in_size_y/3))
             self.counter=1
             self.stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
-            self.stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
+            self.stylized_feats = self.nets['net_rev_2'].resblock(self.stylized_feats)
             for idx,i in enumerate(ranges_x):
                 self.counter+=1
                 for idx2,j in enumerate(ranges_y):

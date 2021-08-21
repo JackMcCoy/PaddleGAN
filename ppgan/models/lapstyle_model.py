@@ -2414,7 +2414,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             c=1
             d=0
         elif i>0 and i<3:
-            a=24
+            a=25
             b=26
             c=5
             d=4

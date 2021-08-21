@@ -9,21 +9,29 @@ model:
   revnet_generator:
     name: RevisionNet
   revnet_discriminator_1:
-    name: LapStyleSpectralDiscriminator
+    name: LapStyleSingleDiscriminator
     num_channels: 64
-    num_layer: 3
+    num_layer: 5
+    kernel_size: 3
+    padding: 1
   revnet_discriminator_2:
-    name: LapStyleSpectralDiscriminator
+    name: LapStyleSingleDiscriminator
     num_channels: 64
-    num_layer: 3
+    num_layer: 5
+    kernel_size: 3
+    padding: 1
   revnet_discriminator_3:
-    name: LapStyleSpectralDiscriminator
+    name: LapStyleSingleDiscriminator
     num_channels: 64
-    num_layer: 3
+    num_layer: 5
+    kernel_size: 3
+    padding: 1
   revnet_discriminator_4:
-    name: LapStyleSpectralDiscriminator
+    name: LapStyleSingleDiscriminator
     num_channels: 64
-    num_layer: 3
+    num_layer: 5
+    kernel_size: 3
+    padding: 1
   spectral_discriminator:
     name: LapStyleSpectralDiscriminator
     num_channels: 64

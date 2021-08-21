@@ -2434,7 +2434,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             f=1
 
         self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*e
-        mxdogloss=mxdog_content * .3 + mxdog_content_contraint *100 + mxdog_style * e
+        mxdogloss=mxdog_content * .3 + mxdog_content_contraint *150 + mxdog_style * e
 
         self.loss = self.loss_Gp_GAN *c +self.loss_ps * self.style_weight*f +\
                     self.loss_content_p * self.content_weight +\

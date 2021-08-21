@@ -2421,7 +2421,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         else:
             a=24
             b=26
-            c=6
+            c=5
             d=5
         if i>1 and i<3:
             e=2000

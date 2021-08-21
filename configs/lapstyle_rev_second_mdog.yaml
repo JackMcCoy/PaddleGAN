@@ -7,7 +7,7 @@ min_max:
 model:
   name: LapStyleRevSecondMXDOG
   revnet_generator:
-    name: RevisionDeepNet
+    name: RevisionNet32Feats
   revnet_discriminator_1:
     name: LapStyleSingleDiscriminator
     num_channels: 64

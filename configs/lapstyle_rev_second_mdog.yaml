@@ -33,9 +33,11 @@ model:
     kernel_size: 3
     padding: 1
   spectral_discriminator:
-    name: LapStyleSpectralDiscriminator
+    name: LapStyleSingleDiscriminator
     num_channels: 32
-    num_layer: 3
+    num_layer: 9
+    kernel_size: 3
+    padding: 1
   draftnet_encode:
     name: Encoder
   draftnet_decode:

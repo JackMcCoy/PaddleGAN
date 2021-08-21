@@ -2405,7 +2405,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         pred_fake_p = self.discriminators[i](self.stylized[i+1])
         self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
         pred_fake_p = self.nets['spectral_D'](self.stylized[i+1])
-        self.loss_Gp_GAN += (self.gan_criterion(pred_fake_p, True)*.25)
+        self.loss_Gp_GAN += (self.gan_criterion(pred_fake_p, True)*.2)
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 
         if i==0:

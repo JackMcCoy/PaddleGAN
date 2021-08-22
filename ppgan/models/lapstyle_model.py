@@ -2507,9 +2507,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         optimizers[self.go[-1]].clear_grad()
         loss = self.backward_G(self.train_layer-1)
-        print(loss)
         loss.backward()
-        print(self.go[-1])
         optimizers[self.go[-1]].step()
         optimizers[self.go[-1]].clear_grad()
 

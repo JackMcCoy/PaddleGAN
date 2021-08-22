@@ -68,10 +68,10 @@ dataset:
     name: MultiPatchSet
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
     style_root: /content/PaddleGAN/cypress512.png
-    load_size: 512
+    load_size: 256
     crop_size: 256
     thumb_size: 256
-    patch_depth: 1
+    patch_depth: 0
     style_upsize: 1
     num_workers: 8
     batch_size: 4
@@ -114,4 +114,4 @@ log_config:
   visiual_interval: 50
 
 snapshot_config:
-  interval: 500
+  interval: 1000

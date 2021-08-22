@@ -30,12 +30,14 @@ from ..utils.visual import tensor2img, save_image
 from ..utils.filesystem import makedirs, save, load
 
 
-def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.5, morph_cutoff=8.88,morphs=1,minmax=False):
+def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.5, morph_cutoff=8.88,morphs=1,minmax=False,three_eps=False):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
     #imf1 = paddle.concat(x=[g(paddle.unsqueeze(im[:,0,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,1,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,2,:,:].detach(),axis=1))],axis=1)
-
+    if not type(three_eps)==bool:
+        three_eps = paddle.to_tensor([[[[three_eps[0]]],[[three_eps[1]]],[[three_eps[2]]]]])
+        eps = paddle.expand_as(three_eps,im)
     imf2=paddle.zeros_like(im)
     imf1=paddle.zeros_like(im)
     imf1.stop_gradient=True
@@ -2194,11 +2196,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.nets['spectral_D'] = build_discriminator(spectral_discriminator)
         init_weights(self.nets['spectral_D'])
 
-        zero_img=paddle.empty((2,3,128,128))
-        three_eps = paddle.to_tensor([[[[.5]],[[.4]],[[.6]]]])
-        three_eps = paddle.expand_as(three_eps,zero_img)
-        print(three_eps)
-
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
                                            padding=1, groups=3, padding_mode='reflect',
@@ -2373,7 +2370,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.p_loss_style_remd = 0
         if type(self.cX)==bool:
             _,cxminmax = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=1)
-            sx,sxminmax = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,style_conv,morphs=2,morph_cutoff=morph_cutoff)
+            sx,sxminmax = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,style_conv,morphs=2,morph_cutoff=morph_cutoff,three_eps=[.5,.7,.5])
         cX,_ = xdog(self.content_stack[i].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=1,minmax=cxminmax)
         cXF = self.nets['net_enc'](cX.detach())
         stylized_dog,_ = xdog(self.stylized[i+1],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=1,minmax=cxminmax)
@@ -2395,7 +2392,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.p_loss_style_remd += self.calc_style_emd_loss(
                 tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                 tpF['r41'], spF['r41'])
-            sX,_ = xdog(reshaped.detach(),self.gaussian_filter,self.gaussian_filter_2,style_conv,morphs=2,morph_cutoff=morph_cutoff,minmax=sxminmax)
+            sX,_ = xdog(reshaped.detach(),self.gaussian_filter,self.gaussian_filter_2,style_conv,morphs=2,morph_cutoff=morph_cutoff,minmax=sxminmax,three_eps=[.5,.7,.5])
             sXF = self.nets['net_enc'](sX)
             mxdog_style=0
             mxdog_style+=self.mse_loss(cdogF['r31'], sXF['r31'])+self.mse_loss(cdogF['r41'], sXF['r41'])
@@ -2404,7 +2401,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             #mxdog_style=mxdog_style
         else:
             spF = self.nets['net_enc'](self.style_stack[0].detach())
-            sX,_ = xdog(self.style_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,style_conv,morphs=morph_num,morph_cutoff=morph_cutoff,minmax=sxminmax)
+            sX,_ = xdog(self.style_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,style_conv,morphs=morph_num,morph_cutoff=morph_cutoff,minmax=sxminmax,three_eps=[.5,.7,.5])
             sXF = self.nets['net_enc'](sX)
             for layer in self.content_layers:
                 self.loss_ps += self.calc_style_loss(tpF[layer],

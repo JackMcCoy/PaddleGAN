@@ -2359,8 +2359,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
             for layer in self.content_layers:
                 self.loss_ps += self.calc_style_loss(tpF[layer],
                                                       spF[layer])
-                self.loss_ps += (self.calc_style_loss(tpF[layer],
-                                                     spF2[layer])*.25)
             self.p_loss_style_remd += self.calc_style_emd_loss(
                 tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                 tpF['r41'], spF['r41'])

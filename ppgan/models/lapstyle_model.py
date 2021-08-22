@@ -2148,6 +2148,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 self.set_requires_grad([self.nets['net_rev']], False)
                 self.set_requires_grad([self.nets['netD_1']], False)
             else:
+                print('init weights')
                 init_weights(self.nets['net_rev'])
                 init_weights(self.nets['netD_1'])
         if train_layer>1:
@@ -2255,6 +2256,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 if 'content_stack_'+str(i) in input:
                     self.content_stack.append(paddle.to_tensor(input['content_stack_'+str(i)]))
             self.visual_items['ci'] = self.content_stack[0]
+            self.visual_items['si'] = self.style_stack[0]
 
             self.content=input['content']
             self.positions = input['position_stack']
@@ -2499,6 +2501,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.set_requires_grad(self.nets[self.discriminators[-1]],True)
         loss = self.backward_D(self.nets[self.discriminators[-1]],self.train_layer-1,str(self.train_layer))
         loss.backward()
+        print(self.o[-1])
         optimizers[self.o[-1]].step()
         self.set_requires_grad(self.nets[self.discriminators[-1]],False)
         optimizers[self.o[-1]].clear_grad()
@@ -2507,6 +2510,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.set_requires_grad(self.nets[self.generator[-1]],True)
         loss = self.backward_G(self.train_layer-1)
         loss.backward()
+        print(self.go[-1])
         optimizers[self.go[-1]].step()
         self.set_requires_grad(self.nets[self.generator[-1]],False)
         optimizers[self.go[-1]].clear_grad()

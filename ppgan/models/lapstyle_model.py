@@ -2410,6 +2410,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             mxdog_style=self.mse_loss(cdogF['r31'], sXF['r31'])+self.mse_loss(cdogF['r41'], sXF['r41'])
 
         self.visual_items['cX']=cX
+        self.visual_items['sX']=sX
 
         self.losses['loss_ps_'+str(i+1)] = self.loss_ps
         self.p_loss_content_relt = self.calc_content_relt_loss(

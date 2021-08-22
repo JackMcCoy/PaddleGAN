@@ -7,7 +7,7 @@ min_max:
 model:
   name: LapStyleRevSecondMXDOG
   revnet_generator:
-    name: RevisionNetThumbDeep
+    name: RevisionNetDeepThumb
   revnet_discriminator_1:
     name: LapStyleSingleDiscriminator
     num_channels: 64
@@ -68,10 +68,10 @@ dataset:
     name: MultiPatchSet
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
     style_root: /content/PaddleGAN/cypress512.png
-    load_size: 256
+    load_size: 512
     crop_size: 256
     thumb_size: 256
-    patch_depth: 0
+    patch_depth: 1
     style_upsize: 1
     num_workers: 8
     batch_size: 4

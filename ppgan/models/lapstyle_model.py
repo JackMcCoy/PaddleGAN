@@ -2135,7 +2135,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.set_requires_grad([self.nets['net_enc']], False)
         self.set_requires_grad([self.nets['net_dec']], False)
         #init_weights(self.nets['net_dec'])
-
+        print(train_layer)
         if train_layer>0:
             # define the first revnet params
             self.nets['net_rev'] = build_generator(revnet_generator)
@@ -2143,7 +2143,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.discriminators=['netD_1']
             self.o = ['optimD1']
             self.go = ['optimG1']
-            self.generators = ['net_rev']
+            self.generator = ['net_rev']
             if train_layer>1:
                 self.set_requires_grad([self.nets['net_rev']], False)
                 self.set_requires_grad([self.nets['netD_1']], False)

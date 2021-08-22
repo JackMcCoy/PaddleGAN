@@ -2392,7 +2392,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.p_loss_style_remd += self.calc_style_emd_loss(
                 tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                 tpF['r41'], spF['r41'])
-            sX,_ = xdog(reshaped.detach(),self.gaussian_filter,self.gaussian_filter_2,style_conv,morphs=2,morph_cutoff=morph_cutoff,minmax=sxminmax,three_eps=[.5,.7,.5])
+            sX,_ = xdog(reshaped.detach(),self.gaussian_filter,self.gaussian_filter_2,style_conv,morphs=2,morph_cutoff=morph_cutoff,minmax=sxminmax,three_eps=[.5,.55,.5])
             sXF = self.nets['net_enc'](sX)
             mxdog_style=0
             mxdog_style+=self.mse_loss(cdogF['r31'], sXF['r31'])+self.mse_loss(cdogF['r41'], sXF['r41'])
@@ -2401,7 +2401,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             #mxdog_style=mxdog_style
         else:
             spF = self.nets['net_enc'](self.style_stack[0].detach())
-            sX,_ = xdog(self.style_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,style_conv,morphs=morph_num,morph_cutoff=morph_cutoff,minmax=sxminmax,three_eps=[.5,.7,.5])
+            sX,_ = xdog(self.style_stack[0].detach(),self.gaussian_filter,self.gaussian_filter_2,style_conv,morphs=morph_num,morph_cutoff=morph_cutoff,minmax=sxminmax,three_eps=[.5,.55,.5])
             sXF = self.nets['net_enc'](sX)
             for layer in self.content_layers:
                 self.loss_ps += self.calc_style_loss(tpF[layer],

@@ -2143,6 +2143,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.discriminators=['netD_1']
             self.o = ['optimD1']
             self.go = ['optimG1']
+            self.generators = ['net_rev']
             if train_layer>1:
                 self.set_requires_grad([self.nets['net_rev']], False)
                 self.set_requires_grad([self.nets['netD_1']], False)
@@ -2154,6 +2155,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.nets['netD_2'] = build_discriminator(revnet_discriminator_1)
             self.discriminators.append('netD_2')
             self.o.append('optimD2')
+            self.generator.append('net_rev_2')
             self.go.append('optimG2')
             if train_layer>2:
                 self.set_requires_grad([self.nets['net_rev_2']], False)
@@ -2166,6 +2168,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.nets['netD_3'] = build_discriminator(revnet_discriminator_1)
             self.discriminators.append('netD_3')
             self.o.append('optimD3')
+            self.generator.append('net_rev_3')
             self.go.append('optimG3')
             if train_layer>3:
                 self.set_requires_grad([self.nets['net_rev_3']], False)
@@ -2177,6 +2180,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.nets['net_rev_4'] = build_generator(revnet_deep_generator)
             self.nets['netD_4'] = build_discriminator(revnet_discriminator_1)
             self.discriminators.append('netD_4')
+            self.generator.append('net_rev_4')
             self.o.append('optimD4')
             self.go.append('optimG4')
             if train_layer>4:
@@ -2503,11 +2507,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.optimizers[self.o[self.train_layer-1]].clear_grad()
 
         self.optimizers[self.go[self.train_layer-1]].clear_grad()
-        self.set_requires_grad(self.nets[self.go[self.train_layer-1]],True)
+        self.set_requires_grad(self.nets[self.generators[self.train_layer-1]],True)
         loss = self.backward_G(self.train_layer-1)
         loss.backward()
         self.optimizers[self.go[self.train_layer-1]].step()
-        self.set_requires_grad(self.nets[self.go[self.train_layer-1]],False)
+        self.set_requires_grad(self.nets[self.generators[self.train_layer-1]],False)
         self.optimizers[self.go[self.train_layer-1]].clear_grad()
 
 @MODELS.register()

@@ -2430,7 +2430,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss_spectral_GAN = (self.gan_criterion(pred_fake_p, True))
 
         if i==0:
-            a=10
+            a=11
             b=16
             c=1
             d=0

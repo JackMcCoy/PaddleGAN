@@ -2117,6 +2117,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                  style_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
                  content_weight=1.0,
                  style_weight=3.0,
+                 train_layer=1,
                  ada_alpha=1.0,
                  ada_alpha_2=1.0,
                  gan_thumb_weight=1.0,
@@ -2126,6 +2127,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         super(LapStyleRevSecondMXDOG, self).__init__()
 
+        self.train_layer=train_layer
         self.scaler = paddle.amp.GradScaler(init_loss_scaling=1024)
         # define draftnet params
         self.nets['net_enc'] = build_generator(draftnet_encode)
@@ -2134,43 +2136,56 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.set_requires_grad([self.nets['net_dec']], False)
         #init_weights(self.nets['net_dec'])
 
-        # define the first revnet params
-        self.nets['net_rev'] = build_generator(revnet_generator)
-        init_weights(self.nets['net_rev'])
-        #self.set_requires_grad([self.nets['net_rev']], False)
+        if train_layer>0:
+            # define the first revnet params
+            self.nets['net_rev'] = build_generator(revnet_generator)
+            self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
+            self.discriminators=['netD_1']
+            self.o = ['optimD1']
+            self.go = ['optimG1']
+            if train_layer>1:
+                self.set_requires_grad([self.nets['net_rev']], False)
+                self.set_requires_grad([self.nets['netD_1']], False)
+            else:
+                init_weights(self.nets['net_rev'])
+                init_weights(self.nets['netD_1'])
+        if train_layer>1:
+            self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
+            self.nets['netD_2'] = build_discriminator(revnet_discriminator_1)
+            self.discriminators.append('netD_2')
+            self.o.append('optimD2')
+            self.go.append('optimG2')
+            if train_layer>2:
+                self.set_requires_grad([self.nets['net_rev_2']], False)
+                self.set_requires_grad([self.nets['netD_2']], False)
+            else:
+                init_weights(self.nets['net_rev_2'])
+                init_weights(self.nets['netD_2'])
+        if train_layer>2:
+            self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
+            self.nets['netD_3'] = build_discriminator(revnet_discriminator_1)
+            self.discriminators.append('netD_3')
+            self.o.append('optimD3')
+            self.go.append('optimG3')
+            if train_layer>3:
+                self.set_requires_grad([self.nets['net_rev_3']], False)
+                self.set_requires_grad([self.nets['netD_3']], False)
+            else:
+                init_weights(self.nets['net_rev_3'])
+                init_weights(self.nets['netD_3'])
+        if train_layer>3:
+            self.nets['net_rev_4'] = build_generator(revnet_deep_generator)
+            self.nets['netD_4'] = build_discriminator(revnet_discriminator_1)
+            self.discriminators.append('netD_4')
+            self.o.append('optimD4')
+            self.go.append('optimG4')
+            if train_layer>4:
+                self.set_requires_grad([self.nets['net_rev_4']], False)
+                self.set_requires_grad([self.nets['netD_4']], False)
+            else:
+                init_weights(self.nets['net_rev_4'])
+                init_weights(self.nets['netD_4'])
 
-        # define the second revnet params
-        self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
-        #self.set_requires_grad([self.nets['net_rev_2']], False)
-        init_weights(self.nets['net_rev_2'])
-
-        self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
-        #self.set_requires_grad([self.nets['net_rev_2']], False)
-        init_weights(self.nets['net_rev_3'])
-        self.nets['net_rev_4'] = build_generator(revnet_generator)
-        #self.set_requires_grad([self.nets['net_rev_4']], False)
-        init_weights(self.nets['net_rev_4'])
-
-        self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
-        init_weights(self.nets['netD_1'])
-        self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
-        init_weights(self.nets['netD_2'])
-        #self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
-        #init_weights(self.nets['net_rev_3'])
-        #self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
-        #self.set_requires_grad([self.nets['net_rev_2']], False)
-        #init_weights(self.nets['netD_1'])
-
-        self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
-        init_weights(self.nets['netD_3'])
-        #self.set_requires_grad([self.nets['netD_3']], False)
-        #self.nets['netD_3'] = build_discriminator(revnet_discriminator_3)
-        #init_weights(self.nets['netD_3'])
-        self.nets['netD_4'] = build_discriminator(revnet_discriminator_4)
-        init_weights(self.nets['netD_4'])
-
-
-        self.discriminators=[self.nets['netD_1'],self.nets['netD_2'],self.nets['netD_3'],self.nets['netD_4']]
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2240,10 +2255,14 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.content=input['content']
             self.positions = input['position_stack']
             self.size_stack = input['size_stack']
-            self.laplacians.append(laplacian_conv(self.content_stack[0],self.lap_filter).detach())
-            self.laplacians.append(laplacian_conv(self.content_stack[1],self.lap_filter).detach())
-            self.laplacians.append(laplacian_conv(self.content_stack[2],self.lap_filter).detach())
-            self.laplacians.append(laplacian_conv(self.content_stack[3],self.lap_filter).detach())
+            if self.train_layer>0:
+                self.laplacians.append(laplacian_conv(self.content_stack[0],self.lap_filter).detach())
+            if self.train_layer>1:
+                self.laplacians.append(laplacian_conv(self.content_stack[1],self.lap_filter).detach())
+            if self.train_layer>2:
+                self.laplacians.append(laplacian_conv(self.content_stack[2],self.lap_filter).detach())
+            if self.train_layer>3:
+                self.laplacians.append(laplacian_conv(self.content_stack[3],self.lap_filter).detach())
             self.cX = False
             self.sX = False
 
@@ -2264,49 +2283,50 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.stylized.append(stylized_rev)
         self.visual_items['stylized_rev_first'] = stylized_rev
 
-        stylized_up = F.interpolate(stylized_rev, scale_factor=2)
-        stylized_up = crop_upsized(stylized_up,self.positions[0],self.size_stack[0])
-        self.patches_in = [stylized_up.detach()]
-        stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
-        stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
-        revnet_input = paddle.concat(x=[self.laplacians[1].detach(), stylized_up.detach()], axis=1)
-        stylized_rev_lap_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats,self.ada_alpha)
-        stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up.detach()])
-        self.visual_items['ci_2'] = self.content_stack[1]
-        self.stylized.append(stylized_rev_second)
+        if self.train_layer>1:
+            stylized_up = F.interpolate(stylized_rev, scale_factor=2)
+            stylized_up = crop_upsized(stylized_up,self.positions[0],self.size_stack[0])
+            self.patches_in = [stylized_up.detach()]
+            stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
+            stylized_feats = self.nets['net_rev_2'].resblock(stylized_feats)
+            revnet_input = paddle.concat(x=[self.laplacians[1].detach(), stylized_up.detach()], axis=1)
+            stylized_rev_lap_second,stylized_feats = self.nets['net_rev_2'](revnet_input.detach(),stylized_feats,self.ada_alpha)
+            stylized_rev_second = fold_laplace_pyramid([stylized_rev_lap_second, stylized_up.detach()])
+            self.visual_items['ci_2'] = self.content_stack[1]
+            self.stylized.append(stylized_rev_second)
 
-        self.visual_items['stylized_rev_second'] = stylized_rev_second
+            self.visual_items['stylized_rev_second'] = stylized_rev_second
+        if self.train_layer>2:
+            stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
+            stylized_up = crop_upsized(stylized_up,self.positions[1],self.size_stack[1])
+            self.patches_in.append(stylized_up.detach())
 
-        stylized_up = F.interpolate(stylized_rev_second, scale_factor=2)
-        stylized_up = crop_upsized(stylized_up,self.positions[1],self.size_stack[1])
-        self.patches_in.append(stylized_up.detach())
+            stylized_feats = self.nets['net_rev_3'].DownBlock(revnet_input.detach())
+            stylized_feats = self.nets['net_rev_3'].resblock(stylized_feats)
 
-        stylized_feats = self.nets['net_rev_3'].DownBlock(revnet_input.detach())
-        stylized_feats = self.nets['net_rev_3'].resblock(stylized_feats)
+            revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up], axis=1)
+            stylized_rev_patch,stylized_feats = self.nets['net_rev_3'](revnet_input.detach(),stylized_feats,self.ada_alpha_2)
+            stylized_rev_patch = fold_laplace_patch(
+                [stylized_rev_patch, stylized_up.detach()])
+            self.visual_items['ci_3'] = self.content_stack[2]
+            self.visual_items['stylized_rev_third'] = stylized_rev_patch
+            self.stylized.append(stylized_rev_patch)
+        if self.train_layer>3:
+            stylized_up = F.interpolate(stylized_rev_patch, scale_factor=2)
+            stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
+            self.patches_in.append(stylized_up.detach())
 
-        revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up], axis=1)
-        stylized_rev_patch,stylized_feats = self.nets['net_rev_3'](revnet_input.detach(),stylized_feats,self.ada_alpha_2)
-        stylized_rev_patch = fold_laplace_patch(
-            [stylized_rev_patch, stylized_up.detach()])
-        self.visual_items['ci_3'] = self.content_stack[2]
-        self.visual_items['stylized_rev_third'] = stylized_rev_patch
-        self.stylized.append(stylized_rev_patch)
+            stylized_feats = self.nets['net_rev_4'].DownBlock(revnet_input.detach())
+            stylized_feats = self.nets['net_rev_4'].resblock(stylized_feats)
 
-        stylized_up = F.interpolate(stylized_rev_patch, scale_factor=2)
-        stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
-        self.patches_in.append(stylized_up.detach())
+            revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up], axis=1)
+            stylized_rev_patch_second,_ = self.nets['net_rev_4'](revnet_input.detach(),stylized_feats,self.ada_alpha_2)
+            stylized_rev_patch_second = fold_laplace_patch(
+                [stylized_rev_patch_second, stylized_up.detach()])
+            self.visual_items['ci_4'] = self.content_stack[3]
+            self.visual_items['stylized_rev_fourth'] = stylized_rev_patch_second
 
-        stylized_feats = self.nets['net_rev_4'].DownBlock(revnet_input.detach())
-        stylized_feats = self.nets['net_rev_4'].resblock(stylized_feats)
-
-        revnet_input = paddle.concat(x=[self.laplacians[3], stylized_up], axis=1)
-        stylized_rev_patch_second,_ = self.nets['net_rev_4'](revnet_input.detach(),stylized_feats,self.ada_alpha_2)
-        stylized_rev_patch_second = fold_laplace_patch(
-            [stylized_rev_patch_second, stylized_up.detach()])
-        self.visual_items['ci_4'] = self.content_stack[3]
-        self.visual_items['stylized_rev_fourth'] = stylized_rev_patch_second
-
-        self.stylized.append(stylized_rev_patch_second)
+            self.stylized.append(stylized_rev_patch_second)
 
     def backward_G(self,i):
         cF = self.nets['net_enc'](self.content_stack[i].detach())
@@ -2398,7 +2418,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         """gan loss"""
         self.loss_Gp_GAN=0
-        pred_fake_p = self.discriminators[i](self.stylized[i+1])
+        pred_fake_p = self.nets[self.discriminators[self.train_layer-1]](self.stylized[i+1])
         self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 
@@ -2456,10 +2476,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
             pred_Dp_real=pred_Dp_real
         else:
             reshaped = F.interpolate(reshaped,size=(256,256))
-            if random.choice([0,1,2,3])==0:
-                reshaped=paddle.flip(reshaped,-2)
-            if random.choice([0,1,2,3])==0:
-                reshaped=paddle.flip(reshaped,-2)
             loss_Dp_real = dec(reshaped.detach())
             pred_Dp_real += self.gan_criterion(loss_Dp_real, True)
         self.loss_D_patch = (loss_Dp_fake + pred_Dp_real) * 0.5
@@ -2478,21 +2494,21 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        for a,b,c in zip(self.discriminators,[self.optimizers['optimD1'],self.optimizers['optimD2'],self.optimizers['optimD3'],self.optimizers['optimD4']],list(range(4))):
-            self.set_requires_grad(a, True)
-            b.clear_grad()
-            loss=self.backward_D(a,c,str(c))
-            loss.backward()
-            b.step()
-            self.set_requires_grad(a, False)
-            b.clear_grad()
+        self.optimizers[self.o[self.train_layer-1]].clear_grad()
+        self.set_requires_grad(self.optimizers[self.o[self.train_layer-1]],True)
+        loss = self.backward_D(self.nets[self.discriminators[self.train_layer-1]],self.train_layer[-1],str(self.train_layer))
+        loss.backward()
+        self.optimizers[self.o[self.train_layer-1]].step()
+        self.set_requires_grad(self.optimizers[self.o[self.train_layer-1]],True)
+        self.optimizers[self.o[self.train_layer-1]].clear_grad()
 
-        for i,b in zip(range(4),[self.optimizers['optimG1'],self.optimizers['optimG2'],self.optimizers['optimG3'],self.optimizers['optimG4']]):
-            b.clear_grad()
-            loss=self.backward_G(i)
-            loss.backward()
-            b.step()
-            b.clear_grad()
+        self.optimizers[self.go[self.train_layer-1]].clear_grad()
+        self.set_requires_grad(self.optimizers[self.o[self.train_layer-1]],True)
+        loss = self.backward_G(self.train_layer-1)
+        loss.backward()
+        self.optimizers[self.go[self.train_layer-1]].step()
+        self.set_requires_grad(self.optimizers[self.go[self.train_layer-1]],True)
+        self.optimizers[self.go[self.train_layer-1]].clear_grad()
 
 @MODELS.register()
 class LapStyleRevSecondMiddle(BaseModel):

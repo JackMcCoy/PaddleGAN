@@ -30,12 +30,12 @@ from ..utils.visual import tensor2img, save_image
 from ..utils.filesystem import makedirs, save, load
 
 
-
 def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.5, morph_cutoff=8.88,morphs=1,minmax=False):
     # Source : https://github.com/CemalUnal/XDoG-Filter
     # Reference : XDoG: An eXtended difference-of-Gaussians compendium including advanced image stylization
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
     #imf1 = paddle.concat(x=[g(paddle.unsqueeze(im[:,0,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,1,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,2,:,:].detach(),axis=1))],axis=1)
+
     imf2=paddle.zeros_like(im)
     imf1=paddle.zeros_like(im)
     imf1.stop_gradient=True
@@ -2193,6 +2193,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 init_weights(self.nets['netD_4'])
         self.nets['spectral_D'] = build_discriminator(spectral_discriminator)
         init_weights(self.nets['spectral_D'])
+
+        zero_img=paddle.zeros((2,3,128,128))
+        three_eps = paddle.to_tensor([.5,.4,.6])
+        three_eps = paddle.expand_as(three_eps,zero_img)
+        print(three_eps)
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,

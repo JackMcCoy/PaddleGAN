@@ -2495,21 +2495,21 @@ class LapStyleRevSecondMXDOG(BaseModel):
         # compute fake images: G(A)
         self.forward()
         # update D
-        self.optimizers[self.o[-1]].clear_grad()
+        optimizers[self.o[-1]].clear_grad()
         self.set_requires_grad(self.nets[self.discriminators[-1]],True)
         loss = self.backward_D(self.nets[self.discriminators[-1]],self.train_layer-1,str(self.train_layer))
         loss.backward()
-        self.optimizers[self.o[self.train_layer-1]].step()
-        self.set_requires_grad(self.nets[self.discriminators[self.train_layer-1]],False)
-        self.optimizers[self.o[-1]].clear_grad()
+        optimizers[self.o[self.train_layer-1]].step()
+        set_requires_grad(self.nets[self.discriminators[self.train_layer-1]],False)
+        optimizers[self.o[-1]].clear_grad()
 
-        self.optimizers[self.go[-1]].clear_grad()
+        optimizers[self.go[-1]].clear_grad()
         self.set_requires_grad(self.nets[self.generator[-1]],True)
         loss = self.backward_G(self.train_layer-1)
         loss.backward()
-        self.optimizers[self.go[-1]].step()
+        optimizers[self.go[-1]].step()
         self.set_requires_grad(self.nets[self.generator[-1]],False)
-        self.optimizers[self.go[-1]].clear_grad()
+        optimizers[self.go[-1]].clear_grad()
 
 @MODELS.register()
 class LapStyleRevSecondMiddle(BaseModel):

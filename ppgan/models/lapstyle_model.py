@@ -2194,10 +2194,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.nets['spectral_D'] = build_discriminator(spectral_discriminator)
         init_weights(self.nets['spectral_D'])
 
-        zero_img=paddle.zeros((2,3,128,128))
-        three_eps = paddle.to_tensor([[.5],[.4],[.6]])
-        three_eps = paddle.expand_as(three_eps,zero_img)
-        print(three_eps)
+        zero_img=paddle.empty((2,3,128,128))
+        print(zero_img*paddle.to_tensor([[1],[100],[-5]]))
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,

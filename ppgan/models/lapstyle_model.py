@@ -2195,7 +2195,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         init_weights(self.nets['spectral_D'])
 
         zero_img=paddle.zeros((2,3,128,128))
-        three_eps = paddle.to_tensor([.5,.4,.6])
+        three_eps = paddle.to_tensor([[.5,.4,.6]])
         three_eps = paddle.expand_as(three_eps,zero_img)
         print(three_eps)
 

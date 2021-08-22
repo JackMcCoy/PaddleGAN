@@ -30,8 +30,8 @@ model:
     name: LapStyleSingleDiscriminator
     num_channels: 64
     num_layer: 9
-    kernel_size: 5
-    padding: 2
+    kernel_size: 7
+    padding: 3
   draftnet_encode:
     name: Encoder
   draftnet_decode:

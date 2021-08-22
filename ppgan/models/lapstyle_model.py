@@ -2379,12 +2379,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
             if not reshaped.shape[-1]==256:
                 reshaped = F.interpolate(reshaped,size=(256,256))
             spF = self.nets['net_enc'](reshaped.detach())
-            spF2 = self.nets['net_enc'](self.style_stack[0].detach())
             for layer in self.content_layers:
                 self.loss_ps += self.calc_style_loss(tpF[layer],
                                                       spF[layer])
-                self.loss_ps += (self.calc_style_loss(tpF[layer],
-                                                     spF2[layer])*.25)
             self.p_loss_style_remd += self.calc_style_emd_loss(
                 tpF['r31'], spF['r31']) + self.calc_style_emd_loss(
                 tpF['r41'], spF['r41'])
@@ -2507,11 +2504,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.optimizers[self.o[-1]].clear_grad()
 
         self.optimizers[self.go[-1]].clear_grad()
-        self.set_requires_grad(self.nets[self.generators[-1]],True)
+        self.set_requires_grad(self.nets[self.generator[-1]],True)
         loss = self.backward_G(self.train_layer-1)
         loss.backward()
         self.optimizers[self.go[-1]].step()
-        self.set_requires_grad(self.nets[self.generators[-1]],False)
+        self.set_requires_grad(self.nets[self.generator[-1]],False)
         self.optimizers[self.go[-1]].clear_grad()
 
 @MODELS.register()

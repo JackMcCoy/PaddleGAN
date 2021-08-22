@@ -51,7 +51,6 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.5, morph_cutoff=8.88,morp
     else:
         min=minmax[0]
         max=minmax[1]
-    print(min)
     imdiff -= paddle.expand_as(min,imdiff)
     imdiff /= paddle.expand_as(max,imdiff)
     if type(minmax)==bool:
@@ -2194,6 +2193,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 init_weights(self.nets['netD_4'])
         self.nets['spectral_D'] = build_discriminator(spectral_discriminator)
         init_weights(self.nets['spectral_D'])
+
+        zero_img=paddle.empty((2,3,128,128))
+        three_eps = paddle.to_tensor([[[[.5]],[[.4]],[[.6]]]])
+        three_eps = paddle.expand_as(three_eps,zero_img)
+        print(three_eps)
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,

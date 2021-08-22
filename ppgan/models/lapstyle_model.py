@@ -2500,7 +2500,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         loss = self.backward_D(self.nets[self.discriminators[-1]],self.train_layer-1,str(self.train_layer))
         loss.backward()
         optimizers[self.o[self.train_layer-1]].step()
-        set_requires_grad(self.nets[self.discriminators[self.train_layer-1]],False)
+        self.set_requires_grad(self.nets[self.discriminators[self.train_layer-1]],False)
         optimizers[self.o[-1]].clear_grad()
 
         optimizers[self.go[-1]].clear_grad()

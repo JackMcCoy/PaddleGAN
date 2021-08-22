@@ -68,11 +68,9 @@ class OptimizedBlock(nn.Layer):
     def __init__(self, in_channels, dim):
         super(OptimizedBlock, self).__init__()
         out_size=(1,dim,256,256)
-        self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        spectral_norm(nn.Conv2D(in_channels, dim, (3, 3))),
+        self.conv_block = nn.Sequential(spectral_norm(nn.Conv2D(in_channels, dim, (7,7),padding=3,padding_mode='reflect')),
                                         nn.ReLU(),
-                                        nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        spectral_norm(nn.Conv2D(dim, dim, (3, 3))))
+                                        spectral_norm(nn.Conv2D(dim, dim, (7,7),padding=3,padding_mode='reflect')))
         self.residual_connection = nn.Sequential(spectral_norm(nn.Conv2D(in_channels, dim, 1)))
 
     def forward(self, x):
@@ -93,11 +91,9 @@ class ResBlock(nn.Layer):
         super(ResBlock, self).__init__()
         out_size=(1,dim,128,128)
         self.conv_block = nn.Sequential(nn.ReLU(),
-                                        nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        spectral_norm(nn.Conv2D(dim, dim, (3, 3))),
+                                        spectral_norm(nn.Conv2D(dim, dim, (7,7),padding=3,padding_mode='reflect')),
                                         nn.ReLU(),
-                                        nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        spectral_norm(nn.Conv2D(dim, dim*2, (3, 3))),)
+                                        spectral_norm(nn.Conv2D(dim, dim*2, (7,7),padding=3,padding_mode='reflect')),)
         self.residual_connection = nn.Sequential(spectral_norm(nn.Conv2D(dim, dim*2, 1)))
     def forward(self, x):
         out = self.residual_connection(x) + self.conv_block(x)

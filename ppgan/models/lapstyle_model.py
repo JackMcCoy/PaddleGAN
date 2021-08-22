@@ -36,8 +36,7 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.5, morph_cutoff=8.88,morp
     # Link : http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.151&rep=rep1&type=pdf
     #imf1 = paddle.concat(x=[g(paddle.unsqueeze(im[:,0,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,1,:,:].detach(),axis=1)),g(paddle.unsqueeze(im[:,2,:,:].detach(),axis=1))],axis=1)
     if not type(three_eps)==bool:
-        three_eps = paddle.to_tensor([[[[three_eps[0]]],[[three_eps[1]]],[[three_eps[2]]]]])
-        eps = paddle.expand_as(three_eps,im)
+        eps = paddle.to_tensor([[[[three_eps[0]]],[[three_eps[1]]],[[three_eps[2]]]]])
     imf2=paddle.zeros_like(im)
     imf1=paddle.zeros_like(im)
     imf1.stop_gradient=True

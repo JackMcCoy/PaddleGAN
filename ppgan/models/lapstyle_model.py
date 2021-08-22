@@ -2419,7 +2419,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         """gan loss"""
         self.loss_Gp_GAN=0
-        pred_fake_p = self.nets[self.discriminators[i]](self.stylized[i+1])
+        pred_fake_p = self.nets[self.discriminators[-1]](self.stylized[i+1])
         self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
         self.losses['loss_gan_Gp_'+str(i+1)] = self.loss_Gp_GAN*self.gan_thumb_weight
 
@@ -2499,8 +2499,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.set_requires_grad(self.nets[self.discriminators[-1]],True)
         loss = self.backward_D(self.nets[self.discriminators[-1]],self.train_layer-1,str(self.train_layer))
         loss.backward()
-        optimizers[self.o[self.train_layer-1]].step()
-        self.set_requires_grad(self.nets[self.discriminators[self.train_layer-1]],False)
+        optimizers[self.o[-1]].step()
+        self.set_requires_grad(self.nets[self.discriminators[-1]],False)
         optimizers[self.o[-1]].clear_grad()
 
         optimizers[self.go[-1]].clear_grad()

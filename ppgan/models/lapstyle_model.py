@@ -2341,9 +2341,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
         if i>2:
             style_conv = self.morph_conv_2
             morph_cutoff= 11*.9445
+            morph_num=2
         else:
             style_conv = self.morph_conv
             morph_cutoff= 8.5
+            morph_num=2
         tpF = self.nets['net_enc'](self.stylized[i+1]) 
 
         """patch loss"""
@@ -2367,7 +2369,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
         if type(self.cX)==bool:
             _,cxminmax = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=1)
             sx,sxminmax = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,style_conv,morphs=2,morph_cutoff=morph_cutoff)
-        morph_num=2
         cX,_ = xdog(self.content_stack[i].detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=1,minmax=cxminmax)
         cXF = self.nets['net_enc'](cX.detach())
         stylized_dog,_ = xdog(self.stylized[i+1],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=1,minmax=cxminmax)

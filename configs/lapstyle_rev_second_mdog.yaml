@@ -61,8 +61,8 @@ model:
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
   style_weight: 3.5
-  train_layer: 2
-  train_spectral: 1
+  train_layer: 3
+  train_spectral: 0
   ada_alpha: .05
   ada_alpha_2: .05
   gan_thumb_weight: 1
@@ -73,12 +73,12 @@ model:
 dataset:
   train:
     name: MultiPatchSet
-    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/PaddleGAN/cypress512.png
-    load_size: 512
+    content_root: /content/gdrive/My Drive/img_style/large_pics/
+    style_root: /content/PaddleGAN/cypress1023.png
+    load_size: 1024
     crop_size: 256
     thumb_size: 256
-    patch_depth: 1
+    patch_depth: 2
     style_upsize: 1
     num_workers: 8
     batch_size: 4
@@ -112,6 +112,12 @@ optimizer:
       - net_rev_2
     beta1: 0.9
     beta2: 0.999
+  optimG3:
+    name: Adam
+    net_names:
+      - net_rev_3
+    beta1: 0.9
+    beta2: 0.999
   optimD1:
     name: Adam
     net_names:
@@ -122,6 +128,12 @@ optimizer:
     name: Adam
     net_names:
       - netD_2
+    beta1: 0.9
+    beta2: 0.999
+  optimD3:
+    name: Adam
+    net_names:
+      - netD_3
     beta1: 0.9
     beta2: 0.999
   optimSD:

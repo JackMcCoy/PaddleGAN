@@ -91,7 +91,7 @@ dataset:
     thumb_size: 256
     style_upsize: 1
     patch_depth: 4
-    num_workers: 0
+    num_workers: 1
     batch_size: 1
 
 lr_scheduler:

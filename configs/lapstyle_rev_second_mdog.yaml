@@ -78,7 +78,7 @@ dataset:
     load_size: 1024
     crop_size: 256
     thumb_size: 256
-    patch_depth: 1
+    patch_depth: 2
     style_upsize: 1
     num_workers: 4
     batch_size: 2
@@ -112,6 +112,12 @@ optimizer:
       - net_rev_2
     beta1: 0.9
     beta2: 0.999
+  optimG3:
+    name: Adam
+    net_names:
+      - net_rev_3
+    beta1: 0.9
+    beta2: 0.999
   optimD1:
     name: Adam
     net_names:
@@ -122,6 +128,12 @@ optimizer:
     name: Adam
     net_names:
       - netD_2
+    beta1: 0.9
+    beta2: 0.999
+  optimD3:
+    name: Adam
+    net_names:
+      - netD_3
     beta1: 0.9
     beta2: 0.999
   optimSD:

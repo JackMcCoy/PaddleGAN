@@ -18,12 +18,12 @@ model:
     name: LapStyleSingleDiscriminator
     num_channels: 64
     num_layer: 5
-    kernel_size: 7
-    padding: 3
+    kernel_size: 3
+    padding: 1
   revnet_discriminator_3:
     name: LapStyleSingleDiscriminator
     num_channels: 64
-    num_layer: 8
+    num_layer: 7
     kernel_size: 3
     padding: 1
   revnet_discriminator_4:
@@ -61,8 +61,8 @@ model:
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
   style_weight: 3.5
-  train_layer: 3
-  train_spectral: 0
+  train_layer: 2
+  train_spectral: 1
   ada_alpha: .05
   ada_alpha_2: .05
   gan_thumb_weight: 1
@@ -73,12 +73,12 @@ model:
 dataset:
   train:
     name: MultiPatchSet
-    content_root: /content/gdrive/My Drive/img_style/large_pics/
-    style_root: /content/PaddleGAN/cypress1023.png
-    load_size: 1024
+    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
+    style_root: /content/PaddleGAN/cypress512.png
+    load_size: 512
     crop_size: 256
     thumb_size: 256
-    patch_depth: 2
+    patch_depth: 1
     style_upsize: 1
     num_workers: 8
     batch_size: 4

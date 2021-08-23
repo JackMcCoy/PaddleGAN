@@ -2324,8 +2324,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.visual_items['stylized_rev_third'] = stylized_rev_patch
             self.stylized.append(stylized_rev_patch)
         if self.train_layer>3:
-            stylized_up = F.interpolate(stylized_rev_patch, scale_factor=2)
-            stylized_up = crop_upsized(stylized_up,self.positions[2],self.size_stack[2])
+            stylized_up = F.interpolate(stylized_rev_patch.detach(), scale_factor=2)
+            stylized_up = crop_upsized(stylized_up.detach(),self.positions[2],self.size_stack[2])
             self.patches_in.append(stylized_up.detach())
 
             stylized_feats = self.nets['net_rev_4'].DownBlock(revnet_input.detach())

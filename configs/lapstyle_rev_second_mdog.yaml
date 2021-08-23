@@ -32,18 +32,6 @@ model:
     num_layer: 9
     kernel_size: 7
     padding: 3
-  spectral_discriminator:
-    name: LapStyleSpectralDiscriminator
-    num_channels: 64
-    num_layer: 3
-    kernel: 15
-    padding: 7
-  spectral_discriminator_notrain:
-    name: LapStyleSpectralDiscriminator
-    num_channels: 64
-    num_layer: 3
-    kernel: 7
-    padding: 3
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -67,7 +55,7 @@ model:
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
   style_weight: 3.5
-  train_layer: 1
+  train_layer: 2
   ada_alpha: .05
   ada_alpha_2: .05
   gan_thumb_weight: 1
@@ -80,10 +68,10 @@ dataset:
     name: MultiPatchSet
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
     style_root: /content/PaddleGAN/cypress512.png
-    load_size: 256
+    load_size: 512
     crop_size: 256
     thumb_size: 256
-    patch_depth: 0
+    patch_depth: 1
     style_upsize: 1
     num_workers: 4
     batch_size: 2
@@ -115,12 +103,6 @@ optimizer:
     name: Adam
     net_names:
       - netD_1
-    beta1: 0.9
-    beta2: 0.999
-  optimSD:
-    name: Adam
-    net_names:
-      - spectral_D
     beta1: 0.9
     beta2: 0.999
 validate:

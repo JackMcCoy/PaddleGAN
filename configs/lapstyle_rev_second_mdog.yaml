@@ -29,7 +29,7 @@ model:
   revnet_discriminator_4:
     name: LapStyleSingleDiscriminator
     num_channels: 64
-    num_layer: 7
+    num_layer: 9
     kernel_size: 3
     padding: 1
   spectral_discriminator:

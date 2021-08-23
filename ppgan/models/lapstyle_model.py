@@ -2343,7 +2343,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         cF = self.nets['net_enc'](self.content_stack[i].detach())
         if i>2:
             style_conv = self.morph_conv_2
-            morph_cutoff= 11*.9445
+            morph_cutoff= 7*.9445
             morph_num=2
         else:
             style_conv = self.morph_conv

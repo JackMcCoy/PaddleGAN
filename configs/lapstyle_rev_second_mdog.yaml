@@ -100,46 +100,10 @@ lr_scheduler:
   lr_decay: 5e-5
 
 optimizer:
-  optimG1:
-    name: Adam
-    net_names:
-      - net_rev
-    beta1: 0.9
-    beta2: 0.999
-  optimG2:
-    name: Adam
-    net_names:
-      - net_rev_2
-    beta1: 0.9
-    beta2: 0.999
-  optimG3:
-    name: Adam
-    net_names:
-      - net_rev_3
-    beta1: 0.9
-    beta2: 0.999
   optimG4:
     name: Adam
     net_names:
       - net_rev_4
-    beta1: 0.9
-    beta2: 0.999
-  optimD1:
-    name: Adam
-    net_names:
-      - netD_1
-    beta1: 0.9
-    beta2: 0.999
-  optimD2:
-    name: Adam
-    net_names:
-      - netD_2
-    beta1: 0.9
-    beta2: 0.999
-  optimD3:
-    name: Adam
-    net_names:
-      - netD_3
     beta1: 0.9
     beta2: 0.999
   optimD4:

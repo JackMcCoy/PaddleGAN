@@ -66,7 +66,7 @@ model:
   ada_alpha: .05
   ada_alpha_2: .05
   gan_thumb_weight: 1
-  gan_patch_weight: 2
+  gan_patch_weight: 1
   use_mdog: 1
   morph_cutoff: 8.5
 
@@ -112,12 +112,6 @@ optimizer:
       - net_rev_2
     beta1: 0.9
     beta2: 0.999
-  optimG3:
-    name: Adam
-    net_names:
-      - net_rev_3
-    beta1: 0.9
-    beta2: 0.999
   optimD1:
     name: Adam
     net_names:
@@ -128,12 +122,6 @@ optimizer:
     name: Adam
     net_names:
       - netD_2
-    beta1: 0.9
-    beta2: 0.999
-  optimD3:
-    name: Adam
-    net_names:
-      - netD_3
     beta1: 0.9
     beta2: 0.999
   optimSD:

@@ -112,12 +112,6 @@ optimizer:
       - netD_3
     beta1: 0.9
     beta2: 0.999
-  optimSD:
-    name: Adam
-    net_names:
-      - spectral_D
-    beta1: 0.9
-    beta2: 0.999
 validate:
   interval: 100000
   save_img: false

@@ -2104,6 +2104,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                  revnet_discriminator_2,
                  revnet_discriminator_3,
                  revnet_discriminator_4,
+                 spectral_discriminator,
                  draftnet_encode,
                  draftnet_decode,
                  revnet_deep_generator,
@@ -2190,6 +2191,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
             else:
                 init_weights(self.nets['net_rev_4'])
                 init_weights(self.nets['netD_4'])
+
+        self.nets['spectral_D'] = build_discriminator(spectral_discriminator_notrain)
+        init_weights(self.nets['spectral_D'])
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2427,6 +2431,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss_Gp_GAN=0
         pred_fake_p = self.nets[self.discriminators[-1]](self.stylized[i+1])
         self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
+        pred_fake_p = self.nets['spectral_D'](self.stylized[i+1])
+        self.loss_Gs_GAN += self.gan_criterion(pred_fake_p, True)
 
         if i==0:
             a=11
@@ -2456,7 +2462,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*e
         mxdogloss=mxdog_content * .3 + mxdog_content_contraint *100 + mxdog_style * e
 
-        self.loss = self.loss_Gp_GAN *c+self.loss_ps * self.style_weight*f +\
+        self.loss = self.loss_Gp_GAN *c+self.loss_Gs_GAN*c+self.loss_ps * self.style_weight*f +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch*d +\
                     self.p_loss_style_remd * a + self.p_loss_content_relt * b + mxdogloss
@@ -2507,6 +2513,14 @@ class LapStyleRevSecondMXDOG(BaseModel):
         optimizers[self.o[-1]].step()
         self.set_requires_grad(self.nets[self.discriminators[-1]],False)
         optimizers[self.o[-1]].clear_grad()
+
+        self.set_requires_grad(self.nets['spectral_D'],True)
+        loss=0
+        optimizers['optimSD'].clear_grad()
+        loss+=self.backward_D(self.nets['spectral_D2'],self.train_layer-1,str(self.train_layer-1)+'s')
+        loss.backward()
+        optimizers['optimSD'].step()
+        self.set_requires_grad(self.nets['spectral_D'],False)
 
         optimizers[self.go[-1]].clear_grad()
         loss = self.backward_G(self.train_layer-1)

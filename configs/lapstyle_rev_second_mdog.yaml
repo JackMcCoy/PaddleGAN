@@ -32,6 +32,12 @@ model:
     num_layer: 9
     kernel_size: 7
     padding: 3
+  spectral_discriminator:
+    name: LapStyleSpectralDiscriminator
+    num_channels: 64
+    num_layer: 3
+    kernel: 15
+    padding: 7
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -73,8 +79,8 @@ dataset:
     thumb_size: 256
     patch_depth: 1
     style_upsize: 1
-    num_workers: 8
-    batch_size: 4
+    num_workers: 4
+    batch_size: 2
   test:
     name: LapStyleThumbsetInference
     content_root: /content/gdrive/My Drive/img_style/inference_test/
@@ -99,22 +105,16 @@ optimizer:
       - net_rev
     beta1: 0.9
     beta2: 0.999
-  optimG2:
-    name: Adam
-    net_names:
-      - net_rev_2
-    beta1: 0.9
-    beta2: 0.999
   optimD1:
     name: Adam
     net_names:
       - netD_1
     beta1: 0.9
     beta2: 0.999
-  optimD2:
+  optimSD:
     name: Adam
     net_names:
-      - netD_2
+      - spectral_D
     beta1: 0.9
     beta2: 0.999
 validate:
@@ -123,7 +123,7 @@ validate:
 
 log_config:
   interval: 10
-  visiual_interval: 50
+  visiual_interval: 10
 
 snapshot_config:
   interval: 1000

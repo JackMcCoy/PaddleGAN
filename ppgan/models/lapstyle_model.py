@@ -2119,6 +2119,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                  content_weight=1.0,
                  style_weight=3.0,
                  train_layer=1,
+                 train_spectral=0,
                  ada_alpha=1.0,
                  ada_alpha_2=1.0,
                  gan_thumb_weight=1.0,
@@ -2128,6 +2129,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         super(LapStyleRevSecondMXDOG, self).__init__()
 
+        self.train_spectral=train_spectral
         self.train_layer=train_layer
         self.scaler = paddle.amp.GradScaler(init_loss_scaling=1024)
         # define draftnet params
@@ -2514,12 +2516,13 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.set_requires_grad(self.nets[self.discriminators[-1]],False)
         optimizers[self.o[-1]].clear_grad()
 
-        self.set_requires_grad(self.nets['spectral_D'],True)
-        optimizers['optimSD'].clear_grad()
-        loss=self.backward_D(self.nets['spectral_D'],self.train_layer-1,str(self.train_layer-1)+'s')
-        loss.backward()
-        optimizers['optimSD'].step()
-        self.set_requires_grad(self.nets['spectral_D'],False)
+        if self.train_spectral==1:
+            self.set_requires_grad(self.nets['spectral_D'],True)
+            optimizers['optimSD'].clear_grad()
+            loss=self.backward_D(self.nets['spectral_D'],self.train_layer-1,str(self.train_layer-1)+'s')
+            loss.backward()
+            optimizers['optimSD'].step()
+            self.set_requires_grad(self.nets['spectral_D'],False)
 
         optimizers[self.go[-1]].clear_grad()
         loss = self.backward_G(self.train_layer-1)

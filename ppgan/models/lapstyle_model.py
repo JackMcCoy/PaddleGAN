@@ -2370,7 +2370,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss_ps = 0
         self.p_loss_style_remd = 0
         if type(self.cX)==bool:
-            cx,cxminmax = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=1)
+            cx,cxminmax = xdog(self.content.detach(),self.gaussian_filter,self.gaussian_filter_2,style_conv,morphs=2,morph_cutoff=morph_cutoff)
             sx,sxminmax = xdog(self.style_stack[1].detach(),self.gaussian_filter,self.gaussian_filter_2,style_conv,morphs=2,morph_cutoff=morph_cutoff)
         for j in range(i):
             cx = paddle.slice(cx,axes=[2,3],starts=[(self.positions[j][1]).astype('int32'),(self.positions[j][0]).astype('int32')],\
@@ -2378,7 +2378,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         if cx.shape[-1]!=256:
             cx=F.interpolate(cx,size=(256,256))
         cXF = self.nets['net_enc'](cx.detach())
-        stylized_dog,_ = xdog(self.stylized[i+1],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=1,minmax=cxminmax)
+        stylized_dog,_ = xdog(self.stylized[i+1],self.gaussian_filter,self.gaussian_filter_2,style_conv,morphs=2,morph_cutoff=morph_cutoff,minmax=cxminmax)
         cdogF = self.nets['net_enc'](stylized_dog)
         mxdog_content = self.calc_content_loss(tpF['r31'], cXF['r31'])+self.calc_content_loss(tpF['r41'], cXF['r41'])
         mxdog_content_contraint = self.calc_content_loss(cdogF['r31'], cXF['r31'])+self.calc_content_loss(cdogF['r41'], cXF['r41'])
@@ -2452,7 +2452,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             a=26
             b=26
             c=5
-            d=5
+            d=3
         if i>1:
             e=2000
         elif i==3:

@@ -95,21 +95,21 @@ def calculate_gain(nonlinearity, param=None):
 
 @paddle.no_grad()
 def constant_(x, value):
-    temp_value = paddle.full(x.shape, value, x.dtype).astype('float16')
+    temp_value = paddle.full(x.shape, value, x.dtype)
     x.set_value(temp_value)
     return x
 
 
 @paddle.no_grad()
 def normal_(x, mean=0., std=1.):
-    temp_value = paddle.normal(mean, std, shape=x.shape).astype('float16')
+    temp_value = paddle.normal(mean, std, shape=x.shape)
     x.set_value(temp_value)
     return x
 
 
 @paddle.no_grad()
 def uniform_(x, a=-1., b=1.):
-    temp_value = paddle.uniform(min=a, max=b, shape=x.shape).astype('float16')
+    temp_value = paddle.uniform(min=a, max=b, shape=x.shape)
     x.set_value(temp_value)
     return x
 
@@ -194,7 +194,7 @@ def kaiming_uniform_(x, a=0, mode='fan_in', nonlinearity='leaky_relu'):
     bound = math.sqrt(
         3.0) * std  # Calculate uniform bounds from standard deviation
 
-    temp_value = paddle.uniform(x.shape, min=-bound, max=bound).astype('float16')
+    temp_value = paddle.uniform(x.shape, min=-bound, max=bound)
     x.set_value(temp_value)
 
     return x
@@ -229,7 +229,7 @@ def kaiming_normal_(x, a=0, mode='fan_in', nonlinearity='leaky_relu'):
     gain = calculate_gain(nonlinearity, a)
     std = gain / math.sqrt(fan)
 
-    temp_value = paddle.normal(0, std, shape=x.shape).astype('float16')
+    temp_value = paddle.normal(0, std, shape=x.shape)
     x.set_value(temp_value)
     return x
 
@@ -298,28 +298,28 @@ def init_weights(net,
         if hasattr(m, 'weight') and (classname.find('Conv') != -1
                                      or classname.find('Linear') != -1):
             if init_type == 'normal':
-                normal_(m.weight.astype('float16'), 0.0, init_gain)
+                normal_(m.weight, 0.0, init_gain)
             elif init_type == 'xavier':
                 if distribution == 'normal':
-                    xavier_normal_(m.weight.astype('float16'), gain=init_gain)
+                    xavier_normal_(m.weight, gain=init_gain)
                 else:
-                    xavier_uniform_(m.weight.astype('float16'), gain=init_gain)
+                    xavier_uniform_(m.weight, gain=init_gain)
 
             elif init_type == 'kaiming':
                 if distribution == 'normal':
-                    kaiming_normal_(m.weight.astype('float16'), a=0, mode='fan_in')
+                    kaiming_normal_(m.weight, a=0, mode='fan_in')
                 else:
-                    kaiming_uniform_(m.weight.astype('float16'), a=0, mode='fan_in')
+                    kaiming_uniform_(m.weight, a=0, mode='fan_in')
             else:
                 raise NotImplementedError(
                     'initialization method [%s] is not implemented' % init_type)
             if hasattr(m, 'bias') and m.bias is not None:
-                constant_(m.bias.astype('float16'), 0.0)
+                constant_(m.bias, 0.0)
         elif classname.find(
                 'BatchNorm'
         ) != -1:  # BatchNorm Layer's weight is not a matrix; only normal distribution applies.
-            normal_(m.weight.astype('float16'), 1.0, init_gain)
-            constant_(m.bias.astype('float16'), 0.0)
+            normal_(m.weight, 1.0, init_gain)
+            constant_(m.bias, 0.0)
 
     logger = get_logger()
     logger.debug('initialize network with %s' % init_type)

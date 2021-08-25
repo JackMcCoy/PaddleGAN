@@ -298,23 +298,23 @@ def init_weights(net,
         if hasattr(m, 'weight') and (classname.find('Conv') != -1
                                      or classname.find('Linear') != -1):
             if init_type == 'normal':
-                normal_(m.weight, 0.0, init_gain)
+                normal_(m.weight.astype('float16'), 0.0, init_gain)
             elif init_type == 'xavier':
                 if distribution == 'normal':
-                    xavier_normal_(m.weight, gain=init_gain)
+                    xavier_normal_(m.weight.astype('float16'), gain=init_gain)
                 else:
-                    xavier_uniform_(m.weight, gain=init_gain)
+                    xavier_uniform_(m.weight.astype('float16'), gain=init_gain)
 
             elif init_type == 'kaiming':
                 if distribution == 'normal':
-                    kaiming_normal_(m.weight, a=0, mode='fan_in')
+                    kaiming_normal_(m.weight.astype('float16'), a=0, mode='fan_in')
                 else:
-                    kaiming_uniform_(m.weight, a=0, mode='fan_in')
+                    kaiming_uniform_(m.weight.astype('float16'), a=0, mode='fan_in')
             else:
                 raise NotImplementedError(
                     'initialization method [%s] is not implemented' % init_type)
             if hasattr(m, 'bias') and m.bias is not None:
-                constant_(m.bias, 0.0)
+                constant_(m.bias.astype('float16'), 0.0)
         elif classname.find(
                 'BatchNorm'
         ) != -1:  # BatchNorm Layer's weight is not a matrix; only normal distribution applies.

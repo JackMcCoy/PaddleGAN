@@ -13,12 +13,13 @@
 # limitations under the License.
 
 import paddle
+
+paddle.set_default_dtype('float16')
 import paddle.nn as nn
 import paddle.nn.functional as F
 
 from .builder import DISCRIMINATORS
 
-paddle.set_default_dtype('float16')
 @DISCRIMINATORS.register()
 class LapStyleSingleDiscriminator(nn.Layer):
     def __init__(self, num_channels=32,kernel_size=3,padding=1,dropout_rate=.5,num_layer=3):

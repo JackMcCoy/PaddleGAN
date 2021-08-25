@@ -102,7 +102,6 @@ def constant_(x, value):
 
 @paddle.no_grad()
 def normal_(x, mean=0., std=1.):
-    x = x.astype('float16')
     temp_value = paddle.normal(mean, std, shape=x.shape).astype('float16')
     x.set_value(temp_value)
     return x

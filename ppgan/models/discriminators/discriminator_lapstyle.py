@@ -175,7 +175,7 @@ class LapStyleSpectralDiscriminator(nn.Layer):
         #self.fc=nn.Sequential(SNLinear(1024, 1),nn.Sigmoid())
 
     def forward(self, x):
-        x = self.head(x)
+        x = self.head(x.astype('float32'))
         x = self.body(x)
         x = self.relu(x)
         x = nn.functional.avg_pool2d(x, (x.shape[3],1), stride=1)

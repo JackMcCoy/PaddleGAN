@@ -74,7 +74,7 @@ class OptimizedBlock(nn.Layer):
         self.residual_connection = nn.Sequential(spectral_norm(nn.Conv2D(in_channels, dim, 1)))
 
     def forward(self, x):
-        out = self.residual_connection(x) + self.conv_block(x)
+        out = self.residual_connection(x.astype('float32')) + self.conv_block(x.astype('float32'))
         return out
 
 class ResBlock(nn.Layer):
@@ -175,7 +175,7 @@ class LapStyleSpectralDiscriminator(nn.Layer):
         #self.fc=nn.Sequential(SNLinear(1024, 1),nn.Sigmoid())
 
     def forward(self, x):
-        x = self.head(x.astype('float32'))
+        x = self.head(x)
         x = self.body(x)
         x = self.relu(x)
         x = nn.functional.avg_pool2d(x, (x.shape[3],1), stride=1)

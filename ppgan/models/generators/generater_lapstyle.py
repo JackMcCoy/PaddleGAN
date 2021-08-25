@@ -20,8 +20,7 @@ from skimage import color
 import numpy as np
 from .builder import GENERATORS
 
-paddle.set_default_dtype('float16')
-if 0:
+if 1:
     import pycuda.autoinit
     import pycuda.gpuarray as gpuarray
     import skcuda.linalg as linalg
@@ -294,13 +293,13 @@ def calc_mean_std(feat, eps=1e-5):
     size = feat.shape
     assert (len(size) == 4)
     N, C = size[:2]
-    feat_var = feat.reshape([N, C, -1]).astype('float32')
+    feat_var = feat.reshape([N, C, -1])
     feat_var = paddle.var(feat_var, axis=2) + eps
     feat_std = paddle.sqrt(feat_var)
-    feat_std = feat_std.reshape([N, C, 1, 1]).astype('float16')
-    feat_mean = feat.reshape([N, C, -1]).astype('float32')
+    feat_std = feat_std.reshape([N, C, 1, 1])
+    feat_mean = feat.reshape([N, C, -1])
     feat_mean = paddle.mean(feat_mean, axis=2)
-    feat_mean = feat_mean.reshape([N, C, 1, 1]).astype('float16')
+    feat_mean = feat_mean.reshape([N, C, 1, 1])
     return feat_mean, feat_std
 
 def labeled_whiten_and_color(f_c, f_s, alpha, clabel):
@@ -530,17 +529,17 @@ class DecoderNetDeep(nn.Layer):
         out = self.resblock_41(out)
         out = self.convblock_41(out)
 
-        out = self.upsample(out.astype('float32')).astype('float16')
+        out = self.upsample(out)
         out += adaptive_instance_normalization(cF['r31'], sF['r31'])
         out = self.resblock_31(out)
         out = self.convblock_31(out)
 
-        out = self.upsample(out.astype('float32')).astype('float16')
+        out = self.upsample(out)
         out += adaptive_instance_normalization(cF['r21'], sF['r21'])
         out = self.convblock_21(out)
         out = self.convblock_22(out)
 
-        out = self.upsample(out.astype('float32')).astype('float16')
+        out = self.upsample(out)
         out = self.convblock_11(out)
         out = self.final_conv(out)
         return out
@@ -735,35 +734,7 @@ class Encoder(nn.Layer):
 
         weight_path = get_path_from_url(
             'https://paddlegan.bj.bcebos.com/models/vgg_normalised.pdparams')
-        weights=paddle.load(weight_path)
-        model2={}
-        for k,v in weights.items():
-          if type(v)==dict:
-            i3 = {}
-            for k2,v2 in v.items():
-              if type(v2)==dict:
-                i4={}
-                for k3,v3 in v2.items():
-                  if type(v3)==dict:
-                    print('v3==dict')
-                  elif type(v3)==int or type(v3)==float:
-                    i4[k3]=v3
-                  else:
-                    i4[k3]=v3.astype('float16')
-                i3[k2]=i4
-              elif type(v2)==paddle.Tensor:
-                i3[k]=v2.astype('float16')
-              else:
-                i3[k]=v2
-                print(type(v2))
-            model2[k]=i3
-          else:
-            if type(v)==paddle.Tensor:
-                model2[k]=v.astype('float16')
-            else:
-                model2[k]=v
-                print(type(v))
-        vgg_net.set_dict(model2)
+        vgg_net.set_dict(paddle.load(weight_path))
         self.enc_1 = nn.Sequential(*list(
             vgg_net.children())[:4])  # input -> relu1_1
         self.enc_2 = nn.Sequential(*list(
@@ -867,6 +838,7 @@ class RevisionNetThumb(nn.Layer):
 
         UpBlock = []
         UpBlock += [
+            nn.Upsample(scale_factor=2, mode='nearest'),
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(64, 64, (3, 3)),
             nn.ReLU()
@@ -878,7 +850,6 @@ class RevisionNetThumb(nn.Layer):
 
         self.DownBlock = nn.Sequential(*DownBlock)
         self.UpBlock = nn.Sequential(*UpBlock)
-        self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
 
     def forward(self, input,thumbnail=False,alpha=1):
         """
@@ -894,7 +865,6 @@ class RevisionNetThumb(nn.Layer):
         if type(thumbnail) != bool:
             feats = adaptive_instance_normalization(out, thumbnail)
             out = alpha * feats + (1 - alpha) * out
-        out = self.upsample(out.astype('float32')).astype('float16')
         out = self.UpBlock(out)
         return out,feats
 
@@ -1027,6 +997,7 @@ class RevisionNetDeepThumb(nn.Layer):
 
         UpBlock = []
         UpBlock += [
+            nn.Upsample(scale_factor=2, mode='nearest'),
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(64, 64, (3, 3)),
             nn.ReLU(),
@@ -1054,7 +1025,6 @@ class RevisionNetDeepThumb(nn.Layer):
 
         self.DownBlock = nn.Sequential(*DownBlock)
         self.UpBlock = nn.Sequential(*UpBlock)
-        self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
 
     def forward(self, input,thumbnail=False,alpha=1):
         """
@@ -1070,6 +1040,5 @@ class RevisionNetDeepThumb(nn.Layer):
             feats = adaptive_instance_normalization(out, thumbnail)
             out = alpha * feats + (1 - alpha) * out
         feats = out.clone()
-        out = self.upsample(out.astype('float32')).astype('float16')
         out = self.UpBlock(out)
         return out, feats

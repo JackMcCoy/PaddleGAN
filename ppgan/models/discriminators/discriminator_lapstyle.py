@@ -74,7 +74,7 @@ class OptimizedBlock(nn.Layer):
         self.residual_connection = nn.Sequential(spectral_norm(nn.Conv2D(in_channels, dim, 1)))
 
     def forward(self, x):
-        out = self.residual_connection(x.astype('float32')) + self.conv_block(x.astype('float32'))
+        out = self.residual_connection(x) + self.conv_block(x)
         return out
 
 class ResBlock(nn.Layer):

@@ -757,7 +757,11 @@ class Encoder(nn.Layer):
                 print(type(v2))
             model2[k]=i3
           else:
-            model2[k]=v
+            if type(v)==paddle.Tensor:
+                model2[k]=v.astype('float16')
+            else:
+                model2[k]=v
+                print(type(v))
         vgg_net.set_dict(model2)
         self.enc_1 = nn.Sequential(*list(
             vgg_net.children())[:4])  # input -> relu1_1

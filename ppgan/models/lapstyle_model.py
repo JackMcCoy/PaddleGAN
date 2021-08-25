@@ -44,7 +44,7 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.5, morph_cutoff=8.88,morp
     imf1=g(im)
     #imf2 = g2(im.detach())
     imdiff = imf1 - gamma * imf2
-    imdiff = (imdiff < eps).astype('float32') * 1.0  + (imdiff >= eps).astype('float32') * (1.0 + paddle.tanh(phi * imdiff))
+    imdiff = (imdiff < eps).astype('float16') * 1.0  + (imdiff >= eps).astype('float16') * (1.0 + paddle.tanh(phi * imdiff))
     if type(minmax)==bool:
         min = imdiff.min(axis=[2,3],keepdim=True)
         max = imdiff.max(axis=[2,3],keepdim=True)
@@ -61,10 +61,10 @@ def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.5, morph_cutoff=8.88,morp
     for i in range(morphs):
         morphed=morph_conv(imdiff)
         morphed.stop_gradient=True
-        passedlow= paddle.multiply((imdiff>= exmean).astype('float32'),(morphed>= morph_cutoff).astype('float32'))
+        passedlow= paddle.multiply((imdiff>= exmean).astype('float16'),(morphed>= morph_cutoff).astype('float16'))
     for i in range(morphs):
         passed = morph_conv(passedlow)
-        passed= (passed>0).astype('float32')
+        passed= (passed>0).astype('float16')
     return passed, [min,max,mean]
 
 def gaussian(kernel_size, sigma,channels=3):
@@ -2129,6 +2129,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         super(LapStyleRevSecondMXDOG, self).__init__()
 
+        paddle.set_default_dtype('float16')
         self.train_spectral=train_spectral
         self.train_layer=train_layer
         self.scaler = paddle.amp.GradScaler(init_loss_scaling=1024)

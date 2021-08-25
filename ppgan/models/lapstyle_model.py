@@ -2281,7 +2281,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
-        cF = self.nets['net_enc'](F.interpolate(self.content_stack[0],scale_factor=.5))
+        cF = self.nets['net_enc'](F.interpolate(self.content_stack[0],scale_factor=.5).astype('float16'))
         sF = self.nets['net_enc'](F.interpolate(self.style_stack[0], scale_factor=.5))
 
         stylized_small= self.nets['net_dec'](cF, sF)

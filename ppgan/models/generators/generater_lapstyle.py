@@ -485,17 +485,17 @@ class DecoderNet(nn.Layer):
         out = self.resblock_41(out)
         out = self.convblock_41(out)
 
-        out = self.upsample(out.astype('float32')).astype('float16')
+        out = self.upsample(out)
         out += adaptive_instance_normalization(cF['r31'], sF['r31'])
         out = self.resblock_31(out)
         out = self.convblock_31(out)
 
-        out = self.upsample(out.astype('float32')).astype('float16')
+        out = self.upsample(out)
         out += adaptive_instance_normalization(cF['r21'], sF['r21'])
         out = self.convblock_21(out)
         out = self.convblock_22(out)
 
-        out = self.upsample(out.astype('float32')).astype('float16')
+        out = self.upsample(out)
         out = self.convblock_11(out)
         out = self.final_conv(out)
         return out
@@ -530,17 +530,17 @@ class DecoderNetDeep(nn.Layer):
         out = self.resblock_41(out)
         out = self.convblock_41(out)
 
-        out = self.upsample(out)
+        out = self.upsample(out.astype('float32')).astype('float16')
         out += adaptive_instance_normalization(cF['r31'], sF['r31'])
         out = self.resblock_31(out)
         out = self.convblock_31(out)
 
-        out = self.upsample(out)
+        out = self.upsample(out.astype('float32')).astype('float16')
         out += adaptive_instance_normalization(cF['r21'], sF['r21'])
         out = self.convblock_21(out)
         out = self.convblock_22(out)
 
-        out = self.upsample(out)
+        out = self.upsample(out.astype('float32')).astype('float16')
         out = self.convblock_11(out)
         out = self.final_conv(out)
         return out
@@ -867,7 +867,6 @@ class RevisionNetThumb(nn.Layer):
 
         UpBlock = []
         UpBlock += [
-            nn.Upsample(scale_factor=2, mode='nearest'),
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(64, 64, (3, 3)),
             nn.ReLU()
@@ -879,6 +878,7 @@ class RevisionNetThumb(nn.Layer):
 
         self.DownBlock = nn.Sequential(*DownBlock)
         self.UpBlock = nn.Sequential(*UpBlock)
+        self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
 
     def forward(self, input,thumbnail=False,alpha=1):
         """
@@ -894,6 +894,7 @@ class RevisionNetThumb(nn.Layer):
         if type(thumbnail) != bool:
             feats = adaptive_instance_normalization(out, thumbnail)
             out = alpha * feats + (1 - alpha) * out
+        out = self.upsample(out.astype('float32')).astype('float16')
         out = self.UpBlock(out)
         return out,feats
 
@@ -1026,7 +1027,6 @@ class RevisionNetDeepThumb(nn.Layer):
 
         UpBlock = []
         UpBlock += [
-            nn.Upsample(scale_factor=2, mode='nearest'),
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(64, 64, (3, 3)),
             nn.ReLU(),
@@ -1054,6 +1054,7 @@ class RevisionNetDeepThumb(nn.Layer):
 
         self.DownBlock = nn.Sequential(*DownBlock)
         self.UpBlock = nn.Sequential(*UpBlock)
+        self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
 
     def forward(self, input,thumbnail=False,alpha=1):
         """
@@ -1069,5 +1070,6 @@ class RevisionNetDeepThumb(nn.Layer):
             feats = adaptive_instance_normalization(out, thumbnail)
             out = alpha * feats + (1 - alpha) * out
         feats = out.clone()
+        out = self.upsample(out.astype('float32')).astype('float16')
         out = self.UpBlock(out)
         return out, feats

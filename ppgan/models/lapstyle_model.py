@@ -2287,7 +2287,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         stylized_small= self.nets['net_dec'](cF, sF)
         self.stylized=[stylized_small]
         self.visual_items['stylized_small'] = stylized_small
-        stylized_up = F.interpolate(stylized_small, scale_factor=2)
+        stylized_up = F.interpolate(stylized_small.astype('float32'), scale_factor=2).astype('float16')
 
         revnet_input = paddle.concat(x=[self.laplacians[0], stylized_up.detach()], axis=1)
         #rev_net thumb only calcs as patch if second parameter is passed
@@ -2297,7 +2297,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.visual_items['stylized_rev_first'] = stylized_rev
 
         if self.train_layer>1:
-            stylized_up = F.interpolate(stylized_rev, scale_factor=2).astype('float16')
+            stylized_up = F.interpolate(stylized_rev.astype('float32'), scale_factor=2).astype('float16')
             stylized_up = crop_upsized(stylized_up,self.positions[0],self.size_stack[0])
             self.patches_in = [stylized_up.detach()]
             stylized_feats = self.nets['net_rev_2'].DownBlock(revnet_input.detach())
@@ -2310,7 +2310,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
             self.visual_items['stylized_rev_second'] = stylized_rev_second
         if self.train_layer>2:
-            stylized_up = F.interpolate(stylized_rev_second, scale_factor=2).astype('float16')
+            stylized_up = F.interpolate(stylized_rev_second.detach().astype('float32'), scale_factor=2).astype('float16')
             stylized_up = crop_upsized(stylized_up,self.positions[1],self.size_stack[1])
             self.patches_in.append(stylized_up.detach())
 
@@ -2325,7 +2325,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.visual_items['stylized_rev_third'] = stylized_rev_patch
             self.stylized.append(stylized_rev_patch)
         if self.train_layer>3:
-            stylized_up = F.interpolate(stylized_rev_patch.detach(), scale_factor=2).astype('float16')
+            stylized_up = F.interpolate(stylized_rev_patch.detach().astype('float32'), scale_factor=2).astype('float16')
             stylized_up = crop_upsized(stylized_up.detach(),self.positions[2],self.size_stack[2])
             self.patches_in.append(stylized_up.detach())
 
@@ -2378,7 +2378,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             cx = paddle.slice(cx,axes=[2,3],starts=[(self.positions[j][1]).astype('int32'),(self.positions[j][0]).astype('int32')],\
                              ends=[(self.positions[j][3]).astype('int32'),(self.positions[j][2]).astype('int32')])
         if cx.shape[-1]!=256:
-            cx=F.interpolate(cx,size=(256,256)).astype('float16')
+            cx=F.interpolate(cx.astype('float32'),size=(256,256)).astype('float16')
         cXF = self.nets['net_enc'](cx.detach())
         stylized_dog,_ = xdog(self.stylized[i+1],self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,morphs=2,minmax=cxminmax)
         cdogF = self.nets['net_enc'](stylized_dog)
@@ -2392,7 +2392,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 reshaped=paddle.slice(reshaped,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
                 sx = paddle.slice(sx,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
             if not reshaped.shape[-1]==256:
-                reshaped = F.interpolate(reshaped,size=(256,256))
+                reshaped = F.interpolate(reshaped.astype('float32'),size=(256,256)).astype('float16')
             spF = self.nets['net_enc'](reshaped.detach())
             for layer in self.content_layers:
                 self.loss_ps += self.calc_style_loss(tpF[layer],
@@ -2486,12 +2486,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 k = random_crop_coords(reshaped.shape[-1])
                 reshaped=paddle.slice(reshaped,axes=[2,3],starts=[k[0],k[2]],ends=[k[1],k[3]])
             if not reshaped.shape[-1]==256:
-                reshaped = F.interpolate(reshaped,size=(256,256)).astype('float16')
+                reshaped = F.interpolate(reshaped.astype('float32'),size=(256,256)).astype('float16')
             loss_Dp_real = dec(reshaped.detach())
             pred_Dp_real += self.gan_criterion(loss_Dp_real, True)
             pred_Dp_real=pred_Dp_real
         else:
-            reshaped = F.interpolate(reshaped,size=(256,256)).astype('float16')
+            reshaped = F.interpolate(reshaped.astype('float32'),size=(256,256)).astype('float16')
             loss_Dp_real = dec(reshaped.detach())
             pred_Dp_real += self.gan_criterion(loss_Dp_real, True)
         self.loss_D_patch = (loss_Dp_fake + pred_Dp_real) * 0.5

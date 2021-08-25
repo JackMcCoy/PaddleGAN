@@ -2225,9 +2225,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.morph_cutoff = morph_cutoff
         g = np.repeat(gaussian(7, 1).numpy(), 3, axis=0)
         g2 = np.repeat(gaussian(21, 3).numpy(), 3, axis=0)
-        self.gaussian_filter = paddle.nn.Conv2D(3, 3, 7,
+        self.gaussian_filter = paddle.nn.Conv2D(3, 3, 9,
                                                 groups=3, bias_attr=False,
-                                                padding=3, padding_mode='reflect',
+                                                padding=4, padding_mode='reflect',
                                                 weight_attr=paddle.ParamAttr(
                                                     initializer=paddle.fluid.initializer.NumpyArrayInitializer(
                                                         value=g), trainable=False)

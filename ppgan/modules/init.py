@@ -318,8 +318,8 @@ def init_weights(net,
         elif classname.find(
                 'BatchNorm'
         ) != -1:  # BatchNorm Layer's weight is not a matrix; only normal distribution applies.
-            normal_(m.weight, 1.0, init_gain)
-            constant_(m.bias, 0.0)
+            normal_(m.weight.astype('float16'), 1.0, init_gain)
+            constant_(m.bias.astype('float16'), 0.0)
 
     logger = get_logger()
     logger.debug('initialize network with %s' % init_type)

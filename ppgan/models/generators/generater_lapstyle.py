@@ -485,17 +485,17 @@ class DecoderNet(nn.Layer):
         out = self.resblock_41(out)
         out = self.convblock_41(out)
 
-        out = self.upsample(out)
+        out = self.upsample(out.astype('float32')).astype('float16')
         out += adaptive_instance_normalization(cF['r31'], sF['r31'])
         out = self.resblock_31(out)
         out = self.convblock_31(out)
 
-        out = self.upsample(out)
+        out = self.upsample(out.astype('float32')).astype('float16')
         out += adaptive_instance_normalization(cF['r21'], sF['r21'])
         out = self.convblock_21(out)
         out = self.convblock_22(out)
 
-        out = self.upsample(out)
+        out = self.upsample(out.astype('float32')).astype('float16')
         out = self.convblock_11(out)
         out = self.final_conv(out)
         return out

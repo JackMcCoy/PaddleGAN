@@ -2436,9 +2436,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
         pred_fake_p = self.nets[self.discriminators[-1]](self.stylized[i+1])
         self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
         self.loss_Gs_GAN = 0
-        #if self.train_spectral==1:
-        #    pred_fake_p = self.nets['spectral_D'](self.stylized[i+1])
-        #    self.loss_Gs_GAN += self.gan_criterion(pred_fake_p, True)
+        if self.train_spectral==1:
+            pred_fake_p = self.nets['spectral_D'](self.stylized[i+1])
+            self.loss_Gs_GAN += self.gan_criterion(pred_fake_p, True)
 
         if i==0:
             a=11
@@ -2520,7 +2520,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.set_requires_grad(self.nets[self.discriminators[-1]],False)
             optimizers[self.o[-1]].clear_grad()
 
-            '''
+
             if self.train_spectral==1:
                 self.set_requires_grad(self.nets['spectral_D'],True)
                 optimizers['optimSD'].clear_grad()
@@ -2529,7 +2529,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 scaled.backward()
                 self.scaler.minimize(optimizers['optimSD'], scaled)
                 self.set_requires_grad(self.nets['spectral_D'],False)
-            '''
+
             optimizers[self.go[-1]].clear_grad()
             loss = self.backward_G(self.train_layer-1)
             scaled = self.scaler.scale(loss)

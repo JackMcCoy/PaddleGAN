@@ -62,7 +62,7 @@ model:
   content_weight: 1
   style_weight: 3.5
   train_layer: 1
-  train_spectral: 1
+  train_spectral: 0
   ada_alpha: .05
   ada_alpha_2: .05
   gan_thumb_weight: 1
@@ -81,7 +81,7 @@ dataset:
     patch_depth: 0
     style_upsize: 1
     num_workers: 4
-    batch_size: 2
+    batch_size: 8
   test:
     name: LapStyleThumbsetInference
     content_root: /content/gdrive/My Drive/img_style/inference_test/

@@ -734,7 +734,52 @@ class Encoder(nn.Layer):
 
         weight_path = get_path_from_url(
             'https://paddlegan.bj.bcebos.com/models/vgg_normalised.pdparams')
-        vgg_net.set_dict(paddle.load(weight_path))
+        weights=paddle.load(weight_path)
+        model2={}
+        for k,v in wegiths for k,v in model.items():
+          if type(v)==dict:
+            i3 = {}
+            for k2,v2 in v.items():
+              if type(v2)==dict:
+                i4={}
+                for k3,v3 in v2.items():
+                  if type(v3)==dict:
+                    print('v3==dict')
+                  elif type(v3)==int or type(v3)==float:
+                    i4[k3]=v3
+                  else:
+                    i4[k3]=v3.astype('float16')
+                i3[k2]=i4
+              elif type(v2)==paddle.Tensor:
+                i3[k]=v2.astype('float16')
+              else:
+                i3[k]=v2
+                print(type(v2))
+            model2[k]=i3
+          else:
+            model2[k]=v.items():
+          if type(v)==dict:
+            i3 = {}
+            for k2,v2 in v.items():
+              if type(v2)==dict:
+                i4={}
+                for k3,v3 in v2.items():
+                  if type(v3)==dict:
+                    print('v3==dict')
+                  elif type(v3)==int or type(v3)==float:
+                    i4[k3]=v3
+                  else:
+                    i4[k3]=v3.astype('float16')
+                i3[k2]=i4
+              elif type(v2)==paddle.Tensor:
+                i3[k]=v2.astype('float16')
+              else:
+                i3[k]=v2
+                print(type(v2))
+            model2[k]=i3
+          else:
+            model2[k]=v
+        vgg_net.set_dict(model2)
         self.enc_1 = nn.Sequential(*list(
             vgg_net.children())[:4])  # input -> relu1_1
         self.enc_2 = nn.Sequential(*list(

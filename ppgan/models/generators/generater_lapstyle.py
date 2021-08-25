@@ -298,7 +298,7 @@ def calc_mean_std(feat, eps=1e-5):
     feat_var = paddle.var(feat_var, axis=2) + eps
     feat_std = paddle.sqrt(feat_var)
     feat_std = feat_std.reshape([N, C, 1, 1]).astype('float16')
-    feat_mean = feat.reshape([N, C, -1].astype('float32'))
+    feat_mean = feat.reshape([N, C, -1]).astype('float32')
     feat_mean = paddle.mean(feat_mean, axis=2)
     feat_mean = feat_mean.reshape([N, C, 1, 1]).astype('float16')
     return feat_mean, feat_std

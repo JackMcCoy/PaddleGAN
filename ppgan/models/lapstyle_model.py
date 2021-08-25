@@ -2455,18 +2455,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
             b=26
             c=5
             d=3
-        if i>1:
-            e=2000
-        elif i==3:
-            e=2000
-        else:
-            e=1000
-        f=i+1
 
         self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*e
-        mxdogloss=mxdog_content * .3 + mxdog_content_contraint *100 + mxdog_style * e
+        mxdogloss=mxdog_content * .3 + mxdog_content_contraint *100 + mxdog_style * 1000
 
-        self.loss = self.loss_Gp_GAN *c+self.loss_Gs_GAN*c+self.loss_ps * self.style_weight*f +\
+        self.loss = self.loss_Gp_GAN *c+self.loss_Gs_GAN*c+self.loss_ps * self.style_weight +\
                     self.loss_content_p * self.content_weight +\
                     self.loss_patch*d +\
                     self.p_loss_style_remd * a + self.p_loss_content_relt * b + mxdogloss

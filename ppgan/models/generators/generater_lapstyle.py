@@ -736,7 +736,7 @@ class Encoder(nn.Layer):
             'https://paddlegan.bj.bcebos.com/models/vgg_normalised.pdparams')
         weights=paddle.load(weight_path)
         model2={}
-        for k,v in wegiths for k,v in model.items():
+        for k,v in weights.items():
           if type(v)==dict:
             i3 = {}
             for k2,v2 in v.items():

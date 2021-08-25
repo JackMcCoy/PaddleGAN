@@ -95,21 +95,21 @@ def calculate_gain(nonlinearity, param=None):
 
 @paddle.no_grad()
 def constant_(x, value):
-    temp_value = paddle.full(x.shape, value, x.dtype)
+    temp_value = paddle.full(x.shape, value, x.dtype).astype('float16')
     x.set_value(temp_value)
     return x
 
 
 @paddle.no_grad()
 def normal_(x, mean=0., std=1.):
-    temp_value = paddle.normal(mean, std, shape=x.shape)
+    temp_value = paddle.normal(mean, std, shape=x.shape).astype('float16')
     x.set_value(temp_value)
     return x
 
 
 @paddle.no_grad()
 def uniform_(x, a=-1., b=1.):
-    temp_value = paddle.uniform(min=a, max=b, shape=x.shape)
+    temp_value = paddle.uniform(min=a, max=b, shape=x.shape).astype('float16')
     x.set_value(temp_value)
     return x
 
@@ -194,7 +194,7 @@ def kaiming_uniform_(x, a=0, mode='fan_in', nonlinearity='leaky_relu'):
     bound = math.sqrt(
         3.0) * std  # Calculate uniform bounds from standard deviation
 
-    temp_value = paddle.uniform(x.shape, min=-bound, max=bound)
+    temp_value = paddle.uniform(x.shape, min=-bound, max=bound).astype('float16')
     x.set_value(temp_value)
 
     return x
@@ -229,7 +229,7 @@ def kaiming_normal_(x, a=0, mode='fan_in', nonlinearity='leaky_relu'):
     gain = calculate_gain(nonlinearity, a)
     std = gain / math.sqrt(fan)
 
-    temp_value = paddle.normal(0, std, shape=x.shape)
+    temp_value = paddle.normal(0, std, shape=x.shape).astype('float16')
     x.set_value(temp_value)
     return x
 

@@ -2129,7 +2129,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         super(LapStyleRevSecondMXDOG, self).__init__()
 
-        scaler = paddle.amp.GradScaler(init_loss_scaling=1024)
+        self.scaler = paddle.amp.GradScaler(init_loss_scaling=1024)
         self.train_spectral=train_spectral
         self.train_layer=train_layer
         self.scaler = paddle.amp.GradScaler(init_loss_scaling=1024)
@@ -2514,7 +2514,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             optimizers[self.o[-1]].clear_grad()
             self.set_requires_grad(self.nets[self.discriminators[-1]],True)
             loss = self.backward_D(self.nets[self.discriminators[-1]],self.train_layer-1,str(self.train_layer))
-            scaled = scaler.scale(loss)
+            scaled = self.scaler.scale(loss)
             scaled.backward()
             scaler.minimize(optimizers[self.o[-1]], scaled)
             self.set_requires_grad(self.nets[self.discriminators[-1]],False)
@@ -2524,14 +2524,14 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 self.set_requires_grad(self.nets['spectral_D'],True)
                 optimizers['optimSD'].clear_grad()
                 loss=self.backward_D(self.nets['spectral_D'],self.train_layer-1,str(self.train_layer-1)+'s')
-                scaled = scaler.scale(loss)
+                scaled = self.scaler.scale(loss)
                 scaled.backward()
                 scaler.minimize(optimizers['optimSD'], scaled)
                 self.set_requires_grad(self.nets['spectral_D'],False)
 
             optimizers[self.go[-1]].clear_grad()
             loss = self.backward_G(self.train_layer-1)
-            scaled = scaler.scale(loss)
+            scaled = self.scaler.scale(loss)
             scaled.backward()
             scaler.minimize(optimizers[self.go[-1]], scaled)
             optimizers[self.go[-1]].clear_grad()

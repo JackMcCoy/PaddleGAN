@@ -20,7 +20,7 @@ from skimage import color
 import numpy as np
 from .builder import GENERATORS
 
-if 1:
+if 0:
     import pycuda.autoinit
     import pycuda.gpuarray as gpuarray
     import skcuda.linalg as linalg

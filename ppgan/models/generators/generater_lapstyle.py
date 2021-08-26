@@ -452,11 +452,13 @@ class ConvBlock(nn.Layer):
         dim1 (int): Channel number of input features.
         dim2 (int): Channel number of output features.
     """
-    def __init__(self, dim1, dim2):
+    def __init__(self, dim1, dim2,noise):
         super(ConvBlock, self).__init__()
         self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(dim1, dim2, (3, 3)),
                                         nn.ReLU())
+        if noise==1:
+            self.conv_block.add_sublayer('noise',NoiseBlock(dim2))
 
     def forward(self, x):
         out = self.conv_block(x)
@@ -515,7 +517,7 @@ class DecoderNetDeep(nn.Layer):
         Drafting and Revision: Laplacian Pyramid Network for Fast High-Quality
         Artistic Style Transfer.
     """
-    def __init__(self):
+    def __init__(self,noise=0):
         super(DecoderNetDeep, self).__init__()
 
         self.resblock_41 = ResnetBlock(512)
@@ -564,17 +566,17 @@ class DecoderThumbDeep(nn.Layer):
         super(DecoderThumbDeep, self).__init__()
 
         self.resblock_41 = ResnetBlock(512)
-        self.convblock_411 = ConvBlock(512,512)
+        self.convblock_411 = ConvBlock(512,512,noise)
         self.convblock_41 = ConvBlock(512, 256)
         self.resblock_31 = ResnetBlock(256)
-        self.convblock_311 = ConvBlock(256,256)
+        self.convblock_311 = ConvBlock(256,256,noise)
         self.convblock_31 = ConvBlock(256, 128)
 
         self.convblock_211 = ConvBlock(128, 128)
-        self.convblock_21 = ConvBlock(128, 128)
+        self.convblock_21 = ConvBlock(128, 128,noise)
         self.convblock_22 = ConvBlock(128, 64)
         self.convblock_111 = ConvBlock(64, 64)
-        self.convblock_11 = ConvBlock(64, 64)
+        self.convblock_11 = ConvBlock(64, 64,noise)
         self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
 
         self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),

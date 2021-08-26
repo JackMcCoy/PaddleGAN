@@ -10,6 +10,7 @@ model:
     name: Encoder
   generator_decode:
     name: DecoderNetDeep
+    noise: 1
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:

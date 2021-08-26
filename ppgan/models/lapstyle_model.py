@@ -2437,7 +2437,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
         self.loss_Gs_GAN = 0
         if self.train_spectral==1:
-            pred_fake_p = self.nets['spectral_D'](self.stylized[i+1])
+            pred_fake_p = self.nets['spectral_D'](self.stylized[i+1].astype('float32'))
             self.loss_Gs_GAN += self.gan_criterion(pred_fake_p, True)
 
         if i==0:
@@ -2469,11 +2469,15 @@ class LapStyleRevSecondMXDOG(BaseModel):
     def backward_D(self,dec,i,name):
         """Calculate GAN loss for the discriminator"""
         fake = self.stylized[i+1].detach()
+        if name[-1]=='s':
+            fake=fake.astype('float32')
         pred_p_fake = dec(fake)
         loss_Dp_fake = self.gan_criterion(pred_p_fake, False)
 
         pred_Dp_real = 0
         reshaped = self.style_stack[1]
+        if name[-1]=='s':
+            reshaped=reshaped.astype('float32')
         if i>0:
             for j in range(i):
                 k = random_crop_coords(reshaped.shape[-1])

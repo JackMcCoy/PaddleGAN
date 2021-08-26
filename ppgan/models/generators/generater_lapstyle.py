@@ -989,7 +989,7 @@ class RevisionNetDeepThumb(nn.Layer):
             nn.ReLU()
         ]
         if noise==1:
-            Downblock+=[NoiseBlock(128)]
+            DownBlock+=[NoiseBlock(128)]
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(128, 64, (3, 3), stride=1),
@@ -1004,7 +1004,7 @@ class RevisionNetDeepThumb(nn.Layer):
             nn.ReLU(),
         ]
         if noise==1:
-            Downblock+=[NoiseBlock(64)]
+            DownBlock+=[NoiseBlock(64)]
 
         self.resblock = ResnetBlock(64)
 

@@ -452,7 +452,7 @@ class ConvBlock(nn.Layer):
         dim1 (int): Channel number of input features.
         dim2 (int): Channel number of output features.
     """
-    def __init__(self, dim1, dim2,noise):
+    def __init__(self, dim1, dim2,noise=0):
         super(ConvBlock, self).__init__()
         self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(dim1, dim2, (3, 3)),

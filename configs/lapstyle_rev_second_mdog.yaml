@@ -17,13 +17,13 @@ model:
   revnet_discriminator_2:
     name: LapStyleSingleDiscriminator
     num_channel: 64
-    num_layer: 0
+    num_layer: 9
     kernel_size: 3
     padding: 1
   revnet_discriminator_3:
     name: LapStyleSingleDiscriminator
     num_channels: 64
-    num_layer: 9
+    num_layer: 0
     kernel_size: 3
     padding: 1
   revnet_discriminator_4:
@@ -43,7 +43,7 @@ model:
   draftnet_decode:
     name: DecoderNetDeep
   revnet_deep_generator:
-    name: RevisionNetThumb
+    name: RevisionNetDeepThumb
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:
@@ -61,7 +61,7 @@ model:
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
   style_weight: 5
-  train_layer: 3
+  train_layer: 2
   train_spectral: 1
   ada_alpha: .05
   ada_alpha_2: .05
@@ -73,12 +73,12 @@ model:
 dataset:
   train:
     name: MultiPatchSet
-    content_root: /content/gdrive/My Drive/img_style/large_pics/
-    style_root: /content/PaddleGAN/cypress1023.png
+    content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
+    style_root: /content/PaddleGAN/cypress512.png
     load_size: 1024
     crop_size: 256
     thumb_size: 256
-    patch_depth: 2
+    patch_depth: 1
     style_upsize: 1
     num_workers: 4
     batch_size: 3
@@ -100,22 +100,22 @@ lr_scheduler:
   lr_decay: 5e-5
 
 optimizer:
-  optimG3:
+  optimG2:
     name: Adam
     net_names:
-      - net_rev_3
+      - net_rev_2
     beta1: 0.9
     beta2: 0.999
-  optimD3:
+  optimD2:
     name: Adam
-    net_names3
+    net_names:
       - netD_2
     beta1: 0.9
     beta2: 0.999
   optimSD:
     name: Adam
     net_names:
-      - spectral_D3
+      - spectral_D2
     beta1: 0.9
     beta2: 0.999
 validate:

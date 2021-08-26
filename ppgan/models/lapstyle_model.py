@@ -2196,8 +2196,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 init_weights(self.nets['netD_4'])
 
         if self.train_spectral==1:
-            self.nets['spectral_D3'] = build_discriminator(spectral_discriminator)
-            init_weights(self.nets['spectral_D3'])
+            self.nets['spectral_D2'] = build_discriminator(spectral_discriminator)
+            init_weights(self.nets['spectral_D2'])
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,
@@ -2437,7 +2437,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
         self.loss_Gs_GAN = 0
         if self.train_spectral==1:
-            pred_fake_ps = self.nets['spectral_D3'](self.stylized[i+1])
+            pred_fake_ps = self.nets['spectral_D2'](self.stylized[i+1])
             self.loss_Gs_GAN += self.gan_criterion(pred_fake_ps, True)
 
         if i==0:
@@ -2514,12 +2514,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
 
         if self.train_spectral==1:
-            self.set_requires_grad(self.nets['spectral_D3'],True)
+            self.set_requires_grad(self.nets['spectral_D2'],True)
             optimizers['optimSD'].clear_grad()
-            loss=self.backward_D(self.nets['spectral_D3'],self.train_layer-1,str(self.train_layer-1)+'s')
+            loss=self.backward_D(self.nets['spectral_D2'],self.train_layer-1,str(self.train_layer-1)+'s')
             loss.backward()
             optimizers['optimSD'].step()
-            self.set_requires_grad(self.nets['spectral_D3'],False)
+            self.set_requires_grad(self.nets['spectral_D2'],False)
 
         optimizers[self.go[-1]].clear_grad()
         loss = self.backward_G(self.train_layer-1)

@@ -850,7 +850,7 @@ class RevisionNetThumb(nn.Layer):
 
         self.DownBlock = nn.Sequential(*DownBlock)
         self.UpBlock = nn.Sequential(*UpBlock)
-        self.thumbnail_net = nn.Conv2D(64,64,1)
+        self.thumbnail_net = nn.Sequential(nn.Conv2D(64,64,1),nn.ReLU())
 
     def forward(self, input,thumbnail=False,alpha=1):
         """

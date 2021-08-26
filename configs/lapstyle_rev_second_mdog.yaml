@@ -78,7 +78,7 @@ dataset:
     load_size: 256
     crop_size: 256
     thumb_size: 256
-    patch_depth: 1
+    patch_depth: 0
     style_upsize: 1
     num_workers: 4
     batch_size: 3

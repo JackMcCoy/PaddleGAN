@@ -2527,7 +2527,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             optimizers['optimSD'].step()
             self.set_requires_grad(self.nets['spectral_D'],False)
 
-        with paddle.amp.auto_cast():
+        with paddle.amp.auto_cast(custom_black_list={'spectral_norm'}):
             optimizers[self.go[-1]].clear_grad()
             loss = self.backward_G(self.train_layer-1)
             scaled = self.scaler.scale(loss)

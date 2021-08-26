@@ -226,8 +226,8 @@ class LapStyleDraXDOG(BaseModel):
         self.style_weight = style_weight
         self.morph_cutoff=morph_cutoff
         self.gamma=gamma
-        g = np.repeat(gaussian(7, 1).numpy(), 3, axis=0)
-        g2 = np.repeat(gaussian(19, 3).numpy(), 3, axis=0)
+        g = np.repeat(gaussian(9, 1).numpy(), 3, axis=0)
+        g2 = np.repeat(gaussian(21, 3).numpy(), 3, axis=0)
         self.gaussian_filter = paddle.nn.Conv2D(3, 3, 7,
                                                 groups=3, bias_attr=False,
                                                 padding=3, padding_mode='reflect',
@@ -237,7 +237,7 @@ class LapStyleDraXDOG(BaseModel):
                                                 )
         self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3, 19,
                                                   groups=3, bias_attr=False,
-                                                  padding=9, padding_mode='reflect',
+                                                  padding=10, padding_mode='reflect',
                                                   weight_attr=paddle.ParamAttr(
                                                       initializer=paddle.fluid.initializer.NumpyArrayInitializer(
                                                           value=g2), trainable=False)

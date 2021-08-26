@@ -2233,7 +2233,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                                                     initializer=paddle.fluid.initializer.NumpyArrayInitializer(
                                                         value=g), trainable=False)
                                                 )
-        self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3, 19,
+        self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3, 21,
                                                   groups=3, bias_attr=False,
                                                   padding=10, padding_mode='reflect',
                                                   weight_attr=paddle.ParamAttr(
@@ -2289,7 +2289,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.visual_items['stylized_small'] = stylized_small
         stylized_up = F.interpolate(stylized_small, scale_factor=2)
 
-        revnet_input = paddle.concat(x=[self.laplacians[0], stylized_up.detach()], axis=1)
+        revnet_input = paddle.concat(x=[self.laplacians[0].detach(), stylized_up.detach()], axis=1)
         #rev_net thumb only calcs as patch if second parameter is passed
         stylized_rev_lap,stylized_feats = self.nets['net_rev'](revnet_input.detach())
         stylized_rev = fold_laplace_pyramid([stylized_rev_lap, stylized_small.detach()])
@@ -2317,7 +2317,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             stylized_feats = self.nets['net_rev_3'].DownBlock(revnet_input.detach())
             stylized_feats = self.nets['net_rev_3'].resblock(stylized_feats)
 
-            revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up], axis=1)
+            revnet_input = paddle.concat(x=[self.laplacians[2], stylized_up.detach()], axis=1)
             stylized_rev_patch,stylized_feats = self.nets['net_rev_3'](revnet_input.detach(),stylized_feats,self.ada_alpha/2)
             stylized_rev_patch = fold_laplace_patch(
                 [stylized_rev_patch, stylized_up.detach()])
@@ -2437,18 +2437,18 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
         self.loss_Gs_GAN = 0
         if self.train_spectral==1:
-            pred_fake_p = self.nets['spectral_D'](self.stylized[i+1])
-            self.loss_Gs_GAN += self.gan_criterion(pred_fake_p, True)
+            pred_fake_ps = self.nets['spectral_D'](self.stylized[i+1])
+            self.loss_Gs_GAN += self.gan_criterion(pred_fake_ps, True)
 
         if i==0:
             a=11
             b=16
             c=1
-            d=0
+            d=1
         elif i>0 and i<3:
             a=10
             b=16
-            c=1*(1.5*(i+1))
+            c=(1.5*(i+1))
             d=5+i
         else:
             a=26
@@ -2501,36 +2501,31 @@ class LapStyleRevSecondMXDOG(BaseModel):
         if self.iters>=self.rev4_iter:
             loops+=1
         '''
-        with paddle.amp.auto_cast():
-            # compute fake images: G(A)
-            self.forward()
-            # update D
-            optimizers[self.o[-1]].clear_grad()
-            self.set_requires_grad(self.nets[self.discriminators[-1]],True)
-            loss = self.backward_D(self.nets[self.discriminators[-1]],self.train_layer-1,str(self.train_layer))
-            scaled = self.scaler.scale(loss)
-            scaled.backward()
-            self.scaler.minimize(optimizers[self.o[-1]], scaled)
-            self.set_requires_grad(self.nets[self.discriminators[-1]],False)
-            optimizers[self.o[-1]].clear_grad()
+        # compute fake images: G(A)
+        self.forward()
+        # update D
+        optimizers[self.o[-1]].clear_grad()
+        self.set_requires_grad(self.nets[self.discriminators[-1]],True)
+        loss = self.backward_D(self.nets[self.discriminators[-1]],self.train_layer-1,str(self.train_layer))
+        loss.backward()
+        optimizers[self.o[-1]].step()
+        self.set_requires_grad(self.nets[self.discriminators[-1]],False)
+        optimizers[self.o[-1]].clear_grad()
 
 
-            if self.train_spectral==1:
-                self.set_requires_grad(self.nets['spectral_D'],True)
-                optimizers['optimSD'].clear_grad()
-                loss=self.backward_D(self.nets['spectral_D'],self.train_layer-1,str(self.train_layer-1)+'s')
-                scaled = self.scaler.scale(loss)
-                scaled.backward()
-                self.scaler.minimize(optimizers['optimSD'], scaled)
-                self.set_requires_grad(self.nets['spectral_D'],False)
+        if self.train_spectral==1:
+            self.set_requires_grad(self.nets['spectral_D'],True)
+            optimizers['optimSD'].clear_grad()
+            loss=self.backward_D(self.nets['spectral_D'],self.train_layer-1,str(self.train_layer-1)+'s')
+            loss.backward()
+            optimizers['optimSD'].step()
+            self.set_requires_grad(self.nets['spectral_D'],False)
 
-
-            optimizers[self.go[-1]].clear_grad()
-            loss = self.backward_G(self.train_layer-1)
-            scaled = self.scaler.scale(loss)
-            scaled.backward()
-            self.scaler.minimize(optimizers[self.go[-1]], scaled)
-            optimizers[self.go[-1]].clear_grad()
+        optimizers[self.go[-1]].clear_grad()
+        loss = self.backward_G(self.train_layer-1)
+        loss.backward()
+        optimizers[self.go[-1]].step()
+        optimizers[self.go[-1]].clear_grad()
 
 @MODELS.register()
 class LapStyleRevSecondMiddle(BaseModel):

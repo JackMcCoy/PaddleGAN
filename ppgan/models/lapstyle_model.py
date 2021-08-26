@@ -2518,8 +2518,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 self.set_requires_grad(self.nets['spectral_D'],True)
                 optimizers['optimSD'].clear_grad()
                 loss=self.backward_D(self.nets['spectral_D'],self.train_layer-1,str(self.train_layer-1)+'s')
-                loss.backward()
-                optimizers['optimSD'].step()
+                scaled = self.scaler.scale(loss)
+                scaled.backward()
+                self.scaler.minimize(optimizers['optimSD'], scaled)
                 self.set_requires_grad(self.nets['spectral_D'],False)
 
 

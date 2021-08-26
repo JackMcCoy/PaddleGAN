@@ -63,7 +63,7 @@ model:
   style_weight: 3.5
   train_layer: 2
   train_spectral: 1
-  ada_alpha: .05
+  ada_alpha: .1
   ada_alpha_2: .05
   gan_thumb_weight: 1
   gan_patch_weight: 1

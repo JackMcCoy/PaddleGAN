@@ -62,7 +62,7 @@ model:
   content_weight: 1
   style_weight: 3.5
   train_layer: 2
-  train_spectral: 0
+  train_spectral: 1
   ada_alpha: .05
   ada_alpha_2: .05
   gan_thumb_weight: 1
@@ -96,7 +96,7 @@ dataset:
 
 lr_scheduler:
   name: NonLinearDecay
-  learning_rate: 1e-5
+  learning_rate: 5e-5
   lr_decay: 5e-6
 
 optimizer:
@@ -110,6 +110,12 @@ optimizer:
     name: Adam
     net_names:
       - netD_2
+    beta1: 0.9
+    beta2: 0.999
+  optimSD:
+    name: Adam
+    net_names:
+      - spectral_D
     beta1: 0.9
     beta2: 0.999
 validate:

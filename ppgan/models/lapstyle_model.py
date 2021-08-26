@@ -2505,18 +2505,16 @@ class LapStyleRevSecondMXDOG(BaseModel):
         if self.iters>=self.rev4_iter:
             loops+=1
         '''
-        with paddle.amp.auto_cast():
-            # compute fake images: G(A)
-            self.forward()
-            # update D
-            optimizers[self.o[-1]].clear_grad()
-            self.set_requires_grad(self.nets[self.discriminators[-1]],True)
-            loss = self.backward_D(self.nets[self.discriminators[-1]],self.train_layer-1,str(self.train_layer))
-            scaled = self.scaler.scale(loss)
-            scaled.backward()
-            self.scaler.minimize(optimizers[self.o[-1]], scaled)
-            self.set_requires_grad(self.nets[self.discriminators[-1]],False)
-            optimizers[self.o[-1]].clear_grad()
+        # compute fake images: G(A)
+        self.forward()
+        # update D
+        optimizers[self.o[-1]].clear_grad()
+        self.set_requires_grad(self.nets[self.discriminators[-1]],True)
+        loss = self.backward_D(self.nets[self.discriminators[-1]],self.train_layer-1,str(self.train_layer))
+        loss.backward()
+        optimizers[self.o[-1]].step()
+        self.set_requires_grad(self.nets[self.discriminators[-1]],False)
+        optimizers[self.o[-1]].clear_grad()
 
 
         if self.train_spectral==1:
@@ -2527,13 +2525,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
             optimizers['optimSD'].step()
             self.set_requires_grad(self.nets['spectral_D'],False)
 
-        with paddle.amp.auto_cast(custom_black_list={'spectral_norm'}):
-            optimizers[self.go[-1]].clear_grad()
-            loss = self.backward_G(self.train_layer-1)
-            scaled = self.scaler.scale(loss)
-            scaled.backward()
-            self.scaler.minimize(optimizers[self.go[-1]], scaled)
-            optimizers[self.go[-1]].clear_grad()
+        optimizers[self.go[-1]].clear_grad()
+        loss = self.backward_G(self.train_layer-1)
+        loss.backward()
+        optimizers[self.go[-1]].step()
+        optimizers[self.go[-1]].clear_grad()
 
 @MODELS.register()
 class LapStyleRevSecondMiddle(BaseModel):

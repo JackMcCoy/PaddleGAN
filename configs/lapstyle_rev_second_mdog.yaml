@@ -115,7 +115,7 @@ optimizer:
   optimSD:
     name: Adam
     net_names:
-      - spectral_D
+      - spectral_D2
     beta1: 0.9
     beta2: 0.999
 validate:

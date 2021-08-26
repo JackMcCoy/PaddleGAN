@@ -850,7 +850,6 @@ class RevisionNetThumb(nn.Layer):
 
         self.DownBlock = nn.Sequential(*DownBlock)
         self.UpBlock = nn.Sequential(*UpBlock)
-        self.thumbnail_net = nn.Sequential(nn.Conv2D(64,64,3,padding=1,padding_mode='reflect'),nn.ReLU())
 
     def forward(self, input,thumbnail=False,alpha=1):
         """
@@ -864,7 +863,6 @@ class RevisionNetThumb(nn.Layer):
         out = self.resblock(out)
         feats = out.clone()
         if type(thumbnail) != bool:
-            thumbnail = self.thumbnail_net(thumbnail)
             feats = adaptive_instance_normalization(out, thumbnail)
             out = alpha * feats + (1 - alpha) * out
         out = self.UpBlock(out)

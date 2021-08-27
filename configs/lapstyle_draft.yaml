@@ -26,7 +26,7 @@ model:
   content_weight: 1
   style_weight: 5
   morph_cutoff: 8.85
-  gamma: .95
+  gamma: .94
 
 
 dataset:

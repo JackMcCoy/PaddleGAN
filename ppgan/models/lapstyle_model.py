@@ -2197,7 +2197,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         if self.train_spectral==1:
             self.nets['spectral_D'+str(self.train_layer+1)] = build_discriminator(spectral_discriminator)
-            init_weights(self.nets['spectral_D']+str(self.train_layer+1))
+            init_weights(self.nets['spectral_D'+str(self.train_layer+1)])
 
         l = np.repeat(np.array([[[[-8, -8, -8], [-8, 1, -8], [-8, -8, -8]]]]), 3, axis=0)
         self.lap_filter = paddle.nn.Conv2D(3, 3, (3, 3), stride=1, bias_attr=False,

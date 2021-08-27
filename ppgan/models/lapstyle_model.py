@@ -2437,7 +2437,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         self.loss_Gp_GAN += self.gan_criterion(pred_fake_p, True)
         self.loss_Gs_GAN = 0
         if self.train_spectral==1:
-            pred_fake_ps = self.nets['spectral_D2'](self.stylized[i+1])
+            pred_fake_ps = self.nets['spectral_D'](self.stylized[i+1])
             self.loss_Gs_GAN += self.gan_criterion(pred_fake_ps, True)
 
         if i==0:

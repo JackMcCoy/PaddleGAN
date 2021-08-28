@@ -2360,7 +2360,6 @@ class LapStyleRevSecondMXDOG(BaseModel):
             for layer in [self.content_layers[-2]]:
                 self.loss_patch += self.calc_content_loss(tpF[layer],
                                                           tt_cropF[layer])
-            self.losses['loss_patch_'+str(i+1)] = self.loss_patch
 
         self.loss_content_p = 0
         for layer in self.content_layers:
@@ -2459,6 +2458,9 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*1000
         mxdogloss=mxdog_content * .3 + mxdog_content_contraint *100 + mxdog_style * 1000
+        self.losses['loss_Gp_GAN']=loss_Gp_GAN*c
+        if i!=0:
+            self.losses['loss_patch_' + str(i + 1)] = self.loss_patch*d
 
         self.loss = self.loss_Gp_GAN *c+self.loss_Gs_GAN*c+self.loss_ps * self.style_weight*f +\
                     self.loss_content_p * self.content_weight +\

@@ -279,8 +279,7 @@ class MultiPatchSet(Dataset):
     def __init__(self, content_root, style_root, load_size, crop_size, thumb_size, patch_depth,style_upsize=1):
         super(MultiPatchSet, self).__init__()
         self.content_root = content_root
-        self.paths = glob.iglob(self.content_root+'*')
-        self.paths = [i for i in self.paths]
+        self.paths = os.listdir(self.content_root)
         random.shuffle(self.paths)
         self.style_root = style_root
         self.style_paths = [os.path.join(self.style_root,i) for i in os.listdir(self.style_root)] if self.style_root[-1]=='/' else [self.style_root]

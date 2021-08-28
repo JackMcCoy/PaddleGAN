@@ -2142,59 +2142,56 @@ class LapStyleRevSecondMXDOG(BaseModel):
         print(train_layer)
         if train_layer>0:
             # define the first revnet params
+            self.nets['net_rev'] = build_generator(revnet_generator)
             self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
             self.discriminators=['netD_1']
             self.o = ['optimD1']
             self.go = ['optimG1']
             self.generator = ['net_rev']
             if train_layer>1:
-                self.nets['net_rev'] = build_generator(revnet_generator)
                 self.set_requires_grad([self.nets['net_rev']], False)
                 self.set_requires_grad([self.nets['netD_1']], False)
             else:
-                self.nets['net_rev'] = build_generator(revnet_deep_generator)
+                print('init weights')
                 init_weights(self.nets['net_rev'])
                 init_weights(self.nets['netD_1'])
         if train_layer>1:
+            self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
             self.nets['netD_2'] = build_discriminator(revnet_discriminator_1)
             self.discriminators.append('netD_2')
             self.o.append('optimD2')
             self.generator.append('net_rev_2')
             self.go.append('optimG2')
             if train_layer>2:
-                self.nets['net_rev_2'] = build_generator(revnet_generator)
                 self.set_requires_grad([self.nets['net_rev_2']], False)
                 self.set_requires_grad([self.nets['netD_2']], False)
             else:
-                self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
                 init_weights(self.nets['net_rev_2'])
                 init_weights(self.nets['netD_2'])
         if train_layer>2:
+            self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
             self.nets['netD_3'] = build_discriminator(revnet_discriminator_1)
             self.discriminators.append('netD_3')
             self.o.append('optimD3')
             self.generator.append('net_rev_3')
             self.go.append('optimG3')
             if train_layer>3:
-                self.nets['net_rev_3'] = build_generator(revnet_generator)
                 self.set_requires_grad([self.nets['net_rev_3']], False)
                 self.set_requires_grad([self.nets['netD_3']], False)
             else:
-                self.nets['net_rev_3'] = build_generator(revnet_deep_generator)
                 init_weights(self.nets['net_rev_3'])
                 init_weights(self.nets['netD_3'])
         if train_layer>3:
+            self.nets['net_rev_4'] = build_generator(revnet_deep_generator)
             self.nets['netD_4'] = build_discriminator(revnet_discriminator_1)
             self.discriminators.append('netD_4')
             self.generator.append('net_rev_4')
             self.o.append('optimD4')
             self.go.append('optimG4')
             if train_layer>4:
-                self.nets['net_rev_4'] = build_generator(revnet_generator)
                 self.set_requires_grad([self.nets['net_rev_4']], False)
                 self.set_requires_grad([self.nets['netD_4']], False)
             else:
-                self.nets['net_rev_4'] = build_generator(revnet_deep_generator)
                 init_weights(self.nets['net_rev_4'])
                 init_weights(self.nets['netD_4'])
 

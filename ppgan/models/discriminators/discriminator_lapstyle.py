@@ -99,6 +99,7 @@ class ResBlock(nn.Layer):
         out = self.residual_connection(x) + self.conv_block(x)
         return out
 
+
 def normal_(x, mean=0., std=1.):
     temp_value = paddle.normal(mean, std, shape=x.shape)
     x.set_value(temp_value)

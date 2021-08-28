@@ -18,9 +18,18 @@ import paddle.nn.functional as F
 
 from .builder import DISCRIMINATORS
 
+class NoiseBlock(nn.Layer):
+    def __init__(self, channels):
+        super().__init__()
+        self.weight = paddle.create_parameter((1,channels),dtype='float32',is_bias=True)
+    def forward(self,x):
+        noise = paddle.randn((x.shape[0], 1, x.shape[2], x.shape[3]))
+        x = x + paddle.reshape(self.weight,(1, -1, 1, 1)) * noise
+        return x
+
 @DISCRIMINATORS.register()
 class LapStyleSingleDiscriminator(nn.Layer):
-    def __init__(self, num_channels=32,kernel_size=3,padding=1,dropout_rate=.5,num_layer=3):
+    def __init__(self, num_channels=32,kernel_size=3,padding=1,noise=0,num_layer=3):
         super(LapStyleSingleDiscriminator, self).__init__()
         num_channel = num_channels
         self.head = nn.Sequential(
@@ -28,6 +37,8 @@ class LapStyleSingleDiscriminator(nn.Layer):
              nn.Conv2D(3, num_channel, kernel_size=kernel_size, stride=1, padding=padding)),
             ('norm', nn.BatchNorm2D(num_channel)),
             ('LeakyRelu', nn.LeakyReLU(0.2)))
+        if noise==1:
+            self.head.add_sublayer('noise',NoiseBlock(num_channel))
         self.body = nn.Sequential()
         for i in range(num_layer - 2):
             self.body.add_sublayer(
@@ -40,6 +51,8 @@ class LapStyleSingleDiscriminator(nn.Layer):
             self.body.add_sublayer('norm%d' % (i + 1),
                                    nn.BatchNorm2D(num_channel))
             self.body.add_sublayer('LeakyRelu%d' % (i + 1), nn.LeakyReLU(0.2))
+            if noise == 1:
+                self.body.add_sublayer('noise', NoiseBlock(num_channel))
         self.tail = nn.Conv2D(num_channel,
                               1,
                               kernel_size=kernel_size,

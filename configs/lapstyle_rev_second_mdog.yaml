@@ -8,7 +8,7 @@ model:
   name: LapStyleRevSecondMXDOG
   revnet_generator:
     name: RevisionNetDeepThumb
-    noise: 1
+    noise: 0
   revnet_discriminator_1:
     name: LapStyleSingleDiscriminator
     num_channels: 64

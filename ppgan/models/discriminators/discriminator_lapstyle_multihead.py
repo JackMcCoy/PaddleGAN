@@ -22,8 +22,10 @@ class NoiseBlock(nn.Layer):
     def __init__(self, channels):
         super().__init__()
     def forward(self,x):
-        noise = paddle.randn((x.shape[0], 1, x.shape[2], x.shape[3]))
-        x = x + noise
+        random = paddle.rand([1])
+        if random[0]<.75:
+            noise = paddle.randn((x.shape[0], 1, x.shape[2], x.shape[3]))
+            x = x + noise
         return x
 
 @DISCRIMINATORS.register()

@@ -12,8 +12,8 @@ model:
   revnet_discriminator_1:
     name: LapStyleSingleDiscriminator
     num_channels: 64
-    num_layer: 0
-    noise: 1
+    num_layer: 9
+    noise: 0
     kernel_size: 3
     padding: 1
   revnet_discriminator_2:
@@ -104,6 +104,18 @@ lr_scheduler:
   lr_decay: 5e-5
 
 optimizer:
+  optimG1:
+    name: Adam
+    net_names:
+      - net_rev
+    beta1: 0.9
+    beta2: 0.999
+  optimD1:
+    name: Adam
+    net_names:
+      - netD_1
+    beta1: 0.9
+    beta2: 0.999
   optimG2:
     name: Adam
     net_names:

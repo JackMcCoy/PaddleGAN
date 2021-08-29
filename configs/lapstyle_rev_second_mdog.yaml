@@ -77,7 +77,7 @@ model:
 dataset:
   train:
     name: MultiPatchSet
-    content_root: /content/gdrive/My Drive/large_pics/
+    content_root: /content/gdrive/My Drive/img_style/large_pics/
     style_root: /content/PaddleGAN/cypress1023.png
     load_size: 1024
     crop_size: 256

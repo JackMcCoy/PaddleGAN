@@ -12,7 +12,7 @@ model:
   revnet_discriminator_1:
     name: LapStyleSingleDiscriminator
     num_channels: 64
-    num_layer: 0
+    num_layer: 9
     noise: 0
     kernel_size: 3
     padding: 1
@@ -26,7 +26,7 @@ model:
   revnet_discriminator_3:
     name: LapStyleSingleDiscriminator
     num_channels: 64
-    num_layer: 9
+    num_layer: 0
     kernel_size: 3
     noise: 0
     padding: 1
@@ -80,13 +80,13 @@ dataset:
     name: MultiPatchSet
     content_root: /content/gdrive/My Drive/img_style/large_pics/
     style_root: /content/PaddleGAN/cypress1023.png
-    load_size: 1024
+    load_size: 256
     crop_size: 256
     thumb_size: 256
-    patch_depth: 2
+    patch_depth: 0
     style_upsize: 1
-    num_workers: 4
-    batch_size: 3
+    num_workers: 10
+    batch_size: 5
   test:
     name: LapStyleThumbsetInference
     content_root: /content/gdrive/My Drive/img_style/inference_test/
@@ -105,16 +105,16 @@ lr_scheduler:
   lr_decay: 5e-5
 
 optimizer:
-  optimG3:
+  optimG1:
     name: Adam
     net_names:
-      - net_rev_3
+      - net_rev
     beta1: 0.9
     beta2: 0.999
-  optimD3:
+  optimD1:
     name: Adam
     net_names:
-      - netD_3
+      - netD_1
     beta1: 0.9
     beta2: 0.999
 validate:

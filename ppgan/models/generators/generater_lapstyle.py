@@ -414,10 +414,9 @@ def thumb_adaptive_instance_normalization(content_thumb_feat, content_patch_feat
 class NoiseBlock(nn.Layer):
     def __init__(self, channels):
         super().__init__()
-        self.weight = paddle.create_parameter((1,channels),dtype='float32',is_bias=True)
     def forward(self,x):
         noise = paddle.randn((x.shape[0], 1, x.shape[2], x.shape[3]))
-        x = x + paddle.reshape(self.weight,(1, -1, 1, 1)) * noise
+        x = x + noise
         return x
 
 class ResnetBlock(nn.Layer):

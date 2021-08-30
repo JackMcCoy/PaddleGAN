@@ -18,7 +18,7 @@ model:
     padding: 1
   revnet_discriminator_2:
     name: LapStyleSingleDiscriminator
-    num_channel: 64
+    num_channels: 64
     num_layer: 0
     noise: 0
     kernel_size: 3

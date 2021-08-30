@@ -2156,7 +2156,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 init_weights(self.nets['net_rev'])
                 init_weights(self.nets['netD_1'])
         if train_layer>1:
-            self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
+            self.nets['net_rev_2'] = build_generator(revnet_generator)
             self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
             self.discriminators.append('netD_2')
             self.o.append('optimD2')

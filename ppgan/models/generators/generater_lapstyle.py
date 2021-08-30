@@ -412,12 +412,16 @@ def thumb_adaptive_instance_normalization(content_thumb_feat, content_patch_feat
         return content_patch_feat
 
 class NoiseBlock(nn.Layer):
-    def __init__(self, channels):
+    def __init__(self, channels,noise_weight=0):
         super().__init__()
         self.weight = paddle.create_parameter((1,channels),dtype='float32',is_bias=True)
+        self.noise_weight=noise_weight
     def forward(self,x):
         noise = paddle.randn((x.shape[0], 1, x.shape[2], x.shape[3]))
-        x = x + paddle.reshape(self.weight,(1, -1, 1, 1)) * noise
+        if self.noise_weight==1:
+            x = x + paddle.reshape(self.weight,(1, -1, 1, 1)) * noise
+        else:
+            x = x + noise
         return x
 
 class ResnetBlock(nn.Layer):
@@ -972,7 +976,7 @@ class RevisionNetDeepThumb(nn.Layer):
         Drafting and Revision: Laplacian Pyramid Network for Fast High-Quality
         Artistic Style Transfer.
     """
-    def __init__(self, input_nc=6,noise=0):
+    def __init__(self, input_nc=6,noise=0,noise_weight=0):
         super(RevisionNetDeepThumb, self).__init__()
         DownBlock = []
         DownBlock += [
@@ -991,7 +995,7 @@ class RevisionNetDeepThumb(nn.Layer):
             nn.ReLU()
         ]
         if noise==1:
-            DownBlock+=[NoiseBlock(128)]
+            DownBlock+=[NoiseBlock(128,noise_weight)]
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(128, 64, (3, 3), stride=1),
@@ -1006,13 +1010,13 @@ class RevisionNetDeepThumb(nn.Layer):
             nn.ReLU(),
         ]
         if noise==1:
-            DownBlock+=[NoiseBlock(64)]
+            DownBlock+=[NoiseBlock(64,noise_weight)]
 
         self.resblock = ResnetBlock(64)
 
         UpBlock = []
         if noise==1:
-            UpBlock+=[NoiseBlock(64)]
+            UpBlock+=[NoiseBlock(64,noise_weight)]
         UpBlock += [
             nn.Upsample(scale_factor=2, mode='nearest'),
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
@@ -1023,7 +1027,7 @@ class RevisionNetDeepThumb(nn.Layer):
             nn.ReLU()]
 
         if noise==1:
-            UpBlock+=[NoiseBlock(64)]
+            UpBlock+=[NoiseBlock(64,noise_weight)]
 
         UpBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),

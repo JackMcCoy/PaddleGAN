@@ -9,6 +9,7 @@ model:
   revnet_generator:
     name: RevisionNetDeepThumb
     noise: 1
+    noise_weight: 1
   revnet_discriminator_1:
     name: LapStyleSingleDiscriminator
     num_channels: 64
@@ -49,6 +50,7 @@ model:
   revnet_deep_generator:
     name: RevisionNetDeepThumb
     noise: 0
+    noise_weight: 0
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:

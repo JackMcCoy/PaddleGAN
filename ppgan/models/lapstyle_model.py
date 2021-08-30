@@ -2129,10 +2129,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
         super(LapStyleRevSecondMXDOG, self).__init__()
 
-        self.scaler = paddle.amp.GradScaler(init_loss_scaling=1024)
         self.train_spectral=train_spectral
         self.train_layer=train_layer
-        self.scaler = paddle.amp.GradScaler(init_loss_scaling=1024)
         # define draftnet params
         self.nets['net_enc'] = build_generator(draftnet_encode)
         self.nets['net_dec'] = build_generator(draftnet_decode)
@@ -2444,11 +2442,11 @@ class LapStyleRevSecondMXDOG(BaseModel):
             b=16
             c=1
             d=1
-        elif i>0 and i<3:
+        elif i>0 and i<2:
             a=16
             b=16
             c=(2*(i+1))
-            d=(1.2*(i+1))
+            d=1
         else:
             a=26
             b=26

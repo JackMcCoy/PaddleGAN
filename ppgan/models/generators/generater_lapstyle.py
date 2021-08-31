@@ -997,7 +997,7 @@ class RevisionNetDeepThumb(nn.Layer):
             nn.ReLU()
         ]
         if noise==1:
-            DownBlock+=[('noise128',NoiseBlock(128,noise_weight))]
+            DownBlock+=[NoiseBlock(128,noise_weight)]
         DownBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(128, 64, (3, 3), stride=1),
@@ -1012,13 +1012,13 @@ class RevisionNetDeepThumb(nn.Layer):
             nn.ReLU(),
         ]
         if noise==1:
-            DownBlock+=[('noise64',NoiseBlock(64,noise_weight))]
+            DownBlock+=[NoiseBlock(64,noise_weight)]
 
         self.resblock = ResnetBlock(64)
 
         UpBlock = []
         if noise==1:
-            UpBlock+=[('noise64_a',NoiseBlock(64,noise_weight))]
+            UpBlock+=[NoiseBlock(64,noise_weight)]
         UpBlock += [
             nn.Upsample(scale_factor=2, mode='nearest'),
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
@@ -1029,7 +1029,7 @@ class RevisionNetDeepThumb(nn.Layer):
             nn.ReLU()]
 
         if noise==1:
-            UpBlock+=[('noise64',NoiseBlock(64,noise_weight))]
+            UpBlock+=[NoiseBlock(64,noise_weight)]
 
         UpBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
@@ -1047,7 +1047,7 @@ class RevisionNetDeepThumb(nn.Layer):
             nn.ReLU()
         ]
         if noise==1:
-            UpBlock+=[('noise128',NoiseBlock(128,noise_weight))]
+            UpBlock+=[NoiseBlock(128,noise_weight)]
         UpBlock += [
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(128, 3, (3, 3))

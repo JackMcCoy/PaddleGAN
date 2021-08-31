@@ -1057,16 +1057,23 @@ class RevisionNetDeepThumb(nn.Layer):
         self.UpBlock = nn.Sequential(*UpBlock)
 
     def change_noise_weight(self,new_weight):
+        def changeweight(input):
+            if hasattr(input,'noise_weight'):
+                input.change_noise_weight(new_weight)
+            else:
+                pass
         for layer in [self.DownBlock,self.UpBlock]:
-            layer.apply(lambda x: x.change_noise_weight(new_weight) if hasattr(x,'noise_weight') else 1)
+            layer.apply(changeweight)
 
     def test_noise_weight_change(self):
+        a = 1
         def test(input):
             if hasattr(input,'noise_weight'):
-                print('has noise')
-            else:1
+                print('has noise -'+str(a))
+            else:
+                pass
         for layer in [self.DownBlock,self.UpBlock]:
-            layer.apply(1)
+            layer.apply(test)
 
     def forward(self, input,thumbnail=False,alpha=1):
         """

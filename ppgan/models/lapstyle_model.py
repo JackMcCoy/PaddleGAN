@@ -2450,8 +2450,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
         else:
             a=26
             b=26
-            c=5
-            d=3
+            c=(2*(i+1))
+            d=1
         f=1+i
 
         self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*1000

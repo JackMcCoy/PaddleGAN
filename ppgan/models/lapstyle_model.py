@@ -2154,7 +2154,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                 init_weights(self.nets['net_rev'])
                 init_weights(self.nets['netD_1'])
         if train_layer>1:
-            self.nets['net_rev_2'] = build_generator(revnet_deep_generator)
+            self.nets['net_rev_2'] = build_generator(revnet_generator)
             self.nets['netD_2'] = build_discriminator(revnet_discriminator_2)
             self.discriminators.append('netD_2')
             self.o.append('optimD2')
@@ -2251,6 +2251,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
                                                initializer=paddle.fluid.initializer.Constant(
                                                    value=1), trainable=False)
                                            )
+        self.steps=0
 
     def setup_input(self, input):
         if self.is_train:
@@ -2498,6 +2499,12 @@ class LapStyleRevSecondMXDOG(BaseModel):
         return self.loss_D_patch
 
     def train_iter(self, optimizers=None):
+        self.steps+=1
+        if steps % 1000==0 and steps!=0:
+            new_weight = 1-(steps/10000)
+            self.nets[self.generator[-1]].change_noise_weight(new_weight)
+        elif steps==1:
+            self.nets[self.generator[-1]].test_noise_weight_change()
         loops = random.choice([1,2,3])
         for z in range(loops):
             self.forward()

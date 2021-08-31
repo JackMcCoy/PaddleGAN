@@ -9,7 +9,7 @@ model:
   revnet_generator:
     name: RevisionNetDeepThumb
     noise: 1
-    noise_weight: 1
+    noise_weight: 0
   revnet_discriminator_1:
     name: LapStyleSingleDiscriminator
     num_channels: 32
@@ -20,7 +20,7 @@ model:
   revnet_discriminator_2:
     name: LapStyleSingleDiscriminator
     num_channels: 32
-    num_layer: 3
+    num_layer: 5
     noise: 0
     kernel_size: 3
     padding: 1
@@ -28,7 +28,7 @@ model:
     name: LapStyleSingleDiscriminator
     num_channels: 64
     num_layer: 0
-    kernel_size: 3
+    kernel_size: 5
     noise: 0
     padding: 1
   revnet_discriminator_4:

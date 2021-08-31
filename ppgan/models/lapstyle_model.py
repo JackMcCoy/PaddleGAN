@@ -2438,7 +2438,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             self.loss_Gs_GAN += self.gan_criterion(pred_fake_ps, True)
 
         f=1+i
-        g=1
+        g=2
         if i==0:
             a=11
             b=16

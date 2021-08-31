@@ -69,7 +69,7 @@ model:
   content_weight: 1
   style_weight: 5
   train_layer: 1
-  train_spectral: 1
+  train_spectral: 0
   ada_alpha: .05
   ada_alpha_2: .05
   gan_thumb_weight: 1
@@ -117,12 +117,6 @@ optimizer:
     name: Adam
     net_names:
       - netD_1
-    beta1: 0.9
-    beta2: 0.999
-  optimSD:
-    name: Adam
-    net_names:
-      - spectral_D
     beta1: 0.9
     beta2: 0.999
 validate:

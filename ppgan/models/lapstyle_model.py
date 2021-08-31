@@ -2140,7 +2140,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
         print(train_layer)
         if train_layer>0:
             # define the first revnet params
-            self.nets['net_rev'] = build_generator(revnet_generator)
+            self.nets['net_rev'] = build_generator(revnet_deep_generator)
             self.nets['netD_1'] = build_discriminator(revnet_discriminator_1)
             self.discriminators=['netD_1']
             self.o = ['optimD1']

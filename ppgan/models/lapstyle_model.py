@@ -2437,6 +2437,7 @@ class LapStyleRevSecondMXDOG(BaseModel):
             pred_fake_ps = self.nets['spectral_D'](self.stylized[i+1])
             self.loss_Gs_GAN += self.gan_criterion(pred_fake_ps, True)
 
+        f=1+i
         if i==0:
             a=11
             b=16
@@ -2452,7 +2453,8 @@ class LapStyleRevSecondMXDOG(BaseModel):
             b=26
             c=(2*(i+1))
             d=1
-        f=1+i
+            f=1.5+i
+
 
         self.losses['loss_CnsS_'+str(i+1)] = mxdog_style*1000
         mxdogloss=mxdog_content * .3 + mxdog_content_contraint *100 + mxdog_style * 1000

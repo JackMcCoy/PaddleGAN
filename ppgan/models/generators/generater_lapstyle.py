@@ -417,6 +417,7 @@ class NoiseBlock(nn.Layer):
         #self.weight = paddle.create_parameter((1,channels),dtype='float32',is_bias=True)
         self.noise_weight=noise_weight
     def change_noise_weight(self,weight):
+        print('changing noise weight to '+str(weight))
         self.noise_weight = weight
     def forward(self,x):
         noise = paddle.randn((x.shape[0], 1, x.shape[2], x.shape[3]))

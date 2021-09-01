@@ -138,7 +138,11 @@ class ViT(nn.Layer):
         self.post_trans_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(64, 256, (3, 3)),
                                         nn.Upsample(scale_factor=2, mode='nearest'),
-                                        ConvBlock(256,128))
+                                        ConvBlock(256,128),
+                                        nn.Upsample(scale_factor=2, mode='nearest'),
+                                        ConvBlock(128,64),
+                                        nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                        nn.Conv2D(64, 3, (3, 3)))
 
     def forward(self, img):
         x = self.rearrange(img)

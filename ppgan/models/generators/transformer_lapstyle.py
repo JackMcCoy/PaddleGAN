@@ -125,7 +125,7 @@ class ViT(nn.Layer):
 
         self.mlp_head = nn.Sequential(
             nn.LayerNorm(dim),
-            nn.Linear(dim, 1536)
+            nn.Linear(dim, 3072)
         )
 
     def forward(self, img):

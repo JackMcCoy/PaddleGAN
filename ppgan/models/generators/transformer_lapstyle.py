@@ -55,6 +55,7 @@ class Attention(nn.Layer):
 
     def forward(self, x):
         qkv = paddle.chunk(self.to_qkv(x),3, axis = -1)
+        print(qkv.shape)
         q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> b h n d', h = self.heads), qkv)
 
         dots = paddle.matmul(q, paddle.transpose(k,(0,1,3,2))) * self.scale
@@ -109,7 +110,7 @@ class ViT(nn.Layer):
         patch_dim = channels * patch_height * patch_width
         assert pool in {'cls', 'mean'}, 'pool type must be either cls (cls token) or mean (mean pooling)'
 
-        self.rearrange=rearrange_tensors(image_height,patch_height)
+        self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width)
 
 
         self.to_patch_embedding = nn.Linear(patch_dim, dim)

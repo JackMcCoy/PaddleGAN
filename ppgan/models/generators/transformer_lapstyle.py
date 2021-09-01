@@ -141,7 +141,7 @@ class ViT(nn.Layer):
 
         x = self.transformer(x)
         x = x[:,1:,:]
-        x = self.unroll(x)
+
         print(x.size)
         x = self.mlp_head(x)
 

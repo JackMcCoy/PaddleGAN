@@ -141,6 +141,8 @@ class ViT(nn.Layer):
                                         ConvBlock(256,128),
                                         nn.Upsample(scale_factor=2, mode='nearest'),
                                         ConvBlock(128,64),
+                                        nn.Upsample(scale_factor=2, mode='nearest'),
+                                        ConvBlock(64,32),
                                         nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(64, 3, (3, 3)))
 
@@ -157,8 +159,6 @@ class ViT(nn.Layer):
         x = self.transformer(x)
         x = x[:,1:,:]
         x = paddle.reshape(x,(x.shape[0],x.shape[1],x.shape[2]//32,x.shape[2]//32))
-        print(x.shape)
         x = self.post_trans_conv(x)
-        print(x.shape)
 
         return x

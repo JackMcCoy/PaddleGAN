@@ -10,6 +10,7 @@ model:
     name: ViT
     image_size: 256
     patch_size: 32
+    channels: 6
     num_classes: 1000
     dim: 1024
     depth: 6

@@ -2,7 +2,7 @@ import paddle
 from paddle import nn
 
 from einops import rearrange, repeat
-from einops.layers.torch import Rearrange
+from einops.layers.paddle import Rearrange
 from .builder import GENERATORS
 
 # helpers

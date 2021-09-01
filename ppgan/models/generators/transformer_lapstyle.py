@@ -143,6 +143,7 @@ class ViT(nn.Layer):
                                         ConvBlock(128,64),
                                         nn.Upsample(scale_factor=2, mode='nearest'),
                                         ConvBlock(64,32),
+                                        nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(32, 3, (3, 3)))
 
     def forward(self, img):

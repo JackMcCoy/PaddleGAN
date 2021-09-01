@@ -171,13 +171,11 @@ class ViT(nn.Layer):
             nn.Linear(32, 96)
         )
         self.decoder = nn.Sequential(
-            ResnetBlock(512),
-            ConvBlock(512, 256),
-            ResnetBlock(256),
-            ConvBlock(256, 128),
-            ConvBlock(128, 128),
-            ConvBlock(128, 64),
-            ConvBlock(64, 64),
+            ResnetBlock(64),
+            ConvBlock(64, 32),
+            ResnetBlock(32),
+            ConvBlock(32, 16),
+            ConvBlock(16, 16),
         )
 
     def forward(self, img):
@@ -191,15 +189,9 @@ class ViT(nn.Layer):
         x = self.dropout(x)
 
         x = self.transformer(x)
-        print(x.shape)
         x = x[:,1:,:]
         counter=0
         x=paddle.reshape(x,(x.shape[0],x.shape[1],x.shape[2]//32,x.shape[2]//32))
-        out = paddle.zeros((img.shape[0],img.shape[1],img.shape[2],img.shape[3]))
-        for i in range(0,256,32):
-            for j in range(0,256,32):
-                print(x[:,counter,:,:].shape)
-                out[:,:,i:i+32,j:j+32]= paddle.reshape(self.mlp_head(x[:,counter,:,:]),(x.shape[0],3,x.shape[2],x.shape[3]))
-                counter+=1
-        print(out.shape)
+        x = self.decoder(x)
+        print(x.shape)
         return x

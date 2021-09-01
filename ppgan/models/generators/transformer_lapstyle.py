@@ -166,7 +166,7 @@ class ViT(nn.Layer):
         dec_input = paddle.rand((5, 64, 1024))
         enc_output = paddle.rand((5, 64, 1024))
         decoder_layer = nn.TransformerDecoderLayer(1024, 2, 1024)
-        self.decoder_transformer = nn.TransformerDecoder(decoder_layer, 2)
+        self.decoder_transformer = nn.TransformerDecoder(decoder_layer, 2,dropout=dropout,normalize=True)
 
         self.pool = pool
         self.to_latent = self.Identity
@@ -178,14 +178,11 @@ class ViT(nn.Layer):
         self.decoder = nn.Sequential(
             ResnetBlock(64),
             ConvBlock(64, 32),
-            nn.BatchNorm2D(32),
             nn.Upsample(scale_factor=2,mode='nearest'),
             ResnetBlock(32),
             ConvBlock(32, 16),
-            nn.BatchNorm2D(16),
             nn.Upsample(scale_factor=2,mode='nearest'),
             ConvBlock(16, 16),
-            nn.BatchNorm2D(16),
             nn.Upsample(scale_factor=2,mode='nearest'),
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),

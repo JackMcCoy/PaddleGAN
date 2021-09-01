@@ -2500,11 +2500,13 @@ class LapStyleRevSecondMXDOG(BaseModel):
 
     def train_iter(self, optimizers=None):
         self.steps+=1
+        '''
         if self.steps % 500==0 and self.steps!=0:
             new_weight = 1-(self.steps/5000)
             if new_weight >=0:
                 self.nets[self.generator[-1]].change_noise_weight(new_weight)
-        elif self.steps==1:
+        '''
+        if self.steps==1:
             self.nets[self.generator[-1]].change_noise_weight(0)
         loops = random.choice([1,2,3])
         for z in range(loops):

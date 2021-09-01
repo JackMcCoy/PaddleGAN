@@ -175,11 +175,11 @@ class ViT(nn.Layer):
             ConvBlock(64, 32),
             nn.Upsample(scale_factor=2,mode='nearest'),
             ResnetBlock(32),
-            nn.GroupNorm(num_groups=32,num_channels=32),
             ConvBlock(32, 16),
             nn.Upsample(scale_factor=2,mode='nearest'),
             ConvBlock(16, 16),
             nn.Upsample(scale_factor=2,mode='nearest'),
+            nn.GroupNorm(num_groups=16,num_channels=16),
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(16, 3, (3, 3)))

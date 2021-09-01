@@ -8,5 +8,4 @@ librosa==0.7.0
 numba==0.48
 easydict
 munch
-git+git://github.com/JackMcCoy/einops@master#egg=einops
 

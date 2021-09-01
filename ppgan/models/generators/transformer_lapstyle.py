@@ -96,10 +96,9 @@ class ViT(nn.Layer):
         patch_dim = channels * patch_height * patch_width
         assert pool in {'cls', 'mean'}, 'pool type must be either cls (cls token) or mean (mean pooling)'
 
-        self.to_patch_embedding = nn.Sequential(
-            Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width),
-            nn.Linear(patch_dim, dim),
-        )
+        self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width),
+
+        self.to_patch_embedding = nn.Linear(patch_dim, dim)
 
         self.pos_embedding = paddle.create_parameter((1, num_patches + 1, dim), dtype='float32')
         self.cls_token = paddle.create_parameter((1, 1, dim),dtype='float32')
@@ -116,7 +115,8 @@ class ViT(nn.Layer):
         )
 
     def forward(self, img):
-        x = self.to_patch_embedding(img)
+        x = self.rearrange(img)
+        x = self.to_patch_embedding(x)
         b, n, _ = x.shape
 
         cls_tokens = repeat(self.cls_token, '() n d -> b n d', b = b)

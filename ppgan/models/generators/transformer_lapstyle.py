@@ -124,7 +124,7 @@ class ViT(nn.Layer):
 
         self.mlp_head = nn.Sequential(
             nn.LayerNorm(256),
-            nn.Linear(256, 1024)
+            nn.Linear(32, 256)
         )
         self.conv = nn.Sequential(
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
@@ -145,11 +145,10 @@ class ViT(nn.Layer):
         x = x[:,1:,:]
         counter=0
         x=paddle.reshape(x,(x.shape[0],x.shape[1],x.shape[2]//32,x.shape[2]//32))
-        out = paddle.zeros((img.shape[0],1,img.shape[2],img.shape[3]))
+        out = paddle.zeros((img.shape[0],img.shape[1],img.shape[2],img.shape[3]))
         for i in range(0,256,32):
             for j in range(0,256,32):
-                out[:,:,i:i+32,j:j+32]= x[:,counter,:]
+                out[:,:,i:i+32,j:j+32]= self.mlp_head(out)
                 counter+=1
-        out = self.mlp_head(out)
         print(out.shape)
         return x

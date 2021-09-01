@@ -89,7 +89,7 @@ class rearrange_tensors(nn.Layer):
         split_x = paddle.split(x,self.num_splits,axis=2)
         for y in split_x:
             patches.extend(paddle.split(y,self.num_splits,axis=3))
-        x = paddle.concat(split_y,axis=1)
+        x = paddle.concat(patches,axis=1)
         return x
 
 

@@ -131,6 +131,7 @@ class ViT(nn.Layer):
 
     def forward(self, img):
         x = self.rearrange(img)
+        print(x.shape)
         x = self.to_patch_embedding(x)
         b, n, _ = x.shape
 

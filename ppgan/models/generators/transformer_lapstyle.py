@@ -108,7 +108,7 @@ class ViT(nn.Layer):
         self.transformer = Transformer(dim, depth, heads, dim_head, mlp_dim, dropout)
 
         self.pool = pool
-        self.to_latent = self.Identity()
+        self.to_latent = self.Identity
 
         self.mlp_head = nn.Sequential(
             [nn.LayerNorm(dim),

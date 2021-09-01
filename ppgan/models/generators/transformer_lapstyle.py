@@ -127,7 +127,6 @@ class ViT(nn.Layer):
             nn.Linear(dim, 3072)
         )
         self.conv = nn.Sequential(
-            nn.LayerNorm(dim),
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
             nn.Conv2D(dim, dim*3, (3, 3))
         )

@@ -110,8 +110,8 @@ class ViT(nn.Layer):
         self.to_latent = self.Identity
 
         self.mlp_head = nn.Sequential(
-            [nn.LayerNorm(dim),
-            nn.Linear(dim, num_classes)]
+            nn.LayerNorm(dim),
+            nn.Linear(dim, num_classes)
         )
 
     def forward(self, img):

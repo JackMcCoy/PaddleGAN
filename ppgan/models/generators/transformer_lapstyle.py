@@ -128,7 +128,7 @@ class ViT(nn.Layer):
         )
         self.conv = nn.Sequential(
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(dim, dim*3, (3, 3))
+            nn.Conv2D(64, 64*3, (3, 3))
         )
 
     def forward(self, img):

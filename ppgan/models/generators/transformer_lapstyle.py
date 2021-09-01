@@ -139,10 +139,8 @@ class ViT(nn.Layer):
         x = self.dropout(x)
 
         x = self.transformer(x)
-        print(x.shape)
-        x = x.mean(dim = 1) if self.pool == 'mean' else x[:, 0]
+        x = x[:,1:,:]
 
-        x = self.to_latent(x)
-        x = self.mlp_head(x)
+        x = paddle.reshape(x,paddle.shape)
         print(x.shape)
         return x

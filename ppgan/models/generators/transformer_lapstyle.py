@@ -140,6 +140,7 @@ class ViT(nn.Layer):
         x = self.transformer(x)
         x = x[:,1:,:]
 
-        print(x.shape)
+        x = self.mlp_head(x)
+
         x = paddle.reshape(x,(img.shape[0],3,img.shape[2],img.shape[3]))
         return x

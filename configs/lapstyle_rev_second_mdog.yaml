@@ -7,9 +7,16 @@ min_max:
 model:
   name: LapStyleRevSecondMXDOG
   revnet_generator:
-    name: RevisionNetDeepThumb
-    noise: 1
-    noise_weight: 0
+    name: ViT
+    image_size: 256
+    patch_size: 32,
+    num_classes: 1000
+    dim: 1024
+    depth: 6
+    heads: 16
+    mlp_dim: 2048
+    dropout: 0.1
+    emb_dropout: 0.1
   revnet_discriminator_1:
     name: LapStyleSingleDiscriminator
     num_channels: 32

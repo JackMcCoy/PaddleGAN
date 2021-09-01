@@ -163,6 +163,13 @@ class ViT(nn.Layer):
 
         self.transformer = Transformer(dim, depth, heads, dim_head, mlp_dim, dropout)
 
+        dec_input = paddle.rand((5, 65, 1024))
+        enc_output = paddle.rand((5, 65, 1024))
+        decoder_layer = TransformerDecoderLayer(128, 2, 512)
+        decoder = TransformerDecoder(decoder_layer, 2)
+        self.transformer_decoder = decoder(dec_input,
+                         enc_output)  # [2, 4, 128]
+
         self.pool = pool
         self.to_latent = self.Identity
 
@@ -198,6 +205,7 @@ class ViT(nn.Layer):
         x = self.dropout(x)
 
         x = self.transformer(x)
+        x = self.transformer_decoder(x)
         print(x.shape)
         x = x[:,1:,:]
         counter=0

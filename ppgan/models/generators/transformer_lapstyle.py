@@ -198,6 +198,7 @@ class ViT(nn.Layer):
         x = self.dropout(x)
 
         x = self.transformer(x)
+        print(x.shape)
         x = x[:,1:,:]
         counter=0
         x=paddle.reshape(x,(x.shape[0],x.shape[1],x.shape[2]//32,x.shape[2]//32))

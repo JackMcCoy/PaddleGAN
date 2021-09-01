@@ -171,6 +171,7 @@ class ViT(nn.Layer):
             nn.Linear(32, 96)
         )
         self.decoder = nn.Sequential(
+            nn.LayerNorm(32),
             ResnetBlock(64),
             ConvBlock(64, 32),
             nn.Upsample(scale_factor=2,mode='nearest'),

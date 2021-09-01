@@ -85,8 +85,10 @@ class rearrange_tensors(nn.Layer):
         super().__init__()
         self.num_splits = int(image_height/patch_height)
     def forward(self,x):
+        patches=[]
         split_x = paddle.split(x,self.num_splits,axis=2)
-        split_y = [paddle.split(y,self.num_splits,axis=3) for y in split_x]
+        for y in split_x:
+            patches.extend(paddle.split(y,self.num_splits,axis=3)
         x = paddle.concat(split_y,axis=1)
         return x
 

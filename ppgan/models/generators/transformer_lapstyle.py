@@ -173,10 +173,14 @@ class ViT(nn.Layer):
         self.decoder = nn.Sequential(
             ResnetBlock(64),
             ConvBlock(64, 32),
+            nn.Upsample(scale_factor=2,mode='nearest'),
             ResnetBlock(32),
             ConvBlock(32, 16),
             nn.Upsample(scale_factor=2,mode='nearest'),
             ConvBlock(16, 16),
+            nn.Upsample(scale_factor=2,mode='nearest'),
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                        nn.Conv2D(16, 3, (3, 3))
         )
 
     def forward(self, img):
@@ -194,5 +198,4 @@ class ViT(nn.Layer):
         counter=0
         x=paddle.reshape(x,(x.shape[0],x.shape[1],x.shape[2]//32,x.shape[2]//32))
         x = self.decoder(x)
-        print(x.shape)
         return x

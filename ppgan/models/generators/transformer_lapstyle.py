@@ -125,7 +125,7 @@ class ViT(nn.Layer):
 
         self.mlp_head = nn.Sequential(
             nn.LayerNorm(dim),
-            nn.Linear(dim, num_classes)
+            nn.Linear(dim, channels)
         )
 
     def forward(self, img):
@@ -140,7 +140,8 @@ class ViT(nn.Layer):
 
         x = self.transformer(x)
         x = x[:,1:,:]
+        x = self.mlp_head(x)
+        print(x.shape)
 
         x = paddle.reshape(x,(img.shape[0],3,img.shape[2],img.shape[3]))
-        print(x.shape)
         return x

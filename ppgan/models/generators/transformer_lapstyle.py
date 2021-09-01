@@ -144,10 +144,11 @@ class ViT(nn.Layer):
         x = self.transformer(x)
         x = x[:,1:,:]
         counter=0
+        x=paddle.reshape(x,(x.shape[0],x.shape[1],x.shape[2]//32,x.shape[2]//32))
         out = paddle.zeros((img.shape[0],1,img.shape[2],img.shape[3]))
         for i in range(0,256,32):
             for j in range(0,256,32):
                 out[:,:,i:i+32,j:j+32]= paddle.reshape(x[:,counter,:],(x.shape[0],1,x.shape[2]//32,x.shape[2]//32))
                 counter+=1
-        print(out.size)
+        print(out.shape)
         return x

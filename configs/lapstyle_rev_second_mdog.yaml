@@ -12,7 +12,7 @@ model:
     patch_size: 32
     channels: 6
     num_classes: 1000
-    dim: 1024
+    dim: 3072
     depth: 6
     pool: cls
     heads: 16

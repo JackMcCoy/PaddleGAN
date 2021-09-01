@@ -92,15 +92,6 @@ class rearrange_tensors(nn.Layer):
         x = paddle.concat(patches,axis=1)
         return x
 
-class ConvBlock(nn.Layer):
-    def __init__(self, dim1, dim2,noise=0):
-        super(ConvBlock, self).__init__()
-        self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        nn.Conv2D(dim1, dim2, (3, 3)),
-                                        nn.ReLU())
-    def forward(self, x):
-        out = self.conv_block(x)
-        return out
 
 @GENERATORS.register()
 class ViT(nn.Layer):
@@ -135,16 +126,6 @@ class ViT(nn.Layer):
             nn.LayerNorm(dim),
             nn.Linear(dim, 3072)
         )
-        self.post_trans_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        nn.Conv2D(64, 256, (3, 3)),
-                                        nn.Upsample(scale_factor=2, mode='nearest'),
-                                        ConvBlock(256,128),
-                                        nn.Upsample(scale_factor=2, mode='nearest'),
-                                        ConvBlock(128,64),
-                                        nn.Upsample(scale_factor=2, mode='nearest'),
-                                        ConvBlock(64,32),
-                                        nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        nn.Conv2D(32, 3, (3, 3)))
 
     def forward(self, img):
         x = self.rearrange(img)
@@ -158,7 +139,7 @@ class ViT(nn.Layer):
 
         x = self.transformer(x)
         x = x[:,1:,:]
-        x = paddle.reshape(x,(x.shape[0],x.shape[1],x.shape[2]//32,x.shape[2]//32))
-        x = self.post_trans_conv(x)
 
+        print(x.shape)
+        x = paddle.reshape(x,(img.shape[0],3,img.shape[2],img.shape[3]))
         return x

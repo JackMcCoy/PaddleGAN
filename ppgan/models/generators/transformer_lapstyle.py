@@ -139,7 +139,7 @@ class ViT(nn.Layer):
         x = self.dropout(x)
 
         x = self.transformer(x)
-
+        print(x.shape)
         x = x.mean(dim = 1) if self.pool == 'mean' else x[:, 0]
 
         x = self.to_latent(x)

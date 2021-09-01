@@ -124,7 +124,7 @@ class ViT(nn.Layer):
 
         self.mlp_head = nn.Sequential(
             nn.LayerNorm(32),
-            nn.Linear(32, 256)
+            nn.Linear(32, 128)
         )
         self.conv = nn.Sequential(
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),

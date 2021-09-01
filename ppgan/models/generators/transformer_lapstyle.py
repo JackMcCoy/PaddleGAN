@@ -93,6 +93,50 @@ class rearrange_tensors(nn.Layer):
         return x
 
 
+class ResnetBlock(nn.Layer):
+    """Residual block.
+
+    It has a style of:
+        ---Pad-Conv-ReLU-Pad-Conv-+-
+         |________________________|
+
+    Args:
+        dim (int): Channel number of intermediate features.
+    """
+    def __init__(self, dim):
+        super(ResnetBlock, self).__init__()
+        self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                        nn.Conv2D(dim, dim, (3, 3)), nn.ReLU(),
+                                        nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                        nn.Conv2D(dim, dim, (3, 3)))
+
+    def forward(self, x):
+        out = x + self.conv_block(x)
+        return out
+
+
+class ConvBlock(nn.Layer):
+    """convolution block.
+
+    It has a style of:
+        ---Pad-Conv-ReLU---
+
+    Args:
+        dim1 (int): Channel number of input features.
+        dim2 (int): Channel number of output features.
+    """
+    def __init__(self, dim1, dim2,noise=0):
+        super(ConvBlock, self).__init__()
+        self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                        nn.Conv2D(dim1, dim2, (3, 3)),
+                                        nn.ReLU())
+        if noise==1:
+            self.conv_block.add_sublayer('noise',NoiseBlock(dim2))
+
+    def forward(self, x):
+        out = self.conv_block(x)
+        return out
+
 @GENERATORS.register()
 class ViT(nn.Layer):
     def Identity(self,input):
@@ -126,9 +170,14 @@ class ViT(nn.Layer):
             nn.LayerNorm(32),
             nn.Linear(32, 96)
         )
-        self.conv = nn.Sequential(
-            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(64, 64*3, (3, 3))
+        self.decoder = nn.Sequential(
+            ResnetBlock(512),
+            ConvBlock(512, 256),
+            ResnetBlock(256),
+            ConvBlock(256, 128),
+            ConvBlock(128, 128),
+            ConvBlock(128, 64),
+            ConvBlock(64, 64),
         )
 
     def forward(self, img):
@@ -142,6 +191,7 @@ class ViT(nn.Layer):
         x = self.dropout(x)
 
         x = self.transformer(x)
+        print(x.shape)
         x = x[:,1:,:]
         counter=0
         x=paddle.reshape(x,(x.shape[0],x.shape[1],x.shape[2]//32,x.shape[2]//32))

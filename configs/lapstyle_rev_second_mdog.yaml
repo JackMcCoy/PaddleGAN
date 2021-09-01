@@ -14,6 +14,7 @@ model:
     num_classes: 1000
     dim: 1024
     depth: 6
+    pool: cls
     heads: 16
     mlp_dim: 2048
     dropout: 0.1

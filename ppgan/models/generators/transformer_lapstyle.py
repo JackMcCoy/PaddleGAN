@@ -143,7 +143,6 @@ class ViT(nn.Layer):
 
         x = self.transformer(x)
         x = x[:,1:,:]
-        x = self.mlp_head(x)
         counter=0
         x=paddle.reshape(x,(x.shape[0],x.shape[1],x.shape[2]//32,x.shape[2]//32))
         out = paddle.zeros((img.shape[0],1,img.shape[2],img.shape[3]))
@@ -151,5 +150,6 @@ class ViT(nn.Layer):
             for j in range(0,256,32):
                 out[:,:,i:i+32,j:j+32]= x[:,counter,:]
                 counter+=1
+        out = self.mlp_head(out)
         print(out.shape)
         return x

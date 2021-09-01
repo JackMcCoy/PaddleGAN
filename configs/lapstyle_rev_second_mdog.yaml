@@ -77,7 +77,7 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
-  style_weight: 1
+  style_weight: 3
   train_layer: 1
   train_spectral: 1
   ada_alpha: .05

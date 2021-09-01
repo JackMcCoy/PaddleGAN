@@ -123,7 +123,7 @@ class ViT(nn.Layer):
         self.to_latent = self.Identity
 
         self.mlp_head = nn.Sequential(
-            nn.LayerNorm(256),
+            nn.LayerNorm(32),
             nn.Linear(32, 256)
         )
         self.conv = nn.Sequential(

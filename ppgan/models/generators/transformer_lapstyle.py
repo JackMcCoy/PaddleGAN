@@ -144,7 +144,7 @@ class ViT(nn.Layer):
 
         x = self.transformer(x)
         x = x[:,1:,:]
-        x = paddle.reshape(x,(x.shape[0],x.shape[1],img.shape[2]//32,img.shape[3]//32))
+        x = paddle.reshape(x,(x.shape[0],x.shape[1],x.shape[2]//32,x.shape[2]//32))
         x = self.conv(x)
 
         x = paddle.reshape(x,(img.shape[0],3,img.shape[2],img.shape[3]))

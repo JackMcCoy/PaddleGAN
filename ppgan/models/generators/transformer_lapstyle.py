@@ -149,7 +149,7 @@ class ViT(nn.Layer):
         for i in range(0,256,32):
             for j in range(0,256,32):
                 print(x[:,counter,:,:].shape)
-                out[:,:,i:i+32,j:j+32]= self.mlp_head(x[:,counter,:,:])
+                out[:,:,i:i+32,j:j+32]= paddle.resize(self.mlp_head(x[:,counter,:,:],(x.shape[0],3,x.shape[2],x.shape[3])))
                 counter+=1
         print(out.shape)
         return x

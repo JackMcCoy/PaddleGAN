@@ -171,7 +171,6 @@ class ViT(nn.Layer):
             nn.Linear(32, 96)
         )
         self.decoder = nn.Sequential(
-            nn.GroupNorm(num_groups=32,num_channels=64),
             ResnetBlock(64),
             ConvBlock(64, 32),
             nn.Upsample(scale_factor=2,mode='nearest'),
@@ -180,6 +179,7 @@ class ViT(nn.Layer):
             nn.Upsample(scale_factor=2,mode='nearest'),
             ConvBlock(16, 16),
             nn.Upsample(scale_factor=2,mode='nearest'),
+            nn.GroupNorm(num_groups=3,num_channels=16),
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(16, 3, (3, 3)))

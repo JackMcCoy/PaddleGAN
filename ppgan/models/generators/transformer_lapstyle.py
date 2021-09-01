@@ -126,6 +126,11 @@ class ViT(nn.Layer):
             nn.LayerNorm(dim),
             nn.Linear(dim, 3072)
         )
+        self.conv = nn.Sequential(
+            nn.LayerNorm(dim),
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(dim, dim*3, (3, 3))
+        )
 
     def forward(self, img):
         x = self.rearrange(img)
@@ -139,8 +144,8 @@ class ViT(nn.Layer):
 
         x = self.transformer(x)
         x = x[:,1:,:]
-
-        x = self.mlp_head(x)
+        x = paddle.reshape(x,(x.shape[0],x.shape[1],img.shape[2]//32,img.shape[3]//32))
+        x = self.conv(x)
 
         x = paddle.reshape(x,(img.shape[0],3,img.shape[2],img.shape[3]))
         return x

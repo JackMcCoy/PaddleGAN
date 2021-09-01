@@ -83,7 +83,7 @@ class Transformer(nn.Layer):
 class rearrange_tensors(nn.Layer):
     def __init__(self,image_height,patch_height):
         super().__init__()
-        self.num_splits = image_height/patch_height
+        self.num_splits = int(image_height/patch_height)
     def forward(self,x):
         split_x = paddle.split(x,self.num_splits,axis=2)
         split_y = [paddle.split(y,self.num_splits,axis=3) for y in split_x]

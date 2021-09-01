@@ -68,7 +68,7 @@ class Attention(nn.Layer):
 class Transformer(nn.Layer):
     def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0.):
         super().__init__()
-        self.layers = nn.LayerList(sublayers=None)
+        self.layers = []
         for _ in range(depth):
             self.layers.append(nn.LayerList([
                 PreNorm(dim, Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout)),

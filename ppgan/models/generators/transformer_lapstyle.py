@@ -180,10 +180,10 @@ class ViT(nn.Layer):
             ConvBlock(16, 16),
             nn.Upsample(scale_factor=2,mode='nearest'),
             nn.LayerNorm(256),
-            nn.ReLU(),
-            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        nn.Conv2D(16, 3, (3, 3))
         )
+        self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                        nn.Conv2D(16, 3, (3, 3)))
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, img):
         x = self.rearrange(img)
@@ -200,4 +200,5 @@ class ViT(nn.Layer):
         counter=0
         x=paddle.reshape(x,(x.shape[0],x.shape[1],x.shape[2]//32,x.shape[2]//32))
         x = self.decoder(x)
-        return x
+        x = x*self.sigmoid(x)
+        return self.final(x)

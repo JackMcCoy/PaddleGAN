@@ -57,7 +57,7 @@ class Attention(nn.Layer):
         qkv = paddle.chunk(self.to_qkv(x),3, axis = -1)
         q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> b h n d', h = self.heads), qkv)
 
-        dots = paddle.matmul(q, paddle.transpose(k,(-1, -2))) * self.scale
+        dots = paddle.matmul(q, paddle.transpose(k,(0,1,3,2))) * self.scale
 
         attn = self.attend(dots)
 

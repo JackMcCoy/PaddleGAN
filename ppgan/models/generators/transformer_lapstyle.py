@@ -144,4 +144,5 @@ class ViT(nn.Layer):
         print(x.shape)
 
         x = paddle.reshape(x,(img.shape[0],3,img.shape[2],img.shape[3]))
+        print(x.shape)
         return x

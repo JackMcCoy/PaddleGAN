@@ -175,6 +175,7 @@ class ViT(nn.Layer):
             ConvBlock(64, 32),
             ResnetBlock(32),
             ConvBlock(32, 16),
+            nn.Upsample(scale_factor=2,mode='nearest'),
             ConvBlock(16, 16),
         )
 

@@ -8,6 +8,8 @@ from .builder import GENERATORS
 # helpers
 
 def pair(t):
+    print(t)
+    print(type(t))
     return t if isinstance(t, tuple) else (t, t)
 
 # classes

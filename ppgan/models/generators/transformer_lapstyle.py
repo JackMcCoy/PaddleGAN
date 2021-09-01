@@ -148,7 +148,7 @@ class ViT(nn.Layer):
         out = paddle.zeros((img.shape[0],img.shape[1],img.shape[2],img.shape[3]))
         for i in range(0,256,32):
             for j in range(0,256,32):
-                out[:,:,i:i+32,j:j+32]= self.mlp_head(out)
+                out[:,:,i:i+32,j:j+32]= self.mlp_head(out[:,counter,:,:])
                 counter+=1
         print(out.shape)
         return x

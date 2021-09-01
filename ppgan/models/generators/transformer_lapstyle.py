@@ -98,6 +98,8 @@ class ViT(nn.Layer):
 
         self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width),
 
+        print(self.rearrange)
+
         self.to_patch_embedding = nn.Linear(patch_dim, dim)
 
         self.pos_embedding = paddle.create_parameter((1, num_patches + 1, dim), dtype='float32')

@@ -80,6 +80,17 @@ class Transformer(nn.Layer):
             x = ff(x) + x
         return x
 
+class rearrange_tensors(nn.Layer):
+    def __init__(self,image_height,patch_height):
+        super().__init__()
+        self.num_splits = image_height/patch_height
+        def forward(x):
+            split_x = paddle.split(x,self.num_splits,axis=2)
+            split_y = [paddle.split(y,self.num_splits,axis=3) for y in split_x]
+            x = paddle.concat(split_y,axis=1)
+            return x
+
+
 @GENERATORS.register()
 class ViT(nn.Layer):
     def Identity(self,input):
@@ -96,7 +107,7 @@ class ViT(nn.Layer):
         patch_dim = channels * patch_height * patch_width
         assert pool in {'cls', 'mean'}, 'pool type must be either cls (cls token) or mean (mean pooling)'
 
-        self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width)
+        self.rearrange=rearrange_tensors(image_height,patch_height)
 
 
         self.to_patch_embedding = nn.Linear(patch_dim, dim)

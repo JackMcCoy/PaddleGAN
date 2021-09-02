@@ -176,17 +176,17 @@ class ViT(nn.Layer):
             nn.Linear(32, 96)
         )
         self.decoder = nn.Sequential(
-            ResnetBlock(64),
-            ConvBlock(64, 32),
+            ResnetBlock(34),
+            ConvBlock(34, 17),
             nn.Upsample(scale_factor=2,mode='nearest'),
-            ResnetBlock(32),
-            ConvBlock(32, 16),
+            ResnetBlock(17),
+            ConvBlock(17, 8),
             nn.Upsample(scale_factor=2,mode='nearest'),
-            ConvBlock(16, 16),
+            ConvBlock(8, 8),
             nn.Upsample(scale_factor=2,mode='nearest'),
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        nn.Conv2D(16, 3, (3, 3)))
+                                        nn.Conv2D(8, 3, (3, 3)))
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, img):

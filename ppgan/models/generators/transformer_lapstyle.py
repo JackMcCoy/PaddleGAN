@@ -154,7 +154,7 @@ class ViT(nn.Layer):
         assert pool in {'cls', 'mean'}, 'pool type must be either cls (cls token) or mean (mean pooling)'
 
         self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width)
-
+        self.decompose_axis=Rearrange(ims, 'b (h w) (p1 p2 c) -> b c (h p1) (w p2) ', p1 = patch_height, p2 = patch_width,w=(image_width // patch_width))
         self.to_patch_embedding = nn.Linear(patch_dim, dim)
 
         self.pos_embedding = paddle.create_parameter(shape=(1, num_patches + 1, dim), dtype='float32')
@@ -171,10 +171,6 @@ class ViT(nn.Layer):
         self.pool = pool
         self.to_latent = self.Identity
 
-        self.mlp_head = nn.Sequential(
-            nn.LayerNorm(32),
-            nn.Linear(32, 96)
-        )
         self.decoder = nn.Sequential(
             ResnetBlock(256),
             ConvBlock(256, 128),
@@ -202,6 +198,8 @@ class ViT(nn.Layer):
         x = self.transformer(x)
         x = x[:,1:,:]
         x = self.decoder_transformer(x,x)
+        x = self.decompose_axis(x)
+        print(x.shape)
 
         counter=0
         x=paddle.reshape(x,(x.shape[0],x.shape[1],x.shape[2]//32,x.shape[2]//32))

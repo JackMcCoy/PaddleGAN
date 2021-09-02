@@ -21,7 +21,7 @@ model:
     emb_dropout: 0.1
   revnet_discriminator_1:
     name: LapStyleSingleDiscriminator
-    num_channels: 32
+    num_channels: 64
     num_layer: 9
     noise: 0
     kernel_size: 3
@@ -77,7 +77,7 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
-  style_weight: 5
+  style_weight: 3
   train_layer: 1
   train_spectral: 1
   ada_alpha: .05
@@ -127,12 +127,6 @@ optimizer:
     name: Adam
     net_names:
       - netD_1
-    beta1: 0.9
-    beta2: 0.999
-  optimSD:
-    name: Adam
-    net_names:
-      - spectral_D
     beta1: 0.9
     beta2: 0.999
 validate:

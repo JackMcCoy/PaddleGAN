@@ -169,19 +169,11 @@ class ViT(nn.Layer):
         self.to_latent = self.Identity
 
         self.decoder = nn.Sequential(
-            ResnetBlock(1024),
-            ConvBlock(1024, 512),
-            nn.Upsample(scale_factor=2,mode='nearest'),
-            ResnetBlock(512),
-            ConvBlock(512, 256),
-            nn.Upsample(scale_factor=2,mode='nearest'),
-            ConvBlock(256, 128),
-            nn.Upsample(scale_factor=2,mode='nearest'),
-            ConvBlock(128, 64),
-            nn.Upsample(scale_factor=2,mode='nearest'),
+            ResnetBlock(4),
+            ConvBlock(4, 3),
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        nn.Conv2D(64, 3, (3, 3)))
+                                        nn.Conv2D(3, 3, (3, 3)))
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, img):
@@ -195,10 +187,8 @@ class ViT(nn.Layer):
         x = self.dropout(x)
 
         x = self.transformer(x)
-        print(x.shape)
         x = x[:,1:,:]
         x = self.decompose_axis(x)
-        print(x.shape)
         counter=0
         x = self.decoder(x)
         x = x*self.sigmoid(x)

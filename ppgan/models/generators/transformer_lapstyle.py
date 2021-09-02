@@ -154,7 +154,7 @@ class ViT(nn.Layer):
         assert pool in {'cls', 'mean'}, 'pool type must be either cls (cls token) or mean (mean pooling)'
 
         self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width)
-        self.decompose_axis=Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2) ', p1 = patch_height, p2 = patch_width,w=(image_width // patch_width))
+        self.decompose_axis=Rearrange('b (h w) c -> b c h w', w=(image_width // patch_width))
         self.to_patch_embedding = nn.Linear(patch_dim, dim)
 
         self.pos_embedding = paddle.create_parameter(shape=(1, num_patches + 1, dim), dtype='float32')
@@ -165,7 +165,7 @@ class ViT(nn.Layer):
 
         dec_input = paddle.rand((5, 64, 1024))
         enc_output = paddle.rand((5, 64, 1024))
-        decoder_layer = nn.TransformerDecoderLayer(1024, 2, 1024,act_dropout=dropout,attn_dropout=dropout,normalize_before=True)
+        decoder_layer = nn.TransformerDecoderLayer(1024, 2, 1024,normalize_before=True)
         self.decoder_transformer = nn.TransformerDecoder(decoder_layer, 2)
 
         self.pool = pool

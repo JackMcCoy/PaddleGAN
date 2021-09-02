@@ -185,7 +185,7 @@ class ViT(nn.Layer):
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(64, 3, (3, 3)))
-        self.relu = nn.ReLU()
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, img):
         x = self.rearrange(img)
@@ -204,5 +204,5 @@ class ViT(nn.Layer):
 
         counter=0
         x = self.decoder(x)
-        x = x*self.relu(x)
+        x = x*self.sigmoid(x)
         return self.final(x)

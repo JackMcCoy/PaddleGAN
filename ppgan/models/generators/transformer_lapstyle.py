@@ -174,10 +174,10 @@ class ViT(nn.Layer):
         self.decoder = nn.Sequential(
             ResnetBlock(4),
             ConvBlock(4, 3),
+            nn.GELU()
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(3, 3, (3, 3)))
-        self.sigmoid = nn.Sigmoid()
 
     def forward(self, img):
         x = self.rearrange(img)
@@ -195,5 +195,4 @@ class ViT(nn.Layer):
         x = self.decompose_axis(x)
         counter=0
         x = self.decoder(x)
-        x = x*self.sigmoid(x)
         return self.final(x)

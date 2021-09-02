@@ -198,7 +198,7 @@ class ViT(nn.Layer):
         print(x.shape)
         x = x[:,1:,:]
         x = self.decompose_axis(x)
-
+        print(x.shape)
         counter=0
         x = self.decoder(x)
         x = x*self.sigmoid(x)

@@ -172,13 +172,15 @@ class ViT(nn.Layer):
         self.to_latent = self.Identity
 
         self.decoder = nn.Sequential(
-            ResnetBlock(256),
+            ResnetBlock(1024),
+            ConvBlock(1024, 512),
+            nn.Upsample(scale_factor=2,mode='nearest'),
+            ResnetBlock(512),
+            ConvBlock(512, 256),
+            nn.Upsample(scale_factor=2,mode='nearest'),
             ConvBlock(256, 128),
             nn.Upsample(scale_factor=2,mode='nearest'),
-            ResnetBlock(128),
             ConvBlock(128, 64),
-            nn.Upsample(scale_factor=2,mode='nearest'),
-            ConvBlock(64, 64),
             nn.Upsample(scale_factor=2,mode='nearest'),
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
@@ -198,9 +200,7 @@ class ViT(nn.Layer):
         x = self.transformer(x)
         x = x[:,1:,:]
         x = self.decoder_transformer(x,x)
-        print(x.shape)
         x = self.decompose_axis(x)
-        print(x.shape)
 
         counter=0
         x = self.decoder(x)

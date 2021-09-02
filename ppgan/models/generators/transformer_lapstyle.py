@@ -195,6 +195,7 @@ class ViT(nn.Layer):
         x = self.dropout(x)
 
         x = self.transformer(x)
+        print(x.shape)
         x = x[:,1:,:]
         x = self.decompose_axis(x)
 

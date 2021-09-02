@@ -198,11 +198,11 @@ class ViT(nn.Layer):
         x = self.transformer(x)
         x = x[:,1:,:]
         x = self.decoder_transformer(x,x)
+        print(x.shape)
         x = self.decompose_axis(x)
         print(x.shape)
 
         counter=0
-        x=paddle.reshape(x,(x.shape[0],x.shape[1],x.shape[2]//32,x.shape[2]//32))
         x = self.decoder(x)
         x = x*self.sigmoid(x)
         return self.final(x)

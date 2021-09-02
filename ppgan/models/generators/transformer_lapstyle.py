@@ -191,8 +191,9 @@ class ViT(nn.Layer):
 
         x = self.transformer(x)
         x = x[:,1:,:]
-        x = self.decoder_transformer(x,x)
-        x = self.decompose_axis(x)
-        counter=0
-        x = self.decoder(x)
-        return self.final(x)
+        x = self.decoder_transformer(img[:,:3,:,:],x)
+        #x = self.decompose_axis(x)
+        #counter=0
+        #x = self.decoder(x)
+        #x = self.final(x)
+        return x

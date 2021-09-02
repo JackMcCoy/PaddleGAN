@@ -47,11 +47,12 @@ model:
     kernel_size: 3
     padding: 1
   spectral_discriminator:
-    name: LapStyleSpectralDiscriminator
-    num_channels: 64
+    name: LapStyleSingleDiscriminator
+    num_channels: 32
     num_layer: 3
-    kernel: 3
-    padding: 1
+    noise: 0
+    kernel_size: 5
+    padding: 2
   draftnet_encode:
     name: Encoder
   draftnet_decode:
@@ -78,7 +79,7 @@ model:
   content_weight: 1
   style_weight: 3
   train_layer: 1
-  train_spectral: 0
+  train_spectral: 1
   ada_alpha: .05
   ada_alpha_2: .05
   gan_thumb_weight: 1
@@ -126,6 +127,12 @@ optimizer:
     name: Adam
     net_names:
       - netD_1
+    beta1: 0.9
+    beta2: 0.999
+  optimSD:
+    name: Adam
+    net_names:
+      - spectral_D
     beta1: 0.9
     beta2: 0.999
 validate:

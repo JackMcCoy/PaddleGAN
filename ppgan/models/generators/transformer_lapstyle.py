@@ -166,8 +166,8 @@ class ViT(nn.Layer):
         decoder_layer = nn.TransformerDecoderLayer(1024, 2, 1024,normalize_before=True)
         self.decoder_transformer = nn.TransformerDecoder(decoder_layer, 2)
 
-        dec_input = paddle.rand((5, 64, 1024))
-        enc_output = paddle.rand((5, 64, 1024))
+        dec_input = paddle.rand((5, 65, 1024))
+        enc_output = paddle.rand((5, 65, 1024))
         self.pool = pool
         self.to_latent = self.Identity
 
@@ -190,10 +190,10 @@ class ViT(nn.Layer):
         x = self.dropout(x)
 
         x = self.transformer(x)
-        x = x[:,1:,:]
         x = self.decoder_transformer(x,x)
-        x = self.decompose_axis(x)
+        print(x.shape)
         x = x[:,1:,:]
+        x = self.decompose_axis(x)
         #counter=0
         x = self.decoder(x)
         return self.final(x)

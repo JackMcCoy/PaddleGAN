@@ -20,10 +20,9 @@ model:
     dropout: 0.1
     emb_dropout: 0.1
   revnet_discriminator_1:
-    name: LapStyleSingleDiscriminator
+    name: LapStyleSpectralDiscriminator
     num_channels: 64
-    num_layer: 9
-    noise: 0
+    layers: 3
     kernel_size: 3
     padding: 1
   revnet_discriminator_2:

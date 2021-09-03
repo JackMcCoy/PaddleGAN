@@ -9,7 +9,7 @@ model:
   generator_encode:
     name: Encoder
   generator_decode:
-    name: DecoderNet
+    name: DecoderNetDeep
   generator_transformer:
     name: ViT
     image_size: 128

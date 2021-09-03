@@ -171,8 +171,8 @@ class ViT(nn.Layer):
         self.pool = pool
         self.to_latent = self.Identity
         self.decoder = nn.Sequential(
-            ResnetBlock(4,3),
-            ConvBlock(3, 3),
+            ResnetBlock(4),
+            ConvBlock(4, 3),
             nn.ReLU()
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),

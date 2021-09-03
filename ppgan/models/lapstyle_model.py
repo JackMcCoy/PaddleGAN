@@ -192,7 +192,6 @@ class LapStyleDraModel(BaseModel):
 class LapStyleDraXDOG(BaseModel):
     def __init__(self,
                  generator_encode,
-                 generator_decode,
                  generator_transformer,
                  calc_style_emd_loss=None,
                  calc_content_relt_loss=None,
@@ -210,11 +209,11 @@ class LapStyleDraXDOG(BaseModel):
 
         # define generators
         self.nets['net_enc'] = build_generator(generator_encode)
-        self.nets['net_dec'] = build_generator(generator_decode)
+        #self.nets['net_dec'] = build_generator(generator_decode)
         self.nets['net_vit'] = build_generator(generator_transformer)
         #init_weights(self.nets['net_dec'])
         self.set_requires_grad([self.nets['net_enc']], False)
-        self.set_requires_grad([self.nets['net_dec']], False)
+        #self.set_requires_grad([self.nets['net_dec']], False)
         init_weights(self.nets['net_vit'])
 
         # define loss functions
@@ -269,10 +268,11 @@ class LapStyleDraXDOG(BaseModel):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
-        self.stylized = self.nets['net_dec'](self.cF, self.sF)
+        dual_tensor = paddle.concat(x=[self.ci, self.si], axis=1)
+        self.stylized = self.nets['net_vit'](dual_tensor)
         self.visual_items['stylized'] = self.stylized
-        self.stylized = self.nets['net_vit'](self.stylized)
-        self.visual_items['stylized_vit'] = self.stylized
+        #self.stylized = self.nets['net_vit'](self.stylized)
+        #self.visual_items['stylized_vit'] = self.stylized
 
     def backward_Dec(self):
 
@@ -296,8 +296,8 @@ class LapStyleDraXDOG(BaseModel):
             self.loss_s += self.calc_style_loss(self.tF[layer], self.sF[layer])
         self.losses['loss_s'] = self.loss_s
         """IDENTITY LOSSES"""
-        self.Icc = self.nets['net_dec'](self.cF, self.cF)
-        self.Icc = self.nets['net_vit'](self.Icc)
+        dual_ci = paddle.concat(x=[self.ci, self.ci], axis=1)
+        self.Icc = self.nets['net_vit'](self.dual_ci)
         self.l_identity1 = self.calc_content_loss(self.Icc, self.ci)
         self.Fcc = self.nets['net_enc'](self.Icc)
         self.l_identity2 = 0

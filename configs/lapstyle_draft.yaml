@@ -14,7 +14,7 @@ model:
     patch_size: 2
     channels: 128
     num_classes: 1000
-    dim: 1024
+    dim: 2048
     depth: 6
     pool: cls
     heads: 16

@@ -236,7 +236,7 @@ class ViTDraft(nn.Layer):
             nn.Upsample(scale_factor=2, mode='nearest'),
             ResnetBlock(32),
             ConvBlock(32, 16),
-            nn.Upsample(scale_factor=2, mode='nearest')
+            nn.Upsample(scale_factor=2, mode='nearest'),
             ResnetBlock(32),
             ConvBlock(32, 16),
             nn.Upsample(scale_factor=2, mode='nearest'),

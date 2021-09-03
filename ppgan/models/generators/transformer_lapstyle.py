@@ -233,6 +233,9 @@ class ViTDraft(nn.Layer):
         self.decoder = nn.Sequential(
             ResnetBlock(64),
             ConvBlock(64, 32),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            ResnetBlock(32),
+            ConvBlock(32, 16),
             nn.Upsample(scale_factor=2, mode='nearest')
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),

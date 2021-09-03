@@ -193,6 +193,7 @@ class ViT(nn.Layer):
         x = self.decoder_transformer(x,x)
         x = x[:,1:,:]
         x = self.decompose_axis(x)
+        x = x[:, 1:, :, :]
         #counter=0
         x = self.decoder(x)
         return self.final(x)

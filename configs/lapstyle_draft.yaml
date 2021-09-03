@@ -11,7 +11,7 @@ model:
   generator_decode:
     name: DecoderNet
     noise: 1
-  generator_VIT:
+  generator_vit:
     name: ViT
     image_size: 128
     patch_size: 8

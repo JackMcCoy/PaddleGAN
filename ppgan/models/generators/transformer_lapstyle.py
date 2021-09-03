@@ -233,15 +233,7 @@ class ViTDraft(nn.Layer):
         self.decoder = nn.Sequential(
             ResnetBlock(64),
             ConvBlock(64, 32),
-            nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(32),
-            ConvBlock(32, 16),
-            nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(32),
-            ConvBlock(32, 16),
-            nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(16),
-            ConvBlock(16, 3)
+            nn.Upsample(scale_factor=2, mode='nearest')
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(3, 3, (3, 3)))
@@ -257,7 +249,7 @@ class ViTDraft(nn.Layer):
         x = self.transformer(x)
         x = self.decoder_transformer(x,x)
         x = self.decompose_axis(x)
-        print(x.shape)
         counter=0
         x = self.decoder(x)
+        print(x.shape)
         return self.final(x)

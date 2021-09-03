@@ -247,15 +247,14 @@ class ViTDraft(nn.Layer):
                                         nn.Conv2D(3, 3, (3, 3)))
     def forward(self, cF,sF):
         img = adaptive_instance_normalization(cF['r41'], sF['r41'])
-        x = self.rearrange(img)
-        x = self.to_patch_embedding(x)
+        print(img.shape)
+        x = self.to_patch_embedding(img)
         b, n, _ = x.shape
 
         x += self.pos_embedding[:, :n]
         x = self.dropout(x)
         x = self.transformer(x)
         x = self.decoder_transformer(x,x)
-        x = self.decompose_axis(x)
         counter=0
         x = self.decoder(x)
         return self.final(x)

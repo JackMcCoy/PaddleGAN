@@ -174,8 +174,7 @@ class ViT(nn.Layer):
             ResnetBlock(16),
             ConvBlock(16, 8),
             ResnetBlock(8),
-            ConvBlock(8, 4),
-            ConvBlock(4, 3),
+            ConvBlock(8, 3),
             nn.ReLU()
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),

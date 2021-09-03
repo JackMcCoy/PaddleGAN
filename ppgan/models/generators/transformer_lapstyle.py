@@ -214,7 +214,7 @@ class ViTDraft(nn.Layer):
         assert pool in {'cls', 'mean'}, 'pool type must be either cls (cls token) or mean (mean pooling)'
 
         self.rearrange=Rearrange('b c h w -> b (h w) c')
-        self.decompose_axis=Rearrange('b (h w) c -> b c h w', w=8)
+        self.decompose_axis=Rearrange('b (h w) c -> b c h w', w=16)
         self.to_patch_embedding = nn.Linear(512, dim)
 
         self.pos_embedding = paddle.create_parameter(shape=(1, channels, dim), dtype='float32')

@@ -12,7 +12,7 @@ model:
     name: ViTDraft
     image_size: 16
     patch_size: 1
-    channels: 512
+    channels: 16
     num_classes: 1000
     dim: 1024
     depth: 6

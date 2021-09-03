@@ -164,7 +164,7 @@ class ViT(nn.Layer):
         self.transformer = Transformer(dim, depth, heads, dim_head, mlp_dim, dropout)
 
         decoder_layer = nn.TransformerDecoderLayer(1024, 2, 1024,normalize_before=True)
-        self.decoder_transformer = nn.TransformerDecoder(decoder_layer, 2)
+        self.decoder_transformer = nn.TransformerDecoder(decoder_layer, 6)
 
         dec_input = paddle.rand((5, 65, 1024))
         enc_output = paddle.rand((5, 65, 1024))

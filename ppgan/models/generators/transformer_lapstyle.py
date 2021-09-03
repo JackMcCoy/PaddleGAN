@@ -186,14 +186,11 @@ class ViT(nn.Layer):
         x = self.to_patch_embedding(x)
         b, n, _ = x.shape
 
-        cls_tokens = repeat(self.cls_token, '() n d -> b n d', b = b)
-        x = paddle.concat((cls_tokens, x), axis=1)
-        x += self.pos_embedding[:, :(n + 1)]
+        x += self.pos_embedding[:, :n]
         x = self.dropout(x)
 
         x = self.transformer(x)
         x = self.decoder_transformer(x,x)
-        x = x[:,1:,:]
         x = self.decompose_axis(x)
         counter=0
         x = self.decoder(x)

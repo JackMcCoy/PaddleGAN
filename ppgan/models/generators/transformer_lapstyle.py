@@ -259,5 +259,4 @@ class ViTDraft(nn.Layer):
         x = self.decompose_axis(x)
         counter=0
         x = self.decoder(x)
-        print(x.shape)
         return self.final(x)

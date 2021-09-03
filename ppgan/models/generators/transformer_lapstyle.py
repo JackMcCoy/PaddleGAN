@@ -248,7 +248,7 @@ class ViTDraft(nn.Layer):
         img = adaptive_instance_normalization(cF['r41'], sF['r41'])
         print(img.shape)
         x = self.to_patch_embedding(img)
-        b, n, _ = x.shape
+        b, n, _,_ = x.shape
 
         x += self.pos_embedding[:, :n]
         x = self.dropout(x)

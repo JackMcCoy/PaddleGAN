@@ -10,7 +10,7 @@ model:
     name: Encoder
   generator_decode:
     name: ViTDraft
-    image_size: 64
+    image_size: 128
     patch_size: 2
     channels: 512
     num_classes: 1000

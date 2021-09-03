@@ -172,9 +172,9 @@ class ViT(nn.Layer):
         self.to_latent = self.Identity
 
         self.decoder = nn.Sequential(
-            ResnetBlock(4),
+            ResnetBlock(3),
             ConvBlock(4, 3),
-            nn.GELU()
+            nn.ReLU()
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(3, 3, (3, 3)))

@@ -9,7 +9,7 @@ model:
   generator_encode:
     name: Encoder
   generator_decode:
-    name: DecoderNetDeep
+    name: DecoderNet
   generator_transformer:
     name: ViT
     image_size: 128
@@ -70,6 +70,7 @@ optimizer:
   optimG:
     name: Adam
     net_names:
+      - net_dec
       - net_vit
     beta1: 0.9
     beta2: 0.999

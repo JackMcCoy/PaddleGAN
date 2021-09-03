@@ -10,7 +10,6 @@ model:
     name: Encoder
   generator_decode:
     name: DecoderNet
-    noise: 1
   generator_transformer:
     name: ViT
     image_size: 128

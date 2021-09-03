@@ -259,7 +259,6 @@ class LapStyleDraXDOG(BaseModel):
         self.ci = paddle.to_tensor(input['ci'])
         self.visual_items['ci'] = self.ci
         self.si = paddle.to_tensor(input['si'])
-        self.visual_items['si'] = self.si
         self.image_paths = input['ci_path']
 
     def forward(self):
@@ -273,13 +272,10 @@ class LapStyleDraXDOG(BaseModel):
 
         self.cX,_ = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
         self.sX,_ = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
-        self.visual_items['cx'] = self.cX
-        self.visual_items['sx'] = self.sX
         self.cXF = self.nets['net_enc'](self.cX)
         self.sXF = self.nets['net_enc'](self.sX)
         stylized_dog,_ = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
         self.cdogF = self.nets['net_enc'](stylized_dog)
-        self.visual_items['cdog']=stylized_dog
         self.tF = self.nets['net_enc'](self.stylized)
         """content loss"""
         self.loss_c = 0

@@ -50,7 +50,7 @@ dataset:
     crop_size: 128
     style_upsize: 1
     num_workers: 16
-    batch_size: 10
+    batch_size: 1
   test:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
@@ -83,4 +83,4 @@ log_config:
   visiual_interval: 100
 
 snapshot_config:
-  interval: 1000
+  interval: 10000

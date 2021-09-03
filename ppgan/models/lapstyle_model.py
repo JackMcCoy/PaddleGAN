@@ -214,7 +214,7 @@ class LapStyleDraXDOG(BaseModel):
         self.nets['net_vit'] = build_generator(generator_transformer)
         #init_weights(self.nets['net_dec'])
         self.set_requires_grad([self.nets['net_enc']], False)
-        init_weights(self.nets['net_dec'])
+        self.set_requires_grad([self.nets['net_dec']], False)
         init_weights(self.nets['net_vit'])
 
         # define loss functions

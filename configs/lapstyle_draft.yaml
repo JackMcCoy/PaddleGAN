@@ -70,7 +70,6 @@ optimizer:
   optimG:
     name: Adam
     net_names:
-      - net_dec
       - net_vit
     beta1: 0.9
     beta2: 0.999

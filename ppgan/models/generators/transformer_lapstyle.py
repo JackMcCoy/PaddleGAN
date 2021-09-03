@@ -231,12 +231,10 @@ class ViTDraft(nn.Layer):
         self.pool = pool
         self.to_latent = self.Identity
         self.decoder = nn.Sequential(
-            ResnetBlock(16),
-            ConvBlock(16, 8),
-            ResnetBlock(8),
-            ConvBlock(8, 4),
-            ResnetBlock(4),
-            ConvBlock(4, 3),
+            ResnetBlock(18),
+            ConvBlock(18, 9),
+            ResnetBlock(9),
+            ConvBlock(9, 3),
             nn.ReLU()
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),

@@ -170,15 +170,12 @@ class ViT(nn.Layer):
         enc_output = paddle.rand((5, 65, 1024))
         self.pool = pool
         self.to_latent = self.Identity
-        '''
         self.decoder = nn.Sequential(
-            ResnetBlock(3),
             ConvBlock(3, 3),
             nn.ReLU()
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(3, 3, (3, 3)))
-        '''
     def forward(self, img):
         x = self.rearrange(img)
         x = self.to_patch_embedding(x)
@@ -193,8 +190,6 @@ class ViT(nn.Layer):
         x = self.decoder_transformer(x,x)
         x = x[:,1:,:]
         x = self.decompose_axis(x)
-        x = x[:, 1:, :, :]
-        #counter=0
-        #x = self.decoder(x)
-        #return self.final(x)
-        return x
+        counter=0
+        x = self.decoder(x)
+        return self.final(x)

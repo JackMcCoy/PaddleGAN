@@ -193,6 +193,7 @@ class LapStyleDraXDOG(BaseModel):
     def __init__(self,
                  generator_encode,
                  generator_decode,
+                 generator_transformer,
                  calc_style_emd_loss=None,
                  calc_content_relt_loss=None,
                  calc_content_loss=None,
@@ -210,6 +211,7 @@ class LapStyleDraXDOG(BaseModel):
         # define generators
         self.nets['net_enc'] = build_generator(generator_encode)
         self.nets['net_dec'] = build_generator(generator_decode)
+        self.nets['net_vit'] = build_generator(generator_transformer)
         init_weights(self.nets['net_dec'])
         self.set_requires_grad([self.nets['net_enc']], False)
 
@@ -266,6 +268,7 @@ class LapStyleDraXDOG(BaseModel):
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
         self.stylized = self.nets['net_dec'](self.cF, self.sF)
+        self.stylized = self.nets['net_vit'](self.cF, self.sF)
         self.visual_items['stylized'] = self.stylized
 
     def backward_Dec(self):

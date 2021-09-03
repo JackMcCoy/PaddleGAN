@@ -9,10 +9,13 @@ model:
   generator_encode:
     name: Encoder
   generator_decode:
-    name: ViTDraft
+    name: DecoderNet
+    noise: 1
+  generator_VIT:
+    name: ViT
     image_size: 128
-    patch_size: 2
-    channels: 512
+    patch_size: 8
+    channels: 6
     num_classes: 1000
     dim: 1024
     depth: 6
@@ -20,6 +23,7 @@ model:
     heads: 16
     mlp_dim: 2048
     dropout: 0.1
+    emb_dropout: 0.1
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:
@@ -35,7 +39,7 @@ model:
   content_weight: 1
   style_weight: 5
   morph_cutoff: 8.85
-  gamma: .94
+  gamma: .9
 
 
 dataset:
@@ -47,7 +51,7 @@ dataset:
     crop_size: 128
     style_upsize: 1
     num_workers: 16
-    batch_size: 10
+    batch_size: 5
   test:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
@@ -60,18 +64,18 @@ dataset:
 
 lr_scheduler:
   name: NonLinearDecay
-  learning_rate: 1e-5
-  lr_decay: 5e-6
+  learning_rate: 1e-4
+  lr_decay: 5e-5
 
 optimizer:
   optimG:
     name: Adam
     net_names:
       - net_dec
+      - net_vit
     beta1: 0.9
     beta2: 0.999
     weight_decay: .1
-
 validate:
   interval: 150000
   save_img: false

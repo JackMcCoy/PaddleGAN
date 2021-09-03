@@ -215,9 +215,9 @@ class ViTDraft(nn.Layer):
 
         self.rearrange=Rearrange('b c h w -> b (h w) c')
         self.decompose_axis=Rearrange('b (h w) c -> b c h w', w=8)
-        self.to_patch_embedding = nn.Linear(patch_dim, dim)
+        self.to_patch_embedding = nn.Linear(512, dim)
 
-        self.pos_embedding = paddle.create_parameter(shape=(1, num_patches + 1, dim), dtype='float32')
+        self.pos_embedding = paddle.create_parameter(shape=(1, channels, dim), dtype='float32')
         self.cls_token = paddle.create_parameter(shape=(1, 1, dim),dtype='float32')
         self.dropout = nn.Dropout(emb_dropout)
 

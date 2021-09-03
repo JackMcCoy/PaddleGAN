@@ -242,7 +242,9 @@ class ViTDraft(nn.Layer):
     def forward(self, cF,sF):
         img = adaptive_instance_normalization(cF['r41'], sF['r41'])
         x = self.rearrange(img)
+        print(x.shape)
         x = self.to_patch_embedding(x)
+        print(x.shape)
         b, n, _ = x.shape
 
         x += self.pos_embedding[:, :n]

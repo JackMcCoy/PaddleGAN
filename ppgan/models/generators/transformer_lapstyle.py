@@ -213,11 +213,12 @@ class ViTDraft(nn.Layer):
         patch_dim = channels * patch_height * patch_width
         assert pool in {'cls', 'mean'}, 'pool type must be either cls (cls token) or mean (mean pooling)'
 
-        self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width)
-        self.decompose_axis=Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', w=8,p1=patch_height,p2=patch_width)
-        self.to_patch_embedding = nn.Linear(16, dim)
+        self.rearrange=Rearrange('b c h w -> b (h w) c')
+        self.decompose_axis=Rearrange('b (h w) c -> b c h w', w=8)
+        self.to_patch_embedding = nn.Linear(patch_dim, dim)
 
-        self.pos_embedding = paddle.create_parameter(shape=(1, 512, dim), dtype='float32')
+        self.pos_embedding = paddle.create_parameter(shape=(1, num_patches + 1, dim), dtype='float32')
+        self.cls_token = paddle.create_parameter(shape=(1, 1, dim),dtype='float32')
         self.dropout = nn.Dropout(emb_dropout)
 
         self.transformer = Transformer(dim, depth, heads, dim_head, mlp_dim, dropout)
@@ -247,13 +248,17 @@ class ViTDraft(nn.Layer):
     def forward(self, cF,sF):
         img = adaptive_instance_normalization(cF['r41'], sF['r41'])
         print(img.shape)
-        x = self.to_patch_embedding(img)
-        b, n, _,_ = x.shape
+        x = self.rearrange(img)
+        x = self.to_patch_embedding(x)
+        b, n, _ = x.shape
 
         x += self.pos_embedding[:, :n]
         x = self.dropout(x)
+        print(x.shape)
         x = self.transformer(x)
         x = self.decoder_transformer(x,x)
+        x = self.decompose_axis(x)
         counter=0
         x = self.decoder(x)
+        print(x.shape)
         return self.final(x)

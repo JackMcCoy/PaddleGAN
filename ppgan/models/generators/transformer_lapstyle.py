@@ -231,14 +231,16 @@ class ViTDraft(nn.Layer):
         self.pool = pool
         self.to_latent = self.Identity
         self.decoder = nn.Sequential(
-            ResnetBlock(18),
-            ConvBlock(18, 9),
-            ResnetBlock(9),
-            ConvBlock(9, 3),
+            ResnetBlock(64),
+            ConvBlock(64, 32),
+            ResnetBlock(32),
+            ConvBlock(32, 16),
+            ConvBlock(16, 8),
+            ConvBlock(8, 4),
             nn.ReLU()
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        nn.Conv2D(3, 3, (3, 3)))
+                                        nn.Conv2D(4, 3, (3, 3)))
     def forward(self, cF,sF):
         img = adaptive_instance_normalization(cF['r41'], sF['r41'])
         x = self.rearrange(img)

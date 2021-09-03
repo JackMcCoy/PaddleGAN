@@ -253,9 +253,10 @@ class ViTDraft(nn.Layer):
 
         x += self.pos_embedding[:, :n]
         x = self.dropout(x)
-
+        print(x.shape)
         x = self.transformer(x)
         x = self.decoder_transformer(x,x)
+        print(x.shape)
         x = self.decompose_axis(x)
         counter=0
         x = self.decoder(x)

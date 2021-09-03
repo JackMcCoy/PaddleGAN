@@ -173,7 +173,6 @@ class ViT(nn.Layer):
         self.decoder = nn.Sequential(
             ResnetBlock(16),
             ConvBlock(16, 8),
-            ResnetBlock(8),
             ConvBlock(8, 3),
             nn.ReLU()
         )

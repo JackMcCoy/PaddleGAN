@@ -4,7 +4,7 @@ from paddle import nn
 from einops import rearrange, repeat
 from einops.layers.paddle import Rearrange
 from .builder import GENERATORS
-from generator_lapstyle import adaptive_instance_normalization
+from .generater_lapstyle import adaptive_instance_normalization
 
 # helpers
 

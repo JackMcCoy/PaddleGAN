@@ -60,8 +60,8 @@ dataset:
 
 lr_scheduler:
   name: NonLinearDecay
-  learning_rate: 1e-4
-  lr_decay: 5e-5
+  learning_rate: 1e-5
+  lr_decay: 5e-6
 
 optimizer:
   optimG:
@@ -70,6 +70,7 @@ optimizer:
       - net_dec
     beta1: 0.9
     beta2: 0.999
+    weight_decay: .1
 
 validate:
   interval: 150000

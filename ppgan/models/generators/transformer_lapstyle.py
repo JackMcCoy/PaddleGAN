@@ -241,8 +241,7 @@ class ViTDraft(nn.Layer):
             ConvBlock(32, 16),
             nn.Upsample(scale_factor=2, mode='nearest'),
             ResnetBlock(16),
-            ConvBlock(16, 3),
-            nn.ReLU()
+            ConvBlock(16, 3)
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(3, 3, (3, 3)))

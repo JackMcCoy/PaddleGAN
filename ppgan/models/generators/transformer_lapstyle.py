@@ -259,5 +259,4 @@ class ViTDraft(nn.Layer):
         counter=0
         x = self.decoder(x)
         x = self.final(x)
-        print(x)
         return x

@@ -27,9 +27,7 @@ class FeedForward(nn.Layer):
         self.net = nn.Sequential(
             nn.Linear(dim, hidden_dim),
             nn.GELU(),
-            nn.Dropout(p=dropout),
-            nn.Linear(hidden_dim, dim),
-            nn.Dropout(p=dropout)
+            nn.Linear(hidden_dim, dim)
         )
     def forward(self, x):
         return self.net(x)
@@ -49,7 +47,10 @@ class Attention(nn.Layer):
         self.attend = nn.Softmax(axis = -1)
         self.to_qkv = nn.Linear(dim, inner_dim * 3, bias_attr = False)
 
-        self.to_out = nn.Linear(inner_dim, dim)
+        self.to_out = nn.Sequential(
+            [nn.Linear(inner_dim, dim),
+            nn.Dropout(dropout)]
+        ) if project_out else self.Identity
 
     def forward(self, x):
         qkv = paddle.chunk(self.to_qkv(x),3, axis = -1)
@@ -61,8 +62,7 @@ class Attention(nn.Layer):
 
         out = paddle.matmul(attn, v)
         out = rearrange(out, 'b h n d -> b n (h d)')
-        out = self.to_out(out)
-        return out
+        return self.to_out(out)
 
 class Transformer(nn.Layer):
     def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0.):

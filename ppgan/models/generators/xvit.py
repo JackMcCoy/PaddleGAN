@@ -301,8 +301,8 @@ class CrossViT(nn.Layer):
 
         self.sm_mlp_head = nn.Sequential(nn.LayerNorm(sm_dim), nn.Linear(sm_dim, num_classes))
         self.lg_mlp_head = nn.Sequential(nn.LayerNorm(lg_dim), nn.Linear(lg_dim, num_classes))
-        self.decompose_axis = Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', w=(image_width // patch_width),
-                                        p1=patch_height, p2=patch_width)
+        self.decompose_axis = Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', w=(image_size // sm_patch_size),
+                                        p1=sm_patch_size, p2=sm_patch_size)
         self.decoder_transformer = nn.TransformerDecoder(decoder_layer, 6)
         self.decoder = nn.Sequential(
             ResnetBlock(16),
@@ -327,6 +327,7 @@ class CrossViT(nn.Layer):
         sm_logits = self.sm_mlp_head(sm_cls)
         lg_logits = self.lg_mlp_head(lg_cls)
         x = sm_logits + lg_logits
+        print(x.shape)
         x = x[:,1:,:,:]
         x = self.decoder_transformer(x, x)
         x = self.decompose_axis(x)

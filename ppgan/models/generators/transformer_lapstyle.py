@@ -16,7 +16,6 @@ def pair(t):
 class PreNorm(nn.Layer):
     def __init__(self, dim, fn):
         super().__init__()
-        print('prenorm')
         self.norm = nn.LayerNorm(dim)
         self.fn = fn
     def forward(self, x, **kwargs):
@@ -25,7 +24,6 @@ class PreNorm(nn.Layer):
 class FeedForward(nn.Layer):
     def __init__(self, dim, hidden_dim, dropout = 0.):
         super().__init__()
-        print('feedforward')
         self.net = nn.Sequential(
             nn.Linear(dim, hidden_dim),
             nn.GELU(),
@@ -42,7 +40,6 @@ class Attention(nn.Layer):
 
     def __init__(self, dim, heads = 8, dim_head = 64, dropout = 0.):
         super().__init__()
-        print('attention')
         inner_dim = dim_head *  heads
         project_out = not (heads == 1 and dim_head == dim)
 
@@ -55,7 +52,7 @@ class Attention(nn.Layer):
         self.to_out = nn.Sequential(
             [nn.Linear(inner_dim, dim),
             nn.Dropout(dropout)]
-        ) if project_out else self.Identity
+        ) if project_out else self.Identity()
 
     def forward(self, x):
         qkv = paddle.chunk(self.to_qkv(x),3, axis = -1)
@@ -72,13 +69,12 @@ class Attention(nn.Layer):
 class Transformer(nn.Layer):
     def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0.):
         super().__init__()
-        print('transformer')
-        self.layers = nn.LayerList([])
+        self.layers = []
         for _ in range(depth):
-            self.layers.append(('list_'+str(_),nn.LayerList([
+            self.layers.append(nn.LayerList([
                 PreNorm(dim, Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout)),
                 PreNorm(dim, FeedForward(dim, mlp_dim, dropout = dropout))
-            ])))
+            ]))
     def forward(self, x):
         for attn, ff in self.layers:
             x = attn(x) + x

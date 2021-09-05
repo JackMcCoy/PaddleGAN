@@ -9,7 +9,7 @@ model:
   generator_encode:
     name: Encoder
   generator_transformer:
-    name: CrossViT
+    name: ViT
     image_size: 128
     patch_size: 8
     channels: 6

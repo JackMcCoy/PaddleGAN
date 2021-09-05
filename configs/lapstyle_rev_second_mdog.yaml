@@ -20,9 +20,12 @@ model:
     dropout: 0.1
     emb_dropout: 0.1
   revnet_discriminator_1:
-    name: LapStyleSpectralDiscriminator
-    num_channels: 64
-    num_layer: 3
+    name: LapStyleSingleDiscriminator
+    num_channels: 32
+    num_layer: 9
+    noise: 0
+    kernel_size: 3
+    padding: 1
   revnet_discriminator_2:
     name: LapStyleSingleDiscriminator
     num_channels: 32
@@ -109,9 +112,11 @@ dataset:
     batch_size: 1
 
 lr_scheduler:
-  name: NonLinearDecay
-  learning_rate: 1e-3
-  lr_decay: 5e-5
+  name: WarmupNonLinear
+  learning_rate: 1e-4
+  lr_decay: 1e-5
+  warmupstart: 1e-10
+  warmupperiod: 1000
 
 optimizer:
   optimG1:

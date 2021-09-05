@@ -37,7 +37,7 @@ class WarmupNonLinear(LRScheduler):
         self.lr_decay = lr_decay
         self.warmupstart= warmupstart
         self.warmupperiod=warmupperiod
-        self.warmupstep = warmupperiod/(learning_rate-warmupstart)
+        self.warmupstep = (learning_rate-warmupstart)/self.warmupperiod
         print(self.warmupstep)
         super(WarmupNonLinear, self).__init__(learning_rate, last_epoch)
 
@@ -45,6 +45,7 @@ class WarmupNonLinear(LRScheduler):
         print(self.last_epoch)
         if self.last_epoch<self.warmupperiod:
             lr = self.warmupstart+(self.last_epoch*self.warmupstep)
+            print(lr)
             return lr
         lr = self.base_lr / (1.0 + self.lr_decay * (self.last_epoch-self.warmupperiod))
         return lr

@@ -50,7 +50,6 @@ class Attention(nn.Layer):
         self.to_qkv = nn.Linear(dim, inner_dim * 3, bias_attr = False)
 
         self.to_out = nn.Linear(inner_dim, dim)
-        self.d_o=nn.Dropout(p=dropout)
 
     def forward(self, x):
         qkv = paddle.chunk(self.to_qkv(x),3, axis = -1)
@@ -63,7 +62,7 @@ class Attention(nn.Layer):
         out = paddle.matmul(attn, v)
         out = rearrange(out, 'b h n d -> b n (h d)')
         out = self.to_out(out)
-        return self.d_o(out)
+        return out
 
 class Transformer(nn.Layer):
     def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0.):

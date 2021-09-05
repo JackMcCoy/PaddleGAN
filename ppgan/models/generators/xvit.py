@@ -309,17 +309,17 @@ class CrossViT(nn.Layer):
         self.decoder_transformer = nn.TransformerDecoder(decoder_layer, 6)
         self.decoder = nn.Sequential(
             nn.Upsample(scale_factor=2, mode='nearest'),
+            ResnetBlock(192),
+            ConvBlock(192, 96),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            ResnetBlock(96),
+            ConvBlock(96, 48),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            ResnetBlock(48),
+            ConvBlock(48, 24),
+            nn.Upsample(scale_factor=2, mode='nearest'),
             ResnetBlock(24),
-            ConvBlock(24, 12),
-            nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(12),
-            ConvBlock(12, 6),
-            nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(6),
-            ConvBlock(6, 3),
-            nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(3),
-            ConvBlock(3, 3),
+            ConvBlock(24, 3),
             nn.ReLU()
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),

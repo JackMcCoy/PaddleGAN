@@ -15,6 +15,50 @@ def default(val, d):
 
 # pre-layernorm
 
+class ResnetBlock(nn.Layer):
+    """Residual block.
+
+    It has a style of:
+        ---Pad-Conv-ReLU-Pad-Conv-+-
+         |________________________|
+
+    Args:
+        dim (int): Channel number of intermediate features.
+    """
+    def __init__(self, dim):
+        super(ResnetBlock, self).__init__()
+        self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                        nn.Conv2D(dim, dim, (3, 3)), nn.ReLU(),
+                                        nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                        nn.Conv2D(dim, dim, (3, 3)))
+
+    def forward(self, x):
+        out = x + self.conv_block(x)
+        return out
+
+
+class ConvBlock(nn.Layer):
+    """convolution block.
+
+    It has a style of:
+        ---Pad-Conv-ReLU---
+
+    Args:
+        dim1 (int): Channel number of input features.
+        dim2 (int): Channel number of output features.
+    """
+    def __init__(self, dim1, dim2,noise=0):
+        super(ConvBlock, self).__init__()
+        self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                        nn.Conv2D(dim1, dim2, (3, 3)),
+                                        nn.ReLU())
+        if noise==1:
+            self.conv_block.add_sublayer('noise',NoiseBlock(dim2))
+
+    def forward(self, x):
+        out = self.conv_block(x)
+        return out
+
 class PreNorm(nn.Layer):
     def __init__(self, dim, fn):
         super().__init__()
@@ -66,11 +110,11 @@ class Attention(nn.Layer):
         qkv = (self.to_q(x), *self.to_kv(context).chunk(2, axis = -1))
         q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> b h n d', h = h), qkv)
 
-        dots = einsum('b h i d, b h j d -> b h i j', q, k) * self.scale
+        dots = paddle.matmul(q, paddle.transpose(k,(0,1,3,2))) * self.scale
 
         attn = self.attend(dots)
 
-        out = einsum('b h i j, b h j d -> b h i d', attn, v)
+        out = paddle.matmul(attn, v)
         out = rearrange(out, 'b h n d -> b n (h d)')
         return self.to_out(out)
 
@@ -181,7 +225,7 @@ class ImageEmbedder(nn.Layer):
         super().__init__()
         assert image_size % patch_size == 0, 'Image dimensions must be divisible by the patch size.'
         num_patches = (image_size // patch_size) ** 2
-        patch_dim = 3 * patch_size ** 2
+        patch_dim = 6 * patch_size ** 2
 
         self.to_patch_embedding = nn.Sequential(
             Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_size, p2 = patch_size),
@@ -257,6 +301,20 @@ class CrossViT(nn.Layer):
 
         self.sm_mlp_head = nn.Sequential(nn.LayerNorm(sm_dim), nn.Linear(sm_dim, num_classes))
         self.lg_mlp_head = nn.Sequential(nn.LayerNorm(lg_dim), nn.Linear(lg_dim, num_classes))
+        self.decompose_axis = Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', w=(image_width // patch_width),
+                                        p1=patch_height, p2=patch_width)
+        self.decoder_transformer = nn.TransformerDecoder(decoder_layer, 6)
+        self.decoder = nn.Sequential(
+            ResnetBlock(16),
+            ConvBlock(16, 8),
+            ResnetBlock(8),
+            ConvBlock(8, 4),
+            ResnetBlock(4),
+            ConvBlock(4, 3),
+            nn.ReLU()
+        )
+        self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                   nn.Conv2D(3, 3, (3, 3)))
 
     def forward(self, img):
         sm_tokens = self.sm_image_embedder(img)
@@ -268,5 +326,9 @@ class CrossViT(nn.Layer):
 
         sm_logits = self.sm_mlp_head(sm_cls)
         lg_logits = self.lg_mlp_head(lg_cls)
-
-        return sm_logits + lg_logits
+        x = sm_logits + lg_logits
+        x = x[:,1:,:,:]
+        x = self.decoder_transformer(x, x)
+        x = self.decompose_axis(x)
+        x = self.decoder(x)
+        return self.final(x)

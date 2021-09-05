@@ -68,7 +68,7 @@ dataset:
 lr_scheduler:
   name: WarmupNonLinear
   warmupstart: 1e-12
-  warmupperiod: 2500
+  warmupperiod: 5000
   learning_rate: 1e-4
   lr_decay: 1e-5
 

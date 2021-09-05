@@ -50,8 +50,7 @@ class ConvBlock(nn.Layer):
     """
     def __init__(self, dim1, dim2,noise=0):
         super(ConvBlock, self).__init__()
-        self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        nn.Conv2DTranspose(dim1, dim2, (3, 3)),
+        self.conv_block = nn.Sequential(nn.Conv2DTranspose(dim1, dim2, (3, 3)),
                                         nn.ReLU())
         if noise==1:
             self.conv_block.add_sublayer('noise',NoiseBlock(dim2))

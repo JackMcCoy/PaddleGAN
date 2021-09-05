@@ -312,6 +312,7 @@ class CrossViT(nn.Layer):
         self.lg_project = nn.Linear(lg_dim,256)
         self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
         self.lg_decoder_transformer = nn.TransformerDecoder(lg_decoder_layer, 6)
+        self.increase_lg_channel = nn.Conv2DTranspose(4,64,1,groups=4)
         self.decoder = nn.Sequential(
             nn.Upsample(scale_factor=2, mode='nearest'),
             ResnetBlock(24),
@@ -343,11 +344,6 @@ class CrossViT(nn.Layer):
         print(lg_tokens.shape)
         lg = self.decompose_axis(lg_tokens[:, 1:, :])
         sm = self.sm_decompose_axis(sm_tokens[:, 1:, :])
-        repeated_lg = paddle.zeros_like(sm)
-        num_repeats = sm.shape[1]//lg.shape[1]
-        for i in range(num_repeats):
-            repeated_lg[:,i*num_repeats:(i+1)*num_repeats,:,:]=lg[:,i,:,:]
-        print(repeated_lg)
-        print(repeated_lg.shape)
+        repeated_lg = self.increase_lg_channel(lg)
         x = self.decoder(sm+repeated_lg)
         return self.final(x)

@@ -71,10 +71,10 @@ class Transformer(nn.Layer):
         super().__init__()
         self.layers = nn.LayerList([])
         for _ in range(depth):
-            self.layers.append(nn.LayerList([
+            self.layers.append(('list_'+str(_),nn.LayerList([
                 PreNorm(dim, Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout)),
                 PreNorm(dim, FeedForward(dim, mlp_dim, dropout = dropout))
-            ]))
+            ])))
     def forward(self, x):
         for attn, ff in self.layers:
             x = attn(x) + x

@@ -304,6 +304,8 @@ class CrossViT(nn.Layer):
         decoder_layer = nn.TransformerDecoderLayer(1000, 2, 1000, normalize_before=True)
         self.decompose_axis = Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', w=(image_size // sm_patch_size),
                                         p1=sm_patch_size, p2=sm_patch_size)
+        self.partial_unfold = Rearrange('b (h p1 w p2) (c) -> b (hw) (p1 p2 c)', w=4,h=4,
+                                        p1=sm_patch_size, p2=sm_patch_size)
         self.decoder_transformer = nn.TransformerDecoder(decoder_layer, 6)
         self.decoder = nn.Sequential(
             ResnetBlock(16),
@@ -322,7 +324,8 @@ class CrossViT(nn.Layer):
         lg_tokens = self.lg_image_embedder(img)
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
-
+        sm_tokens = self.partial_unfold(sm_tokens)
+        print(sm_tokens.shape)
         x = sm_tokens[:,1:] + lg_tokens[:,1:]
         print(x.shape)
         x = self.decoder_transformer(x, x)

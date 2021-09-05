@@ -18,7 +18,7 @@ model:
     sm_enc_depth: 2
     sm_enc_heads: 8
     sm_enc_mlp_dim: 2048
-    lg_dim: 384
+    lg_dim: 3072
     lg_patch_size: 64
     lg_enc_depth: 3
     lg_enc_heads: 8

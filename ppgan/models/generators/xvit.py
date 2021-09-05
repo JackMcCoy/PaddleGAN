@@ -303,9 +303,9 @@ class CrossViT(nn.Layer):
         self.lg_mlp_head = nn.Sequential(nn.LayerNorm(lg_dim), nn.Linear(lg_dim, num_classes))
         sm_decoder_layer = nn.TransformerDecoderLayer(256, 16, 256, normalize_before=True)
         lg_decoder_layer = nn.TransformerDecoderLayer(256, 16, 256, normalize_before=True)
-        self.decompose_axis = Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', w=2,h=2,p1=16,p2=16)
+        self.decompose_axis = Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', w=2,h=2,p1=3,p2=3)
         self.sm_decompose_axis = Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', w=32,h=32,
-                                        p1=sm_patch_size, p2=sm_patch_size)
+                                        p1=3, p2=3)
         self.partial_unfold = Rearrange('b (h w p1) c -> b (h w) (p1 c)', w=2,h=2,
                                         p1=16)
         self.sm_project = nn.Linear(sm_dim,256)

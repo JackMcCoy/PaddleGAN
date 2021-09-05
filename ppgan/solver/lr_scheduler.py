@@ -44,7 +44,7 @@ class WarmupNonLinear(LRScheduler):
         if self.last_epoch<self.warmupperiod:
             lr = self.warmupstart+(self.last_epoch*self.warmupstep)
             return lr
-        lr = self.base_lr / (1.0 + self.lr_decay * self.last_epoch)
+        lr = self.base_lr / (1.0 + self.lr_decay * (self.last_epoch-self.warmupperiod))
         return lr
 
 

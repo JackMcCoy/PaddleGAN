@@ -314,10 +314,10 @@ class CrossViT(nn.Layer):
             nn.Conv2DTranspose(12,12, (1,1), stride=(2,2),padding=1,padding_mode='reflect'),
             ResnetBlock(12),
             ConvBlock(12, 6),
-            nn.Conv2DTranspose(6,6, (1,1), stride=(2,2),padding=1,padding_mode='reflect),
+            nn.Conv2DTranspose(6,6, (1,1), stride=(2,2),padding=1,padding_mode='reflect'),
             ResnetBlock(6),
             ConvBlock(6, 3),
-            nn.Conv2DTranspose(3,3, (1,1), stride=(2,2),padding=1,padding_mode='reflect),
+            nn.Conv2DTranspose(3,3, (1,1), stride=(2,2),padding=1,padding_mode='reflect'),
             ResnetBlock(3),
             ConvBlock(3, 3),
             nn.ReLU()

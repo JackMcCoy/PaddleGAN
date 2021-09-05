@@ -50,7 +50,8 @@ class ConvBlock(nn.Layer):
     """
     def __init__(self, dim1, dim2,noise=0):
         super(ConvBlock, self).__init__()
-        self.conv_block = nn.Sequential(nn.Conv2DTranspose(dim1, dim2, (3, 3)),
+        self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                        nn.Conv2D(dim1, dim2, (3, 3)),
                                         nn.ReLU())
         if noise==1:
             self.conv_block.add_sublayer('noise',NoiseBlock(dim2))
@@ -310,12 +311,12 @@ class CrossViT(nn.Layer):
             nn.Conv2DTranspose(24,24, (1,1), stride=(2,2),output_padding=1),
             ResnetBlock(24),
             ConvBlock(24, 12),
-            nn.Conv2DTranspose(12,12, (1,1), stride=(2,2),output_padding=1),
-            ResnetBlock(12),
-            ConvBlock(12, 6),
-            nn.Conv2DTranspose(6,6, (1,1), stride=(2,2),output_padding=1),
+            nn.Conv2DTranspose(12,6, (1,1), stride=(2,2),output_padding=1),
             ResnetBlock(6),
-            ConvBlock(6, 3),
+            ConvBlock(6, 6),
+            nn.Conv2DTranspose(6,3, (1,1), stride=(2,2),output_padding=1),
+            ResnetBlock(3),
+            ConvBlock(3, 3),
             nn.Conv2DTranspose(3,3, (1,1), stride=(2,2),output_padding=1),
             ResnetBlock(3),
             ConvBlock(3, 3),

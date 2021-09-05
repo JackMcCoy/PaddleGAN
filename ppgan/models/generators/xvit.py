@@ -177,7 +177,7 @@ class CrossTransformer(nn.Layer):
             lg_cls = lg_attend_sm(lg_cls, context = sm_patch_tokens, kv_include_self = True) + lg_cls
 
         sm_tokens = paddle.concat((sm_cls, sm_patch_tokens), axis = 1)
-        lg_tokens = paddle.concat((lg_cls, lg_patch_tokens), axid = 1)
+        lg_tokens = paddle.concat((lg_cls, lg_patch_tokens), axis = 1)
         return sm_tokens, lg_tokens
 
 # multi-scale encoder

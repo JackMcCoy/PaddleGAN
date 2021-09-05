@@ -38,9 +38,11 @@ class WarmupNonLinear(LRScheduler):
         self.warmupstart= warmupstart
         self.warmupperiod=warmupperiod
         self.warmupstep = warmupperiod/(learning_rate-warmupstart)
+        print(self.warmupstep)
         super(WarmupNonLinear, self).__init__(learning_rate, last_epoch)
 
     def get_lr(self):
+        print(self.last_epoch)
         if self.last_epoch<self.warmupperiod:
             lr = self.warmupstart+(self.last_epoch*self.warmupstep)
             return lr

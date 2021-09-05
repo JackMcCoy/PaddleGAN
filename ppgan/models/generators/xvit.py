@@ -161,7 +161,7 @@ class ProjectInOut(nn.Layer):
 class CrossTransformer(nn.Layer):
     def __init__(self, sm_dim, lg_dim, depth, heads, dim_head, dropout):
         super().__init__()
-        self.layers = nn.[]
+        self.layers = []
         for _ in range(depth):
             self.layers.append(nn.LayerList([
                 ProjectInOut(sm_dim, lg_dim, PreNorm(lg_dim, Attention(lg_dim, heads = heads, dim_head = dim_head, dropout = dropout))),

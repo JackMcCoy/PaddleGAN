@@ -11,7 +11,7 @@ model:
   generator_transformer:
     name: ViT
     image_size: 128
-    patch_size: 8
+    patch_size: 16
     channels: 6
     num_classes: 1000
     dim: 1024

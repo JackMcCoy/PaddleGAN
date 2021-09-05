@@ -4,6 +4,7 @@ import paddle.nn.functional as F
 
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
+from .builder import GENERATORS
 
 # helpers
 
@@ -247,7 +248,7 @@ class ImageEmbedder(nn.Layer):
         return self.dropout(x)
 
 # cross ViT class
-
+@GENERATORS.register()
 class CrossViT(nn.Layer):
     def __init__(
         self,

@@ -9,22 +9,16 @@ model:
   generator_encode:
     name: Encoder
   generator_transformer:
-    name: CrossViT
+    name: ViT
     image_size: 128
+    patch_size: 8
+    channels: 6
     num_classes: 1000
-    depth: 4
-    sm_dim: 192
-    sm_patch_size: 16
-    sm_enc_depth: 2
-    sm_enc_heads: 8
-    sm_enc_mlp_dim: 2048
-    lg_dim: 384
-    lg_patch_size: 64
-    lg_enc_depth: 3
-    lg_enc_heads: 8
-    lg_enc_mlp_dim: 2048
-    cross_attn_depth: 2
-    cross_attn_heads: 8
+    dim: 1024
+    depth: 6
+    pool: cls
+    heads: 16
+    mlp_dim: 2048
     dropout: 0.1
     emb_dropout: 0.1
   calc_style_emd_loss:
@@ -54,7 +48,7 @@ dataset:
     crop_size: 128
     style_upsize: 1
     num_workers: 16
-    batch_size: 1
+    batch_size: 5
   test:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
@@ -66,9 +60,7 @@ dataset:
     batch_size: 1
 
 lr_scheduler:
-  name: WarmupNonLinear
-  warmupstart: 1e-10
-  warmupperiod: 1000
+  name: NonLinearDecay
   learning_rate: 1e-4
   lr_decay: 1e-5
 
@@ -79,6 +71,7 @@ optimizer:
       - net_vit
     beta1: 0.9
     beta2: 0.999
+    weight_decay: .1
 validate:
   interval: 150000
   save_img: false

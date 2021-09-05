@@ -92,7 +92,7 @@ class Attention(nn.Layer):
         self.heads = heads
         self.scale = dim_head ** -0.5
 
-        self.attend = nn.Softmax(dim = -1)
+        self.attend = nn.Softmax(axis = -1)
         self.to_q = nn.Linear(dim, inner_dim, bias_attr = False)
         self.to_kv = nn.Linear(dim, inner_dim * 2, bias_attr = False)
 

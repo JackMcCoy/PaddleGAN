@@ -330,8 +330,8 @@ class CrossViT(nn.Layer):
         lg_tokens = self.lg_image_embedder(img)
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
-        sm_tokens = self.partial_unfold(sm_tokens[:,1:,:])
         print(sm_tokens.shape)
+        sm_tokens = self.partial_unfold(sm_tokens[:,1:,:])
         print(lg_tokens.shape)
         x = sm_tokens + lg_tokens[:,1:,:]
         x = self.decoder_transformer(x, x)

@@ -73,7 +73,6 @@ optimizer:
       - net_vit
     beta1: 0.9
     beta2: 0.999
-    weight_decay: .1
 validate:
   interval: 150000
   save_img: false

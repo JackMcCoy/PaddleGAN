@@ -31,6 +31,22 @@ class NonLinearDecay(LRScheduler):
         lr = self.base_lr / (1.0 + self.lr_decay * self.last_epoch)
         return lr
 
+@LRSCHEDULERS.register()
+class WarmupNonLinear(LRScheduler):
+    def __init__(self, warmupstart,warmupperiod,learning_rate, lr_decay, last_epoch=-1):
+        self.lr_decay = lr_decay
+        self.warmupstart= warmupstart
+        self.warmupperiod=warmupperiod
+        self.warmupstep = (learning_rate-warmupstart)/warmupperiod
+        super(NonLinearDecay, self).__init__(learning_rate, last_epoch)
+
+    def get_lr(self):
+        if self.last_epoch<warmup_period:
+            lr = self.warmupstart+(self.last_epoch*self.warmupstep)
+            return lr
+        lr = self.base_lr / (1.0 + self.lr_decay * self.last_epoch)
+        return lr
+
 
 @LRSCHEDULERS.register()
 class LinearDecay(LambdaDecay):

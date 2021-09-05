@@ -227,8 +227,6 @@ class ImageEmbedder(nn.Layer):
         assert image_size % patch_size == 0, 'Image dimensions must be divisible by the patch size.'
         num_patches = (image_size // patch_size) ** 2
         patch_dim = 6 * patch_size ** 2
-        print(patch_dim)
-        print(dim)
 
         self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_size, p2 = patch_size)
         self.to_patch_embedding =nn.Linear(patch_dim, dim)
@@ -240,11 +238,13 @@ class ImageEmbedder(nn.Layer):
     def forward(self, img):
         x = self.rearrange(img)
         x = self.to_patch_embedding(x)
+        print(x.shape)
         b, n, _ = x.shape
 
         cls_tokens = repeat(self.cls_token, '() n d -> b n d', b = b)
         x = paddle.concat((cls_tokens, x), axis=1)
         x += self.pos_embedding[:, :(n + 1)]
+        print(x.shape)
 
         return self.dropout(x)
 

@@ -62,8 +62,7 @@ class Attention(nn.Layer):
 
         out = paddle.matmul(attn, v)
         out = rearrange(out, 'b h n d -> b n (h d)')
-        out = self.to_out(out)
-        return self.d_o(out)
+        return self.to_out(out)
 
 class Transformer(nn.Layer):
     def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0.):

@@ -244,7 +244,6 @@ class ImageEmbedder(nn.Layer):
         cls_tokens = repeat(self.cls_token, '() n d -> b n d', b = b)
         x = paddle.concat((cls_tokens, x), axis=1)
         x += self.pos_embedding[:, :(n + 1)]
-        print(x.shape)
 
         return self.dropout(x)
 

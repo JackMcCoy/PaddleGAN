@@ -27,7 +27,9 @@ class FeedForward(nn.Layer):
         self.net = nn.Sequential(
             nn.Linear(dim, hidden_dim),
             nn.GELU(),
-            nn.Linear(hidden_dim, dim)
+            nn.Dropout(p=dropout),
+            nn.Linear(hidden_dim, dim),
+            nn.Dropout(p=dropout)
         )
     def forward(self, x):
         return self.net(x)
@@ -50,7 +52,7 @@ class Attention(nn.Layer):
         self.to_out = nn.Sequential(
             [nn.Linear(inner_dim, dim),
             nn.Dropout(dropout)]
-        ) if project_out else self.Identity()
+        ) if project_out else self.Identity
 
     def forward(self, x):
         qkv = paddle.chunk(self.to_qkv(x),3, axis = -1)

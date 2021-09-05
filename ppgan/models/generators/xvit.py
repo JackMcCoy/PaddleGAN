@@ -322,7 +322,6 @@ class CrossViT(nn.Layer):
             ConvBlock(3, 3),
             nn.ReLU()
         )
-        self.project_down = nn.Linear(3072, 384)
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                    nn.Conv2D(3, 3, (3, 3)))
 
@@ -332,7 +331,8 @@ class CrossViT(nn.Layer):
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
         sm_tokens = self.partial_unfold(sm_tokens[:,1:,:])
-        sm_tokens=self.project_down(sm_tokens)
+        print(sm_tokens.shape)
+        print(lg_tokens.shape)
         x = sm_tokens + lg_tokens[:,1:,:]
         x = self.decoder_transformer(x, x)
         x = self.decompose_axis(x)

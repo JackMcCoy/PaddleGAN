@@ -308,12 +308,18 @@ class CrossViT(nn.Layer):
                                         p1=16)
         self.decoder_transformer = nn.TransformerDecoder(decoder_layer, 6)
         self.decoder = nn.Sequential(
-            ResnetBlock(16),
-            ConvBlock(16, 8),
-            ResnetBlock(8),
-            ConvBlock(8, 4),
-            ResnetBlock(4),
-            ConvBlock(4, 3),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            ResnetBlock(24),
+            ConvBlock(24, 12),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            ResnetBlock(12),
+            ConvBlock(12, 6),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            ResnetBlock(6),
+            ConvBlock(6, 3),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            ResnetBlock(3),
+            ConvBlock(3, 3),
             nn.ReLU()
         )
         self.project_down = nn.Linear(3072, 384)
@@ -325,16 +331,11 @@ class CrossViT(nn.Layer):
         lg_tokens = self.lg_image_embedder(img)
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
-        print(sm_tokens.shape)
-        print(lg_tokens.shape)
-        print(sm_tokens[:,-16])
         sm_tokens = self.partial_unfold(sm_tokens[:,1:,:])
         sm_tokens=self.project_down(sm_tokens)
         print(sm_tokens[:,-1])
         x = sm_tokens + lg_tokens[:,1:,:]
-        print(x.shape)
         x = self.decoder_transformer(x, x)
         x = self.decompose_axis(x)
-        print(x.shape)
         x = self.decoder(x)
         return self.final(x)

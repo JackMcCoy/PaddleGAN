@@ -226,7 +226,7 @@ class ImageEmbedder(nn.Layer):
         super().__init__()
         assert image_size % patch_size == 0, 'Image dimensions must be divisible by the patch size.'
         num_patches = (image_size // patch_size) ** 2
-        patch_dim = 6 * patch_size ** 2
+        patch_dim = 3 * patch_size ** 2
 
         self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_size, p2 = patch_size)
         self.to_patch_embedding =nn.Linear(patch_dim, dim)

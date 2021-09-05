@@ -76,9 +76,9 @@ class FeedForward(nn.Layer):
         self.net = nn.Sequential(
             nn.Linear(dim, hidden_dim),
             nn.GELU(),
-            nn.Dropout(dropout),
+            nn.Dropout(p=dropout),
             nn.Linear(hidden_dim, dim),
-            nn.Dropout(dropout)
+            nn.Dropout(p=dropout)
         )
     def forward(self, x):
         return self.net(x)
@@ -98,7 +98,7 @@ class Attention(nn.Layer):
 
         self.to_out = nn.Sequential(
             nn.Linear(inner_dim, dim),
-            nn.Dropout(dropout)
+            nn.Dropout(p=dropout)
         )
 
     def forward(self, x, context = None, kv_include_self = False):
@@ -233,7 +233,7 @@ class ImageEmbedder(nn.Layer):
 
         self.pos_embedding = paddle.create_parameter(shape=(1, num_patches + 1, dim), dtype='float32')
         self.cls_token = paddle.create_parameter(shape=(1, 1, dim), dtype='float32')
-        self.dropout = nn.Dropout(dropout)
+        self.dropout = nn.Dropout(p=dropout)
 
     def forward(self, img):
         x = self.rearrange(img)

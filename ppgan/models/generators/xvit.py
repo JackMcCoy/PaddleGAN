@@ -327,7 +327,7 @@ class CrossViT(nn.Layer):
         print(sm_tokens.shape)
         print(sm_tokens[:,-4])
         sm_tokens = self.partial_unfold(sm_tokens[:,1:,:])
-        print(sm_tokens[:,-4])
+        print(sm_tokens[:,-1])
         x = sm_tokens + lg_tokens[:,1:,:]
         print(x.shape)
         x = self.decoder_transformer(x, x)

@@ -34,7 +34,7 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
-  style_weight: 3
+  style_weight: 2
   morph_cutoff: 8.85
   gamma: .9
 
@@ -43,7 +43,7 @@ dataset:
   train:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/gdrive/My Drive/img_style/styles_small/
+    style_root: /content/PaddleGAN/cypresssmall.png
     load_size: 128
     crop_size: 128
     style_upsize: 1

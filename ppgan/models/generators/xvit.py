@@ -308,8 +308,8 @@ class CrossViT(nn.Layer):
                                         p1=sm_patch_size, p2=sm_patch_size)
         self.partial_unfold = Rearrange('b (h w p1) c -> b (h w) (p1 c)', w=2,h=2,
                                         p1=16)
-        self.sm_project = nn.Linear(sm_patch_size,256)
-        self.lg_project = nn.Linear(lg_patch_size,256)
+        self.sm_project = nn.Linear(sm_dim,256)
+        self.lg_project = nn.Linear(lg_dim,256)
         self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
         self.lg_decoder_transformer = nn.TransformerDecoder(lg_decoder_layer, 6)
         self.decoder = nn.Sequential(

@@ -124,7 +124,7 @@ class Attention(nn.Layer):
 class Transformer(nn.Layer):
     def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0.):
         super().__init__()
-        self.layers = []
+        self.layers = nn.LayerList
         self.norm = nn.LayerNorm(dim)
         for _ in range(depth):
             self.layers.append(nn.LayerList([
@@ -197,7 +197,7 @@ class MultiScaleEncoder(nn.Layer):
         dropout = 0.
     ):
         super().__init__()
-        self.layers = []
+        self.layers = nn.LayerList()
         for _ in range(depth):
             self.layers.append(nn.LayerList([
                 Transformer(dim = sm_dim, dropout = dropout, **sm_enc_params),

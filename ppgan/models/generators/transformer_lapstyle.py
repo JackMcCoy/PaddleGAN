@@ -50,8 +50,7 @@ class Attention(nn.Layer):
         self.to_qkv = nn.Linear(dim, inner_dim * 3, bias_attr = False)
 
         self.to_out = nn.Sequential(
-            [nn.Linear(inner_dim, dim),
-            nn.Dropout(dropout)]
+            [nn.Linear(inner_dim, dim)]
         ) if project_out else self.Identity
 
     def forward(self, x):

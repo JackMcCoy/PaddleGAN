@@ -308,16 +308,16 @@ class CrossViT(nn.Layer):
                                         p1=16)
         self.decoder_transformer = nn.TransformerDecoder(decoder_layer, 6)
         self.decoder = nn.Sequential(
-            nn.Conv2DTranspose(24,24, (1,1), strides=(2,2)),
+            nn.Conv2DTranspose(24,24, (1,1), stride=(2,2)),
             ResnetBlock(24),
             ConvBlock(24, 12),
-            nn.Conv2DTranspose(12,12, (1,1), strides=(2,2)),
+            nn.Conv2DTranspose(12,12, (1,1), stride=(2,2)),
             ResnetBlock(12),
             ConvBlock(12, 6),
-            nn.Conv2DTranspose(6,6, (1,1), strides=(2,2)),
+            nn.Conv2DTranspose(6,6, (1,1), stride=(2,2)),
             ResnetBlock(6),
             ConvBlock(6, 3),
-            nn.Conv2DTranspose(3,3, (1,1), strides=(2,2)),
+            nn.Conv2DTranspose(3,3, (1,1), stride=(2,2)),
             ResnetBlock(3),
             ConvBlock(3, 3),
             nn.ReLU()

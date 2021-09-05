@@ -27,9 +27,7 @@ class FeedForward(nn.Layer):
         self.net = nn.Sequential(
             nn.Linear(dim, hidden_dim),
             nn.GELU(),
-            nn.Dropout(p=dropout),
-            nn.Linear(hidden_dim, dim),
-            nn.Dropout(p=dropout)
+            nn.Linear(hidden_dim, dim)
         )
     def forward(self, x):
         return self.net(x)

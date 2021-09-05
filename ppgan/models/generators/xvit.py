@@ -301,25 +301,29 @@ class CrossViT(nn.Layer):
 
         self.sm_mlp_head = nn.Sequential(nn.LayerNorm(sm_dim), nn.Linear(sm_dim, num_classes))
         self.lg_mlp_head = nn.Sequential(nn.LayerNorm(lg_dim), nn.Linear(lg_dim, num_classes))
-        decoder_layer = nn.TransformerDecoderLayer(3072, 2, 3072, normalize_before=True)
+        sm_decoder_layer = nn.TransformerDecoderLayer(sm_dim, 2, sm_dim, normalize_before=True)
+        lg_decoder_layer = nn.TransformerDecoderLayer(lg_dim, 2, lg_dim, normalize_before=True)
         self.decompose_axis = Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', w=2,
                                         p1=4, p2=4)
+        self.sm_decompose_axis = Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', w=8,
+                                        p1=16, p2=16)
         self.partial_unfold = Rearrange('b (h w p1) c -> b (h w) (p1 c)', w=2,h=2,
                                         p1=16)
-        self.decoder_transformer = nn.TransformerDecoder(decoder_layer, 6)
+        self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
+        self.lg_decoder_transformer = nn.TransformerDecoder(lg_decoder_layer, 6)
         self.decoder = nn.Sequential(
             nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(192),
-            ConvBlock(192, 96),
-            nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(96),
-            ConvBlock(96, 48),
-            nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(48),
-            ConvBlock(48, 24),
-            nn.Upsample(scale_factor=2, mode='nearest'),
             ResnetBlock(24),
-            ConvBlock(24, 3),
+            ConvBlock(24, 12),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            ResnetBlock(12),
+            ConvBlock(12, 6),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            ResnetBlock(6),
+            ConvBlock(6, 3),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            ResnetBlock(3),
+            ConvBlock(3, 3),
             nn.ReLU()
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
@@ -330,9 +334,10 @@ class CrossViT(nn.Layer):
         lg_tokens = self.lg_image_embedder(img)
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
-        sm_tokens = self.partial_unfold(sm_tokens[:,1:,:])
-        x = sm_tokens + lg_tokens[:,1:,:]
-        x = self.decoder_transformer(x, x)
-        x = self.decompose_axis(x)
+
+        sm_tokens = self.sm_decoder_transformer(sm_tokens, sm_tokens)
+        lg_tokens = self.lg_decoder_transformer(lg_tokens,lg_tokens)
+        lg = self.decompose_axis(lg_tokens[:,1:,:])
+        sm = self.sm_decompose_axis(sm_tokens[:,1:,:])
         x = self.decoder(x)
         return self.final(x)

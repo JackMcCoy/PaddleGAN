@@ -124,7 +124,7 @@ class Attention(nn.Layer):
 class Transformer(nn.Layer):
     def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0.):
         super().__init__()
-        self.layers = nn.LayerList
+        self.layers = nn.LayerList()
         self.norm = nn.LayerNorm(dim)
         for _ in range(depth):
             self.layers.append(nn.LayerList([

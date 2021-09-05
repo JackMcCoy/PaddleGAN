@@ -228,6 +228,7 @@ class ImageEmbedder(nn.Layer):
         num_patches = (image_size // patch_size) ** 2
         patch_dim = 6 * patch_size ** 2
         print(patch_dim)
+        print(dim)
 
         self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_size, p2 = patch_size)
         self.to_patch_embedding =nn.Linear(patch_dim, dim)

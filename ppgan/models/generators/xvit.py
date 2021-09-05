@@ -305,7 +305,7 @@ class CrossViT(nn.Layer):
         self.decompose_axis = Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', w=(image_size // sm_patch_size),
                                         p1=sm_patch_size, p2=sm_patch_size)
         self.partial_unfold = Rearrange('b (h w p1) c -> b (h w) (p1 c)', w=2,h=2,
-                                        p1=lg_patch_size//sm_patch_size)
+                                        p1=lg_patch_size//sm_patch_size)//4
         self.decoder_transformer = nn.TransformerDecoder(decoder_layer, 6)
         self.decoder = nn.Sequential(
             ResnetBlock(16),

@@ -238,7 +238,6 @@ class ImageEmbedder(nn.Layer):
     def forward(self, img):
         x = self.rearrange(img)
         x = self.to_patch_embedding(x)
-        print(x.shape)
         b, n, _ = x.shape
 
         cls_tokens = repeat(self.cls_token, '() n d -> b n d', b = b)

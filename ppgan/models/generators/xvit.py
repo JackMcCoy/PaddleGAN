@@ -323,11 +323,8 @@ class CrossViT(nn.Layer):
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
 
-        sm_cls, lg_cls = map(lambda t: t[:, 0], (sm_tokens, lg_tokens))
-
-        sm_logits = self.sm_mlp_head(sm_cls)
-        lg_logits = self.lg_mlp_head(lg_cls)
-        x = sm_logits + lg_logits
+        x = sm_tokens[:,1:] + lg_tokens[:,1:]
+        print(x.shape)
         x = self.decoder_transformer(x, x)
         x = self.decompose_axis(x)
         print(x.shape)

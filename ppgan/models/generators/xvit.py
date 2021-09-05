@@ -343,9 +343,13 @@ class CrossViT(nn.Layer):
         lg_tokens = self.lg_decoder_transformer(x,x)
         print(sm_tokens.shape)
         print(lg_tokens.shape)
-        lg = self.decompose_axis(lg_tokens[:,1:,:])
-        sm = self.sm_decompose_axis(sm_tokens[:,1:,:])
-        print(lg.shape)
-        print(sm.shape)
-        x = self.decoder(x)
+        lg = self.decompose_axis(lg_tokens[:, 1:, :])
+        sm = self.sm_decompose_axis(sm_tokens[:, 1:, :])
+        repeated_lg = paddle.zeros_like(sm)
+        num_repeats = sm.shape[1]//lg.shape[1]
+        for i in range(num_repeats):
+            repeated_lg[:,i*num_repeats:(i+1)*num_repeats,:,:]=lg[:,i,:,:]
+        print(repeated_lg)
+        print(repeated_lg.shape)
+        x = self.decoder(sm+repeated_lg)
         return self.final(x)

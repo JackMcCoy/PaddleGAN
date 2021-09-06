@@ -70,7 +70,7 @@ lr_scheduler:
   learning_rate: 5e-4
   lr_decay: 5e-5
   warmupstart: 1e-9
-  warmupperiod: 1000
+  warmupperiod: 500
 
 optimizer:
   optimG:
@@ -89,4 +89,4 @@ log_config:
   visiual_interval: 100
 
 snapshot_config:
-  interval: 10000
+  interval: 20000

@@ -226,7 +226,7 @@ class ImageEmbedder(nn.Layer):
         super().__init__()
         assert image_size % patch_size == 0, 'Image dimensions must be divisible by the patch size.'
         num_patches = (image_size // patch_size) ** 2
-        patch_dim = 6 * patch_size ** 2
+        patch_dim = 3 * patch_size ** 2
 
         self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_size, p2 = patch_size)
         self.to_patch_embedding =nn.Linear(patch_dim, dim)
@@ -276,8 +276,31 @@ class CrossViT(nn.Layer):
         super().__init__()
         self.sm_image_embedder = ImageEmbedder(dim = sm_dim, image_size = image_size, patch_size = sm_patch_size, dropout = emb_dropout)
         self.lg_image_embedder = ImageEmbedder(dim = lg_dim, image_size = image_size, patch_size = lg_patch_size, dropout = emb_dropout)
+        self.sm_image_embedder_style = ImageEmbedder(dim = sm_dim, image_size = image_size, patch_size = sm_patch_size, dropout = emb_dropout)
+        self.lg_image_embedder_style = ImageEmbedder(dim = lg_dim, image_size = image_size, patch_size = lg_patch_size, dropout = emb_dropout)
 
         self.multi_scale_encoder = MultiScaleEncoder(
+            depth = depth,
+            sm_dim = sm_dim,
+            lg_dim = lg_dim,
+            cross_attn_heads = cross_attn_heads,
+            cross_attn_dim_head = cross_attn_dim_head,
+            cross_attn_depth = cross_attn_depth,
+            sm_enc_params = dict(
+                depth = sm_enc_depth,
+                heads = sm_enc_heads,
+                mlp_dim = sm_enc_mlp_dim,
+                dim_head = sm_enc_dim_head
+            ),
+            lg_enc_params = dict(
+                depth = lg_enc_depth,
+                heads = lg_enc_heads,
+                mlp_dim = lg_enc_mlp_dim,
+                dim_head = lg_enc_dim_head
+            ),
+            dropout = dropout
+        )
+        self.multi_scale_encoder_style = MultiScaleEncoder(
             depth = depth,
             sm_dim = sm_dim,
             lg_dim = lg_dim,
@@ -315,25 +338,36 @@ class CrossViT(nn.Layer):
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(
             nn.Sigmoid(),
+            ResnetBlock(6),
+            ConvBlock(6, 3),
             ResnetBlock(3),
             ConvBlock(3, 3),
+            nn.ReLU()
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                    nn.Conv2D(3, 3, (3, 3)))
 
     def forward(self, img):
-        sm_tokens = self.sm_image_embedder(img)
-        lg_tokens = self.lg_image_embedder(img)
+        sm_tokens = self.sm_image_embedder(img[:,:3,:,:])
+        lg_tokens = self.lg_image_embedder(img[:,:3,:,:])
+        sm_tokens_style = self.sm_image_embedder(img[:,3:,:,:])
+        lg_tokens_style = self.lg_image_embedder(img[:,3:,:,:])
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
+        sm_tokens_style, lg_tokens_style = self.multi_scale_encoder_style(sm_tokens_style, lg_tokens_style)
 
         lg_tokens = paddle.unsqueeze(lg_tokens,axis=2)
         lg_tokens = paddle.concat([paddle.unsqueeze(lg_tokens[:,0,:],axis=2),self.lg_project(lg_tokens[:,1:,:])],axis=1)
         lg_tokens = paddle.squeeze(lg_tokens,axis=2)
 
-        x = sm_tokens+lg_tokens
+        lg_tokens_style = paddle.unsqueeze(lg_tokens_style,axis=2)
+        lg_tokens_style = paddle.concat([paddle.unsqueeze(lg_tokens_style[:,0,:],axis=2),self.lg_style_project(lg_tokens_style[:,1:,:])],axis=1)
+        lg_tokens_style = paddle.squeeze(lg_tokens_style,axis=2)
+        x = sm_tokens+lg_tokens+sm_tokens_style+lg_tokens_style
+        pre_decoder = self.sm_decompose_axis(x[:,1:,:])
         x = self.lg_decoder_transformer(x,x)
 
         x = self.sm_decompose_axis(x[:,1:,:])
+        x = paddle.concat([x,pre_decoder],axis=1)
         x = self.decoder(x)
         return self.final(x)

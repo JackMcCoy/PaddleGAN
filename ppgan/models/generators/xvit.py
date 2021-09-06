@@ -198,7 +198,7 @@ class Attention(nn.Layer):
         b, n, _, h = *x.shape, self.heads
         context = default(context, x)
 
-        if not style:
+        if style is None:
             style=context
         if kv_include_self:
             context = paddle.concat((x, style), axis = 1) # cross attention requires CLS token includes itself as key / value

@@ -354,7 +354,7 @@ class CrossViT(nn.Layer):
         sm_tokens_style, lg_tokens_style = self.multi_scale_style_encoder(sm_tokens_style, lg_tokens_style)
 
         sm_tokens, lg_tokens_style = self.content_style_cross(sm_tokens, lg_tokens_style)
-        sm_tokens_style, lg_tokens = self.content_style_cross(sm_tokens_style, lg_tokens)
+        sm_tokens_style, lg_tokens = self.style_content_cross(sm_tokens_style, lg_tokens)
 
         lg_tokens = paddle.unsqueeze(lg_tokens,axis=2)
         lg_tokens = paddle.concat([paddle.unsqueeze(lg_tokens[:,0,:],axis=2),self.lg_project(lg_tokens[:,1:,:])],axis=1)

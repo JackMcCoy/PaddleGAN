@@ -338,17 +338,17 @@ class CrossViT(nn.Layer):
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(
             nn.Sigmoid(),
+            ResnetBlock(64),
+            ConvBlock(64, 32),
+            nn.Conv2DTranspose(32, 32, 2, stride=2,output_padding=1),
             ResnetBlock(32),
             ConvBlock(32, 16),
             nn.Conv2DTranspose(16, 16, 2, stride=2,output_padding=1),
             ResnetBlock(16),
             ConvBlock(16, 8),
-            nn.Conv2DTranspose(8, 8, 2, stride=2,output_padding=1),
-            ResnetBlock(8),
-            ConvBlock(8, 4),
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                   nn.Conv2D(4, 3, (3, 3)))
+                                   nn.Conv2D(8, 3, (3, 3)))
 
     def forward(self, img):
         sm_tokens = self.sm_image_embedder(img[:,:3,:,:])

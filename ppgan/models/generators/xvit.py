@@ -301,23 +301,23 @@ class CrossViT(nn.Layer):
 
         self.sm_mlp_head = nn.Sequential(nn.LayerNorm(sm_dim), nn.Linear(sm_dim, num_classes))
         self.lg_mlp_head = nn.Sequential(nn.LayerNorm(lg_dim), nn.Linear(lg_dim, num_classes))
-        sm_decoder_layer = nn.TransformerDecoderLayer(256, 16, 256, normalize_before=True)
-        lg_decoder_layer = nn.TransformerDecoderLayer(256, 16, 256, normalize_before=True)
+        #sm_decoder_layer = nn.TransformerDecoderLayer(256, 16, 256, normalize_before=True)
+        #lg_decoder_layer = nn.TransformerDecoderLayer(256, 16, 256, normalize_before=True)
         self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=2,d=16,e=16)
         self.sm_decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=8,d=16,e=16)
         self.partial_unfold = Rearrange('b (h w p1) c -> b (h w) (p1 c)', w=2,h=2,
                                         p1=16)
-        self.sm_project = nn.Linear(sm_dim,256)
-        self.lg_project = nn.Linear(lg_dim,256)
-        self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
-        self.lg_decoder_transformer = nn.TransformerDecoder(lg_decoder_layer, 6)
+        self.sm_project = nn.Sequential(nn.LayerNorm(sm_dim),nn.Linear(sm_dim,256))
+        self.lg_project = nn.Sequential(nn.LayerNorm(sm_dim),nn.Linear(lg_dim,256))
+        #self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
+        #self.lg_decoder_transformer = nn.TransformerDecoder(lg_decoder_layer, 6)
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(
             ResnetBlock(1),
             ConvBlock(1, 3),
             ResnetBlock(3),
             ConvBlock(3, 3),
-            nn.Sigmoid()
+            nn.ReLU()
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                    nn.Conv2D(3, 3, (3, 3)))
@@ -328,11 +328,9 @@ class CrossViT(nn.Layer):
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
         sm_tokens = self.sm_project(sm_tokens)
-        sm_tokens = self.sm_decoder_transformer(sm_tokens, sm_tokens)
+        #sm_tokens = self.sm_decoder_transformer(sm_tokens, sm_tokens)
         lg_tokens = self.lg_project(lg_tokens)
-        lg_tokens = self.lg_decoder_transformer(lg_tokens,lg_tokens)
-        print(sm_tokens.shape)
-        print(lg_tokens.shape)
+        #lg_tokens = self.lg_decoder_transformer(lg_tokens,lg_tokens)
         lg = self.decompose_axis(lg_tokens[:, 1:, :])
         sm = self.sm_decompose_axis(sm_tokens[:, 1:, :])
         repeated_lg = self.upscale(lg)

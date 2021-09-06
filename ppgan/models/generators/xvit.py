@@ -327,7 +327,7 @@ class CrossViT(nn.Layer):
         #sm_decoder_layer = nn.TransformerDecoderLayer(256, 16, 256, normalize_before=True)
         lg_decoder_layer = nn.TransformerDecoderLayer(1024, 16, 1024, normalize_before=True)
         self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=2,d=4,e=4)
-        self.sm_decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=8,d=8,e=8)
+        self.sm_decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=8,d=4,e=4)
         self.partial_unfold = Rearrange('b (h w p1) c -> b (h w) (p1 c)', w=2,h=2,
                                         p1=16)
         self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=8, p2=8)
@@ -338,11 +338,17 @@ class CrossViT(nn.Layer):
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(
             nn.Sigmoid(),
-            ResnetBlock(3),
-            ConvBlock(3, 3)
+            ResnetBlock(32),
+            ConvBlock(32, 16),
+            nn.Conv2DTranspose(16, 16, 2, stride=2,output_padding=1),
+            ResnetBlock(16),
+            ConvBlock(16, 8),
+            nn.Conv2DTranspose(8, 8, 2, stride=2,output_padding=1),
+            ResnetBlock(8),
+            ConvBlock(8, 4),
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                   nn.Conv2D(3, 3, (3, 3)))
+                                   nn.Conv2D(4, 3, (3, 3)))
 
     def forward(self, img):
         sm_tokens = self.sm_image_embedder(img[:,:3,:,:])

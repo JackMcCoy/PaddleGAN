@@ -303,29 +303,21 @@ class CrossViT(nn.Layer):
         self.lg_mlp_head = nn.Sequential(nn.LayerNorm(lg_dim), nn.Linear(lg_dim, num_classes))
         sm_decoder_layer = nn.TransformerDecoderLayer(256, 16, 256, normalize_before=True)
         lg_decoder_layer = nn.TransformerDecoderLayer(256, 16, 256, normalize_before=True)
-        self.decompose_axis = Rearrange('b (h w) (e d) -> b (h e) (w d)',h=4,d=64)
-        self.sm_decompose_axis = Rearrange('b (h w) (e d) -> b (h e) (w d)',h=32,d=64)
+        self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=2,d=16,e=16)
+        self.sm_decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=8,d=16,e=16)
         self.partial_unfold = Rearrange('b (h w p1) c -> b (h w) (p1 c)', w=2,h=2,
                                         p1=16)
         self.sm_project = nn.Linear(sm_dim,256)
         self.lg_project = nn.Linear(lg_dim,256)
         self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
         self.lg_decoder_transformer = nn.TransformerDecoder(lg_decoder_layer, 6)
-        self.increase_lg_channel = nn.Conv2DTranspose(4,64,1,groups=4)
+        self.upscale = nn.Upsample(scale_factor=3, mode='nearest')
         self.decoder = nn.Sequential(
-            nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(24),
-            ConvBlock(24, 12),
-            nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(12),
-            ConvBlock(12, 6),
-            nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(6),
-            ConvBlock(6, 3),
-            nn.Upsample(scale_factor=2, mode='nearest'),
+            ResnetBlock(1),
+            ConvBlock(1, 3),
             ResnetBlock(3),
             ConvBlock(3, 3),
-            nn.ReLU()
+            nn.Sigmoid()
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                    nn.Conv2D(3, 3, (3, 3)))
@@ -343,8 +335,7 @@ class CrossViT(nn.Layer):
         print(lg_tokens.shape)
         lg = self.decompose_axis(lg_tokens[:, 1:, :])
         sm = self.sm_decompose_axis(sm_tokens[:, 1:, :])
-        print(sm.shape)
-        print(lg.shape)
+        lg =
         repeated_lg = self.increase_lg_channel(lg)
         x = self.decoder(sm+repeated_lg)
         return self.final(x)

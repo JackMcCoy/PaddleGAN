@@ -311,7 +311,7 @@ class CrossViT(nn.Layer):
         self.lg_project = nn.Linear(lg_dim,256)
         self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
         self.lg_decoder_transformer = nn.TransformerDecoder(lg_decoder_layer, 6)
-        self.upscale = nn.Upsample(scale_factor=3, mode='nearest')
+        self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(
             ResnetBlock(1),
             ConvBlock(1, 3),

@@ -480,5 +480,6 @@ class CrossViT(nn.Layer):
         lg_tokens = paddle.concat([paddle.unsqueeze(lg_tokens[:,0,:],axis=2),self.lg_project(lg_tokens[:,1:,:])],axis=1)
         lg_tokens = paddle.squeeze(lg_tokens,axis=2)
         x = lg_tokens+sm_tokens
+        x = self.sm_decompose_axis(x[:,1:,:])
         x = self.decoder(x)
         return self.final(x)

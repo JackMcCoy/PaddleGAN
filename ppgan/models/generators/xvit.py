@@ -455,10 +455,10 @@ class CrossViT(nn.Layer):
             nn.Sigmoid(),
             ResnetBlock(64),
             ConvBlock(64, 32),
-            nn.Conv2DTranspose(32, 32, 2, stride=2),
+            nn.Upsample(scale_factor=2, mode='nearest'),
             ResnetBlock(32),
             ConvBlock(32, 16),
-            nn.Conv2DTranspose(16, 16, 2, stride=2),
+            nn.Upsample(scale_factor=2, mode='nearest'),
             ResnetBlock(16),
             ConvBlock(16, 8),
             nn.ReLU()

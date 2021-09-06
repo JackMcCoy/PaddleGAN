@@ -307,6 +307,7 @@ class CrossViT(nn.Layer):
         self.sm_decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=8,d=16,e=16)
         self.partial_unfold = Rearrange('b (h w p1) c -> b (h w) (p1 c)', w=2,h=2,
                                         p1=16)
+        self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=64, p2=64)
         self.sm_project = nn.Sequential(nn.LayerNorm(sm_dim),nn.Linear(sm_dim,768))
         self.lg_project = nn.Sequential(nn.LayerNorm(lg_dim),nn.Linear(lg_dim,768))
         #self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
@@ -337,6 +338,8 @@ class CrossViT(nn.Layer):
         sm = self.sm_decompose_axis(sm_tokens[:, 1:, :])
         repeated_lg = self.upscale(lg)
         x = sm+repeated_lg
+
+        x = self.rearrange(x)
         print(x.shape)
         x = self.decoder(x)
         return self.final(x)

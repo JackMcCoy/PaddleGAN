@@ -54,7 +54,7 @@ dataset:
     crop_size: 128
     style_upsize: 1
     num_workers: 16
-    batch_size: 1
+    batch_size: 5
   test:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
@@ -67,8 +67,8 @@ dataset:
 
 lr_scheduler:
   name: NonLinearDecay
-  learning_rate: 1e-4
-  lr_decay: 5e-5
+  learning_rate: 1e-5
+  lr_decay: 5e-6
 
 optimizer:
   optimG:

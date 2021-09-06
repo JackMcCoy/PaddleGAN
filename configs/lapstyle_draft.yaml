@@ -13,12 +13,12 @@ model:
     image_size: 128
     num_classes: 1000
     depth: 4
-    sm_dim: 768
+    sm_dim: 1024
     sm_patch_size: 16
     sm_enc_depth: 2
     sm_enc_heads: 8
     sm_enc_mlp_dim: 2048
-    lg_dim: 768
+    lg_dim: 1024
     lg_patch_size: 64
     lg_enc_depth: 3
     lg_enc_heads: 8

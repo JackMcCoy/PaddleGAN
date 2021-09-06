@@ -309,11 +309,12 @@ class CrossViT(nn.Layer):
                                         p1=16)
         self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=8, p2=8)
         self.sm_project = nn.Sequential(nn.LayerNorm(sm_dim),nn.Linear(sm_dim,768))
-        self.lg_project = nn.Sequential(nn.LayerNorm(lg_dim),nn.Conv2DTranspose(5,65,1))
+        self.lg_project = nn.Sequential(nn.LayerNorm(lg_dim),nn.Conv2DTranspose(4,64,1))
         #self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
         self.lg_decoder_transformer = nn.TransformerDecoder(lg_decoder_layer, 6)
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(
+            nn.Sigmoid()
             ResnetBlock(3),
             ConvBlock(3, 3),
             ResnetBlock(3),
@@ -330,7 +331,7 @@ class CrossViT(nn.Layer):
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
 
         lg_tokens = paddle.unsqueeze(lg_tokens,axis=2)
-        lg_tokens = self.lg_project(lg_tokens)
+        lg_tokens = paddle.concat([self.lg_tokens[:,0,:],self.lg_project(lg_tokens[:,1:,:]],axis=1)
         lg_tokens = paddle.squeeze(lg_tokens,axis=2)
         x = sm_tokens+lg_tokens
         x = self.lg_decoder_transformer(x,x)

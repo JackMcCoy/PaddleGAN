@@ -298,27 +298,8 @@ class CrossViT(nn.Layer):
             ),
             dropout = dropout
         )
-        self.multi_scale_encoder_style = MultiScaleEncoder(
-            depth = depth,
-            sm_dim = sm_dim,
-            lg_dim = lg_dim,
-            cross_attn_heads = cross_attn_heads,
-            cross_attn_dim_head = cross_attn_dim_head,
-            cross_attn_depth = cross_attn_depth,
-            sm_enc_params = dict(
-                depth = sm_enc_depth,
-                heads = sm_enc_heads,
-                mlp_dim = sm_enc_mlp_dim,
-                dim_head = sm_enc_dim_head
-            ),
-            lg_enc_params = dict(
-                depth = lg_enc_depth,
-                heads = lg_enc_heads,
-                mlp_dim = lg_enc_mlp_dim,
-                dim_head = lg_enc_dim_head
-            ),
-            dropout = dropout
-        )
+        self.style_content_cross = CrossTransformer(sm_dim = sm_dim, lg_dim = lg_dim, depth = cross_attn_depth, heads = cross_attn_heads, dim_head = cross_attn_dim_head, dropout = dropout)
+        self.content_style_cross = CrossTransformer(sm_dim = sm_dim, lg_dim = lg_dim, depth = cross_attn_depth, heads = cross_attn_heads, dim_head = cross_attn_dim_head, dropout = dropout)
 
         self.sm_mlp_head = nn.Sequential(nn.LayerNorm(sm_dim), nn.Linear(sm_dim, num_classes))
         self.lg_mlp_head = nn.Sequential(nn.LayerNorm(lg_dim), nn.Linear(lg_dim, num_classes))
@@ -349,7 +330,10 @@ class CrossViT(nn.Layer):
         lg_tokens_style = self.lg_image_embedder(img[:,3:,:,:])
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
-        sm_tokens_style, lg_tokens_style = self.multi_scale_encoder_style(sm_tokens_style, lg_tokens_style)
+        sm_tokens_style, lg_tokens_style = self.multi_scale_encoder(sm_tokens_style, lg_tokens_style)
+
+        sm_tokens, lg_tokens_style = self.content_style_cross(sm_tokens, lg_tokens_style)
+        sm_tokens_style, lg_tokens = self.content_style_cross(sm_tokens_style, lg_tokens)
 
         lg_tokens = paddle.unsqueeze(lg_tokens,axis=2)
         lg_tokens = paddle.concat([paddle.unsqueeze(lg_tokens[:,0,:],axis=2),self.lg_project(lg_tokens[:,1:,:])],axis=1)

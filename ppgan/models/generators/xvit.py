@@ -327,10 +327,13 @@ class CrossViT(nn.Layer):
         lg_tokens = self.lg_image_embedder(img)
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
+        cls_token = sm_tokens[:, 0]+lg_tokens[:,0]
+        print(cls_token.shape)
         sm_tokens = self.sm_project(sm_tokens)
         #sm_tokens = self.sm_decoder_transformer(sm_tokens, sm_tokens)
         lg_tokens = self.lg_project(lg_tokens)
         #lg_tokens = self.lg_decoder_transformer(lg_tokens,lg_tokens)
+
         lg = self.decompose_axis(lg_tokens[:, 1:, :])
         sm = self.sm_decompose_axis(sm_tokens[:, 1:, :])
         repeated_lg = self.upscale(lg)

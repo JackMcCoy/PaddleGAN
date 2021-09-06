@@ -298,7 +298,7 @@ class CrossViT(nn.Layer):
             ),
             dropout = dropout
         )
-        self.multi_scale_style_encoder = MultiScaleEncoder(
+        self.multi_scale_encoder_style = MultiScaleEncoder(
             depth = depth,
             sm_dim = sm_dim,
             lg_dim = lg_dim,
@@ -349,7 +349,7 @@ class CrossViT(nn.Layer):
         lg_tokens_style = self.lg_image_embedder(img[:,3:,:,:])
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
-        sm_tokens_style, lg_tokens_style = self.multi_scale_style_encoder(sm_tokens_style, lg_tokens_style)
+        sm_tokens_style, lg_tokens_style = self.multi_scale_encoder_style(sm_tokens_style, lg_tokens_style)
 
         lg_tokens = paddle.unsqueeze(lg_tokens,axis=2)
         lg_tokens = paddle.concat([paddle.unsqueeze(lg_tokens[:,0,:],axis=2),self.lg_project(lg_tokens[:,1:,:])],axis=1)

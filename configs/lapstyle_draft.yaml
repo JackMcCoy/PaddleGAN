@@ -10,6 +10,8 @@ model:
     name: Encoder
   generator_transformer:
     name: CrossViT
+    image_size: 128
+    num_classes: 1000
     depth: 4
     sm_dim: 768
     sm_patch_size: 16

@@ -148,8 +148,8 @@ class ProjectInOut(nn.Layer):
         self.fn = fn
 
         need_projection = dim_in != dim_out
-        self.project_in = nn.Linear(dim_in, dim_out) if need_projection else Identity
-        self.project_out = nn.Linear(dim_out, dim_in) if need_projection else Identity
+        self.project_in = nn.Linear(dim_in, dim_out) if need_projection else self.Identity
+        self.project_out = nn.Linear(dim_out, dim_in) if need_projection else self.Identity
 
     def forward(self, x, *args, **kwargs):
         x = self.project_in(x)

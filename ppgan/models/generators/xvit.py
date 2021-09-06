@@ -319,7 +319,7 @@ class CrossViT(nn.Layer):
             ),
             dropout = dropout
         )
-        
+
         self.sm_mlp_head = nn.Sequential(nn.LayerNorm(sm_dim), nn.Linear(sm_dim, num_classes))
         self.lg_mlp_head = nn.Sequential(nn.LayerNorm(lg_dim), nn.Linear(lg_dim, num_classes))
         #sm_decoder_layer = nn.TransformerDecoderLayer(256, 16, 256, normalize_before=True)

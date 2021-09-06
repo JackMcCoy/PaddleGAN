@@ -296,14 +296,14 @@ class LapStyleDraXDOG(BaseModel):
             self.loss_s += self.calc_style_loss(self.tF[layer], self.sF[layer])
         self.losses['loss_s'] = self.loss_s
         """IDENTITY LOSSES"""
-        dual_ci = paddle.concat(x=[self.ci, self.ci], axis=1)
-        self.Icc = self.nets['net_vit'](dual_ci)
-        self.l_identity1 = self.calc_content_loss(self.Icc, self.ci)
+        dual_si = paddle.concat(x=[self.si, self.si], axis=1)
+        self.Icc = self.nets['net_vit'](dual_si)
+        self.l_identity1 = self.calc_content_loss(self.Icc, self.si)
         self.Fcc = self.nets['net_enc'](self.Icc)
         self.l_identity2 = 0
         for layer in self.content_layers:
             self.l_identity2 += self.calc_content_loss(self.Fcc[layer],
-                                                       self.cF[layer])
+                                                       self.sF[layer])
         self.losses['l_identity1'] = self.l_identity1
         self.losses['l_identity2'] = self.l_identity2
         """relative loss"""

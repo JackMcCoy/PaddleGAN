@@ -317,9 +317,6 @@ class CrossViT(nn.Layer):
             nn.Sigmoid(),
             ResnetBlock(3),
             ConvBlock(3, 3),
-            ResnetBlock(3),
-            ConvBlock(3, 3),
-            nn.ReLU()
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                    nn.Conv2D(3, 3, (3, 3)))
@@ -337,6 +334,5 @@ class CrossViT(nn.Layer):
         x = self.lg_decoder_transformer(x,x)
 
         x = self.sm_decompose_axis(x[:,1:,:])
-        print(x.shape)
         x = self.decoder(x)
         return self.final(x)

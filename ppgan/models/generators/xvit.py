@@ -338,8 +338,6 @@ class CrossViT(nn.Layer):
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(
             nn.Sigmoid(),
-            ResnetBlock(6),
-            ConvBlock(6, 3),
             ResnetBlock(3),
             ConvBlock(3, 3)
         )
@@ -367,6 +365,5 @@ class CrossViT(nn.Layer):
         x = self.lg_decoder_transformer(x,x)
 
         x = self.sm_decompose_axis(x[:,1:,:])
-        x = paddle.concat([x,pre_decoder],axis=1)
-        x = self.decoder(x)
+        x = self.decoder(x+pre_decoder)
         return self.final(x)

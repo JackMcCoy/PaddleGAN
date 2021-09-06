@@ -329,7 +329,9 @@ class CrossViT(nn.Layer):
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
 
+        lg_tokens = paddle.unsqueeze(lg_tokens,axis=2)
         lg_tokens = self.lg_project(lg_tokens)
+        lg_tokens = paddle.squeeze(lg_tokens,axis=2)
         x = sm_tokens+lg_tokens
         print(x.shape)
 

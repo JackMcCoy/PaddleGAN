@@ -341,8 +341,7 @@ class CrossViT(nn.Layer):
             ResnetBlock(6),
             ConvBlock(6, 3),
             ResnetBlock(3),
-            ConvBlock(3, 3),
-            nn.ReLU()
+            ConvBlock(3, 3)
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                    nn.Conv2D(3, 3, (3, 3)))

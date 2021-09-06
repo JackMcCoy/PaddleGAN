@@ -329,8 +329,8 @@ class CrossViT(nn.Layer):
         self.partial_unfold = Rearrange('b (h w p1) c -> b (h w) (p1 c)', w=2,h=2,
                                         p1=16)
         self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=8, p2=8)
-        self.sm_project = nn.Sequential(nn.LayerNorm(sm_dim),nn.Linear(sm_dim,768))
         self.lg_project = nn.Sequential(nn.LayerNorm(lg_dim),nn.Conv2DTranspose(4,64,1))
+        self.lg_style_project = nn.Sequential(nn.LayerNorm(lg_dim),nn.Conv2DTranspose(4,64,1))
         #self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
         self.lg_decoder_transformer = nn.TransformerDecoder(lg_decoder_layer, 6)
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
@@ -356,7 +356,7 @@ class CrossViT(nn.Layer):
         lg_tokens = paddle.squeeze(lg_tokens,axis=2)
 
         lg_tokens_style = paddle.unsqueeze(lg_tokens_style,axis=2)
-        lg_tokens_style = paddle.concat([paddle.unsqueeze(lg_tokens_style[:,0,:],axis=2),self.lg_project(lg_tokens[:,1:,:])],axis=1)
+        lg_tokens_style = paddle.concat([paddle.unsqueeze(lg_tokens_style[:,0,:],axis=2),self.lg_style_project(lg_tokens_style[:,1:,:])],axis=1)
         lg_tokens_style = paddle.squeeze(lg_tokens_style,axis=2)
         x = sm_tokens+lg_tokens+sm_tokens_style+lg_tokens_style
         x = self.lg_decoder_transformer(x,x)

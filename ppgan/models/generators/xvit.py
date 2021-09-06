@@ -302,7 +302,7 @@ class CrossViT(nn.Layer):
         self.sm_mlp_head = nn.Sequential(nn.LayerNorm(sm_dim), nn.Linear(sm_dim, num_classes))
         self.lg_mlp_head = nn.Sequential(nn.LayerNorm(lg_dim), nn.Linear(lg_dim, num_classes))
         #sm_decoder_layer = nn.TransformerDecoderLayer(256, 16, 256, normalize_before=True)
-        #lg_decoder_layer = nn.TransformerDecoderLayer(256, 16, 256, normalize_before=True)
+        lg_decoder_layer = nn.TransformerDecoderLayer(768, 16, 768, normalize_before=True)
         self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=2,d=16,e=16)
         self.sm_decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=8,d=16,e=16)
         self.partial_unfold = Rearrange('b (h w p1) c -> b (h w) (p1 c)', w=2,h=2,
@@ -311,7 +311,7 @@ class CrossViT(nn.Layer):
         self.sm_project = nn.Sequential(nn.LayerNorm(sm_dim),nn.Linear(sm_dim,768))
         self.lg_project = nn.Sequential(nn.LayerNorm(lg_dim),nn.Conv2DTranspose(5,65,1))
         #self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
-        #self.lg_decoder_transformer = nn.TransformerDecoder(lg_decoder_layer, 6)
+        self.lg_decoder_transformer = nn.TransformerDecoder(lg_decoder_layer, 6)
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(
             ResnetBlock(3),
@@ -333,9 +333,9 @@ class CrossViT(nn.Layer):
         lg_tokens = self.lg_project(lg_tokens)
         lg_tokens = paddle.squeeze(lg_tokens,axis=2)
         x = sm_tokens+lg_tokens
-        print(x.shape)
+        x = self.lg_decoder_transformer(x,x)
 
-        x = self.rearrange(x)
+        x = self.decompose_axis(x)
         print(x.shape)
         x = self.decoder(x)
         return self.final(x)

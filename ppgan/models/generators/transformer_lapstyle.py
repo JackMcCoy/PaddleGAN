@@ -156,7 +156,7 @@ class ViT(nn.Layer):
         self.decompose_axis=Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', w=(image_width // patch_width),p1=patch_height,p2=patch_width)
         self.to_patch_embedding = nn.Linear(patch_dim, dim)
 
-        self.pos_embedding = paddle.create_parameter(shape=(1, num_patches*4 + 1, dim), dtype='float32')
+        self.pos_embedding = paddle.create_parameter(shape=(1, num_patches + 1, dim), dtype='float32')
         self.cls_token = paddle.create_parameter(shape=(1, 1, dim),dtype='float32')
         self.dropout = nn.Dropout(emb_dropout)
 

@@ -79,7 +79,7 @@ validate:
   save_img: false
 
 log_config:
-  interval: 10
+  interval: 1
   visiual_interval: 100
 
 snapshot_config:

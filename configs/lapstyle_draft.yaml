@@ -67,7 +67,7 @@ dataset:
 
 lr_scheduler:
   name: NonLinearDecay
-  learning_rate: 5e-4
+  learning_rate: 1e-4
   lr_decay: 5e-5
 
 optimizer:

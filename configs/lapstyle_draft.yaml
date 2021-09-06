@@ -89,4 +89,4 @@ log_config:
   visiual_interval: 100
 
 snapshot_config:
-  interval: 20000
+  interval: 10000

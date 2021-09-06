@@ -9,24 +9,18 @@ model:
   generator_encode:
     name: Encoder
   generator_transformer:
-    name: CrossViT
+    name: ViT
     image_size: 128
+    patch_size: 8
+    channels: 6
     num_classes: 1000
-    depth: 4
-    sm_dim: 768
-    sm_patch_size: 16
-    sm_enc_depth: 2
-    sm_enc_heads: 8
-    sm_enc_mlp_dim: 2048
-    lg_dim: 768
-    lg_patch_size: 64
-    lg_enc_depth: 3
-    lg_enc_heads: 8
-    lg_enc_mlp_dim: 2048
-    cross_attn_depth: 2
-    cross_attn_heads: 8
-    dropout: 0.1
-    emb_dropout: 0.1
+    dim: 1024
+    depth: 6
+    pool: cls
+    heads: 16
+    mlp_dim: 2048
+    dropout: 0
+    emb_dropout: 0
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:
@@ -67,8 +61,8 @@ dataset:
 
 lr_scheduler:
   name: NonLinearDecay
-  learning_rate: 1e-6
-  lr_decay: 5e-7
+  learning_rate: 1e-4
+  lr_decay: 5e-5
 
 optimizer:
   optimG:

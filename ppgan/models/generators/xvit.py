@@ -309,7 +309,7 @@ class CrossViT(nn.Layer):
                                         p1=16)
         self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=8, p2=8)
         self.sm_project = nn.Sequential(nn.LayerNorm(sm_dim),nn.Linear(sm_dim,768))
-        self.lg_project = nn.Sequential(nn.LayerNorm(lg_dim),nn.Linear(lg_dim,768))
+        self.lg_project = nn.Sequential(nn.LayerNorm(lg_dim),nn.Conv2DTranspose(5,65,1))
         #self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
         #self.lg_decoder_transformer = nn.TransformerDecoder(lg_decoder_layer, 6)
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
@@ -329,15 +329,9 @@ class CrossViT(nn.Layer):
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
 
-        sm_tokens = self.sm_project(sm_tokens)
-        #sm_tokens = self.sm_decoder_transformer(sm_tokens, sm_tokens)
         lg_tokens = self.lg_project(lg_tokens)
-        #lg_tokens = self.lg_decoder_transformer(lg_tokens,lg_tokens)
-        cls_token = sm_tokens[:, 0] + lg_tokens[:, 0]
-        lg = self.decompose_axis(lg_tokens[:, 1:, :])
-        sm = self.sm_decompose_axis(sm_tokens[:, 1:, :])
-        repeated_lg = self.upscale(lg)
-        x = sm+repeated_lg
+        x = sm_tokens+lg_tokens
+        print(x.shape)
 
         x = self.rearrange(x)
         print(x.shape)

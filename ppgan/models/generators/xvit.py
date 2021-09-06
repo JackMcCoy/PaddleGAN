@@ -276,6 +276,8 @@ class CrossViT(nn.Layer):
         super().__init__()
         self.sm_image_embedder = ImageEmbedder(dim = sm_dim, image_size = image_size, patch_size = sm_patch_size, dropout = emb_dropout)
         self.lg_image_embedder = ImageEmbedder(dim = lg_dim, image_size = image_size, patch_size = lg_patch_size, dropout = emb_dropout)
+        self.sm_image_embedder_style = ImageEmbedder(dim = sm_dim, image_size = image_size, patch_size = sm_patch_size, dropout = emb_dropout)
+        self.lg_image_embedder_style = ImageEmbedder(dim = lg_dim, image_size = image_size, patch_size = lg_patch_size, dropout = emb_dropout)
 
         self.multi_scale_encoder = MultiScaleEncoder(
             depth = depth,
@@ -345,8 +347,8 @@ class CrossViT(nn.Layer):
     def forward(self, img):
         sm_tokens = self.sm_image_embedder(img[:,:3,:,:])
         lg_tokens = self.lg_image_embedder(img[:,:3,:,:])
-        sm_tokens_style = self.sm_image_embedder(img[:,3:,:,:])
-        lg_tokens_style = self.lg_image_embedder(img[:,3:,:,:])
+        sm_tokens_style = self.sm_image_embedder_style(img[:,3:,:,:])
+        lg_tokens_style = self.lg_image_embedder_style(img[:,3:,:,:])
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
         sm_tokens_style, lg_tokens_style = self.multi_scale_encoder_style(sm_tokens_style, lg_tokens_style)

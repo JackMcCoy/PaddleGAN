@@ -66,8 +66,9 @@ dataset:
     batch_size: 1
 
 lr_scheduler:
-  name: LinearWarmup
+  name: WarmupNonLinear
   learning_rate: 5e-4
+  lr_decay: 5e-5
   warmupstart: 1e-5
   warmupperiod: 2000
 

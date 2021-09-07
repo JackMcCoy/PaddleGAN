@@ -17,12 +17,12 @@ model:
     sm_patch_size: 16
     sm_enc_depth: 3
     sm_enc_heads: 8
-    sm_enc_mlp_dim: 2048
+    sm_enc_mlp_dim: 1024
     lg_dim: 512
     lg_patch_size: 64
     lg_enc_depth: 4
     lg_enc_heads: 8
-    lg_enc_mlp_dim: 2048
+    lg_enc_mlp_dim: 1024
     cross_attn_depth: 3
     cross_attn_heads: 8
     dropout: 0.2
@@ -70,7 +70,7 @@ lr_scheduler:
   learning_rate: 5e-4
   lr_decay: 5e-5
   warmupstart: 1e-5
-  warmupperiod: 1000
+  warmupperiod: 2000
 
 optimizer:
   optimG:

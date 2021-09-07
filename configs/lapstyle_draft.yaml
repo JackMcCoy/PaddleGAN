@@ -68,8 +68,8 @@ dataset:
 lr_scheduler:
   name: LinearWarmup
   learning_rate: 5e-4
-  warmupstart: 1e-9
-  warmupperiod: 750
+  warmupstart: 1e-5
+  warmupperiod: 2000
 
 optimizer:
   optimG:

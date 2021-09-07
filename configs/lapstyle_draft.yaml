@@ -13,20 +13,20 @@ model:
     image_size: 128
     num_classes: 1000
     depth: 4
-    sm_dim: 768
+    sm_dim: 512
     sm_patch_size: 16
-    sm_enc_depth: 2
-    sm_enc_heads: 8
-    sm_enc_mlp_dim: 2048
-    lg_dim: 768
+    sm_enc_depth: 4
+    sm_enc_heads: 16
+    sm_enc_mlp_dim: 1536
+    lg_dim: 512
     lg_patch_size: 64
-    lg_enc_depth: 3
-    lg_enc_heads: 8
-    lg_enc_mlp_dim: 2048
-    cross_attn_depth: 2
-    cross_attn_heads: 8
-    dropout: 0.1
-    emb_dropout: 0.1
+    lg_enc_depth: 4
+    lg_enc_heads: 16
+    lg_enc_mlp_dim: 1536
+    cross_attn_depth: 4
+    cross_attn_heads: 16
+    dropout: 0.2
+    emb_dropout: 0.2
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:
@@ -66,9 +66,11 @@ dataset:
     batch_size: 1
 
 lr_scheduler:
-  name: NonLinearDecay
+  name: WarmupNonLinear
   learning_rate: 5e-4
   lr_decay: 5e-5
+  warmupstart: 5e-6
+  warmupperiod: 1000
 
 optimizer:
   optimG:

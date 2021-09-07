@@ -49,7 +49,7 @@ class WarmupNonLinear(LRScheduler):
 
 @LRSCHEDULERS.register()
 class LinearWarmup(LRScheduler):
-    def __init__(self, warmupstart,warmupperiod,learning_rate, lr_decay, last_epoch=-1):
+    def __init__(self, warmupstart,warmupperiod,learning_rate, last_epoch=-1):
         self.warmupstart= warmupstart
         self.warmupperiod=warmupperiod
         self.warmupstep = (learning_rate-warmupstart)/self.warmupperiod

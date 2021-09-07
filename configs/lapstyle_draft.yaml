@@ -13,17 +13,17 @@ model:
     image_size: 128
     num_classes: 1000
     depth: 4
-    sm_dim: 512
+    sm_dim: 768
     sm_patch_size: 16
-    sm_enc_depth: 3
+    sm_enc_depth: 2
     sm_enc_heads: 8
-    sm_enc_mlp_dim: 1024
-    lg_dim: 512
+    sm_enc_mlp_dim: 2048
+    lg_dim: 768
     lg_patch_size: 64
-    lg_enc_depth: 4
+    lg_enc_depth: 3
     lg_enc_heads: 8
-    lg_enc_mlp_dim: 1024
-    cross_attn_depth: 3
+    lg_enc_mlp_dim: 2048
+    cross_attn_depth: 2
     cross_attn_heads: 8
     dropout: 0.1
     emb_dropout: 0.1
@@ -54,7 +54,7 @@ dataset:
     crop_size: 128
     style_upsize: 1
     num_workers: 16
-    batch_size: 3
+    batch_size: 5
   test:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
@@ -66,11 +66,9 @@ dataset:
     batch_size: 1
 
 lr_scheduler:
-  name: WarmupNonLinear
+  name: NonLinearDecay
   learning_rate: 5e-4
   lr_decay: 5e-5
-  warmupstart: 1e-5
-  warmupperiod: 2000
 
 optimizer:
   optimG:

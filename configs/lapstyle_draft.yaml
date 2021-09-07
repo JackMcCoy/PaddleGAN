@@ -17,12 +17,12 @@ model:
     sm_patch_size: 16
     sm_enc_depth: 4
     sm_enc_heads: 16
-    sm_enc_mlp_dim: 1536
+    sm_enc_mlp_dim: 1024
     lg_dim: 512
     lg_patch_size: 64
     lg_enc_depth: 4
     lg_enc_heads: 16
-    lg_enc_mlp_dim: 1536
+    lg_enc_mlp_dim: 1024
     cross_attn_depth: 4
     cross_attn_heads: 16
     dropout: 0.2

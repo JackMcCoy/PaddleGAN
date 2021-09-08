@@ -296,7 +296,7 @@ class PreNorm(nn.Layer):
     def forward(self, x, **kwargs):
         return self.fn(self.norm(x), **kwargs)
 
-class FoldAxially(nn.Module):
+class FoldAxially(nn.Layer):
     def __init__(self, axial_dim, fn):
         super().__init__()
         self.fn = fn

@@ -328,14 +328,14 @@ class LocalAttention(nn.Layer):
 
         window_size, causal, look_backward, look_forward, shared_qk = self.window_size, self.causal, self.look_backward, self.look_forward, self.shared_qk
         b, t, e = q.shape
-        assert ((t-1) % window_size) == 0, f'sequence length {t} must be divisible by window size {window_size} for local attention'
+        assert (t % window_size) == 0, f'sequence length {t} must be divisible by window size {window_size} for local attention'
 
-        windows = (t-1) // window_size
+        windows = t // window_size
 
         if shared_qk:
             k = F.normalize(k, 2, axis=-1)
 
-        ticker = paddle.reshape(paddle.arange(t-1),(1,-1))
+        ticker = paddle.reshape(paddle.arange(t),(1,-1))
         b_t = ticker.reshape((1, windows, window_size))
 
         bucket_fn = lambda t: t.reshape((b, windows, window_size, -1))

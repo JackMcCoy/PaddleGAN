@@ -548,7 +548,7 @@ class SelfAttention(nn.Layer):
         attn = paddle.transpose(attn,1, 2).reshape(b, t, -1)
         return self.dropout(self.to_out(attn))
 
-class LinearAttentionTransformer(nn.Module):
+class LinearAttentionTransformer(nn.Layer):
     def __init__(
         self,
         dim,

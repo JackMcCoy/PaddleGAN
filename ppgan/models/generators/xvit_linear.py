@@ -311,14 +311,14 @@ class LocalAttention(nn.Layer):
             if exists(rel_pos_emb_config):
                 dim = rel_pos_emb_config[0]
                 print(dim)
-            print(dim)
+            print('dim'+str(dim))
             self.rel_pos = SinusoidalEmbeddings(dim)
 
     def forward(self, q, k, v, input_mask = None):
         shape = q.shape
 
         merge_into_batch = lambda t: t.reshape((-1, *t.shape[-2:]))
-        q, k, v = map(merge_into_batch, (q, k, v))
+        q, k, v = map(merge_into_batch, (q[:,1:,:], k[:,1:,:], v[:,1:,:]))
         print(q.shape)
         if exists(self.rel_pos):
             pos_emb = self.rel_pos(q)

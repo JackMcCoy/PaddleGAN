@@ -318,7 +318,7 @@ class LocalAttention(nn.Layer):
         shape = q.shape
 
         merge_into_batch = lambda t: t.reshape((-1, t.shape[-2]-1,t.shape[-1]))
-        q, k, v = map(merge_into_batch, (q[:,1:,:], k[:,1:,:], v[:,1:,:]))
+        q, k, v = map(merge_into_batch, (q[:,:,1:], k[:,:,1:], v[:,:,1:]))
         print(q.shape)
         if exists(self.rel_pos):
             pos_emb = self.rel_pos(q)

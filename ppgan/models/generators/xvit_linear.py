@@ -319,6 +319,8 @@ class LocalAttention(nn.Layer):
     def forward(self, q, k, v, input_mask = None):
         shape = q.shape
         v_cls=v[:,:,0]
+        q_cls=q[:,:,0]
+        k_cls=q[:,:,0]
         merge_into_batch = lambda t: t.reshape((-1, t.shape[-2],t.shape[-1]))
 
         q, k, v = map(merge_into_batch, (q[:,:,1:], k[:,:,1:], v[:,:,1:]))
@@ -346,11 +348,11 @@ class LocalAttention(nn.Layer):
         bq, bk, bv = map(bucket_fn, (q, k, v))
 
         look_around_kwargs = {'backward': look_backward, 'forward': look_forward}
-        bk = look_around(bk, **look_around_kwargs)
+        bk = look_around(bk,cls=k_cls, **look_around_kwargs)
         bv = look_around(bv,cls=v_cls, **look_around_kwargs)
 
         bq_t = b_t
-        bq_k = look_around(b_t, **look_around_kwargs)
+        bq_k = look_around(b_t,cls=paddle.ones((1,*b_t.shape[1:])) **look_around_kwargs)
 
         dots = paddle.matmul(bq, paddle.transpose(bk,(0,1,3,2))) * (e ** -0.5)
 
@@ -396,7 +398,7 @@ class LocalAttention(nn.Layer):
 
         attn = nn.Softmax(dots)
         attn = self.dropout(attn)
-        
+
         out = paddle.matmul(attn, bv)
         out = out.reshape((-1, t, e))
 

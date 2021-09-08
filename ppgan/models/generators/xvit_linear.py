@@ -89,7 +89,7 @@ def split_at_index(dim, index, t):
     return t[l], t[r]
 
 def max_neg_value(tensor):
-    return -np.finfo(tensor.dtype).max
+    return -np.finfo(np.float32).max
 
 def cast_tuple(val):
     return (val,) if not isinstance(val, tuple) else val

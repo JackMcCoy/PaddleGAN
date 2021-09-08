@@ -317,7 +317,7 @@ class LocalAttention(nn.Layer):
     def forward(self, q, k, v, input_mask = None):
         shape = q.shape
 
-        merge_into_batch = lambda t: t.reshape((-1, t.shape[-2],t.shape[-1]-1))
+        merge_into_batch = lambda t: t.reshape((-1, t.shape[-2],t.shape[-1]))
         q, k, v = map(merge_into_batch, (q[:,:,1:], k[:,:,1:], v[:,:,1:]))
         print(q.shape)
         if exists(self.rel_pos):

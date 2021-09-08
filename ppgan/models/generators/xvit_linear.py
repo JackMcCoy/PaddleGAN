@@ -423,9 +423,6 @@ class SelfAttention(nn.Layer):
         self.global_attn_heads = heads - n_local_attn_heads
         self.global_attn_fn = linear_attn if not causal else partial(causal_linear_attn, bucket_size = blindspot_size)
 
-        self.local_attn_heads = n_local_attn_heads
-        self.local_attn  = LocalAttention(local_attn_window_size, causal = causal, dropout = attn_dropout)
-
         self.to_q = nn.Linear(dim, d_heads * heads, bias_attr = False)
 
         kv_heads = heads
@@ -456,20 +453,9 @@ class SelfAttention(nn.Layer):
 
         out = []
 
-        split_index_fn = partial(split_at_index, 1, self.local_attn_heads)
-
-        (lq, q), (lk, k), (lv, v) = map(split_index_fn, (q, k, v))
-
-        has_local, has_global = map(lambda x: x.shape[1] > 0, (lq, q))
-        print(has_global)
-        if has_local:
-            local_out = self.local_attn(lq, lk, lv, input_mask = input_mask)
-            out.append(local_out)
-
-        if has_global:
-            kv_mask = input_mask if not self.receives_context else context_mask
-            global_out = self.global_attn_fn(q, k, v, kv_mask = kv_mask)
-            out.append(global_out)
+        kv_mask = input_mask if not self.receives_context else context_mask
+        global_out = self.global_attn_fn(q, k, v, kv_mask = kv_mask)
+        out.append(global_out)
 
         attn = paddle.concat(out, dim=1)
         attn = paddle.transpose(attn,1, 2).reshape((b, t, -1))

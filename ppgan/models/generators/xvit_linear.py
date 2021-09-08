@@ -723,12 +723,12 @@ class LinearCrossViT(nn.Layer):
         sm_dim,
         lg_dim,
         sm_patch_size = 12,
-        sm_enc_depth = 2,
+        sm_enc_depth = 1,
         sm_enc_heads = 8,
         sm_enc_mlp_dim = 2048,
         sm_enc_dim_head = 64,
         lg_patch_size = 16,
-        lg_enc_depth = 3,
+        lg_enc_depth = 4,
         lg_enc_heads = 8,
         lg_enc_mlp_dim = 2048,
         lg_enc_dim_head = 64,
@@ -821,14 +821,14 @@ class LinearCrossViT(nn.Layer):
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(
             nn.Sigmoid(),
+            ResnetBlock(32),
+            ConvBlock(32, 16),
+            nn.Upsample(scale_factor=2, mode='nearest'),
             ResnetBlock(16),
             ConvBlock(16, 8),
             nn.Upsample(scale_factor=2, mode='nearest'),
             ResnetBlock(8),
-            ConvBlock(8, 6),
-            nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(6),
-            ConvBlock(6, 4)
+            ConvBlock(8, 4)
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                    nn.Conv2D(4, 3, (3, 3)))

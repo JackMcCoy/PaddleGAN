@@ -422,7 +422,7 @@ class SelfAttention(nn.Layer):
         self.receives_context = receives_context
 
         self.global_attn_heads = heads - n_local_attn_heads
-        self.global_attn_fn = linear_attn if not causal else partial(causal_linear_attn, bucket_size = blindspot_size)
+        self.global_attn_fn = linear_attn
 
         self.to_q = nn.Linear(dim, d_heads * heads, bias_attr = False)
 
@@ -478,8 +478,8 @@ class LinearAttentionTransformer(nn.Layer):
         attn_dropout = 0.,
         reversible = False,
         blindspot_size = 1,
-        n_local_attn_heads = 4,
-        local_attn_window_size = 8,
+        n_local_attn_heads = 0,
+        local_attn_window_size = 0,
         receives_context = False,
         attend_axially = False,
         pkm_layers = tuple(),
@@ -742,8 +742,6 @@ class LinearCrossViT(nn.Layer):
         super().__init__()
         self.sm_image_embedder = ImageEmbedder(dim = sm_dim, image_size = image_size, patch_size = sm_patch_size, dropout = emb_dropout)
         self.lg_image_embedder = ImageEmbedder(dim = lg_dim, image_size = image_size, patch_size = lg_patch_size, dropout = emb_dropout)
-        self.sm_image_embedder_style = ImageEmbedder(dim = sm_dim, image_size = image_size, patch_size = sm_patch_size, dropout = emb_dropout)
-        self.lg_image_embedder_style = ImageEmbedder(dim = lg_dim, image_size = image_size, patch_size = lg_patch_size, dropout = emb_dropout)
 
         self.multi_scale_encoder = MultiScaleEncoder(
             depth = depth,
@@ -838,8 +836,8 @@ class LinearCrossViT(nn.Layer):
     def forward(self, img):
         sm_tokens = self.sm_image_embedder(img[:,:3,:,:])
         lg_tokens = self.lg_image_embedder(img[:,:3,:,:])
-        sm_tokens_style = self.sm_image_embedder_style(img[:,3:,:,:])
-        lg_tokens_style = self.lg_image_embedder_style(img[:,3:,:,:])
+        sm_tokens_style = self.sm_image_embedder(img[:,3:,:,:])
+        lg_tokens_style = self.lg_image_embedder(img[:,3:,:,:])
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
         sm_tokens_style, lg_tokens_style = self.multi_scale_encoder_style(sm_tokens_style, lg_tokens_style)

@@ -793,7 +793,7 @@ class LinearCrossViT(nn.Layer):
             cross_attn_heads = cross_attn_heads,
             cross_attn_dim_head = cross_attn_dim_head,
             cross_attn_depth = cross_attn_depth,
-            recieves_context = True,
+            receives_context = True,
             sm_enc_params = dict(
                 depth = sm_enc_depth,
                 heads = sm_enc_heads,

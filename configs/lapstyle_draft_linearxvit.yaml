@@ -12,12 +12,12 @@ model:
     name: LinearCrossViT
     image_size: 128
     num_classes: 1000
-    depth: 10
-    sm_dim: 512
+    depth: 6
+    sm_dim: 768
     sm_patch_size: 16
     sm_enc_depth: 2
     sm_enc_heads: 6
-    lg_dim: 512
+    lg_dim: 768
     lg_patch_size: 64
     lg_enc_depth: 3
     lg_enc_heads: 6

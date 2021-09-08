@@ -484,7 +484,7 @@ class LinearAttentionTransformer(nn.Layer):
         attend_axially = False,
         pkm_layers = tuple(),
         pkm_num_keys = 128,
-        shift_tokens = False
+        shift_tokens = True
     ):
         super().__init__()
 
@@ -823,17 +823,17 @@ class LinearCrossViT(nn.Layer):
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(
             nn.Sigmoid(),
+            ResnetBlock(64),
+            ConvBlock(64, 32),
+            nn.Upsample(scale_factor=2, mode='nearest'),
             ResnetBlock(32),
             ConvBlock(32, 16),
             nn.Upsample(scale_factor=2, mode='nearest'),
             ResnetBlock(16),
-            ConvBlock(16, 8),
-            nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(8),
-            ConvBlock(8, 4)
+            ConvBlock(16, 8)
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                   nn.Conv2D(4, 3, (3, 3)))
+                                   nn.Conv2D(8, 3, (3, 3)))
 
     def forward(self, img):
         sm_tokens = self.sm_image_embedder(img[:,:3,:,:])

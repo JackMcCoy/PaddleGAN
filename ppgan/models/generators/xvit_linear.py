@@ -716,8 +716,8 @@ class CrossTransformer(nn.Layer):
         self.layers = []
         for _ in range(depth):
             self.layers.append(nn.LayerList([
-                ProjectInOut(sm_dim, lg_dim, PreNorm(lg_dim, Attention(lg_dim, heads = heads, dim_head = dim_head, dropout = dropout))),
-                ProjectInOut(lg_dim, sm_dim, PreNorm(sm_dim, Attention(sm_dim, heads = heads, dim_head = dim_head, dropout = dropout)))
+                ProjectInOut(sm_dim, lg_dim, PreNorm(lg_dim, SelfAttention(lg_dim, heads = heads, dim_head = dim_head, dropout = dropout))),
+                ProjectInOut(lg_dim, sm_dim, PreNorm(sm_dim, SelfAttention(sm_dim, heads = heads, dim_head = dim_head, dropout = dropout)))
             ]))
 
     def forward(self, sm_tokens, lg_tokens, sm_style=None,lg_style=None):

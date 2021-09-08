@@ -279,7 +279,7 @@ def linear_attn(q, k, v, kv_mask = None):
 
     context = paddle.matmul(paddle.transpose(k,(0,1,3,2)), v)
     attn = paddle.matmul(q, context)
-    return attn.reshape((*q.shape))
+    return attn.reshape(q.shape)
 
 class LocalAttention(nn.Layer):
     def __init__(

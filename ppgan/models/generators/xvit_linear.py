@@ -446,6 +446,10 @@ class SelfAttention(nn.Layer):
 
         out = []
 
+        print(k)
+        print(q)
+        print(v)
+
         split_index_fn = partial(split_at_index, 1, self.local_attn_heads)
 
         (lq, q), (lk, k), (lv, v) = map(split_index_fn, (q, k, v))

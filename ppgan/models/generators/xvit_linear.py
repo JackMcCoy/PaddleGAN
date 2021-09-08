@@ -323,7 +323,7 @@ class LocalAttention(nn.Layer):
         k_cls=q[:,:,0]
         merge_into_batch = lambda t: t.reshape((-1, t.shape[-2],t.shape[-1]))
 
-        q, k, v = map(merge_into_batch, (q[:,:,1:], k[:,:,1:], v[:,:,1:]))
+        q, k, v,v_cls,k_cle = map(merge_into_batch, (q[:,:,1:], k[:,:,1:], v[:,:,1:],v_cls,k_cls))
         if exists(self.rel_pos):
             pos_emb = self.rel_pos(q)
             q, k = apply_rotary_pos_emb(q, k, pos_emb)

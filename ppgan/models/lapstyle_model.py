@@ -343,20 +343,8 @@ class LapStyleDraXDOG(BaseModel):
         self.backward_Dec()
         self.optimizers['optimG'].step()
         if self.steps==1:
-            for k,v in optimizers['optimG'].state_dict().items():
-                print(k)
-                if type(v)==dict:
-                    for k2,v2 in v.items():
-                        print(' -'+k2)
-                        if type(v2)==dict:
-                            for k3,v3 in v2.items():
-                                print(' - -'+k3)
-                                if hasattr(v3,'shape') and hasattr(v3[0],'shape'):
-                                    print(' - - shape: '+str(v3[0].shape))
-                        if hasattr(v2,'shape') and hasattr(v2[0],'shape'):
-                            print(' - shape: '+str(v2[0].shape))
-                if hasattr(v,'shape') and hasattr(v[0],'shape'):
-                    print(' shape: '+str(v[0].shape))
+            for param in self.nets['net_dec'].parameters():
+                print(param.keys())
 
 
 def tensor_resample(tensor, dst_size, mode='bilinear'):

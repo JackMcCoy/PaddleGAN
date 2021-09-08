@@ -459,6 +459,10 @@ class SelfAttention(nn.Layer):
         (lq, q), (lk, k), (lv, v) = map(split_index_fn, (q, k, v))
 
         has_local, has_global = map(lambda x: x.shape[1] > 0, (lq, q))
+        print(has_global)
+        if has_local:
+            local_out = self.local_attn(lq, lk, lv, input_mask = input_mask)
+            out.append(local_out)
 
         if has_global:
             kv_mask = input_mask if not self.receives_context else context_mask

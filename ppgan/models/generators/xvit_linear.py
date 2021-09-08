@@ -82,7 +82,7 @@ def look_around(x, cls=None,backward = 1, forward = 0, pad_value = -1, dim = 2):
     tensors = [padded_x[:, ind:(ind + t), :] for ind in range(forward + backward + 1)]
     tensors=paddle.concat(tensors, axis=dim)
     if not cls is None:
-        tensors = paddle.concat([cls,tensors],axis=2)
+        tensors = paddle.concat([cls,tensors],axis=0)
     return tensors
 
 def split_at_index(dim, index, t):

@@ -392,7 +392,7 @@ class LocalAttention(nn.Layer):
             dots[~mask]= mask_value
             del mask
 
-        attn = dots.softmax(axis=-1)
+        attn = paddle.softmax(dots,axis=-1)
         attn = self.dropout(attn)
         bv = paddle.concat([v_cls,bv],axis=1)
         attn = paddle.concat([paddle.ones(bv.shape),attn],axis=1)

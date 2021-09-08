@@ -373,9 +373,7 @@ class LocalAttention(nn.Layer):
             del mask
 
         mask = reshaped_bq_k == -1
-        print(mask)
-        print(mask_value)
-        dots[mask] = mask_value
+        assert(paddle.any(mask)==False)
         del mask
 
         if input_mask is not None:

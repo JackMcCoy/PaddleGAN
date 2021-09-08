@@ -353,10 +353,10 @@ class LocalAttention(nn.Layer):
         dots = paddle.matmul(bq, paddle.transpose(bk,(0,1,3,2))) * (e ** -0.5)
 
         mask_value = max_neg_value(dots)
-        a,b,c,d = bq_t.shape
-        reshaped_bq_t = paddle.reshape(bq_t,(a,b,c,1,d))
-        a,b,c,d = bq_k.shape
-        reshape_bq_k = paddle.reshape(bq_k,(a,b,1,c,d))
+        a,b,d = bq_t.shape
+        reshaped_bq_t = paddle.reshape(bq_t,(a,b,1,d))
+        a,b,d = bq_k.shape
+        reshape_bq_k = paddle.reshape(bq_k,(a,b,1,d))
         if shared_qk:
             mask = reshaped_bq_t == reshape_bq_k
             dots[mask] = TOKEN_SELF_ATTN_VALUE
@@ -382,11 +382,11 @@ class LocalAttention(nn.Layer):
                 input_mask = pad_to_multiple(input_mask, window_size, dim=-1, value=False)
             input_mask = input_mask.reshape((-1, windows, window_size))
             mq = mk = input_mask
-            a,b,c,d = mq.shape
-            reshaped_mq = paddle.reshape(mq,(a,b,c,1,d))
+            a,b,d = mq.shape
+            reshaped_mq = paddle.reshape(mq,(a,b,1,d))
             mk = look_around(mk, pad_value=False, **look_around_kwargs)
-            a,b,c,d = mk.shape
-            reshaped_mk = paddle.reshape(mk,(a,b,1,c,d))
+            a,b,d = mk.shape
+            reshaped_mk = paddle.reshape(mk,(a,b,1,d))
             mask = (reshaped_mq * reshaped_mk)
             mask = merge_dims(0, 1, expand_dim(mask, 1, h))
             dots[~mask]= mask_value

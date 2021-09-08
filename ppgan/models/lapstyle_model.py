@@ -277,13 +277,14 @@ class LapStyleDraXDOG(BaseModel):
         #self.visual_items['stylized_vit'] = self.stylized
 
     def backward_Dec(self):
-
+        '''
         self.cX,_ = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
         self.sX,_ = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
         self.cXF = self.nets['net_enc'](self.cX)
         self.sXF = self.nets['net_enc'](self.sX)
         stylized_dog,_ = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
         self.cdogF = self.nets['net_enc'](stylized_dog)
+        '''
         self.tF = self.nets['net_enc'](self.stylized)
         """content loss"""
         self.loss_c = 0
@@ -317,7 +318,7 @@ class LapStyleDraXDOG(BaseModel):
                 self.tF['r41'], self.cF['r41'])
         self.losses['loss_style_remd'] = self.loss_style_remd
         self.losses['loss_content_relt'] = self.loss_content_relt
-
+        '''
         mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])
         mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])
         mxdog_content_img = self.gram_errors(self.cdogF['r31'],self.sXF['r31'])
@@ -327,11 +328,12 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_CnsS'] = mxdog_content_img*3000
         mxdog_losses = mxdog_content * .3 + mxdog_content_contraint *100 + mxdog_content_img * 1000
         mxdog_weight = .1
+        '''
 
         self.loss = self.loss_c * self.content_weight + self.style_weight * self.loss_s+\
                     self.l_identity1 * 50 + self.l_identity2 * 1 + \
-                    mxdog_losses*mxdog_weight+\
                     self.loss_content_relt * 16 + self.loss_style_remd*10
+                    #mxdog_losses*mxdog_weight+\
 
         return self.loss
 

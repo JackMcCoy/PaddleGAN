@@ -751,8 +751,8 @@ class MultiScaleEncoder(nn.Layer):
         self.layers = nn.LayerList()
         for _ in range(depth):
             self.layers.append(nn.LayerList([
-                LinearAttentionTransformer(sm_dim, dropout = dropout, **sm_enc_params),
-                LinearAttentionTransformer(lg_dim, dropout = dropout, **lg_enc_params),
+                LinearAttentionTransformer(sm_dim, **sm_enc_params),
+                LinearAttentionTransformer(lg_dim, **lg_enc_params),
                 CrossTransformer(sm_dim = sm_dim, lg_dim = lg_dim, depth = cross_attn_depth, heads = cross_attn_heads, dim_head = cross_attn_dim_head, dropout = dropout)
             ]))
 
@@ -840,12 +840,14 @@ class LinearCrossViT(nn.Layer):
             sm_enc_params = dict(
                 depth = sm_enc_depth,
                 heads = sm_enc_heads,
+                dropout = dropout,
                 mlp_dim = sm_enc_mlp_dim,
                 dim_head = sm_enc_dim_head
             ),
             lg_enc_params = dict(
                 depth = lg_enc_depth,
                 heads = lg_enc_heads,
+                dropout = dropout,
                 mlp_dim = lg_enc_mlp_dim,
                 dim_head = lg_enc_dim_head
             ),
@@ -861,12 +863,14 @@ class LinearCrossViT(nn.Layer):
             sm_enc_params = dict(
                 depth = sm_enc_depth,
                 heads = sm_enc_heads,
+                dropout = dropout,
                 mlp_dim = sm_enc_mlp_dim,
                 dim_head = sm_enc_dim_head
             ),
             lg_enc_params = dict(
                 depth = lg_enc_depth,
                 heads = lg_enc_heads,
+                dropout = dropout,
                 mlp_dim = lg_enc_mlp_dim,
                 dim_head = lg_enc_dim_head
             ),
@@ -882,12 +886,14 @@ class LinearCrossViT(nn.Layer):
             sm_enc_params = dict(
                 depth = sm_enc_depth,
                 heads = sm_enc_heads,
+                dropout = dropout,
                 mlp_dim = sm_enc_mlp_dim,
                 dim_head = sm_enc_dim_head
             ),
             lg_enc_params = dict(
                 depth = lg_enc_depth,
                 heads = lg_enc_heads,
+                dropout = dropout,
                 mlp_dim = lg_enc_mlp_dim,
                 dim_head = lg_enc_dim_head
             ),

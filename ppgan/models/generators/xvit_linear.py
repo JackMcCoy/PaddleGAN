@@ -825,13 +825,13 @@ class LinearCrossViT(nn.Layer):
             ConvBlock(16, 8),
             nn.Upsample(scale_factor=2, mode='nearest'),
             ResnetBlock(8),
-            ConvBlock(8, 4),
+            ConvBlock(8, 6),
             nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(4),
-            ConvBlock(4, 3)
+            ResnetBlock(6),
+            ConvBlock(6, 4)
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                   nn.Conv2D(3, 3, (3, 3)))
+                                   nn.Conv2D(4, 3, (3, 3)))
 
     def forward(self, img):
         sm_tokens = self.sm_image_embedder(img[:,:3,:,:])

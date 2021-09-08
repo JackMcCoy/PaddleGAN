@@ -207,6 +207,7 @@ class LapStyleDraXDOG(BaseModel):
 
         super(LapStyleDraXDOG, self).__init__()
 
+        self.scaler=paddle.amp.GradScaler(init_loss_scaling=1024)
         # define generators
         self.nets['net_enc'] = build_generator(generator_encode)
         #self.nets['net_dec'] = build_generator(generator_decode)
@@ -331,17 +332,20 @@ class LapStyleDraXDOG(BaseModel):
                     self.l_identity1 * 50 + self.l_identity2 * 1 + \
                     mxdog_losses*mxdog_weight+\
                     self.loss_content_relt * 16 + self.loss_style_remd*10
-        self.loss.backward()
 
         return self.loss
 
     def train_iter(self, optimizers=None):
         """Calculate losses, gradients, and update network weights"""
         self.steps+=1
-        self.forward()
-        optimizers['optimG'].clear_grad()
-        self.backward_Dec()
-        self.optimizers['optimG'].step()
+        with paddle.amp.auto_cast():
+            self.forward()
+            loss = self.backward_Dec()
+        scaled = scaler.scale(loss)
+        scaled.backward()
+        scaler.minimize(optimizers['optimG'], scaled)
+        optimizers.clear_grad()
+        #self.optimizers['optimG'].step()
         '''
         if self.steps==1:
             for param in self.nets['net_vit'].parameters():

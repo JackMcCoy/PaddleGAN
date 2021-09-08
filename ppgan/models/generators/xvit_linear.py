@@ -326,7 +326,7 @@ class LocalAttention(nn.Layer):
 
         if self.autopad:
             orig_t = q.shape[1]
-            q, k, v = map(lambda t: pad_to_multiple(t, self.window_size, dim = -2), (q[:,1:,:], k[:,1:,:], v[:,1:,:]))
+            q, k, v = map(lambda t: pad_to_multiple(t, self.window_size, dim = -2), (q, k, v))
 
         window_size, causal, look_backward, look_forward, shared_qk = self.window_size, self.causal, self.look_backward, self.look_forward, self.shared_qk
         b, t, e = q.shape

@@ -468,8 +468,8 @@ class CrossViT(nn.Layer):
     def forward(self, img):
         sm_tokens = self.sm_image_embedder(img[:,:3,:,:])
         lg_tokens = self.lg_image_embedder(img[:,:3,:,:])
-        sm_tokens_style = self.sm_image_embedder(img[:,3:,:,:])
-        lg_tokens_style = self.lg_image_embedder(img[:,3:,:,:])
+        sm_tokens_style = self.sm_image_embedder_style(img[:,3:,:,:])
+        lg_tokens_style = self.lg_image_embedder_style(img[:,3:,:,:])
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
         sm_tokens_style, lg_tokens_style = self.multi_scale_encoder_style(sm_tokens_style, lg_tokens_style)

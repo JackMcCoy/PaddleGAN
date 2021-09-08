@@ -341,9 +341,9 @@ class LapStyleDraXDOG(BaseModel):
         with paddle.amp.auto_cast():
             self.forward()
             loss = self.backward_Dec()
-        scaled = scaler.scale(loss)
+        scaled = self.scaler.scale(loss)
         scaled.backward()
-        scaler.minimize(optimizers['optimG'], scaled)
+        self.scaler.minimize(optimizers['optimG'], scaled)
         optimizers.clear_grad()
         #self.optimizers['optimG'].step()
         '''

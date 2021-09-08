@@ -34,7 +34,7 @@ def shift(t, amount, mask = None):
     if exists(mask):
         t = t.masked_fill(~mask[..., None], 0.)
 
-    return F.pad(t, [0, 0, amount, -amount],data_format='NCL', value = 0.)
+    return F.pad(t, [amount, -amount],data_format='NCL', value = 0.)
 
 class PreShiftTokens(nn.Layer):
     def __init__(self, shifts, fn):

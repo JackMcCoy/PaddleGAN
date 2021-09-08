@@ -351,12 +351,12 @@ class LapStyleDraXDOG(BaseModel):
                         if type(v2)==dict:
                             for k3,v3 in v2.items():
                                 print(' - -'+k3)
-                                if hasattr(v3,'shape') and hasattr(v3,'weight'):
-                                    print(' - - shape: '+str(v3.weight.shape))
-                        if hasattr(v2,'shape') and hasattr(v2,'weight'):
-                            print(' - shape: '+str(v2.weight.shape))
-                if hasattr(v,'shape') and hasattr(v,'weight'):
-                    print(' shape: '+str(v.weight.shape))
+                                if hasattr(v3,'shape') and hasattr(v3[0],'shape'):
+                                    print(' - - shape: '+str(v3[0].shape))
+                        if hasattr(v2,'shape') and hasattr(v2[0],'shape'):
+                            print(' - shape: '+str(v2[0].shape))
+                if hasattr(v,'shape') and hasattr(v[0],'shape'):
+                    print(' shape: '+str(v[0].shape))
 
 
 def tensor_resample(tensor, dst_size, mode='bilinear'):

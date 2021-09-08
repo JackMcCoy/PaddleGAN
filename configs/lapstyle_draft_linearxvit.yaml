@@ -12,17 +12,17 @@ model:
     name: LinearCrossViT
     image_size: 128
     num_classes: 1000
-    depth: 6
+    depth: 12
     sm_dim: 512
     sm_patch_size: 16
     sm_enc_depth: 2
-    sm_enc_heads: 8
+    sm_enc_heads: 6
     lg_dim: 512
     lg_patch_size: 64
     lg_enc_depth: 3
-    lg_enc_heads: 8
+    lg_enc_heads: 6
     cross_attn_depth: 2
-    cross_attn_heads: 8
+    cross_attn_heads: 6
     dropout: 0.1
     emb_dropout: 0.1
   calc_style_emd_loss:
@@ -52,7 +52,7 @@ dataset:
     crop_size: 128
     style_upsize: 1
     num_workers: 16
-    batch_size: 2
+    batch_size: 1
   test:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/

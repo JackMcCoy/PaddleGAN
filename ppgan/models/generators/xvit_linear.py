@@ -70,10 +70,9 @@ def pad_to_multiple(tensor, multiple, dim=-1, value=0):
     m = seqlen / multiple
     if m.is_integer():
         return tensor
-    print(tensor.shape)
     remainder = ceil(m) * multiple - seqlen
     pad_offset = (0,) * (-1 - dim) * 2
-    return F.pad(tensor, (*pad_offset, 0, remainder), value=value)
+    return F.pad(tensor, (*pad_offset, 0, remainder), data_format='NCL',value=value)
 
 def look_around(x, backward = 1, forward = 0, pad_value = -1, dim = 2):
     t = x.shape[1]
@@ -325,7 +324,7 @@ class LocalAttention(nn.Layer):
 
         if self.autopad:
             orig_t = q.shape[1]
-            q, k, v = map(lambda t: pad_to_multiple(t, self.window_size, dim = -2), (q, k, v))
+            q, k, v = map(lambda t: pad_to_multiple(t, self.window_size, dim = -2), (q[:,1:,:], k[:,1:,:], v[:,1:,:]))
 
         window_size, causal, look_backward, look_forward, shared_qk = self.window_size, self.causal, self.look_backward, self.look_forward, self.shared_qk
         b, t, e = q.shape
@@ -339,7 +338,7 @@ class LocalAttention(nn.Layer):
         ticker = paddle.reshape(paddle.arange(t-1),(1,-1))
         b_t = ticker.reshape((1, windows, window_size))
 
-        bucket_fn = lambda t: t[:,1:,:].reshape((b, windows, window_size, -1))
+        bucket_fn = lambda t: t.reshape((b, windows, window_size, -1))
         bq, bk, bv = map(bucket_fn, (q, k, v))
 
         look_around_kwargs = {'backward': look_backward, 'forward': look_forward}

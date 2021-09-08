@@ -669,8 +669,8 @@ class MultiScaleEncoder(nn.Layer):
         self.layers = nn.LayerList()
         for _ in range(depth):
             self.layers.append(nn.LayerList([
-                LinearAttentionTransformer(sm_dim, recieves_context=recieves_context, **sm_enc_params),
-                LinearAttentionTransformer(lg_dim, recieves_context=recieves_context,**lg_enc_params),
+                LinearAttentionTransformer(sm_dim, receives_context=receives_context, **sm_enc_params),
+                LinearAttentionTransformer(lg_dim, receives_context=receives_context,**lg_enc_params),
                 CrossTransformer(sm_dim = sm_dim, lg_dim = lg_dim, depth = cross_attn_depth, heads = cross_attn_heads, dim_head = cross_attn_dim_head, dropout = dropout)
             ]))
 

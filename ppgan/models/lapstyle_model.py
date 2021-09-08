@@ -342,10 +342,11 @@ class LapStyleDraXDOG(BaseModel):
         optimizers['optimG'].clear_grad()
         self.backward_Dec()
         self.optimizers['optimG'].step()
+        '''
         if self.steps==1:
             for param in self.nets['net_vit'].parameters():
                 print(param.name+' - '+str(param.shape))
-
+        '''
 
 def tensor_resample(tensor, dst_size, mode='bilinear'):
     return F.interpolate(tensor, dst_size, mode=mode, align_corners=False)

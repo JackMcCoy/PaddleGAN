@@ -821,17 +821,17 @@ class LinearCrossViT(nn.Layer):
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(
             nn.Sigmoid(),
-            ResnetBlock(48),
-            ConvBlock(48, 24),
+            ResnetBlock(32),
+            ConvBlock(32, 16),
             nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(24),
-            ConvBlock(24, 12),
+            ResnetBlock(16),
+            ConvBlock(16, 8),
             nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(12),
-            ConvBlock(12, 6)
+            ResnetBlock(8),
+            ConvBlock(8, 4)
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                   nn.Conv2D(6, 3, (3, 3)))
+                                   nn.Conv2D(4, 3, (3, 3)))
 
     def forward(self, img):
         sm_tokens = self.sm_image_embedder(img[:,:3,:,:])

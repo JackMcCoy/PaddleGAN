@@ -326,7 +326,7 @@ class LocalAttention(nn.Layer):
             q, k, v = map(lambda t: pad_to_multiple(t, self.window_size, dim = -2), (q, k, v))
 
         window_size, causal, look_backward, look_forward, shared_qk = self.window_size, self.causal, self.look_backward, self.look_forward, self.shared_qk
-        b, t, e, device, dtype = *q.shape, q.device, q.dtype
+        b, t, e = *q.shape
         assert (t % window_size) == 0, f'sequence length {t} must be divisible by window size {window_size} for local attention'
 
         windows = t // window_size

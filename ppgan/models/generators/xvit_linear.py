@@ -316,8 +316,9 @@ class LocalAttention(nn.Layer):
 
     def forward(self, q, k, v, input_mask = None):
         shape = q.shape
-
+        v_cls=v[:,:,0]
         merge_into_batch = lambda t: t.reshape((-1, t.shape[-2],t.shape[-1]))
+
         q, k, v = map(merge_into_batch, (q[:,:,1:], k[:,:,1:], v[:,:,1:]))
         print(q.shape)
         if exists(self.rel_pos):
@@ -394,7 +395,7 @@ class LocalAttention(nn.Layer):
 
         attn = dots.softmax(axis=-1)
         attn = self.dropout(attn)
-        bv = paddle.concat([v[:,0,:,:],bv],axis=1)
+        bv = paddle.concat([v_cls,bv],axis=1)
         attn = paddle.concat([paddle.ones(bv.shape),attn],axis=1)
 
         out = paddle.matmul(attn, bv)

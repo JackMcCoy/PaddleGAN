@@ -446,8 +446,6 @@ class SelfAttention(nn.Layer):
 
         out = []
 
-        print(self.local_attn_heads)
-
         split_index_fn = partial(split_at_index, 1, self.local_attn_heads)
 
         (lq, q), (lk, k), (lv, v) = map(split_index_fn, (q, k, v))
@@ -483,7 +481,7 @@ class LinearAttentionTransformer(nn.Layer):
         attn_dropout = 0.,
         reversible = False,
         blindspot_size = 1,
-        n_local_attn_heads = 0,
+        n_local_attn_heads = 4,
         local_attn_window_size = 128,
         receives_context = False,
         attend_axially = False,

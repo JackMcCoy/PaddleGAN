@@ -237,7 +237,7 @@ class FoldAxially(nn.Layer):
 # feedforward
 
 class FeedForward(nn.Layer):
-    def __init__(self, dim, mult = 4, dropout = 0., activation = None, glu = False):
+    def __init__(self, dim, mult = 2, dropout = 0., activation = None, glu = False):
         super().__init__()
         activation = default(activation, nn.GELU)
 
@@ -638,8 +638,8 @@ class CrossTransformer(nn.Layer):
         (sm_cls, sm_patch_tokens), (lg_cls, lg_patch_tokens) = map(lambda t: (t[:, :1], t[:, 1:]), (sm_tokens, lg_tokens))
 
         for sm_attend_lg, lg_attend_sm in self.layers:
-            sm_cls = sm_attend_lg(sm_cls, style=sm_style, context = lg_patch_tokens, kv_include_self = True) + sm_cls
-            lg_cls = lg_attend_sm(lg_cls, style=lg_style, context = sm_patch_tokens, kv_include_self = True) + lg_cls
+            sm_cls = sm_attend_lg(sm_cls, context = sm_style, kv_include_self = True) + sm_cls
+            lg_cls = lg_attend_sm(lg_cls, context = lg_style, kv_include_self = True) + lg_cls
 
         sm_tokens = paddle.concat((sm_cls, sm_patch_tokens), axis = 1)
         lg_tokens = paddle.concat((lg_cls, lg_patch_tokens), axis = 1)

@@ -661,7 +661,7 @@ class MultiScaleEncoder(nn.Layer):
         lg_enc_params,
         cross_attn_heads,
         cross_attn_depth,
-        recieves_context=False,
+        receives_context=False,
         cross_attn_dim_head = 64,
         dropout = 0.
     ):

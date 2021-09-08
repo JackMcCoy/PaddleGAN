@@ -77,7 +77,7 @@ def pad_to_multiple(tensor, multiple, dim=-1, value=0):
 def look_around(x, backward = 1, forward = 0, pad_value = -1, dim = 2):
     t = x.shape[1]
     dims = (len(x.shape) - dim) * (0, 0)
-    print(dims)
+    print(tuple(*dims,backward,forward))
     print(backward)
     print(forward)
     print(pad_value)

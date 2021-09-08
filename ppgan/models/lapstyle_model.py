@@ -353,7 +353,7 @@ class LapStyleDraXDOG(BaseModel):
                                 print(' - -'+k3)
                                 if hasattr(v3,'shape'):
                                     print(' - - shape: '+str(v3.shape))
-                        if has_ttr(v2,'shape'):
+                        if hasattr(v2,'shape'):
                             print(' - shape: '+str(v2.shape))
                 if hasattr(v,'shape'):
                     print(' shape: '+str(v.shape))

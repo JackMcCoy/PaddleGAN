@@ -149,100 +149,6 @@ class Chunk(nn.Layer):
         chunks = paddle.chunk(x, self.chunks, axis = self.dim)
         return paddle.concat([self.fn(c, **kwargs) for c in chunks], dim = self.dim)
 
-class TransformerDecoderLayer(nn.Layer):
-
-    def __init__(self,
-                 d_model,
-                 nhead,
-                 dim_feedforward,
-                 dropout=0.1,
-                 activation="relu",
-                 attn_dropout=None,
-                 act_dropout=None,
-                 normalize_before=False,
-                 weight_attr=None,
-                 bias_attr=None):
-        self._config = locals()
-        self._config.pop("self")
-        self._config.pop("__class__", None)  # py3
-
-        super(TransformerDecoderLayer, self).__init__()
-        attn_dropout = dropout if attn_dropout is None else attn_dropout
-        act_dropout = dropout if act_dropout is None else act_dropout
-        self.normalize_before = normalize_before
-
-        weight_attrs = nn.layer.transformer._convert_param_attr_to_list(weight_attr, 3)
-        bias_attrs = nn.layer.transformer._convert_param_attr_to_list(bias_attr, 3)
-
-        self.self_attn = nn.layer.transformer.MultiHeadAttention(
-            d_model,
-            nhead,
-            dropout=attn_dropout,
-            weight_attr=weight_attrs[0],
-            bias_attr=bias_attrs[0])
-        self.cross_attn = nn.layer.transformer.MultiHeadAttention(
-            d_model,
-            nhead,
-            dropout=attn_dropout,
-            weight_attr=weight_attrs[1],
-            bias_attr=bias_attrs[1])
-        self.linear1 = nn.Linear(
-            d_model, dim_feedforward, weight_attrs[2], bias_attr=bias_attrs[2])
-        self.dropout = nn.Dropout(act_dropout, mode="upscale_in_train")
-        self.linear2 = nn.Linear(
-            dim_feedforward, d_model, weight_attrs[2], bias_attr=bias_attrs[2])
-        self.norm1 = nn.LayerNorm(d_model)
-        self.norm2 = nn.LayerNorm(d_model)
-        self.norm3 = nn.LayerNorm(d_model)
-        self.dropout1 = nn.Dropout(dropout, mode="upscale_in_train")
-        self.dropout2 = nn.Dropout(dropout, mode="upscale_in_train")
-        self.dropout3 = nn.Dropout(dropout, mode="upscale_in_train")
-        self.activation = getattr(F, activation)
-
-    def forward(self, tgt, memory, tgt_mask=None, memory_mask=None, cache=None):
-        tgt_mask = nn.layer.transformer._convert_attention_mask(tgt_mask, tgt.dtype)
-        memory_mask = nn.layer.transformer._convert_attention_mask(memory_mask, memory.dtype)
-
-        residual = tgt
-        if self.normalize_before:
-            tgt = self.norm1(tgt)
-        if cache is None:
-            tgt = self.self_attn(tgt, tgt, tgt, tgt_mask, None)
-        else:
-            tgt, incremental_cache = self.self_attn(tgt, tgt, tgt, tgt_mask,
-                                                    cache[0])
-        tgt = residual + self.dropout1(tgt)
-        if not self.normalize_before:
-            tgt = self.norm1(tgt)
-
-        residual = tgt
-        if self.normalize_before:
-            tgt = self.norm2(tgt)
-        if cache is None:
-            tgt = self.cross_attn(tgt, memory, memory, memory_mask, None)
-        else:
-            tgt, static_cache = self.cross_attn(tgt, memory, memory,
-                                                memory_mask, cache[1])
-        tgt = residual + self.dropout2(tgt)
-        if not self.normalize_before:
-            tgt = self.norm2(tgt)
-
-        residual = tgt
-        if self.normalize_before:
-            tgt = self.norm3(tgt)
-        tgt = self.linear2(self.dropout(self.activation(self.linear1(tgt))))
-        tgt = residual + self.dropout3(tgt)
-        if not self.normalize_before:
-            tgt = self.norm3(tgt)
-        return tgt if cache is None else (tgt, (incremental_cache,
-                                                static_cache))
-
-    def gen_cache(self, memory):
-        incremental_cache = self.self_attn.gen_cache(
-            memory, type=self.self_attn.Cache)
-        static_cache = self.cross_attn.gen_cache(
-            memory, memory, type=self.cross_attn.StaticCache)
-        return incremental_cache, static_cache
 
 class ResnetBlock(nn.Layer):
     """Residual block.
@@ -586,7 +492,7 @@ class LinearAttentionTransformer(nn.Layer):
             layer_num = ind + 1
             use_pkm = layer_num in cast_tuple(pkm_layers)
 
-            parallel_net = Chunk(ff_chunks, FeedForward(dim), along_dim = 1) if not use_pkm else PKM(dim)
+            parallel_net = Chunk(ff_chunks, FeedForward(dim), along_dim = 1)
 
             attn = SelfAttention(dim, heads, causal, dim_head = dim_head, blindspot_size = blindspot_size, n_local_attn_heads = local_heads, local_attn_window_size = local_attn_window_size, dropout = attn_layer_dropout, attn_dropout= attn_dropout)
 
@@ -840,13 +746,11 @@ class LinearCrossViT(nn.Layer):
             sm_enc_params = dict(
                 depth = sm_enc_depth,
                 heads = sm_enc_heads,
-                mlp_dim = sm_enc_mlp_dim,
                 dim_head = sm_enc_dim_head
             ),
             lg_enc_params = dict(
                 depth = lg_enc_depth,
                 heads = lg_enc_heads,
-                mlp_dim = lg_enc_mlp_dim,
                 dim_head = lg_enc_dim_head
             ),
             dropout = dropout
@@ -861,13 +765,11 @@ class LinearCrossViT(nn.Layer):
             sm_enc_params = dict(
                 depth = sm_enc_depth,
                 heads = sm_enc_heads,
-                mlp_dim = sm_enc_mlp_dim,
                 dim_head = sm_enc_dim_head
             ),
             lg_enc_params = dict(
                 depth = lg_enc_depth,
                 heads = lg_enc_heads,
-                mlp_dim = lg_enc_mlp_dim,
                 dim_head = lg_enc_dim_head
             ),
             dropout = dropout
@@ -882,20 +784,16 @@ class LinearCrossViT(nn.Layer):
             sm_enc_params = dict(
                 depth = sm_enc_depth,
                 heads = sm_enc_heads,
-                mlp_dim = sm_enc_mlp_dim,
                 dim_head = sm_enc_dim_head
             ),
             lg_enc_params = dict(
                 depth = lg_enc_depth,
                 heads = lg_enc_heads,
-                mlp_dim = lg_enc_mlp_dim,
                 dim_head = lg_enc_dim_head
             ),
             dropout = dropout
         )
 
-        self.sm_mlp_head = nn.Sequential(nn.LayerNorm(sm_dim), nn.Linear(sm_dim, num_classes))
-        self.lg_mlp_head = nn.Sequential(nn.LayerNorm(lg_dim), nn.Linear(lg_dim, num_classes))
         #sm_decoder_layer = nn.TransformerDecoderLayer(256, 16, 256, normalize_before=True)
 
         self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=2,d=4,e=4)

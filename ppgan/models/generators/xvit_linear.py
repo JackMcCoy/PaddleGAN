@@ -270,9 +270,10 @@ def linear_attn(q, k, v, kv_mask = None):
         k = k.masked_fill_(~mask, mask_value)
         v = v.masked_fill_(~mask, 0.)
         del mask
-
-    q = nn.Softmax(q,axis=-1)
-    k = nn.Softmax(k,axis=-2)
+    soft_q=nn.Softmax(axis=-1)
+    soft_k=nn.Softmax(axis=-2)
+    q = soft_q(q)
+    k = soft_k(k)
 
     q = q * dim ** -0.5
 

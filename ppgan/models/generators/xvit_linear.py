@@ -3,6 +3,7 @@ from paddle import nn
 import paddle.nn.functional as F
 from math import gcd,ceil
 from collections import namedtuple
+import numpy as np
 from functools import partial, reduce
 
 from einops import rearrange, repeat

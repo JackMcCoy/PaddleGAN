@@ -335,7 +335,7 @@ class LocalAttention(nn.Layer):
             k = F.normalize(k, 2, axis=-1)
 
         ticker = paddle.reshape(paddle.arange(t-1),(1,-1))
-        b_t = ticker.reshape(1, windows, window_size)
+        b_t = ticker.reshape((1, windows, window_size))
 
         bucket_fn = lambda t: t[:,1:,:].reshape((b, windows, window_size, -1))
         bq, bk, bv = map(bucket_fn, (q[:,1:,:], k[:,1:,:], v[:,1:,:]))

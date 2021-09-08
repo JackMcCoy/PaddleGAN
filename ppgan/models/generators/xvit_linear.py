@@ -484,7 +484,7 @@ class LinearAttentionTransformer(nn.Layer):
         attend_axially = False,
         pkm_layers = tuple(),
         pkm_num_keys = 128,
-        shift_tokens = True
+        shift_tokens = False
     ):
         super().__init__()
 

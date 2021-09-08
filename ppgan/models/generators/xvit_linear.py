@@ -77,8 +77,6 @@ def pad_to_multiple(tensor, multiple, dim=-1, value=0):
 def look_around(x, backward = 1, forward = 0, pad_value = -1, dim = 2):
     t = x.shape[1]
     dims = (len(x.shape) - dim) * (0, 0)
-    print(dims)
-    print(x)
 
     padded_x = F.pad(x, [*dims], value= pad_value)
     tensors = [padded_x[:, ind:(ind + t), :,:] for ind in range(forward + backward + 1)]
@@ -341,7 +339,7 @@ class LocalAttention(nn.Layer):
         b_t = ticker.reshape((1, windows, window_size))
 
         bucket_fn = lambda t: t[:,1:,:].reshape((b, windows, window_size, -1))
-        bq, bk, bv = map(bucket_fn, (q[:,1:,:], k[:,1:,:], v[:,1:,:]))
+        bq, bk, bv = map(bucket_fn, (q, k, v))
 
         look_around_kwargs = {'backward': look_backward, 'forward': look_forward}
         bk = look_around(bk, **look_around_kwargs)

@@ -220,14 +220,14 @@ class FoldAxially(nn.Layer):
         self.axial_dim = axial_dim
     def forward(self, x, input_mask = None, **kwargs):
         b, t, d, ax = *x.shape, self.axial_dim
-        x = paddle.transpose(x.reshape(b, -1, ax, d),(0, 2, 1)).reshape(b * ax, -1, d)
+        x = paddle.transpose(x.reshape((b, -1, ax, d)),(0, 2, 1)).reshape(b * ax, -1, d)
 
         mask = None
         if exists(input_mask):
-            mask = paddle.transpose(input_mask.reshape(b, -1, ax),(0,2,1)).reshape(b * ax, -1)
+            mask = paddle.transpose(input_mask.reshape((b, -1, ax)),(0,2,1)).reshape(b * ax, -1)
 
         x = self.fn(x, input_mask = mask, **kwargs)
-        x = paddle.transpose(x.reshape(b, ax, -1, d),(0,2,1)).reshape(b, t, d)
+        x = paddle.transpose(x.reshape((b, ax, -1, d)),(0,2,1)).reshape((b, t, d))
         return x
 
 # feedforward
@@ -314,7 +314,7 @@ class LocalAttention(nn.Layer):
     def forward(self, q, k, v, input_mask = None):
         shape = q.shape
 
-        merge_into_batch = lambda t: t.reshape(-1, *t.shape[-2:])
+        merge_into_batch = lambda t: t.reshape((-1, *t.shape[-2:]))
         q, k, v = map(merge_into_batch, (q, k, v))
 
         if exists(self.rel_pos):
@@ -337,7 +337,7 @@ class LocalAttention(nn.Layer):
         ticker = paddle.reshape(paddle.arange(t),(1,-1))
         b_t = ticker.reshape(1, windows, window_size)
 
-        bucket_fn = lambda t: t.reshape(b, windows, window_size, -1)
+        bucket_fn = lambda t: t.reshape((b, windows, window_size, -1))
         bq, bk, bv = map(bucket_fn, (q, k, v))
 
         look_around_kwargs = {'backward': look_backward, 'forward': look_forward}
@@ -377,7 +377,7 @@ class LocalAttention(nn.Layer):
             h = b // input_mask.shape[0]
             if self.autopad:
                 input_mask = pad_to_multiple(input_mask, window_size, dim=-1, value=False)
-            input_mask = input_mask.reshape(-1, windows, window_size)
+            input_mask = input_mask.reshape((-1, windows, window_size))
             mq = mk = input_mask
             a,b,c,d = mq.shape
             reshaped_mq = paddle.reshape(mq,(a,b,c,1,d))
@@ -393,12 +393,12 @@ class LocalAttention(nn.Layer):
         attn = self.dropout(attn)
 
         out = paddle.matmul(attn, bv)
-        out = out.reshape(-1, t, e)
+        out = out.reshape((-1, t, e))
 
         if self.autopad:
             out = out[:, :orig_t, :]
 
-        return out.reshape(*shape)
+        return out.reshape((*shape))
 
 class SelfAttention(nn.Layer):
     def __init__(self, dim, heads, causal = False, dim_head = None, blindspot_size = 1, n_local_attn_heads = 0, local_attn_window_size = 128, receives_context = False, dropout = 0., attn_dropout = 0.):
@@ -437,7 +437,7 @@ class SelfAttention(nn.Layer):
 
         b, t, e, h, dh = *q.shape, self.heads, self.d_heads
 
-        merge_heads = lambda x: paddle.transpose(x.reshape(*x.shape[:2], -1, dh),(0,2,1))
+        merge_heads = lambda x: paddle.transpose(x.reshape((*x.shape[:2], -1, dh)),(0,2,1))
 
         q, k, v = map(merge_heads, (q, k, v))
 
@@ -462,7 +462,7 @@ class SelfAttention(nn.Layer):
             out.append(global_out)
 
         attn = paddle.concat(out, dim=1)
-        attn = paddle.transpose(attn,1, 2).reshape(b, t, -1)
+        attn = paddle.transpose(attn,1, 2).reshape((b, t, -1))
         return self.dropout(self.to_out(attn))
 
 class LinearAttentionTransformer(nn.Layer):

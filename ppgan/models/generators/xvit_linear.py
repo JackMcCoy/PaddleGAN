@@ -75,11 +75,13 @@ def pad_to_multiple(tensor, multiple, dim=-1, value=0):
     pad_offset = (0,) * (-1 - dim) * 2
     return F.pad(tensor, (*pad_offset, 0, remainder), data_format='NCL',value=value)
 
-def look_around(x, backward = 1, forward = 0, pad_value = -1, dim = 2):
+def look_around(x, cls=None,backward = 1, forward = 0, pad_value = -1, dim = 2):
     t = x.shape[1]
     dims = (len(x.shape) - dim) * (0, 0)
     padded_x = F.pad(x, [*dims[:-2],backward,forward], data_format='NCL' if len(x.shape)==3 else 'NCHW',value= pad_value)
     tensors = [padded_x[:, ind:(ind + t), :] for ind in range(forward + backward + 1)]
+    if cls:
+        tensors = [cls,*tensors]
     return paddle.concat(tensors, axis=dim)
 
 def split_at_index(dim, index, t):

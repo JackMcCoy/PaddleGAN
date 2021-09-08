@@ -283,12 +283,12 @@ class LocalAttention(nn.Layer):
         window_size,
         causal = False,
         look_backward = 1,
-        look_forward = None,
+        look_forward = 1,
         dropout = 0.,
         shared_qk = False,
         rel_pos_emb_config = None,
         dim = None,
-        autopad = False,
+        autopad = True,
         exact_windowsize = False
     ):
         super().__init__()

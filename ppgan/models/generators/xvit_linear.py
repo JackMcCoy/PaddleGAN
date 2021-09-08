@@ -78,7 +78,7 @@ def look_around(x, backward = 1, forward = 0, pad_value = -1, dim = 2):
     t = x.shape[1]
     dims = (len(x.shape) - dim) * (0, 0)
 
-    padded_x = F.pad(x, list([*dims,backward,forward]), value= pad_value)
+    padded_x = F.pad(x, list(*dims), value= pad_value)
     tensors = [padded_x[:, ind:(ind + t), ...] for ind in range(forward + backward + 1)]
     return paddle.concat(tensors, axis=dim)
 

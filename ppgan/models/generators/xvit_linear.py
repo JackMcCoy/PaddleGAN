@@ -373,6 +373,8 @@ class LocalAttention(nn.Layer):
             del mask
 
         mask = reshaped_bq_k == -1
+        print(mask)
+        print(mask_value)
         dots[mask] = mask_value
         del mask
 

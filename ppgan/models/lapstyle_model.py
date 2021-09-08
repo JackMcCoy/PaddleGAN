@@ -344,7 +344,7 @@ class LapStyleDraXDOG(BaseModel):
         scaled = self.scaler.scale(loss)
         scaled.backward()
         self.scaler.minimize(optimizers['optimG'], scaled)
-        optimizers.clear_grad()
+        optimizers['optimG'].clear_grad()
         #self.optimizers['optimG'].step()
         '''
         if self.steps==1:

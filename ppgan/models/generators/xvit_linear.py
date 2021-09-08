@@ -79,7 +79,7 @@ def look_around(x, backward = 1, forward = 0, pad_value = -1, dim = 2):
     dims = (len(x.shape) - dim) * (0, 0)
 
     padded_x = F.pad(x, [*dims[:-2],backward,forward], value= pad_value)
-    tensors = [padded_x[:, ind:(ind + t), :,:] for ind in range(forward + backward)]
+    tensors = [padded_x[:, ind:(ind + t), :,:] for ind in range(forward + backward + 1)]
     return paddle.concat(tensors, axis=dim)
 
 def split_at_index(dim, index, t):
@@ -310,6 +310,8 @@ class LocalAttention(nn.Layer):
         if exists(rel_pos_emb_config) or exists(dim):  # backwards compatible with old `rel_pos_emb_config` deprecated argument
             if exists(rel_pos_emb_config):
                 dim = rel_pos_emb_config[0]
+                print(dim)
+            print(dim)
             self.rel_pos = SinusoidalEmbeddings(dim)
 
     def forward(self, q, k, v, input_mask = None):
@@ -317,7 +319,7 @@ class LocalAttention(nn.Layer):
 
         merge_into_batch = lambda t: t.reshape((-1, *t.shape[-2:]))
         q, k, v = map(merge_into_batch, (q, k, v))
-
+        print(q.shape)
         if exists(self.rel_pos):
             pos_emb = self.rel_pos(q)
             q, k = apply_rotary_pos_emb(q, k, pos_emb)

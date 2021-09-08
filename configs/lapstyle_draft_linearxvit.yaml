@@ -9,7 +9,7 @@ model:
   generator_encode:
     name: Encoder
   generator_transformer:
-    name: CrossViT
+    name: LinearCrossViT
     image_size: 128
     num_classes: 1000
     depth: 4

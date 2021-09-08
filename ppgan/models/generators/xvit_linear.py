@@ -458,7 +458,7 @@ class SelfAttention(nn.Layer):
         global_out = self.global_attn_fn(q, k, v, kv_mask = kv_mask)
         out.append(global_out)
 
-        attn = paddle.concat(out, dim=1)
+        attn = paddle.concat(out, axis=1)
         attn = paddle.transpose(attn,1, 2).reshape((b, t, -1))
         return self.dropout(self.to_out(attn))
 

@@ -102,6 +102,17 @@ def layer_drop(layers, prob):
     blocks = layers[:1] if len(blocks) == 0 else blocks
     return blocks
 
+def route_args(router, args, depth):
+    routed_args = [(dict(), dict()) for _ in range(depth)]
+    matched_keys = [key for key in args.keys() if key in router]
+
+    for key in matched_keys:
+        val = args[key]
+        for depth, ((f_args, g_args), routes) in enumerate(zip(routed_args, router[key])):
+            new_f_args, new_g_args = map(lambda route: ({key: val} if route else {}), routes)
+            routed_args[depth] = ({**f_args, **new_f_args}, {**g_args, **new_g_args})
+    return routed_args
+
 class SequentialSequence(nn.Layer):
     def __init__(self, layers, args_route = {}, layer_dropout = 0.):
         super().__init__()
@@ -650,6 +661,7 @@ class MultiScaleEncoder(nn.Layer):
         lg_enc_params,
         cross_attn_heads,
         cross_attn_depth,
+        recieves_context=False,
         cross_attn_dim_head = 64,
         dropout = 0.
     ):
@@ -657,14 +669,14 @@ class MultiScaleEncoder(nn.Layer):
         self.layers = nn.LayerList()
         for _ in range(depth):
             self.layers.append(nn.LayerList([
-                LinearAttentionTransformer(sm_dim, **sm_enc_params),
-                LinearAttentionTransformer(lg_dim, **lg_enc_params),
+                LinearAttentionTransformer(sm_dim, recieves_context=recieves_context, **sm_enc_params),
+                LinearAttentionTransformer(lg_dim, recieves_context=recieves_context,**lg_enc_params),
                 CrossTransformer(sm_dim = sm_dim, lg_dim = lg_dim, depth = cross_attn_depth, heads = cross_attn_heads, dim_head = cross_attn_dim_head, dropout = dropout)
             ]))
 
     def forward(self, sm_tokens, lg_tokens,sm_style=None,lg_style=None):
         for sm_enc, lg_enc, cross_attend in self.layers:
-            sm_tokens, lg_tokens = sm_enc(sm_tokens,style=sm_style), lg_enc(lg_tokens,style=lg_style)
+            sm_tokens, lg_tokens = sm_enc(sm_tokens,context=sm_style), lg_enc(lg_tokens,context=lg_style)
             sm_tokens, lg_tokens = cross_attend(sm_tokens, lg_tokens,sm_style=sm_style,lg_style=lg_style)
 
         return sm_tokens, lg_tokens

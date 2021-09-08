@@ -82,7 +82,9 @@ def look_around(x, cls=None,backward = 1, forward = 0, pad_value = -1, dim = 2):
     tensors = [padded_x[:, ind:(ind + t), :] for ind in range(forward + backward + 1)]
     if not cls is None:
         tensors = [cls,*tensors]
-    return paddle.concat(tensors, axis=dim)
+    tensors=paddle.concat(tensors, axis=dim)
+    print(tensors.shape)
+    return tensors
 
 def split_at_index(dim, index, t):
     pre_slices = (slice(None),) * dim
@@ -346,7 +348,7 @@ class LocalAttention(nn.Layer):
 
         bucket_fn = lambda t: t.reshape((b, windows, window_size, -1))
         bq, bk, bv = map(bucket_fn, (q, k, v))
-        cls_fn = lambda t: t.reshape((b, windows, 1, -1))
+        cls_fn = lambda t: t.reshape((b, 1, 1, -1))
         v_cls,k_cls = map(cls_fn, (v_cls,k_cls))
 
         look_around_kwargs = {'backward': look_backward, 'forward': look_forward}

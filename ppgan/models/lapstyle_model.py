@@ -342,7 +342,7 @@ class LapStyleDraXDOG(BaseModel):
         optimizers['optimG'].clear_grad()
         self.backward_Dec()
         self.optimizers['optimG'].step()
-        if steps==1:
+        if self.steps==1:
             for k,v in optimizers['optimG'].state_dict().items():
                 print(k)
                 if type(v)==dict:

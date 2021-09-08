@@ -1,7 +1,7 @@
 import paddle
 from paddle import nn
 import paddle.nn.functional as F
-from math import gcd
+from math import gcd,ceil
 from collections import namedtuple
 from functools import partial, reduce
 
@@ -70,7 +70,7 @@ def pad_to_multiple(tensor, multiple, dim=-1, value=0):
     m = seqlen / multiple
     if m.is_integer():
         return tensor
-    remainder = math.ceil(m) * multiple - seqlen
+    remainder = ceil(m) * multiple - seqlen
     pad_offset = (0,) * (-1 - dim) * 2
     return F.pad(tensor, (*pad_offset, 0, remainder), value=value)
 

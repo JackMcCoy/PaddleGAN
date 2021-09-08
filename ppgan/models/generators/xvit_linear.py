@@ -396,8 +396,7 @@ class LocalAttention(nn.Layer):
 
         attn = nn.Softmax(dots)
         attn = self.dropout(attn)
-        attn = paddle.concat([paddle.ones((1,*bv.shape[1:])),attn],axis=1)
-
+        
         out = paddle.matmul(attn, bv)
         out = out.reshape((-1, t, e))
 

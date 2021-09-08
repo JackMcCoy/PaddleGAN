@@ -70,9 +70,10 @@ def pad_to_multiple(tensor, multiple, dim=-1, value=0):
     m = seqlen / multiple
     if m.is_integer():
         return tensor
+    print(tensor.shape)
     remainder = ceil(m) * multiple - seqlen
     pad_offset = (0,) * (-1 - dim) * 2
-    return F.pad(tensor, (*pad_offset, remainder), value=value)
+    return F.pad(tensor, (*pad_offset, 0, remainder), value=value)
 
 def look_around(x, backward = 1, forward = 0, pad_value = -1, dim = 2):
     t = x.shape[1]

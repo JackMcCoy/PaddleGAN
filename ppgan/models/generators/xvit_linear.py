@@ -459,7 +459,7 @@ class SelfAttention(nn.Layer):
         out.append(global_out)
 
         attn = paddle.concat(out, axis=1)
-        attn = paddle.transpose(attn,1, 2).reshape((b, t, -1))
+        attn = paddle.transpose(attn,(0,1, 2)).reshape((b, t, -1))
         return self.dropout(self.to_out(attn))
 
 class LinearAttentionTransformer(nn.Layer):

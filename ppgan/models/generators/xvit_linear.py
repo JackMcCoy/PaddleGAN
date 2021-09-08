@@ -758,12 +758,14 @@ class LinearCrossViT(nn.Layer):
             sm_enc_params = dict(
                 depth = sm_enc_depth,
                 heads = sm_enc_heads,
-                dim_head = sm_enc_dim_head
+                dim_head = sm_enc_dim_head,
+                local_attn_window_size = 4
             ),
             lg_enc_params = dict(
                 depth = lg_enc_depth,
                 heads = lg_enc_heads,
-                dim_head = lg_enc_dim_head
+                dim_head = lg_enc_dim_head,
+                local_attn_window_size=2
             ),
             dropout = dropout
         )
@@ -777,12 +779,14 @@ class LinearCrossViT(nn.Layer):
             sm_enc_params = dict(
                 depth = sm_enc_depth,
                 heads = sm_enc_heads,
-                dim_head = sm_enc_dim_head
+                dim_head = sm_enc_dim_head,
+                local_attn_window_size=4
             ),
             lg_enc_params = dict(
                 depth = lg_enc_depth,
                 heads = lg_enc_heads,
-                dim_head = lg_enc_dim_head
+                dim_head = lg_enc_dim_head,
+                local_attn_window_size=2
             ),
             dropout = dropout
         )
@@ -797,12 +801,14 @@ class LinearCrossViT(nn.Layer):
             sm_enc_params = dict(
                 depth = sm_enc_depth,
                 heads = sm_enc_heads,
-                dim_head = sm_enc_dim_head
+                dim_head = sm_enc_dim_head,
+                local_attn_window_size=4
             ),
             lg_enc_params = dict(
                 depth = lg_enc_depth,
                 heads = lg_enc_heads,
-                dim_head = lg_enc_dim_head
+                dim_head = lg_enc_dim_head,
+                local_attn_window_size=2
             ),
             dropout = dropout
         )

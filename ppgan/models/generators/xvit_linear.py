@@ -356,7 +356,7 @@ class LocalAttention(nn.Layer):
         a,b,d = bq_t.shape
         reshaped_bq_t = paddle.reshape(bq_t,(a,b,1,d))
         a,b,d = bq_k.shape
-        reshape_bq_k = paddle.reshape(bq_k,(a,b,1,d))
+        reshaped_bq_k = paddle.reshape(bq_k,(a,b,1,d))
         if shared_qk:
             mask = reshaped_bq_t == reshape_bq_k
             dots[mask] = TOKEN_SELF_ATTN_VALUE

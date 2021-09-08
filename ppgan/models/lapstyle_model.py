@@ -343,7 +343,7 @@ class LapStyleDraXDOG(BaseModel):
         self.backward_Dec()
         self.optimizers['optimG'].step()
         if self.steps==1:
-            for param in self.nets['net_dec'].parameters():
+            for param in self.nets['net_vit'].parameters():
                 print(param.keys())
 
 

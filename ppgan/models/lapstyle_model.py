@@ -344,7 +344,7 @@ class LapStyleDraXDOG(BaseModel):
         self.optimizers['optimG'].step()
         if self.steps==1:
             for param in self.nets['net_vit'].parameters():
-                print(dir(param))
+                print(param.name+' - '+str(param.shape))
 
 
 def tensor_resample(tensor, dst_size, mode='bilinear'):

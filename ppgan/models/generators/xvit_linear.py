@@ -437,7 +437,7 @@ class SelfAttention(nn.Layer):
 
         b, t, e, h, dh = *q.shape, self.heads, self.d_heads
 
-        merge_heads = lambda x: paddle.transpose(x.reshape(*x.shape[:2], -1, dh),1, 2)
+        merge_heads = lambda x: paddle.transpose(x.reshape(*x.shape[:2], -1, dh),(0,2,1))
 
         q, k, v = map(merge_heads, (q, k, v))
 

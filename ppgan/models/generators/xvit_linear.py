@@ -327,18 +327,18 @@ class LocalAttention(nn.Layer):
 
         window_size, causal, look_backward, look_forward, shared_qk = self.window_size, self.causal, self.look_backward, self.look_forward, self.shared_qk
         b, t, e = q.shape
-        assert (t % window_size) == 0, f'sequence length {t} must be divisible by window size {window_size} for local attention'
+        assert ((t-1) % window_size) == 0, f'sequence length {t} must be divisible by window size {window_size} for local attention'
 
-        windows = t // window_size
+        windows = (t-1) // window_size
 
         if shared_qk:
             k = F.normalize(k, 2, axis=-1)
 
-        ticker = paddle.reshape(paddle.arange(t),(1,-1))
+        ticker = paddle.reshape(paddle.arange(t[:,1:,:]),(1,-1))
         b_t = ticker.reshape(1, windows, window_size)
 
-        bucket_fn = lambda t: t.reshape((b, windows, window_size, -1))
-        bq, bk, bv = map(bucket_fn, (q, k, v))
+        bucket_fn = lambda t: t[:,1:,:].reshape((b, windows, window_size, -1))
+        bq, bk, bv = map(bucket_fn, (q[:,1:,:], k[:,1:,:], v[:,1:,:]))
 
         look_around_kwargs = {'backward': look_backward, 'forward': look_forward}
         bk = look_around(bk, **look_around_kwargs)
@@ -389,8 +389,10 @@ class LocalAttention(nn.Layer):
             dots[~mask]= mask_value
             del mask
 
-        attn = dots.softmax(dim=-1)
+        attn = dots.softmax(axis=-1)
         attn = self.dropout(attn)
+        bv = paddle.concat([v[:,0,:,:],bv],axis=1)
+        attn = paddle.concat([paddle.ones(bv.shape),attn],axis=1)
 
         out = paddle.matmul(attn, bv)
         out = out.reshape((-1, t, e))

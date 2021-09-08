@@ -257,6 +257,7 @@ class LapStyleDraXDOG(BaseModel):
         self.set_requires_grad([self.morph_conv], False)
         self.set_requires_grad([self.gaussian_filter],False)
         self.set_requires_grad([self.gaussian_filter_2],False)
+        self.steps=0
 
     def setup_input(self, input):
         self.ci = paddle.to_tensor(input['ci'])
@@ -336,10 +337,26 @@ class LapStyleDraXDOG(BaseModel):
 
     def train_iter(self, optimizers=None):
         """Calculate losses, gradients, and update network weights"""
+        self.steps+=1
         self.forward()
         optimizers['optimG'].clear_grad()
         self.backward_Dec()
         self.optimizers['optimG'].step()
+        if steps==1:
+            for k,v in optimizers['optimG'].state_dict().items():
+                print(k)
+                if type(v)==dict:
+                    for k2,v2 in v.items():
+                        print(' -'+k2)
+                        if type(v2)==dict:
+                            for k3,v3 in v2.items():
+                                print(' - -'+k3)
+                                if has_attr(v3,'shape'):
+                                    print(' - - shape: '+str(v3.shape))
+                        if has_attr(v2,'shape'):
+                            print(' - - shape: '+str(v2.shape))
+                if has_attr(v,'shape'):
+                    print(' - - shape: '+str(v.shape))
 
 
 def tensor_resample(tensor, dst_size, mode='bilinear'):

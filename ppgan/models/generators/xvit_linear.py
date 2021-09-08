@@ -347,7 +347,7 @@ class LocalAttention(nn.Layer):
         bucket_fn = lambda t: t.reshape((b, windows, window_size, -1))
         bq, bk, bv = map(bucket_fn, (q, k, v))
         cls_fn = lambda t: t.reshape((b, windows, 1, -1))
-        bq, bk, bv = map(cls_fn, (q, k, v))
+        v_cls,k_cls = map(cls_fn, (v_cls,k_cls))
 
         look_around_kwargs = {'backward': look_backward, 'forward': look_forward}
         bk = look_around(bk,cls=k_cls, **look_around_kwargs)

@@ -347,7 +347,7 @@ class LocalAttention(nn.Layer):
 
         look_around_kwargs = {'backward': look_backward, 'forward': look_forward}
         bk = look_around(bk, **look_around_kwargs)
-        bv = look_around(bv, **look_around_kwargs)
+        bv = look_around(bv,cls=v_cls, **look_around_kwargs)
 
         bq_t = b_t
         bq_k = look_around(b_t, **look_around_kwargs)
@@ -396,7 +396,6 @@ class LocalAttention(nn.Layer):
 
         attn = nn.Softmax(dots)
         attn = self.dropout(attn)
-        bv = paddle.concat([v_cls,bv],axis=1)
         attn = paddle.concat([paddle.ones(bv.shape),attn],axis=1)
 
         out = paddle.matmul(attn, bv)

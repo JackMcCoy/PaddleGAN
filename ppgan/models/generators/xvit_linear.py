@@ -886,14 +886,12 @@ class LinearCrossViT(nn.Layer):
             sm_enc_params = dict(
                 depth = sm_enc_depth,
                 heads = sm_enc_heads,
-                dropout = dropout,
                 mlp_dim = sm_enc_mlp_dim,
                 dim_head = sm_enc_dim_head
             ),
             lg_enc_params = dict(
                 depth = lg_enc_depth,
                 heads = lg_enc_heads,
-                dropout = dropout,
                 mlp_dim = lg_enc_mlp_dim,
                 dim_head = lg_enc_dim_head
             ),

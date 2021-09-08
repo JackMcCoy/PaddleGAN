@@ -23,8 +23,8 @@ model:
     lg_enc_heads: 6
     cross_attn_depth: 2
     cross_attn_heads: 6
-    dropout: 0.1
-    emb_dropout: 0.1
+    dropout: 0
+    emb_dropout: 0
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:

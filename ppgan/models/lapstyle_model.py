@@ -340,12 +340,13 @@ class LapStyleDraXDOG(BaseModel):
     def train_iter(self, optimizers=None):
         """Calculate losses, gradients, and update network weights"""
         self.steps+=1
-
-        self.forward()
         optimizers['optimG'].clear_grad()
-        loss = self.backward_Dec()
-        loss.backward()
-        optimizers['optimG'].step()
+        with paddle.amp.auto_cast():
+            self.forward()
+            loss = self.backward_Dec()
+        scaled = self.scaler.scale(loss)
+        scaled.backward()
+        self.scaler.minimize(optimizers['optimG'], scaled)
         optimizers['optimG'].clear_grad()
         #self.optimizers['optimG'].step()
         '''

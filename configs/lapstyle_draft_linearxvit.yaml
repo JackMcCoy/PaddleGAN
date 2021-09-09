@@ -12,17 +12,17 @@ model:
     name: LinearCrossViT
     image_size: 128
     num_classes: 1000
-    depth: 4
+    depth: 5
     sm_dim: 768
     sm_patch_size: 16
     sm_enc_depth: 2
-    sm_enc_heads: 6
+    sm_enc_heads: 8
     lg_dim: 768
     lg_patch_size: 64
     lg_enc_depth: 3
-    lg_enc_heads: 6
+    lg_enc_heads: 8
     cross_attn_depth: 2
-    cross_attn_heads: 6
+    cross_attn_heads: 8
     dropout: 0
     emb_dropout: 0
   calc_style_emd_loss:
@@ -38,7 +38,7 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
-  style_weight: 2.25
+  style_weight: 3
   morph_cutoff: 8.85
   gamma: .9
 

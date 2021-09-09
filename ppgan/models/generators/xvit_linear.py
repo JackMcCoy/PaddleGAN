@@ -847,7 +847,11 @@ class LinearCrossViT(nn.Layer):
         lg_tokens = paddle.unsqueeze(lg_tokens,axis=2)
         lg_tokens = self.lg_project(lg_tokens[:,1:,:])
         lg_tokens = paddle.squeeze(lg_tokens,axis=2)
+        print(lg_tokens.shape)
+        print(sm_tokens.shape)
         x = lg_tokens+sm_tokens[:,1:,:]
+        print(x.shape)
         x = self.sm_decompose_axis(x)
         x = self.decoder(x)
+        print(x.shape)
         return self.final(x)

@@ -821,6 +821,7 @@ class LinearCrossViT(nn.Layer):
         #self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(
+            nn.Sigmoid(),
             ResnetBlock(12),
             ConvBlock(12, 6),
         )
@@ -845,5 +846,4 @@ class LinearCrossViT(nn.Layer):
 
         x = self.sm_decompose_axis(x)
         x = self.decoder(x)
-        print(x.shape)
         return self.final(x)

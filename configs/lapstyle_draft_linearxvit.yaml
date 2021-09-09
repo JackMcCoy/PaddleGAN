@@ -14,7 +14,7 @@ model:
     num_classes: 1000
     depth: 4
     sm_dim: 768
-    sm_patch_size: 16
+    sm_patch_size: 8
     sm_enc_depth: 2
     sm_enc_heads: 8
     lg_dim: 768

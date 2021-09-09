@@ -277,7 +277,7 @@ class LapStyleDraXDOG(BaseModel):
         #self.visual_items['stylized_vit'] = self.stylized
 
     def backward_Dec(self):
-        
+
         self.cX,_ = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
         self.sX,_ = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
         self.cXF = self.nets['net_enc'](self.cX)
@@ -340,13 +340,12 @@ class LapStyleDraXDOG(BaseModel):
     def train_iter(self, optimizers=None):
         """Calculate losses, gradients, and update network weights"""
         self.steps+=1
+
+        self.forward()
         optimizers['optimG'].clear_grad()
-        with paddle.amp.auto_cast():
-            self.forward()
-            loss = self.backward_Dec()
-        scaled = self.scaler.scale(loss)
-        scaled.backward()
-        self.scaler.minimize(optimizers['optimG'], scaled)
+        loss = self.backward_Dec()
+        loss.backward()
+        optimizers['optimG'].step()
         optimizers['optimG'].clear_grad()
         #self.optimizers['optimG'].step()
         '''

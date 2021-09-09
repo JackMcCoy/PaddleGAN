@@ -821,15 +821,8 @@ class LinearCrossViT(nn.Layer):
         #self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(
-            nn.Sigmoid(),
-            ResnetBlock(48),
-            ConvBlock(48, 24),
-            nn.Upsample(scale_factor=2, mode='nearest'),
-            ResnetBlock(24),
-            ConvBlock(24, 12),
-            nn.Upsample(scale_factor=2, mode='nearest'),
             ResnetBlock(12),
-            ConvBlock(12, 6)
+            ConvBlock(12, 6),
         )
         self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                    nn.Conv2D(6, 3, (3, 3)))

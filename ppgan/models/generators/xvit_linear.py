@@ -713,8 +713,11 @@ class ImageEmbedder(nn.Layer):
 
         return self.dropout(x)
 
-def Identity(input):
-        return input
+class Identity(nn.Layer):
+    def __init__(self):
+        super().__init__()
+    def forward(self, x):
+        return x
 
 # cross ViT class
 @GENERATORS.register()

@@ -46,6 +46,7 @@ class PreShiftTokens(nn.Layer):
         mask = kwargs.get('mask', None)
         cls = x[:,0,:]
         shifts = self.shifts
+        print(shifts)
         segments = len(shifts)
         x = x[:,1:,:]
         feats_per_shift = x.shape[-1] // segments

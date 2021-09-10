@@ -742,8 +742,8 @@ class LinearCrossViT(nn.Layer):
         super().__init__()
         self.sm_image_embedder = ImageEmbedder(dim = sm_dim, image_size = image_size, patch_size = sm_patch_size, dropout = emb_dropout)
         self.lg_image_embedder = ImageEmbedder(dim = lg_dim, image_size = image_size, patch_size = lg_patch_size, dropout = emb_dropout)
-        self.sm_image_embedder_style = ImageEmbedder(dim = sm_dim, image_size = image_size, patch_size = sm_patch_size, dropout = emb_dropout)
-        self.lg_image_embedder_style = ImageEmbedder(dim = lg_dim, image_size = image_size, patch_size = lg_patch_size, dropout = emb_dropout)
+        #self.sm_image_embedder_style = ImageEmbedder(dim = sm_dim, image_size = image_size, patch_size = sm_patch_size, dropout = emb_dropout)
+        #self.lg_image_embedder_style = ImageEmbedder(dim = lg_dim, image_size = image_size, patch_size = lg_patch_size, dropout = emb_dropout)
 
         self.multi_scale_encoder = MultiScaleEncoder(
             depth = depth,
@@ -812,40 +812,38 @@ class LinearCrossViT(nn.Layer):
 
         #sm_decoder_layer = nn.TransformerDecoderLayer(256, 16, 256, normalize_before=True)
 
-        self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=2,d=24,e=24)
+        self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=2,d=4,e=4)
         self.sm_decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,d=8,e=8)
         self.partial_unfold = Rearrange('b (h w p1) c -> b (h w) (p1 c)', w=2,h=2,
                                         p1=16)
         self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=8, p2=8)
-        #self.lg_project = nn.Sequential(nn.LayerNorm(lg_dim),nn.Conv2DTranspose(4,256,1,groups=4))
+        self.lg_project = nn.Sequential(nn.LayerNorm(lg_dim),nn.Conv2DTranspose(4,256,1,groups=4))
         #self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
-        self.sigmoid = nn.Sigmoid()
         self.decoder = nn.Sequential(
             nn.Sigmoid(),
             ResnetBlock(12),
             ConvBlock(12, 6),
-            ResnetBlock(6),
-            ConvBlock(6, 4),
         )
-        self.final = nn.Sequential(ConvBlock(4, 3),
-                                   nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                   nn.Conv2D(3, 3, (3, 3)))
+        self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                   nn.Conv2D(6, 3, (3, 3)))
 
     def forward(self, img):
         sm_tokens = self.sm_image_embedder(img[:,:3,:,:])
         lg_tokens = self.lg_image_embedder(img[:,:3,:,:])
-        sm_tokens_style = self.sm_image_embedder_style(img[:,3:,:,:])
-        lg_tokens_style = self.lg_image_embedder_style(img[:,3:,:,:])
+        sm_tokens_style = self.sm_image_embedder(img[:,3:,:,:])
+        lg_tokens_style = self.lg_image_embedder(img[:,3:,:,:])
 
         sm_tokens, lg_tokens = self.multi_scale_encoder(sm_tokens, lg_tokens)
         sm_tokens_style, lg_tokens_style = self.multi_scale_encoder_style(sm_tokens_style, lg_tokens_style)
 
         sm_tokens, lg_tokens = self.multi_scale_decoder(sm_tokens, lg_tokens,sm_style=sm_tokens_style,lg_style=lg_tokens_style)
-        print(lg_tokens.shape)
-        lg_tokens = self.decompose_axis(lg_tokens[:,1:,:])
-        lg_tokens = self.sigmoid(lg_tokens)
+        lg_tokens = paddle.unsqueeze(lg_tokens,axis=2)
+        lg_tokens = self.lg_project(lg_tokens[:,1:,:])
+        lg_tokens = paddle.squeeze(lg_tokens,axis=2)
 
-        sm_tokens = self.sm_decompose_axis(sm_tokens[:,1:,:])
-        sm_tokens = self.decoder(sm_tokens)
-        return self.final(sm_tokens+lg_tokens)
+        x = lg_tokens+sm_tokens[:,1:,:]
+
+        x = self.sm_decompose_axis(x)
+        x = self.decoder(x)
+        return self.final(x)

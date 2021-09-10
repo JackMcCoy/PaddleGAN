@@ -842,7 +842,7 @@ class LinearCrossViT(nn.Layer):
         self.final = nn.Sequential(ResnetBlock(6),
                                    ConvBlock(6, 3),
                                    nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                   nn.Conv2D(6, 3, (3, 3)))
+                                   nn.Conv2D(3, 3, (3, 3)))
 
     def forward(self, img):
         sm_tokens = self.sm_image_embedder(img[:,:3,:,:])

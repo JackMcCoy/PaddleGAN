@@ -46,7 +46,7 @@ class PreShiftTokens(nn.Layer):
         mask = kwargs.get('mask', None)
         cls = x[:,0,:]
         shifts = self.shifts
-        segments = len(shifts) + 1
+        segments = len(shifts)
         x = x[:,1:,:]
         feats_per_shift = x.shape[-1] // segments
         splitted = x.split(feats_per_shift, axis = -1)
@@ -489,7 +489,7 @@ class LinearAttentionTransformer(nn.Layer):
         attend_axially = False,
         pkm_layers = tuple(),
         pkm_num_keys = 128,
-        shift_tokens = True
+        shift_tokens = False
     ):
         super().__init__()
 

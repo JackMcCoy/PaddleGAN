@@ -13,7 +13,7 @@ model:
     image_size: 128
     num_classes: 1000
     depth: 4
-    sm_dim: 768
+    sm_dim: 256
     sm_patch_size: 8
     sm_enc_depth: 2
     sm_enc_heads: 8

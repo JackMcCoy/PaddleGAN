@@ -825,7 +825,10 @@ class LinearCrossViT(nn.Layer):
         self.partial_unfold = Rearrange('b (h w p1) c -> b (h w) (p1 c)', w=2,h=2,
                                         p1=16)
         self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=8, p2=8)
-        self.lg_project = nn.Sequential(nn.Sigmoid(),nn.LayerNorm(lg_dim),nn.Conv2DTranspose(4,64,1,groups=4), nn.Conv2D(64,64,1),nn.ReLU())
+        self.lg_project = nn.Sequential(nn.LayerNorm(lg_dim),nn.Conv2DTranspose(4,64,1,groups=4))
+        #self.decoder_lg = nn.Sequential(nn.Sigmoid(),
+        #                                ResnetBlock(3),
+        #                                ConvBlock(3, 3),)
         #self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(
@@ -835,8 +838,7 @@ class LinearCrossViT(nn.Layer):
             ResnetBlock(6),
             ConvBlock(6, 3),
         )
-        self.final = nn.Sequential(ConvBlock(3, 3),
-                                   nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+        self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                    nn.Conv2D(3, 3, (3, 3)))
 
     def forward(self, img):
@@ -858,4 +860,5 @@ class LinearCrossViT(nn.Layer):
 
         x = self.sm_decompose_axis(x)
         x = self.decoder(x)
+
         return self.final(lg_tokens+x)

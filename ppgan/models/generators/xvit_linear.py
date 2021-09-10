@@ -842,7 +842,7 @@ class LinearCrossViT(nn.Layer):
         sm_tokens_style, lg_tokens_style = self.multi_scale_encoder_style(sm_tokens_style, lg_tokens_style)
 
         sm_tokens, lg_tokens = self.multi_scale_decoder(sm_tokens, lg_tokens,sm_style=sm_tokens_style,lg_style=lg_tokens_style)
-        lg_tokens = self.decompose_axis(lg_tokens[:,1,:])
+        lg_tokens = self.decompose_axis(lg_tokens[:,1:,:])
         lg_tokens = self.sigmoid(lg_tokens)
 
         sm_tokens = self.sm_decompose_axis(sm_tokens[:,1:,:])

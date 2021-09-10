@@ -44,14 +44,19 @@ class PreShiftTokens(nn.Layer):
 
     def forward(self, x, **kwargs):
         mask = kwargs.get('mask', None)
+        cls = x[:,0]
         shifts = self.shifts
         segments = len(shifts)
+        x = x[:,1:]
         feats_per_shift = x.shape[-1] // segments
         splitted = x.split(feats_per_shift, axis = -1)
         segments_to_shift, rest = splitted[:segments], splitted[segments:]
         segments_to_shift = list(map(lambda args: shift(*args, mask = mask), zip(segments_to_shift, shifts)))
-        x = paddle.concat((*segments_to_shift, *rest), axis = -1)
+        x = paddle.concat((cls, *segments_to_shift, *rest), axis = -1)
         return self.fn(x, **kwargs)
+
+
+
 
 def rotate_every_two(x):
     x = rearrange(x, '... (d j) -> ... d j', j = 2)

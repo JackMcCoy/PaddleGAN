@@ -839,8 +839,10 @@ class LinearCrossViT(nn.Layer):
             ResnetBlock(4),
             ConvBlock(4, 3),
         )
-        self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                   nn.Conv2D(3, 3, (3, 3)))
+        self.final = nn.Sequential(ResnetBlock(6),
+                                   ConvBlock(6, 3),
+                                   nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                   nn.Conv2D(6, 3, (3, 3)))
 
     def forward(self, img):
         sm_tokens = self.sm_image_embedder(img[:,:3,:,:])
@@ -862,5 +864,5 @@ class LinearCrossViT(nn.Layer):
         x = self.sm_decompose_axis(x)
         x = self.decoder(x)
         lg_tokens = self.decoder_lg(lg_tokens)
-
-        return self.final(lg_tokens+x)
+        x = paddle.concat([lg_tokens, x], axis=1)
+        return self.final(x)

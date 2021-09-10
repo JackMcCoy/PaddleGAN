@@ -44,10 +44,10 @@ class PreShiftTokens(nn.Layer):
 
     def forward(self, x, **kwargs):
         mask = kwargs.get('mask', None)
-        cls = x[:,0]
+        cls = x[:,0,:]
         shifts = self.shifts
         segments = len(shifts)
-        x = x[:,1:]
+        x = x[:,1:,:]
         feats_per_shift = x.shape[-1] // segments
         splitted = x.split(feats_per_shift, axis = -1)
         segments_to_shift, rest = splitted[:segments], splitted[segments:]

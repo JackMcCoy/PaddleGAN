@@ -197,13 +197,13 @@ class ConvBlock(nn.Layer):
         dim1 (int): Channel number of input features.
         dim2 (int): Channel number of output features.
     """
-    def __init__(self, dim1, dim2,noise=0):
+    def __init__(self, dim1, dim2,dropout=0):
         super(ConvBlock, self).__init__()
         self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(dim1, dim2, (3, 3)),
                                         nn.ReLU())
-        if noise==1:
-            self.conv_block.add_sublayer('noise',NoiseBlock(dim2))
+        if dropout!=0:
+            self.conv_block.add_sublayer('dropout',nn.Dropout(dropout))
 
     def forward(self, x):
         out = self.conv_block(x)
@@ -549,6 +549,7 @@ class LinearAttentionTransformer(nn.Layer):
 
 
 class Attention(nn.Layer):
+
     def __init__(self, dim, heads = 8, dim_head = 64, dropout = 0.):
         super().__init__()
         inner_dim = dim_head *  heads
@@ -715,6 +716,10 @@ class ImageEmbedder(nn.Layer):
 # cross ViT class
 @GENERATORS.register()
 class LinearCrossViT(nn.Layer):
+    @staticmethod
+    def Identity(input):
+        return input
+
     def __init__(
         self,
         *,
@@ -812,21 +817,24 @@ class LinearCrossViT(nn.Layer):
 
         #sm_decoder_layer = nn.TransformerDecoderLayer(256, 16, 256, normalize_before=True)
 
-        self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=2,d=4,e=4)
+        self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=8,d=16,e=16)
         self.sm_decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,d=8,e=8)
         self.partial_unfold = Rearrange('b (h w p1) c -> b (h w) (p1 c)', w=2,h=2,
                                         p1=16)
         self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=8, p2=8)
-        self.lg_project = nn.Sequential(nn.LayerNorm(lg_dim),nn.Conv2DTranspose(4,256,1,groups=4))
+        self.lg_project = nn.Sequential(nn.Sigmoid(),nn.LayerNorm(lg_dim),nn.Conv2DTranspose(4,64,1,groups=4),nn.ReLU(),nn.Dropout(dropout) if dropout!=0 else Identity, nn.Conv2D(64,64,1),nn.ReLU())
         #self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(
             nn.Sigmoid(),
             ResnetBlock(12),
-            ConvBlock(12, 6),
+            ConvBlock(12, 6,dropout=dropout),
+            ResnetBlock(6),
+            ConvBlock(6, 3,dropout=dropout),
         )
-        self.final = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                   nn.Conv2D(6, 3, (3, 3)))
+        self.final = nn.Sequential(ConvBlock(3, 3),
+                                   nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                   nn.Conv2D(3, 3, (3, 3)))
 
     def forward(self, img):
         sm_tokens = self.sm_image_embedder(img[:,:3,:,:])
@@ -841,9 +849,10 @@ class LinearCrossViT(nn.Layer):
         lg_tokens = paddle.unsqueeze(lg_tokens,axis=2)
         lg_tokens = self.lg_project(lg_tokens[:,1:,:])
         lg_tokens = paddle.squeeze(lg_tokens,axis=2)
+        lg_tokens = self.decompose_axis(lg_tokens)
 
-        x = lg_tokens+sm_tokens[:,1:,:]
+        x = sm_tokens[:,1:,:]
 
         x = self.sm_decompose_axis(x)
         x = self.decoder(x)
-        return self.final(x)
+        return self.final(lg_tokens+x)

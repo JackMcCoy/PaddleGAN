@@ -713,12 +713,12 @@ class ImageEmbedder(nn.Layer):
 
         return self.dropout(x)
 
+def Identity(input):
+        return input
+
 # cross ViT class
 @GENERATORS.register()
 class LinearCrossViT(nn.Layer):
-    @staticmethod
-    def Identity(input):
-        return input
 
     def __init__(
         self,

@@ -822,7 +822,7 @@ class LinearCrossViT(nn.Layer):
         self.partial_unfold = Rearrange('b (h w p1) c -> b (h w) (p1 c)', w=2,h=2,
                                         p1=16)
         self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=8, p2=8)
-        self.lg_project = nn.Sequential(nn.Sigmoid(),nn.LayerNorm(lg_dim),nn.Conv2DTranspose(4,64,1,groups=4),nn.ReLU(),nn.Dropout(dropout) if dropout!=0 else Identity, nn.Conv2D(64,64,1),nn.ReLU())
+        self.lg_project = nn.Sequential(nn.Sigmoid(),nn.LayerNorm(lg_dim),nn.Conv2DTranspose(4,64,1,groups=4),nn.ReLU(),nn.Dropout(dropout) if dropout!=0 else Identity(), nn.Conv2D(64,64,1),nn.ReLU())
         #self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(

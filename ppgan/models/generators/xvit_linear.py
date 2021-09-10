@@ -486,7 +486,7 @@ class LinearAttentionTransformer(nn.Layer):
         n_local_attn_heads = 0,
         local_attn_window_size = 0,
         receives_context = False,
-        attend_axially = False,
+        attend_axially = True,
         pkm_layers = tuple(),
         pkm_num_keys = 128,
         shift_tokens = False

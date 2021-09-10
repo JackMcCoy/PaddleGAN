@@ -826,13 +826,11 @@ class LinearCrossViT(nn.Layer):
                                         p1=16)
         self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=8, p2=8)
         self.lg_project = nn.Sequential(nn.LayerNorm(lg_dim),nn.Conv2DTranspose(4,64,1,groups=4))
-        self.decoder_lg = nn.Sequential(nn.Sigmoid(),
-                                        ResnetBlock(3),
+        self.decoder_lg = nn.Sequential(ResnetBlock(3),
                                         ConvBlock(3, 3),)
         #self.sm_decoder_transformer = nn.TransformerDecoder(sm_decoder_layer, 6)
         self.upscale = nn.Upsample(scale_factor=4, mode='nearest')
         self.decoder = nn.Sequential(
-            nn.Sigmoid(),
             ResnetBlock(4),
             ConvBlock(4, 3),
         )

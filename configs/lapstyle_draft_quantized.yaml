@@ -26,11 +26,10 @@ model:
 
 dataset:
   train:
-    name: LapStyleThumbset
+    name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/PaddleGAN/starrypatched1024.png
+    style_root: /content/PaddleGAN/cypresssmall.png
     load_size: 128
-    thumb_size: 128
     style_upsize: 1
     crop_size: 128
     num_workers: 16

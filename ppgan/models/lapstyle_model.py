@@ -190,6 +190,8 @@ class LapStyleDraModel(BaseModel):
         optimizers['optimG'].clear_grad()
         self.backward_Dec()
         self.optimizers['optimG'].step()
+        optimizers['optimG'].clear_grad()
+        print(dir(optimizers['optimG']))
 
 @MODELS.register()
 class LapStyleDraXDOG(BaseModel):

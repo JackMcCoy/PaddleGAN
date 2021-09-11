@@ -40,11 +40,6 @@ class VectorQuantize(nn.Layer):
         self.decay = decay
         self.eps = eps
         self.commitment = commitment
-        self.LinearTransformer = LinearAttentionTransformer(
-            dim*dim,
-            6,
-            heads = 8,
-        )
 
         embed = paddle.randn((dim, n_embed))
         self.register_buffer('embed', embed)

@@ -187,9 +187,9 @@ class LapStyleDraModel(BaseModel):
     def train_iter(self, optimizers=None):
         """Calculate losses, gradients, and update network weights"""
         self.forward()
+        optimizers['optimG'].clear_grad()
         self.backward_Dec()
         self.optimizers['optimG'].step()
-        optimizers['optimG'].clear_grad()
 
 @MODELS.register()
 class LapStyleDraXDOG(BaseModel):

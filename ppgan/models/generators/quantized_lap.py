@@ -5,7 +5,7 @@ from math import gcd,ceil
 from collections import namedtuple
 import numpy as np
 from functools import partial, reduce
-from einops.layers.torch import Rearrange
+from einops.layers.paddle import Rearrange
 
 from .builder import GENERATORS
 from . import ResnetBlock, ConvBlock, adaptive_instance_normalization, Transformer
@@ -63,7 +63,7 @@ class VectorQuantize(nn.Layer):
         embed_onehot = F.one_hot(embed_ind, self.n_embed)
         embed_ind = paddle.reshape(embed_ind,shape=(input.shape[0],input.shape[1],input.shape[2]))
         quantize = F.embedding(embed_ind, self.embed.transpose((1,0)))
-        quantize = self.rerrange(quantize)
+        quantize = self.rearrange(quantize)
         print(quantize.shape)
         quantize = self.decompose_axis(quantize)
         if self.training:

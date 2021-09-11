@@ -21,7 +21,7 @@ def ema_inplace(moving_avg, new, decay):
 def laplace_smoothing(x, n_categories, eps=1e-5):
     return (x + eps) / (x.sum() + n_categories * eps)
 
-class VectorQuantize(nn.Module):
+class VectorQuantize(nn.Layer):
     def __init__(
         self,
         dim,

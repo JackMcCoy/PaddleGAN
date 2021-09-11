@@ -46,9 +46,12 @@ class VectorQuantize(nn.Layer):
         self.register_buffer('embed', embed)
         self.register_buffer('cluster_size', paddle.zeros(shape=(n_embed,)))
         self.register_buffer('embed_avg', embed.clone())
-        self.rearrange = Rearrange('b c h w -> b (h w) c')
+        if n_embed != 1280:
+            self.rearrange = Rearrange('b c h w -> b (h w) c')
+        else:
+            self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=64,p2=64)
         self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
-        
+
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])

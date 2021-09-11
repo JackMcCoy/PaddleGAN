@@ -59,10 +59,10 @@ class VectorQuantize(nn.Layer):
             self.transformer = Transformer(dim**2*2, 2, 4, dim**2*2, dim**2*2)
             self.pos_embedding = paddle.create_parameter(shape=(1, 256, 512), dtype='float32')
         elif transformer_size==2:
-            self.transformer = Transformer(256, 1, 4, 256, 256)
+            self.transformer = Transformer(256, 2, 4, 256, 256)
             self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32')
         elif transformer_size==3:
-            self.transformer = Transformer(2048, 1, 4, 1024, 2048)
+            self.transformer = Transformer(2048, 2, 4, 1024, 2048)
             self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32')
     @property
     def codebook(self):
@@ -91,7 +91,6 @@ class VectorQuantize(nn.Layer):
         loss = F.mse_loss(quantize.detach(), input) * self.commitment
         quantize = input + (quantize - input).detach()
         quantize = self.rearrange(quantize)
-        print(quantize.shape)
         b, n, _ = quantize.shape
         quantize += self.pos_embedding[:, :n]
         quantize = self.transformer(quantize)

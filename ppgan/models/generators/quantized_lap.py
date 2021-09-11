@@ -91,11 +91,15 @@ class DecoderQuantized(nn.Layer):
         self.convblock_41 = ConvBlock(512, 256)
         self.resblock_31 = ResnetBlock(256)
         self.convblock_31 = ConvBlock(256, 128)
+        self.resblock_11 = ResnetBlock(64)
 
         self.convblock_21 = ConvBlock(128, 128)
         self.convblock_22 = ConvBlock(128, 64)
 
         self.convblock_11 = ConvBlock(64, 64)
+        self.normalize_4 = nn.GroupNorm(32, 256, epsilon=1e-6)
+        self.normalize_3 = nn.GroupNorm(32, 128, epsilon=1e-6)
+        self.normalize_2 = nn.GroupNorm(32, 64, epsilon=1e-6)
         self.downsample = nn.Upsample(scale_factor=.5, mode='nearest')
         self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
 
@@ -106,13 +110,14 @@ class DecoderQuantized(nn.Layer):
         out = adaptive_instance_normalization(cF['r41'], sF['r41'])
         out = self.resblock_41(out)
         out = self.convblock_41(out)
+        out = self.normalize_4(out)
         quantize, embed_ind, code_losses = self.quantize_4(out)
         quantize = self.upsample(quantize)
         # Transformer goes here?
         out = quantize + adaptive_instance_normalization(cF['r31'], sF['r31'])
         out = self.resblock_31(out)
         out = self.convblock_31(out)
-
+        out = self.normalize_3(out)
         quantize, embed_ind, loss = self.quantize_3(out)
         code_losses+=loss
 
@@ -120,10 +125,12 @@ class DecoderQuantized(nn.Layer):
         out = quantize + adaptive_instance_normalization(cF['r21'], sF['r21'])
         out = self.convblock_21(out)
         out = self.convblock_22(out)
+        out = self.normalize_2(out)
         quantize, embed_ind, loss = self.quantize_2(out)
         code_losses+=loss
         out += quantize
         out = self.upsample(out)
+        out = self.resblock_11(out)
         out = self.convblock_11(out)
         out = self.final_conv(out)
         return out, code_losses

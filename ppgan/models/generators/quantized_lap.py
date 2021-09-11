@@ -41,9 +41,9 @@ class VectorQuantize(nn.Layer):
         self.eps = eps
         self.commitment = commitment
 
-        embed = paddle.randn(dim, n_embed)
+        embed = paddle.randn((dim, n_embed))
         self.register_buffer('embed', embed)
-        self.register_buffer('cluster_size', paddle.zeros(n_embed))
+        self.register_buffer('cluster_size', paddle.zeros((n_embed)))
         self.register_buffer('embed_avg', embed.clone())
 
     @property
@@ -59,13 +59,13 @@ class VectorQuantize(nn.Layer):
             + self.embed.pow(2).sum(0, keepdim=True)
         )
         _, embed_ind = (-dist).max(1)
-        embed_onehot = F.one_hot(embed_ind, self.n_embed).type(dtype)
-        embed_ind = embed_ind.view(*input.shape[:-1])
+        embed_onehot = F.one_hot((embed_ind, self.n_embed))
+        embed_ind = paddle.reshape(embed_ind,(*input.shape[:-1])
         quantize = F.embedding(embed_ind, self.embed.transpose(0, 1))
 
         if self.training:
             ema_inplace(self.cluster_size, embed_onehot.sum(0), self.decay)
-            embed_sum = flatten.transpose(0, 1) @ embed_onehot
+            embed_sum = flatten.transpose((1,0)) @ embed_onehot
             ema_inplace(self.embed_avg, embed_sum, self.decay)
             cluster_size = laplace_smoothing(self.cluster_size, self.n_embed, self.eps) * self.cluster_size.sum()
             embed_normalized = self.embed_avg / cluster_size.unsqueeze(axis=0)

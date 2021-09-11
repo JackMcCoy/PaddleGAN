@@ -5,7 +5,7 @@ min_max:
   (0., 1.)
 
 model:
-  name: LapStyleDraXDOG
+  name: LapStyleDraModel
   generator_encode:
     name: Encoder
   generator_transformer:
@@ -18,12 +18,10 @@ model:
     name: CalcContentLoss
   calc_style_loss:
     name: CalcStyleLoss
-  gram_errors:
-    name: GramErrors
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
-  style_weight: 5
+  style_weight: 3
 
 
 dataset:

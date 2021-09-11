@@ -191,7 +191,8 @@ class LapStyleDraModel(BaseModel):
         self.backward_Dec()
         self.optimizers['optimG'].step()
         optimizers['optimG'].clear_grad()
-        print(optimizers['optimG'].state_dict().keys())
+        for key, value in optimizers['optimG'].state_dict().items():
+            print(key+' '+str([(curr:=curr*v) for v in value.shape])
 
 @MODELS.register()
 class LapStyleDraXDOG(BaseModel):

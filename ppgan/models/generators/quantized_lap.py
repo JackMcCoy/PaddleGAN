@@ -42,7 +42,7 @@ class VectorQuantize(nn.Layer):
         self.commitment = commitment
         self.LinearTransformer = LinearAttentionTransformer(
             dim*dim,
-            4,
+            1,
             heads = 8,
         )
 

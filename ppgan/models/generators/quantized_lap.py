@@ -57,6 +57,7 @@ class VectorQuantize(nn.Layer):
             - 2 * flatten @ self.embed
             + self.embed.pow(2).sum(0, keepdim=True)
         )
+        print(dist.shape)
         print((-dist).max(1))
         embed_ind = (-dist).max(1)
         embed_onehot = F.one_hot(embed_ind, self.n_embed)

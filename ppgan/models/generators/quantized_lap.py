@@ -85,7 +85,7 @@ class DecoderQuantized(nn.Layer):
     def __init__(self):
         super(DecoderQuantized, self).__init__()
 
-        self.quantize_4 = VectorQuantize(40, 1024)
+        self.quantize_4 = VectorQuantize(64, 1024)
         self.quantize_3 = VectorQuantize(1024, 1024)
         self.quantize_2 = VectorQuantize(1024, 1024)
 
@@ -109,6 +109,8 @@ class DecoderQuantized(nn.Layer):
         out = adaptive_instance_normalization(cF['r41'], sF['r41'])
         out = self.resblock_41(out)
         out = self.convblock_41(out)
+        out = self.downsample(out)
+        print(out.shape)
         out = self.quantize_4(out)
 
         out = self.upsample(out)

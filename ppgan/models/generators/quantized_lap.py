@@ -58,8 +58,8 @@ class VectorQuantize(nn.Layer):
             + self.embed.pow(2).sum(0, keepdim=True)
         )
         embed_ind = (-dist).argmax(axis=1)
+        print(embed_ind.shape)
         embed_onehot = F.one_hot(embed_ind, self.n_embed)
-        print(embed_onehot.shape)
         embed_ind = paddle.reshape(embed_ind,shape=(input.shape[0],input.shape[1],input.shape[2]))
         quantize = F.embedding(embed_ind, self.embed.transpose((1,0)))
         if self.training:

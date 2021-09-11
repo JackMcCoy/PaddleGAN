@@ -86,7 +86,7 @@ class DecoderQuantized(nn.Layer):
         super(DecoderQuantized, self).__init__()
 
         self.quantize_4 = VectorQuantize(16, 320)
-        self.quantize_3 = VectorQuantize(16, 320)
+        self.quantize_3 = VectorQuantize(32, 320)
         self.quantize_2 = VectorQuantize(16, 1280)
 
         self.resblock_41 = ResnetBlock(512)
@@ -121,11 +121,12 @@ class DecoderQuantized(nn.Layer):
         out = quantize + adaptive_instance_normalization(cF['r31'], sF['r31'])
         out = self.resblock_31(out)
         out = self.convblock_31(out)
-        out = self.upsample(out)
+
 
         out = self.normalize_3(out)
         quantize, embed_ind, loss = self.quantize_3(out)
 
+        out = self.upsample(out)
         out = quantize + adaptive_instance_normalization(cF['r21'], sF['r21'])
         out = self.convblock_21(out)
         out = self.convblock_22(out)

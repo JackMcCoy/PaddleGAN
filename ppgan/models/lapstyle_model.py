@@ -361,7 +361,7 @@ class LapStyleDraXDOG(BaseModel):
         self.scaler.minimize(optimizers['optimG'], scaled)
         optimizers['optimG'].clear_grad()
         #self.optimizers['optimG'].step()
-        if steps<=1000:
+        if self.steps<=1000:
             self.style_weight-= .001
             self.mxdog_weight += .0005
         '''

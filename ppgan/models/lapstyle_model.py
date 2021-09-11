@@ -193,9 +193,9 @@ class LapStyleDraModel(BaseModel):
         optimizers['optimG'].clear_grad()
         print(optimizers['optimG'])
 
-        for key, value in optimizers['optimG'].state_dict().items():
-            if not hasattr(value,'shape'):
-                print(key)
+        for param in optimizers['optimG']._parameter_list:
+            if param._grad_ivar() is not None:
+                print(dir(param._grad_ivar()))
 
 
 @MODELS.register()

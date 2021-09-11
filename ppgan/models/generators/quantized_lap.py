@@ -51,7 +51,7 @@ class VectorQuantize(nn.Layer):
             self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
         else:
             self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=4,p2=4)
-            self.decompose_axis = Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)',h=dim,p1=8,p2=8)
+            self.decompose_axis = Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)',h=dim//2,p1=4,p2=4)
 
     @property
     def codebook(self):

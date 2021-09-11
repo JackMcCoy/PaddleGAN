@@ -41,7 +41,7 @@ class VectorQuantize(nn.Layer):
         self.eps = eps
         self.commitment = commitment
 
-        embed = paddle.randn([dim, n_embed] if n_embed else [dim])
+        embed = paddle.randn(dim, n_embed)
         self.register_buffer('embed', embed)
         self.register_buffer('cluster_size', paddle.zeros(n_embed))
         self.register_buffer('embed_avg', embed.clone())
@@ -86,6 +86,10 @@ class DecoderQuantized(nn.Layer):
     def __init__(self):
         super(DecoderQuantized, self).__init__()
 
+        self.quantize_4 = VectorQuantize(256, 1024)
+        self.quantize_3 = VectorQuantize(512, 1024)
+        self.quantize_2 = VectorQuantize(1024, 1024)
+
         self.resblock_41 = ResnetBlock(512)
         self.convblock_41 = ConvBlock(512, 256)
         self.resblock_31 = ResnetBlock(256)
@@ -103,20 +107,21 @@ class DecoderQuantized(nn.Layer):
     def forward(self, cF, sF):
 
         out = adaptive_instance_normalization(cF['r41'], sF['r41'])
+        out = quantize_4(out)
         print(out.shape)
         print(out.flatten().shape)
         out = self.resblock_41(out)
         out = self.convblock_41(out)
 
         out = self.upsample(out)
-        out += adaptive_instance_normalization(cF['r31'], sF['r31'])
+        out += quantize_3(adaptive_instance_normalization(cF['r31'], sF['r31']))
         print(out.shape)
         print(out.flatten().shape)
         out = self.resblock_31(out)
         out = self.convblock_31(out)
 
         out = self.upsample(out)
-        out += adaptive_instance_normalization(cF['r21'], sF['r21'])
+        out += quantize_2(adaptive_instance_normalization(cF['r21'], sF['r21']))
         print(out.shape)
         print(out.flatten().shape)
         out = self.convblock_21(out)

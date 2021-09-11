@@ -60,7 +60,7 @@ class VectorQuantize(nn.Layer):
         embed_ind = (-dist).argmax(axis=1)
         embed_onehot = F.one_hot(embed_ind, self.n_embed)
         embed_ind = paddle.reshape(embed_ind,shape=(input.shape[0],input.shape[1]))
-        quantize = F.embedding(embed_ind, self.embed.transpose(0, 1))
+        quantize = F.embedding(embed_ind, self.embed.transpose((1,0)))
 
         if self.training:
             ema_inplace(self.cluster_size, embed_onehot.sum(0), self.decay)

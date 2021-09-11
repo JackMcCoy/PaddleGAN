@@ -195,7 +195,8 @@ class LapStyleDraModel(BaseModel):
 
         for param in optimizers['optimG']._parameter_list:
             if param._grad_ivar() is not None:
-                print(dir(param._grad_ivar()))
+                grad = param._grad_ivar()
+                print(grad.name+' '+grad.size())
 
 
 @MODELS.register()

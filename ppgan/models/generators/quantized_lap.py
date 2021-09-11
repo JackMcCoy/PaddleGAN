@@ -91,10 +91,11 @@ class DecoderQuantized(nn.Layer):
         self.convblock_41 = ConvBlock(512, 256)
         self.resblock_31 = ResnetBlock(256)
         self.convblock_31 = ConvBlock(256, 128)
-        self.resblock_11 = ResnetBlock(64)
+
 
         self.convblock_21 = ConvBlock(128, 128)
         self.convblock_22 = ConvBlock(128, 64)
+        self.convblock_11 = ConvBlock(64, 64)
 
         self.downsample = nn.Upsample(scale_factor=.5, mode='nearest')
         self.upsample = nn.Upsample(scale_factor=2, mode='nearest')

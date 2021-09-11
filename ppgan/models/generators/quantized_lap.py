@@ -34,7 +34,7 @@ class VectorQuantize(nn.Layer):
         n_embed = None,
     ):
         super().__init__()
-        n_embed = default(n_embed, codebook_size)
+        n_embed = default(n_embed, codebook_size,transformer_size)
 
         self.dim = dim
         self.n_embed = n_embed
@@ -49,15 +49,21 @@ class VectorQuantize(nn.Layer):
         if codebook_size != 1280:
             self.rearrange = Rearrange('b c h w -> b (h w) c')
             self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
-            self.transformer = Transformer(dim**2*2, 2, 4, dim**2*2, dim**2*2)
-            self.pos_embedding = paddle.create_parameter(shape=(1, n_embed, dim**2*2), dtype='float32')
+
         else:
             print('second condition')
             self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=4,p2=4)
             self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
+
+        if transformer_size==1:
+            self.transformer = Transformer(dim**2*2, 2, 4, dim**2*2, dim**2*2)
+            self.pos_embedding = paddle.create_parameter(shape=(1, n_embed, dim**2*2), dtype='float32')
+        elif transformer_size==2:
             self.transformer = Transformer(256, 1, 4, 256, 256)
             self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32')
-
+        elif transformer_size==3
+            self.transformer = Transformer(256, 1, 4, 256, 256)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32')
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -86,7 +92,6 @@ class VectorQuantize(nn.Layer):
         quantize = input + (quantize - input).detach()
         quantize = self.rearrange(quantize)
         b, n, _ = quantize.shape
-        print(quantize.shape)
         quantize += self.pos_embedding[:, :n]
         quantize = self.transformer(quantize)
         quantize = self.decompose_axis(quantize)
@@ -103,9 +108,9 @@ class DecoderQuantized(nn.Layer):
     def __init__(self):
         super(DecoderQuantized, self).__init__()
 
-        self.quantize_4 = VectorQuantize(16, 320)
-        self.quantize_3 = VectorQuantize(32, 320)
-        self.quantize_2 = VectorQuantize(64, 1280)
+        self.quantize_4 = VectorQuantize(16, 320, 1)
+        self.quantize_3 = VectorQuantize(32, 320, 2)
+        self.quantize_2 = VectorQuantize(64, 1280, 3)
 
         self.resblock_41 = ResnetBlock(512)
         self.convblock_41 = ConvBlock(512, 256)

@@ -28,13 +28,14 @@ class VectorQuantize(nn.Layer):
         self,
         dim,
         codebook_size,
+        transformer_size,
         decay = 0.8,
         commitment = 1.,
         eps = 1e-5,
         n_embed = None,
     ):
         super().__init__()
-        n_embed = default(n_embed, codebook_size,transformer_size)
+        n_embed = default(n_embed, codebook_size)
 
         self.dim = dim
         self.n_embed = n_embed

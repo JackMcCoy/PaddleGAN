@@ -76,8 +76,8 @@ class VectorQuantize(nn.Layer):
 
 
         loss = F.mse_loss(quantize.detach(), input) * self.commitment
-        quantize = self.LinearTransformer(quantize)
         quantize = input + (quantize - input).detach()
+        quantize = self.LinearTransformer(quantize)
         return quantize, embed_ind, loss
 
 

@@ -5,7 +5,7 @@ min_max:
   (0., 1.)
 
 model:
-  name: LapStyleDraModel
+  name: LapStyleDraXDOG
   generator_encode:
     name: Encoder
   generator_decode:

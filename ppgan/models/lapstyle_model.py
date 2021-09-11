@@ -193,11 +193,6 @@ class LapStyleDraModel(BaseModel):
         optimizers['optimG'].clear_grad()
         print(optimizers['optimG'])
 
-        for param in optimizers['optimG']._parameter_list:
-            if param._grad_ivar() is not None:
-                grad = param._grad_ivar()
-                print(grad.name+' '+str(grad.size))
-
 
 @MODELS.register()
 class LapStyleDraXDOG(BaseModel):
@@ -282,8 +277,8 @@ class LapStyleDraXDOG(BaseModel):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
-        dual_tensor = paddle.concat(x=[self.ci, self.si], axis=1)
-        self.stylized = self.nets['net_vit'](dual_tensor)
+        #dual_tensor = paddle.concat(x=[self.ci, self.si], axis=1)
+        self.stylized, self.map_loss = self.nets['net_vit'](self.cF, self.sF)
         self.visual_items['stylized'] = self.stylized
         #self.stylized = self.nets['net_vit'](self.stylized)
         #self.visual_items['stylized_vit'] = self.stylized
@@ -311,8 +306,8 @@ class LapStyleDraXDOG(BaseModel):
             self.loss_s += self.calc_style_loss(self.tF[layer], self.sF[layer])
         self.losses['loss_s'] = self.loss_s
         """IDENTITY LOSSES"""
-        dual_ci = paddle.concat(x=[self.ci, self.ci], axis=1)
-        self.Icc = self.nets['net_vit'](dual_ci)
+        #dual_ci = paddle.concat(x=[self.ci, self.ci], axis=1)
+        self.Icc, book_loss = self.nets['net_vit'](self.cF,self.cF)
         self.l_identity3 = self.calc_content_loss(self.Icc, self.ci)
         self.Fcc = self.nets['net_enc'](self.Icc)
         self.l_identity4 = 0

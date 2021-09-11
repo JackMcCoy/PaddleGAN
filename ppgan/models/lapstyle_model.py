@@ -192,7 +192,7 @@ class LapStyleDraModel(BaseModel):
         self.optimizers['optimG'].step()
         optimizers['optimG'].clear_grad()
         for key, value in optimizers['optimG'].state_dict().items():
-            print(key+' '+str(*accumulate(value.shape, lambda a, b: a*b))
+            print(key+' '+str(*accumulate(value.shape, lambda a, b: a*b)))
 
 @MODELS.register()
 class LapStyleDraXDOG(BaseModel):

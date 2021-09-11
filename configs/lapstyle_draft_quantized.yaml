@@ -57,7 +57,7 @@ optimizer:
   optimG:
     name: Adam
     net_names:
-      - net_vit
+      - net_dec
     beta1: 0.9
     beta2: 0.999
     weight_decay: .1

@@ -68,7 +68,7 @@ class VectorQuantize(nn.Layer):
             self.embed_avg = ema_inplace(self.embed_avg, embed_sum, self.decay)
             cluster_size = laplace_smoothing(self.cluster_size, self.n_embed, self.eps) * self.cluster_size.sum()
             embed_normalized = self.embed_avg / cluster_size.unsqueeze(axis=0)
-            self.embed.data = embed_normalized
+            self.embed = embed_normalized
 
         loss = F.mse_loss(quantize.detach(), input) * self.commitment
         quantize = input + (quantize - input).detach()

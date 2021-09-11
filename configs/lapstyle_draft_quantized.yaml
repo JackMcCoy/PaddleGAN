@@ -18,6 +18,8 @@ model:
     name: CalcContentLoss
   calc_style_loss:
     name: CalcStyleLoss
+  gram_errors:
+    name: GramErrors
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1

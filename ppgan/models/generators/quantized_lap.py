@@ -85,8 +85,8 @@ class VectorQuantize(nn.Layer):
         quantize = input + (quantize - input).detach()
         quantize = self.rearrange(quantize)
         b, n, _ = quantize.shape
+        print(quantize.shape)
         quantize += self.pos_embedding[:, :n,:]
-        quantize = self.rearrange(quantize)
         quantize = self.transformer(quantize)
         quantize = self.decompose_axis(quantize)
         return quantize, embed_ind, loss

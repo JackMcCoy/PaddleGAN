@@ -5,7 +5,7 @@ from math import gcd,ceil
 from collections import namedtuple
 import numpy as np
 from functools import partial, reduce
-from einops import Rearrange
+from einops.layers import Rearrange
 
 from .builder import GENERATORS
 from . import ResnetBlock, ConvBlock, adaptive_instance_normalization, Transformer

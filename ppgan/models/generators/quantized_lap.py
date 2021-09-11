@@ -91,6 +91,7 @@ class VectorQuantize(nn.Layer):
         loss = F.mse_loss(quantize.detach(), input) * self.commitment
         quantize = input + (quantize - input).detach()
         quantize = self.rearrange(quantize)
+        print(quantize.shape)
         b, n, _ = quantize.shape
         quantize += self.pos_embedding[:, :n]
         quantize = self.transformer(quantize)

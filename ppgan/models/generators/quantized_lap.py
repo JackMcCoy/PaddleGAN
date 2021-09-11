@@ -44,7 +44,7 @@ class VectorQuantize(nn.Layer):
             dim*dim,
             1,
             ff_chunks=dim/2,
-            heads = 8,
+            heads = 4,
         )
 
         embed = paddle.randn((dim, n_embed))

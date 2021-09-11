@@ -47,23 +47,7 @@ class VectorQuantize(nn.Layer):
         self.register_buffer('embed', embed)
         self.register_buffer('cluster_size', paddle.zeros(shape=(n_embed,)))
         self.register_buffer('embed_avg', embed.clone())
-        if codebook_size != 1280:
-            self.rearrange = Rearrange('b c h w -> b (h w) c')
-            self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
-
-        else:
-            self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=4,p2=4)
-            self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
-
-        if transformer_size==1:
-            self.transformer = Transformer(dim**2*2, 2, 4, dim**2*2, dim**2*2, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 512), dtype='float32')
-        elif transformer_size==2:
-            self.transformer = Transformer(256, 2, 4, 256, 256, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32')
-        elif transformer_size==3:
-            self.transformer = Transformer(2048, 2, 4, 1024, 2048, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32')
+            
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -90,11 +74,6 @@ class VectorQuantize(nn.Layer):
 
         loss = F.mse_loss(quantize.detach(), input) * self.commitment
         quantize = input + (quantize - input).detach()
-        quantize = self.rearrange(quantize)
-        b, n, _ = quantize.shape
-        quantize += self.pos_embedding[:, :n]
-        quantize = self.transformer(quantize)
-        quantize = self.decompose_axis(quantize)
         return quantize, embed_ind, loss
 
 
@@ -122,6 +101,11 @@ class DecoderQuantized(nn.Layer):
         self.convblock_22 = ConvBlock(128, 64)
         self.convblock_11 = ConvBlock(64, 64)
 
+        self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=4, p2=4)
+        self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)', h=16, w=16, e=4, d=4)
+        self.transformer = Transformer(2048, 2, 4, 1024, 2048, dropout=0.1)
+        self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32')
+
         self.downsample = nn.Upsample(scale_factor=.5, mode='nearest')
         self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
 
@@ -146,6 +130,14 @@ class DecoderQuantized(nn.Layer):
         out = self.upsample(out)
         quantize, embed_ind, loss = self.quantize_2(adaptive_instance_normalization(cF['r21'], sF['r21']))
         out += quantize
+
+        # Transformer
+        out = self.rearrange(out)
+        b, n, _ = out.shape
+        out += self.pos_embedding[:, :n]
+        out = self.transformer(out)
+        out = self.decompose_axis(out)
+
         out = self.convblock_21(out)
         out = self.convblock_22(out)
         code_losses+=loss

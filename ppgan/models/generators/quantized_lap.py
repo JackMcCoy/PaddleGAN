@@ -63,6 +63,7 @@ class VectorQuantize(nn.Layer):
         embed_onehot = F.one_hot(embed_ind, self.n_embed)
         embed_ind = paddle.reshape(embed_ind,shape=(input.shape[0],input.shape[1],input.shape[2]))
         quantize = F.embedding(embed_ind, self.embed.transpose((1,0)))
+        print(quantize.shape)
         quantize = self.rearrange(quantize)
         print(quantize.shape)
         quantize = self.decompose_axis(quantize)

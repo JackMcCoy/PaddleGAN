@@ -46,7 +46,7 @@ class VectorQuantize(nn.Layer):
         self.register_buffer('embed', embed)
         self.register_buffer('cluster_size', paddle.zeros(shape=(n_embed,)))
         self.register_buffer('embed_avg', embed.clone())
-        if n_embed != 1280:
+        if codebook_size != 1280:
             self.rearrange = Rearrange('b c h w -> b (h w) c')
             self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
             self.transformer = Transformer(dim**2*2, 2, 4, dim**2*2, dim**2*2)
@@ -54,8 +54,8 @@ class VectorQuantize(nn.Layer):
         else:
             self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=4,p2=4)
             self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
-            self.transformer = Transformer(1024, 1, 4, 1024, 1024)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 320, 2048), dtype='float32')
+            self.transformer = Transformer(256, 1, 4, 256, 256)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32')
 
     @property
     def codebook(self):

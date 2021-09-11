@@ -172,7 +172,7 @@ class Trainer:
 
         # set model.is_train = True
         self.model.setup_train_mode(is_train=True)
-        with profiler.profiler('GPU', 'total', '/content/gdrive/My Drive/profile', 'Default') as prof:
+        with profiler.profiler('All', 'total', '/content/gdrive/My Drive/profile', 'AllOpDetail') as prof:
             while self.current_iter < (self.total_iters + 1):
                 self.current_epoch = iter_loader.epoch
                 self.inner_iter = self.current_iter % self.iters_per_epoch

@@ -101,7 +101,7 @@ class DecoderQuantized(nn.Layer):
         self.normalize_4 = nn.GroupNorm(32, 256, epsilon=1e-6)
         self.normalize_3 = nn.GroupNorm(32, 128, epsilon=1e-6)
         self.normalize_2 = nn.GroupNorm(32, 64, epsilon=1e-6)
-        self.downsample = nn.Upsample(scale_factor=2, mode='nearest')
+        self.downsample = nn.Upsample(scale_factor=.5, mode='nearest')
         self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
 
         self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),

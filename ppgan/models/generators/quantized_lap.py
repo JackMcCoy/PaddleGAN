@@ -46,7 +46,6 @@ class VectorQuantize(nn.Layer):
         self.register_buffer('cluster_size', paddle.zeros(shape=(n_embed,)))
         self.register_buffer('embed_avg', embed.clone())
 
-    @property
     def codebook(self):
         return self.embed.transpose([1, 0])
 

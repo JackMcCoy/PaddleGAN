@@ -58,7 +58,7 @@ class VectorQuantize(nn.Layer):
 
         if transformer_size==1:
             self.transformer = Transformer(dim**2*2, 2, 4, dim**2*2, dim**2*2)
-            self.pos_embedding = paddle.create_parameter(shape=(1, n_embed, dim**2*2), dtype='float32')
+            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32')
         elif transformer_size==2:
             self.transformer = Transformer(256, 1, 4, 256, 256)
             self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32')

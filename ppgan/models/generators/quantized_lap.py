@@ -40,7 +40,11 @@ class VectorQuantize(nn.Layer):
         self.decay = decay
         self.eps = eps
         self.commitment = commitment
-
+        self.LinearTransformer = LinearAttentionTransformer(
+            dim*dim,
+            6,
+            heads = 8,
+        )
 
         embed = paddle.randn((dim, n_embed))
         self.register_buffer('embed', embed)
@@ -73,7 +77,10 @@ class VectorQuantize(nn.Layer):
 
         loss = F.mse_loss(quantize.detach(), input) * self.commitment
         quantize = input + (quantize - input).detach()
-        
+        a,b,c,d = quantize.shape
+        quantize = quantize.reshape((a,b,c*d))
+        quantize = self.LinearTransformer(quantize)
+        quantize = quantize.reshape((a,b,c,d))
         return quantize, embed_ind, loss
 
 
@@ -87,9 +94,9 @@ class DecoderQuantized(nn.Layer):
     def __init__(self):
         super(DecoderQuantized, self).__init__()
 
-        self.quantize_4 = VectorQuantize(32, 160)
-        self.quantize_3 = VectorQuantize(16, 160)
-        self.quantize_2 = VectorQuantize(256, 640)
+        self.quantize_4 = VectorQuantize(16, 320)
+        self.quantize_3 = VectorQuantize(32, 320)
+        self.quantize_2 = VectorQuantize(64, 1280)
 
         self.resblock_41 = ResnetBlock(512)
         self.convblock_41 = ConvBlock(512, 256)

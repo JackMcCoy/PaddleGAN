@@ -51,7 +51,7 @@ class VectorQuantize(nn.Layer):
         return self.embed.transpose([1, 0])
 
     def forward(self, input):
-        flatten = input.reshape(-1, self.dim)
+        flatten = input.reshape((-1, self.dim))
         dist = (
             flatten.pow(2).sum(1, keepdim=True)
             - 2 * flatten @ self.embed

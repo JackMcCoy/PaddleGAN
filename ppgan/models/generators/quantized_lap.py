@@ -7,7 +7,7 @@ import numpy as np
 from functools import partial, reduce
 
 from .builder import GENERATORS
-from . import ResnetBlock, ConvBlock, adaptive_instance_normalization
+from . import ResnetBlock, ConvBlock, adaptive_instance_normalization, LinearAttentionTransformer
 
 
 def exists(val):
@@ -40,6 +40,11 @@ class VectorQuantize(nn.Layer):
         self.decay = decay
         self.eps = eps
         self.commitment = commitment
+        self.LinearTransformer = LinearAttentionTransformer(
+            dim,
+            6,
+            heads = 8,
+        )
 
         embed = paddle.randn((dim, n_embed))
         self.register_buffer('embed', embed)
@@ -69,7 +74,9 @@ class VectorQuantize(nn.Layer):
             embed_normalized = self.embed_avg / cluster_size.unsqueeze(axis=0)
             self.embed = embed_normalized
 
+
         loss = F.mse_loss(quantize.detach(), input) * self.commitment
+        quantize = self.LinearTransformer(quantize)
         quantize = input + (quantize - input).detach()
         return quantize, embed_ind, loss
 

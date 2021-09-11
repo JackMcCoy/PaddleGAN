@@ -300,14 +300,6 @@ class LapStyleDraXDOG(BaseModel):
             self.loss_s += self.calc_style_loss(self.tF[layer], self.sF[layer])
         self.losses['loss_s'] = self.loss_s
         """IDENTITY LOSSES"""
-        dual_si = paddle.concat(x=[self.si, self.si], axis=1)
-        self.Iss = self.nets['net_vit'](dual_si)
-        self.l_identity1 = self.calc_content_loss(self.Iss, self.si)
-        self.Fss = self.nets['net_enc'](self.Iss)
-        self.l_identity2 = 0
-        for layer in self.content_layers:
-            self.l_identity2 += self.calc_content_loss(self.Fss[layer],
-                                                       self.sF[layer])
         dual_ci = paddle.concat(x=[self.ci, self.ci], axis=1)
         self.Icc = self.nets['net_vit'](dual_ci)
         self.l_identity3 = self.calc_content_loss(self.Icc, self.ci)
@@ -316,8 +308,6 @@ class LapStyleDraXDOG(BaseModel):
         for layer in self.content_layers:
             self.l_identity4 += self.calc_content_loss(self.Fcc[layer],
                                                        self.cF[layer])
-        self.losses['l_identity1'] = self.l_identity1
-        self.losses['l_identity2'] = self.l_identity2
         self.losses['l_identity3'] = self.l_identity3
         self.losses['l_identity4'] = self.l_identity4
         """relative loss"""
@@ -342,7 +332,6 @@ class LapStyleDraXDOG(BaseModel):
 
 
         self.loss = self.loss_c * self.content_weight + self.style_weight * (self.loss_s+self.loss_style_remd*3)+\
-                    self.l_identity1 * 50 + self.l_identity2 * 1 + \
                     self.l_identity3 * 50 + self.l_identity4 * 1 + \
                     mxdog_losses*self.mxdog_weight+\
                     self.loss_content_relt * 16

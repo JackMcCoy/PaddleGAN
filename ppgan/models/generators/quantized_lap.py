@@ -49,7 +49,7 @@ class VectorQuantize(nn.Layer):
         if n_embed != 1280:
             self.rearrange = Rearrange('b c h w -> b (h w) c')
         else:
-            self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=64,p2=64)
+            self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=16,p2=16)
         self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
 
     @property

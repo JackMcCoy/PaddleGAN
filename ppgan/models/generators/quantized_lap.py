@@ -17,7 +17,7 @@ def default(val, d):
     return val if exists(val) else d
 
 def ema_inplace(moving_avg, new, decay):
-    moving_avg.data.add_((decay * moving_avg)-moving_avg).add_(new * (1 - decay))
+    moving_avg.add_((decay * moving_avg)-moving_avg).add_(new * (1 - decay))
 
 def laplace_smoothing(x, n_categories, eps=1e-5):
     return (x + eps) / (x.sum() + n_categories * eps)

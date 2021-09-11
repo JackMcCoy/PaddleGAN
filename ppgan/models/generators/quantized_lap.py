@@ -42,7 +42,7 @@ class VectorQuantize(nn.Layer):
         self.commitment = commitment
         self.LinearTransformer = LinearAttentionTransformer(
             dim*dim,
-            6,
+            4,
             heads = 8,
         )
 
@@ -94,9 +94,9 @@ class DecoderQuantized(nn.Layer):
     def __init__(self):
         super(DecoderQuantized, self).__init__()
 
-        self.quantize_4 = VectorQuantize(16, 320)
-        self.quantize_3 = VectorQuantize(32, 320)
-        self.quantize_2 = VectorQuantize(64, 1280)
+        self.quantize_4 = VectorQuantize(32, 160)
+        self.quantize_3 = VectorQuantize(16, 160)
+        self.quantize_2 = VectorQuantize(128, 640)
 
         self.resblock_41 = ResnetBlock(512)
         self.convblock_41 = ConvBlock(512, 256)

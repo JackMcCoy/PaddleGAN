@@ -33,3 +33,4 @@ from .generater_lapstyle import DecoderKMeans,DecoderNet,Encoder, RevisionNet, R
 from .transformer_lapstyle import ViT
 from .xvit_linear import LinearCrossViT
 from .xvit import CrossViT
+from .quantized_lap import DecoderQuantized

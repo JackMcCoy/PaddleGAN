@@ -191,10 +191,12 @@ class LapStyleDraModel(BaseModel):
         self.backward_Dec()
         self.optimizers['optimG'].step()
         optimizers['optimG'].clear_grad()
+        print(optimizers['optimG'])
+
         for key, value in optimizers['optimG'].state_dict().items():
-            if hasattr(value,'shape'):
-                shape=[*accumulate(value.shape, lambda a, b: a*b)]
-                print(key+' '+str(shape[-1]))
+            if not hasattr(value,'shape'):
+                print(key)
+
 
 @MODELS.register()
 class LapStyleDraXDOG(BaseModel):

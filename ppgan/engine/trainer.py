@@ -28,6 +28,7 @@ from ..models.builder import build_model
 from ..utils.visual import tensor2img, save_image
 from ..utils.filesystem import makedirs, save, load
 from ..utils.timer import TimeAverager
+import paddle.fluid.profiler as profiler
 
 
 class IterLoader:
@@ -171,46 +172,47 @@ class Trainer:
 
         # set model.is_train = True
         self.model.setup_train_mode(is_train=True)
-        while self.current_iter < (self.total_iters + 1):
-            self.current_epoch = iter_loader.epoch
-            self.inner_iter = self.current_iter % self.iters_per_epoch
+        with profiler.profiler('GPU', 'total', '/content/gdrive/My Drive/profile', 'Default') as prof:
+            while self.current_iter < (self.total_iters + 1):
+                self.current_epoch = iter_loader.epoch
+                self.inner_iter = self.current_iter % self.iters_per_epoch
 
-            start_time = step_start_time = time.time()
-            data = next(iter_loader)
-            reader_cost_averager.record(time.time() - step_start_time)
-            # unpack data from dataset and apply preprocessing
-            # data input should be dict
-            self.model.setup_input(data)
-            self.model.train_iter(self.optimizers)
+                start_time = step_start_time = time.time()
+                data = next(iter_loader)
+                reader_cost_averager.record(time.time() - step_start_time)
+                # unpack data from dataset and apply preprocessing
+                # data input should be dict
+                self.model.setup_input(data)
+                self.model.train_iter(self.optimizers)
 
-            batch_cost_averager.record(time.time() - step_start_time,
-                                       num_samples=self.cfg.get(
-                                           'batch_size', 1))
+                batch_cost_averager.record(time.time() - step_start_time,
+                                           num_samples=self.cfg.get(
+                                               'batch_size', 1))
 
-            step_start_time = time.time()
+                step_start_time = time.time()
 
-            if self.current_iter % self.log_interval == 0:
-                self.data_time = reader_cost_averager.get_average()
-                self.step_time = batch_cost_averager.get_average()
-                self.ips = batch_cost_averager.get_ips_average()
-                self.print_log()
+                if self.current_iter % self.log_interval == 0:
+                    self.data_time = reader_cost_averager.get_average()
+                    self.step_time = batch_cost_averager.get_average()
+                    self.ips = batch_cost_averager.get_ips_average()
+                    self.print_log()
 
-                reader_cost_averager.reset()
-                batch_cost_averager.reset()
+                    reader_cost_averager.reset()
+                    batch_cost_averager.reset()
 
-            if self.current_iter % self.visual_interval == 0:
-                self.visual('visual_train')
+                if self.current_iter % self.visual_interval == 0:
+                    self.visual('visual_train')
 
-            self.learning_rate_scheduler_step()
+                self.learning_rate_scheduler_step()
 
-            if self.validate_interval > -1 and self.current_iter % self.validate_interval == 0:
-                self.test()
+                if self.validate_interval > -1 and self.current_iter % self.validate_interval == 0:
+                    self.test()
 
-            if self.current_iter % self.weight_interval == 0:
-                self.save(self.current_iter, 'weight', keep=-1)
-                self.save(self.current_iter)
+                if self.current_iter % self.weight_interval == 0:
+                    self.save(self.current_iter, 'weight', keep=-1)
+                    self.save(self.current_iter)
 
-            self.current_iter += 1
+                self.current_iter += 1
 
     def test(self):
         if not hasattr(self, 'test_dataloader'):

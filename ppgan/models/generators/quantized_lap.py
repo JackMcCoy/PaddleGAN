@@ -51,7 +51,6 @@ class VectorQuantize(nn.Layer):
         return self.embed.transpose([1, 0])
 
     def forward(self, input):
-        dtype = input.dtype
         flatten = input.reshape(-1, self.dim)
         dist = (
             flatten.pow(2).sum(1, keepdim=True)
@@ -107,21 +106,21 @@ class DecoderQuantized(nn.Layer):
     def forward(self, cF, sF):
 
         out = adaptive_instance_normalization(cF['r41'], sF['r41'])
-        out = quantize_4(out)
+        out = self.quantize_4(out)
         print(out.shape)
         print(out.flatten().shape)
         out = self.resblock_41(out)
         out = self.convblock_41(out)
 
         out = self.upsample(out)
-        out += quantize_3(adaptive_instance_normalization(cF['r31'], sF['r31']))
+        out += self.quantize_3(adaptive_instance_normalization(cF['r31'], sF['r31']))
         print(out.shape)
         print(out.flatten().shape)
         out = self.resblock_31(out)
         out = self.convblock_31(out)
 
         out = self.upsample(out)
-        out += quantize_2(adaptive_instance_normalization(cF['r21'], sF['r21']))
+        out += self.quantize_2(adaptive_instance_normalization(cF['r21'], sF['r21']))
         print(out.shape)
         print(out.flatten().shape)
         out = self.convblock_21(out)

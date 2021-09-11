@@ -49,7 +49,7 @@ class VectorQuantize(nn.Layer):
         if n_embed != 1280:
             self.rearrange = Rearrange('b c h w -> b (h w) c')
             self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
-            self.transformer = Transformer(n_embed, 2, 4, n_embed, n_embed)
+            self.transformer = Transformer(dim**2*2, 2, 4, dim**2*2, dim**2*2)
             self.pos_embedding = paddle.create_parameter(shape=(1, n_embed, dim**2*2), dtype='float32')
         else:
             self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=4,p2=4)

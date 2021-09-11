@@ -76,7 +76,6 @@ class VectorQuantize(nn.Layer):
 
         loss = F.mse_loss(quantize.detach(), input) * self.commitment
         quantize = input + (quantize - input).detach()
-        quantize = F.embedding(embed_ind, self.embed.transpose((1,0)))
         quantize = self.rearrange(quantize)
         quantize = self.decompose_axis(quantize)
         return quantize, embed_ind, loss

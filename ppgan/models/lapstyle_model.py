@@ -137,7 +137,7 @@ class LapStyleDraModel(BaseModel):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
-        self.stylized = self.nets['net_dec'](self.cF, self.sF)
+        self.stylized, self.code_loss = self.nets['net_dec'](self.cF, self.sF)
         self.visual_items['stylized'] = self.stylized
 
     def backward_Dec(self):
@@ -176,7 +176,7 @@ class LapStyleDraModel(BaseModel):
 
         self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
                     self.l_identity1 * 50 + self.l_identity2 * 1 + self.loss_style_remd * 3 + \
-                    self.loss_content_relt * 16
+                    self.loss_content_relt * 16 + self.code_loss
         self.loss.backward()
 
         return self.loss
@@ -184,9 +184,9 @@ class LapStyleDraModel(BaseModel):
     def train_iter(self, optimizers=None):
         """Calculate losses, gradients, and update network weights"""
         self.forward()
-        optimizers['optimG'].clear_grad()
         self.backward_Dec()
         self.optimizers['optimG'].step()
+        optimizers['optimG'].clear_grad()
 
 @MODELS.register()
 class LapStyleDraXDOG(BaseModel):

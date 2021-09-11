@@ -350,10 +350,10 @@ class LapStyleDraXDOG(BaseModel):
         self.scaler.minimize(optimizers['optimG'], scaled)
         optimizers['optimG'].clear_grad()
         #self.optimizers['optimG'].step()
+        '''
         if self.steps<=1000:
             self.style_weight-= .001
             self.mxdog_weight += .0005
-        '''
         if self.steps==1:
             for param in self.nets['net_vit'].parameters():
                 print(param.name+' - '+str(param.shape))

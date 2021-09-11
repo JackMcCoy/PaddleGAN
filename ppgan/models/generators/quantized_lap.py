@@ -85,7 +85,7 @@ class DecoderQuantized(nn.Layer):
     def __init__(self):
         super(DecoderQuantized, self).__init__()
 
-        self.quantize_4 = VectorQuantize(512, 1024)
+        self.quantize_4 = VectorQuantize(256, 1024)
         self.quantize_3 = VectorQuantize(1024, 1024)
         self.quantize_2 = VectorQuantize(1024, 1024)
 
@@ -98,6 +98,7 @@ class DecoderQuantized(nn.Layer):
         self.convblock_22 = ConvBlock(128, 64)
 
         self.convblock_11 = ConvBlock(64, 64)
+        self.downsample = nn.Upsample(scale_factor=2, mode='nearest')
         self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
 
         self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
@@ -106,11 +107,11 @@ class DecoderQuantized(nn.Layer):
     def forward(self, cF, sF):
 
         out = adaptive_instance_normalization(cF['r41'], sF['r41'])
-        out = self.quantize_4(out)
-        print(out.shape)
-        print(out.flatten().shape)
         out = self.resblock_41(out)
         out = self.convblock_41(out)
+        out = self.downsample(out)
+        print(out.shape)
+        out = self.quantize_4(out)
 
         out = self.upsample(out)
         out += self.quantize_3(adaptive_instance_normalization(cF['r31'], sF['r31']))

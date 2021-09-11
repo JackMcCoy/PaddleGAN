@@ -51,7 +51,7 @@ class VectorQuantize(nn.Layer):
             self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
         else:
             self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=4,p2=4)
-            self.decompose_axis = Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)',h=16,p1=8,p2=8)
+            self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
 
     @property
     def codebook(self):
@@ -68,6 +68,7 @@ class VectorQuantize(nn.Layer):
         embed_onehot = F.one_hot(embed_ind, self.n_embed)
         embed_ind = paddle.reshape(embed_ind,shape=(input.shape[0],input.shape[1],input.shape[2]))
         quantize = F.embedding(embed_ind, self.embed.transpose((1,0)))
+        print(quantize.shape)
         quantize = self.rearrange(quantize)
         print(quantize.shape)
         quantize = self.decompose_axis(quantize)

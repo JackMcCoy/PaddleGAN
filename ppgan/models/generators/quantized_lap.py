@@ -61,7 +61,7 @@ class VectorQuantize(nn.Layer):
         elif transformer_size==2:
             self.transformer = Transformer(256, 1, 4, 256, 256)
             self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32')
-        elif transformer_size==3
+        elif transformer_size==3:
             self.transformer = Transformer(256, 1, 4, 256, 256)
             self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32')
     @property

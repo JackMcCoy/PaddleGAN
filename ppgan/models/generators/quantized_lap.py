@@ -52,6 +52,7 @@ class VectorQuantize(nn.Layer):
             self.transformer = Transformer(dim**2*2, 2, 4, dim**2*2, dim**2*2)
             self.pos_embedding = paddle.create_parameter(shape=(1, n_embed, dim**2*2), dtype='float32')
         else:
+            print('second condition')
             self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=4,p2=4)
             self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
             self.transformer = Transformer(256, 1, 4, 256, 256)

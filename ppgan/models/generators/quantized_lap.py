@@ -7,7 +7,7 @@ import numpy as np
 from functools import partial, reduce
 
 from .builder import GENERATORS
-from . import ResnetBlock, ConvBlock, adaptive_instance_normalization, LinearAttentionTransformer
+from . import ResnetBlock, ConvBlock, adaptive_instance_normalization, Transformer
 
 
 def exists(val):
@@ -64,6 +64,7 @@ class VectorQuantize(nn.Layer):
         )
         embed_ind = (-dist).argmax(axis=1)
         embed_onehot = F.one_hot(embed_ind, self.n_embed)
+        print(embed_onehot.shape)
         embed_ind = paddle.reshape(embed_ind,shape=(input.shape[0],input.shape[1],input.shape[2]))
         quantize = F.embedding(embed_ind, self.embed.transpose((1,0)))
         if self.training:

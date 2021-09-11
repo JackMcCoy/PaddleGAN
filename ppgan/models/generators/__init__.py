@@ -32,5 +32,5 @@ from .generator_firstorder import FirstOrderGenerator
 from .generater_lapstyle import DecoderKMeans,DecoderNet,Encoder, RevisionNet, RevisionNet32Feats, DecoderThumbNet,RevisionNetThumb,DecoderThumbDeep,DecoderNetDeep,RevisionNetDeepThumb, ResnetBlock, ConvBlock, adaptive_instance_normalization
 from .transformer_lapstyle import ViT
 from .xvit_linear import LinearCrossViT, LinearAttentionTransformer
-from .xvit import CrossViT
+from .xvit import CrossViT, Transformer
 from .quantized_lap import DecoderQuantized

@@ -40,12 +40,7 @@ class VectorQuantize(nn.Layer):
         self.decay = decay
         self.eps = eps
         self.commitment = commitment
-        self.LinearTransformer = LinearAttentionTransformer(
-            dim*dim,
-            1,
-            ff_chunks=dim/2,
-            heads = 4,
-        )
+
 
         embed = paddle.randn((dim, n_embed))
         self.register_buffer('embed', embed)
@@ -78,10 +73,7 @@ class VectorQuantize(nn.Layer):
 
         loss = F.mse_loss(quantize.detach(), input) * self.commitment
         quantize = input + (quantize - input).detach()
-        a,b,c,d = quantize.shape
-        quantize = quantize.reshape((a,b,c*d))
-        quantize = self.LinearTransformer(quantize)
-        quantize = quantize.reshape((a,b,c,d))
+        
         return quantize, embed_ind, loss
 
 

@@ -193,7 +193,7 @@ class LapStyleDraModel(BaseModel):
         optimizers['optimG'].clear_grad()
         for key, value in optimizers['optimG'].state_dict().items():
             if hasattr(value,'shape'):
-                shape=[accumulate(value.shape, lambda a, b: a*b)]
+                shape=[*accumulate(value.shape, lambda a, b: a*b)]
                 print(key+' '+str(shape[-1]))
 
 @MODELS.register()

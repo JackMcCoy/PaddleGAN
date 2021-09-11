@@ -43,6 +43,7 @@ class VectorQuantize(nn.Layer):
         self.LinearTransformer = LinearAttentionTransformer(
             dim*dim,
             1,
+            ff_chunks=dim/2,
             heads = 8,
         )
 

@@ -7,6 +7,7 @@ import numpy as np
 from functools import partial, reduce
 
 from .builder import GENERATORS
+from .generator_lapstyle import ResnetBlock, ConvBlock
 
 
 def exists(val):

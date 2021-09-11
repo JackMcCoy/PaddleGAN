@@ -17,7 +17,7 @@ def default(val, d):
     return val if exists(val) else d
 
 def ema_inplace(moving_avg, new, decay):
-    return (moving_avg*decay)+(new * (1 - decay))
+    moving_avg.data.add_((decay * moving_avg)-moving_avg).add_(new * (1 - decay))
 
 def laplace_smoothing(x, n_categories, eps=1e-5):
     return (x + eps) / (x.sum() + n_categories * eps)
@@ -63,9 +63,9 @@ class VectorQuantize(nn.Layer):
         quantize = F.embedding(embed_ind, self.embed.transpose((1,0)))
 
         if self.training:
-            self.cluster_size = ema_inplace(self.cluster_size, embed_onehot.sum(0), self.decay)
+            ema_inplace(self.cluster_size, embed_onehot.sum(0), self.decay)
             embed_sum = flatten.transpose((1,0)) @ embed_onehot
-            self.embed_avg = ema_inplace(self.embed_avg, embed_sum, self.decay)
+            ema_inplace(self.embed_avg, embed_sum, self.decay)
             cluster_size = laplace_smoothing(self.cluster_size, self.n_embed, self.eps) * self.cluster_size.sum()
             embed_normalized = self.embed_avg / cluster_size.unsqueeze(axis=0)
             self.embed = embed_normalized

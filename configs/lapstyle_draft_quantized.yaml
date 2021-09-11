@@ -35,7 +35,7 @@ dataset:
     style_upsize: 1
     crop_size: 128
     num_workers: 4
-    batch_size: 5
+    batch_size: 8
   test:
     name: LapStyleThumbsetInference
     content_root: /content/gdrive/My Drive/img_style/washnight/

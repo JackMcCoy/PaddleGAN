@@ -108,12 +108,11 @@ class DecoderQuantized(nn.Layer):
                                         nn.Conv2D(64, 3, (3, 3)))
 
     def forward(self, cF, sF):
-        code_losses=0
         out = adaptive_instance_normalization(cF['r41'], sF['r41'])
         out = self.resblock_41(out)
         out = self.convblock_41(out)
         out = self.normalize_4(out)
-        quantize, embed_ind, loss = self.quantize_4(out)
+        quantize, embed_ind, code_losses = self.quantize_4(out)
         code_losses+=loss
         quantize = self.upsample(quantize)
         # Transformer goes here?

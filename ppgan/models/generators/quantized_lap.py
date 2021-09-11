@@ -122,7 +122,7 @@ class DecoderQuantized(nn.Layer):
         out = self.normalize_3(out)
         quantize, embed_ind, loss = self.quantize_3(out)
         code_losses+=loss
-        
+
         quantize = self.upsample(quantize)
         out = quantize + adaptive_instance_normalization(cF['r21'], sF['r21'])
         out = self.convblock_21(out)

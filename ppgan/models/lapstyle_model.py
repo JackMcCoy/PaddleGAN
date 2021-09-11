@@ -155,7 +155,7 @@ class LapStyleDraModel(BaseModel):
             self.loss_s += self.calc_style_loss(self.tF[layer], self.sF[layer])
         self.losses['loss_s'] = self.loss_s
         """IDENTITY LOSSES"""
-        self.Icc = self.nets['net_dec'](self.cF, self.cF)
+        self.Icc, book_loss = self.nets['net_dec'](self.cF, self.cF)
         self.l_identity1 = self.calc_content_loss(self.Icc, self.ci)
         self.Fcc = self.nets['net_enc'](self.Icc)
         self.l_identity2 = 0
@@ -176,7 +176,7 @@ class LapStyleDraModel(BaseModel):
 
         self.loss = self.loss_c * self.content_weight + self.loss_s * self.style_weight +\
                     self.l_identity1 * 50 + self.l_identity2 * 1 + self.loss_style_remd * 3 + \
-                    self.loss_content_relt * 16 + self.code_loss
+                    self.loss_content_relt * 16 + self.code_loss + book_loss
         self.loss.backward()
 
         return self.loss

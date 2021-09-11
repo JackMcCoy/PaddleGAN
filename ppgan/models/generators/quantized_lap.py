@@ -43,7 +43,7 @@ class VectorQuantize(nn.Layer):
 
         embed = paddle.randn((dim, n_embed))
         self.register_buffer('embed', embed)
-        self.register_buffer('cluster_size', paddle.zeros(shape=(n_embed)))
+        self.register_buffer('cluster_size', paddle.zeros(shape=(n_embed,1)))
         self.register_buffer('embed_avg', embed.clone())
 
     @property

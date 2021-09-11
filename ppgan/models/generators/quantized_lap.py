@@ -103,22 +103,22 @@ class DecoderQuantized(nn.Layer):
     def forward(self, cF, sF):
 
         out = adaptive_instance_normalization(cF['r41'], sF['r41'])
-        print(out.shape())
-        print(out.flatten().shape())
+        print(out.shape)
+        print(out.flatten().shape)
         out = self.resblock_41(out)
         out = self.convblock_41(out)
 
         out = self.upsample(out)
         out += adaptive_instance_normalization(cF['r31'], sF['r31'])
-        print(out.shape())
-        print(out.flatten().shape())
+        print(out.shape)
+        print(out.flatten().shape)
         out = self.resblock_31(out)
         out = self.convblock_31(out)
 
         out = self.upsample(out)
         out += adaptive_instance_normalization(cF['r21'], sF['r21'])
-        print(out.shape())
-        print(out.flatten().shape())
+        print(out.shape)
+        print(out.flatten().shape)
         out = self.convblock_21(out)
         out = self.convblock_22(out)
 

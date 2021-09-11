@@ -136,17 +136,17 @@ class DecoderQuantized(nn.Layer):
 
         out = self.upsample(out)
         # Transformer goes here?
-        quantize, embed_ind, loss = self.quantize_3(adaptive_instance_normalization(cF['r31'], sF['r31']))
-        out += quantize
-        out = self.resblock_31(out)
+        out += adaptive_instance_normalization(cF['r31'], sF['r31'])
+        quantize, embed_ind, loss = quantize_3(out)
+        out = self.resblock_31(quantize)
         out = self.convblock_31(out)
 
         code_losses+=loss
 
         out = self.upsample(out)
-        quantize, embed_ind, loss = self.quantize_2(adaptive_instance_normalization(cF['r21'], sF['r21']))
-        out += quantize
-        out = self.convblock_21(out)
+        out += adaptive_instance_normalization(cF['r21'], sF['r21'])
+        quantize, embed_ind, loss = quantize_2(out)
+        out = self.convblock_21(quantize)
         out = self.convblock_22(out)
         code_losses+=loss
         out = self.upsample(out)

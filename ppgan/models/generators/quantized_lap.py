@@ -48,6 +48,7 @@ class VectorQuantize(nn.Layer):
         self.register_buffer('embed_avg', embed.clone())
         self.rearrange = Rearrange('b c h w -> b (h w) c')
         self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
+        self.pos_embedding = paddle.create_parameter(shape=(1, num_patches + 1, dim), dtype='float32')
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -64,6 +65,7 @@ class VectorQuantize(nn.Layer):
         embed_ind = paddle.reshape(embed_ind,shape=(input.shape[0],input.shape[1],input.shape[2]))
         quantize = F.embedding(embed_ind, self.embed.transpose((1,0)))
         quantize = self.rearrange(quantize)
+        print(quantize.shape)
         quantize = self.decompose_axis(quantize)
         if self.training:
             ema_inplace(self.cluster_size, embed_onehot.sum(0), self.decay)

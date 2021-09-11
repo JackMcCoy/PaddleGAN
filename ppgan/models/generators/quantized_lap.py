@@ -117,6 +117,8 @@ class DecoderQuantized(nn.Layer):
 
         print(quantize)
         self.upsample(quantize)
+        self.upsample(quantize)
+        # Transformer goes here?
         out = quantize + adaptive_instance_normalization(cF['r31'], sF['r31'])
         out = self.resblock_31(out)
         out = self.convblock_31(out)

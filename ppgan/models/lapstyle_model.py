@@ -259,6 +259,7 @@ class LapStyleDraXDOG(BaseModel):
         self.set_requires_grad([self.gaussian_filter],False)
         self.set_requires_grad([self.gaussian_filter_2],False)
         self.steps=0
+        self.mxdog_weight = .5
 
     def setup_input(self, input):
         self.ci = paddle.to_tensor(input['ci'])
@@ -337,13 +338,13 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_CnsC'] = mxdog_content_contraint*100
         self.losses['loss_CnsS'] = mxdog_content_img*3000
         mxdog_losses = mxdog_content * .3 + mxdog_content_contraint *100 + mxdog_content_img * 1000
-        mxdog_weight = .5
+
 
 
         self.loss = self.loss_c * self.content_weight + self.style_weight * (self.loss_s+self.loss_style_remd*3)+\
                     self.l_identity1 * 50 + self.l_identity2 * 1 + \
                     self.l_identity3 * 50 + self.l_identity4 * 1 + \
-                    mxdog_losses*mxdog_weight+\
+                    mxdog_losses*self.mxdog_weight+\
                     self.loss_content_relt * 16
 
         return self.loss
@@ -360,6 +361,9 @@ class LapStyleDraXDOG(BaseModel):
         self.scaler.minimize(optimizers['optimG'], scaled)
         optimizers['optimG'].clear_grad()
         #self.optimizers['optimG'].step()
+        if steps<=1000:
+            self.style_weight-= .001
+            self.mxdog_weight += .0005
         '''
         if self.steps==1:
             for param in self.nets['net_vit'].parameters():

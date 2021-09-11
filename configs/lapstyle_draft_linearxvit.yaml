@@ -64,11 +64,9 @@ dataset:
     batch_size: 1
 
 lr_scheduler:
-  name: WarmupNonLinear
-  learning_rate: 1e-3
+  name: NonLinearDecay
+  learning_rate: 6e-4
   lr_decay: 5e-5
-  warmupstart: 8e-5
-  warmupperiod: 1000
 
 optimizer:
   optimG:

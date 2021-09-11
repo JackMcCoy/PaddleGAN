@@ -49,9 +49,13 @@ class VectorQuantize(nn.Layer):
         if n_embed != 1280:
             self.rearrange = Rearrange('b c h w -> b (h w) c')
             self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
+            self.transformer = Transformer(n_embed, 2, 4, n_embed, n_embed)
+            self.pos_embedding = paddle.create_parameter(shape=(1, dim, n_embed), dtype='float32')
         else:
             self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=4,p2=4)
             self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
+            self.transformer = Transformer(256, 1, 4, 256, 256)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32')
 
     @property
     def codebook(self):
@@ -68,10 +72,6 @@ class VectorQuantize(nn.Layer):
         embed_onehot = F.one_hot(embed_ind, self.n_embed)
         embed_ind = paddle.reshape(embed_ind,shape=(input.shape[0],input.shape[1],input.shape[2]))
         quantize = F.embedding(embed_ind, self.embed.transpose((1,0)))
-        print(quantize.shape)
-        quantize = self.rearrange(quantize)
-        print(quantize.shape)
-        quantize = self.decompose_axis(quantize)
         if self.training:
             ema_inplace(self.cluster_size, embed_onehot.sum(0), self.decay)
             embed_sum = paddle.matmul(flatten.transpose((1,0)), embed_onehot)
@@ -84,6 +84,9 @@ class VectorQuantize(nn.Layer):
         loss = F.mse_loss(quantize.detach(), input) * self.commitment
         quantize = input + (quantize - input).detach()
         quantize = self.rearrange(quantize)
+        quantize += self.pos_embedding[:, :n]
+        quantize = self.decompose_axis(quantize)
+        quantize = self.transformer(quantize)
         quantize = self.decompose_axis(quantize)
         return quantize, embed_ind, loss
 

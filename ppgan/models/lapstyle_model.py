@@ -28,7 +28,7 @@ from .discriminators.builder import build_discriminator
 from ..modules.init import init_weights
 from ..utils.visual import tensor2img, save_image
 from ..utils.filesystem import makedirs, save, load
-
+from itertools import accumulate
 
 def xdog(im, g, g2,morph_conv,gamma=.94, phi=50, eps=-.5, morph_cutoff=8.88,morphs=1,minmax=False):
     # Source : https://github.com/CemalUnal/XDoG-Filter
@@ -192,7 +192,7 @@ class LapStyleDraModel(BaseModel):
         self.optimizers['optimG'].step()
         optimizers['optimG'].clear_grad()
         for key, value in optimizers['optimG'].state_dict().items():
-            print(key+' '+str([(curr:=curr*v) for v in value.shape])
+            print(key+' '+str(*accumulate(value.shape, lambda a, b: a*b))
 
 @MODELS.register()
 class LapStyleDraXDOG(BaseModel):

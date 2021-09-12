@@ -13,7 +13,7 @@ model:
   discriminator:
     name: LapStyleSingleDiscriminator
     num_channels: 16
-    num_layer: 5
+    num_layer: 2
     noise: 0
     kernel_size: 3
     padding: 1

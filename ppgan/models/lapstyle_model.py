@@ -356,7 +356,7 @@ class LapStyleDraXDOG(BaseModel):
         if self.steps>1200:
             mxdog_content_img = self.mse_loss(self.cdogF['r31'],self.sXF['r31']) + self.mse_loss(self.cdogF['r41'],self.sXF['r41'])
         else:
-            mxdog_content_img = 0
+            mxdog_content_img = paddle.to_tensor([0])
 
         self.losses['loss_MD'] = mxdog_content*.3
         self.losses['loss_CnsC'] = mxdog_content_contraint*100

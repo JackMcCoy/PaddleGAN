@@ -358,6 +358,7 @@ class LapStyleDraXDOG(BaseModel):
         else:
             mxdog_content_img = paddle.to_tensor([0])
         self.visual_items['mdog'] = stylized_dog
+        print(mxdog_content_img)
 
         self.losses['loss_MD'] = mxdog_content*.3
         self.losses['loss_CnsC'] = mxdog_content_contraint*100

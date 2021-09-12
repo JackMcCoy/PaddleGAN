@@ -56,14 +56,14 @@ class VectorQuantize(nn.Layer):
             self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
 
         if transformer_size==1:
-            self.transformer = Transformer(dim**2*2, 2, 4, dim**2*2, dim**2*2, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 512), dtype='float32')
+            self.transformer = Transformer(16, 4, 8, 16, 16, dropout=0.1)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 512, 16), dtype='float32')
         elif transformer_size==2:
-            self.transformer = Transformer(256, 2, 4, 256, 256, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32')
+            self.transformer = Transformer(32, 4, 8, 32, 32, dropout=0.1)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 32), dtype='float32')
         elif transformer_size==3:
-            self.transformer = Transformer(2048, 2, 4, 1024, 2048, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32')
+            self.transformer = Transformer(64, 4, 4, 64, 64, dropout=0.1)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 128, 64), dtype='float32')
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -78,7 +78,10 @@ class VectorQuantize(nn.Layer):
         embed_ind = (-dist).argmax(axis=1)
         embed_onehot = F.one_hot(embed_ind, self.n_embed)
         embed_ind = paddle.reshape(embed_ind,shape=(input.shape[0],input.shape[1],input.shape[2]))
-        print(embed_ind.shape)
+        b, n, _ = quantize.shape
+        embed_ind += self.pos_embedding[:, :n]
+        embed_ind = self.transformer(embed_ind)
+
         quantize = F.embedding(embed_ind, self.embed.transpose((1,0)))
         if self.training:
             ema_inplace(self.cluster_size, embed_onehot.sum(0), self.decay)

@@ -396,10 +396,13 @@ class LapStyleDraXDOG(BaseModel):
         self.steps+=1
         with paddle.amp.auto_cast():
             self.forward()
+            self.set_requires_grad(self.nets['netD'], True)
             loss = self.backward_D()
         scaled = self.scaler.scale(loss)
         scaled.backward()
         self.scaler.minimize(optimizers['optimD'], scaled)
+        optimizers['optimD'].clear_grad()
+        self.set_requires_grad(self.nets['netD'], False)
         with paddle.amp.auto_cast():
             self.forward()
             loss = self.backward_Dec()

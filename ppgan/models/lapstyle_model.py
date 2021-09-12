@@ -323,7 +323,7 @@ class LapStyleDraXDOG(BaseModel):
         """IDENTITY LOSSES"""
         #dual_ci = paddle.concat(x=[self.ci, self.ci], axis=1)
         self.Iss, book_loss = self.nets['net_vit'](self.sF,self.sF)
-        self.l_identity1 = self.calc_content_loss(self.Iss, self.Iss)
+        self.l_identity1 = self.calc_content_loss(self.Iss, self.si)
         self.Fss = self.nets['net_enc'](self.Iss)
         self.l_identity2 = 0
         for layer in self.content_layers:

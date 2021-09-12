@@ -131,7 +131,7 @@ class DecoderQuantized(nn.Layer):
 
         self.skipconnect_conv = ConvBlock(256, 128)
         self.skipconnect_weight = paddle.create_parameter(shape=(1,),dtype='float32')
-        self.book_weight = paddle.create_parameter(shape=(3,),dtype='float32')
+        self.book_weight = paddle.create_parameter(shape=(3,),dtype='float32',is_bias=True)
 
     def forward(self, cF, sF):
         out = adaptive_instance_normalization(cF['r41'], sF['r41'])

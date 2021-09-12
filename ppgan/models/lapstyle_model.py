@@ -110,7 +110,6 @@ class LapStyleDraModel(BaseModel):
         super(LapStyleDraModel, self).__init__()
 
         # define generators
-        self.scaler=paddle.amp.GradScaler(init_loss_scaling=1024)
         self.nets['net_enc'] = build_generator(generator_encode)
         self.nets['net_dec'] = build_generator(generator_decode)
         init_weights(self.nets['net_dec'])

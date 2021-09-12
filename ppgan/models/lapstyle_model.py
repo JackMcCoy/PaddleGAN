@@ -363,7 +363,9 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_CnsS'] = mxdog_content_img*1000
         mxdog_losses = mxdog_content * .3 + mxdog_content_contraint *100 + mxdog_content_img * 1000
 
-        self.losses['book_weights'] = self.nets['net_vit'].book_weight
+        self.losses['book_weight1'] = self.nets['net_vit'].book_weight[0]
+        self.losses['book_weight2'] = self.nets['net_vit'].book_weight[1]
+        self.losses['book_weight3'] = self.nets['net_vit'].book_weight[2]
 
         self.losses['map_loss'] = self.map_loss * self.nets['net_vit'].book_weight[0]
         self.losses['ci_book_loss'] = book_loss * self.nets['net_vit'].book_weight[1]

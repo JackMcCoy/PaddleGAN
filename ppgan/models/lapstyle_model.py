@@ -354,7 +354,7 @@ class LapStyleDraXDOG(BaseModel):
         mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])+self.calc_content_loss(self.tF['r41'], self.cXF['r41'])
         mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])+self.calc_content_loss(self.cdogF['r41'], self.cXF['r41'])
         if 1:
-            mxdog_content_img = self.mse_loss(self.cdogF['r31']+1e-12,self.sXF['r31']+1e-12) + self.mse_loss(self.cdogF['r41']+1e-12,self.sXF['r41']+1e-12)
+            mxdog_content_img = self.mse_loss(self.cdogF['r31']+1e-9,self.sXF['r31']+1e-9) + self.mse_loss(self.cdogF['r41']+1e-9,self.sXF['r41']+1e-9)
         else:
             mxdog_content_img = paddle.to_tensor([0])
         self.visual_items['mdog'] = stylized_dog

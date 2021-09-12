@@ -59,10 +59,10 @@ class ImageLinearAttention(nn.Layer):
             k = paddle.concat((k, ck), axis=3)
             v = paddle.concat((v, cv), axis=3)
 
-        k = k.softmax(axis=-1)
+        k = F.softmax(p,axis=-1)
 
         if self.norm_queries:
-            q = q.softmax(axis=-2)
+            q = F.softmax(q,axis=-2)
 
         context = paddle.matmul(k, v.transpose([0,1,3,2]))
         print('q size - '+str(q.shape))

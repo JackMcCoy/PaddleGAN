@@ -214,7 +214,7 @@ class LapStyleDraXDOG(BaseModel):
                  calc_content_relt_loss=None,
                  calc_content_loss=None,
                  calc_style_loss=None,
-                 gram_errors=None,
+                 mse_loss=None,
                  gan_criterion=None,
                  content_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
                  style_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
@@ -242,7 +242,7 @@ class LapStyleDraXDOG(BaseModel):
         self.calc_content_relt_loss = build_criterion(calc_content_relt_loss)
         self.calc_content_loss = build_criterion(calc_content_loss)
         self.calc_style_loss = build_criterion(calc_style_loss)
-        self.gram_errors = build_criterion(gram_errors)
+        self.mes_loss = build_criterion(mes_loss)
         self.gan_criterion = build_criterion(gan_criterion)
 
         self.content_layers = content_layers
@@ -341,9 +341,9 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_style_remd'] = self.loss_style_remd
         self.losses['loss_content_relt'] = self.loss_content_relt
 
-        mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])
-        mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])
-        mxdog_content_img = self.gram_errors(self.cdogF['r31'],self.sXF['r31'])
+        mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])+self.calc_content_loss(self.tF['r41'], self.cXF['r41'])
+        mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])+self.calc_content_loss(self.cdogF['r41'], self.cXF['r41'])
+        mxdog_content_img = self.mse_loss(self.cdogF['r31'],self.sXF['r31']) + self.mse_loss(self.cdogF['r41'],self.sXF['r41'])
 
         self.losses['loss_MD'] = mxdog_content*.3
         self.losses['loss_CnsC'] = mxdog_content_contraint*100

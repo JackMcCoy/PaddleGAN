@@ -59,7 +59,7 @@ class ImageLinearAttention(nn.Layer):
             k = paddle.concat((k, ck), axis=3)
             v = paddle.concat((v, cv), axis=3)
 
-        k = F.softmax(p,axis=-1)
+        k = F.softmax(k,axis=-1)
 
         if self.norm_queries:
             q = F.softmax(q,axis=-2)

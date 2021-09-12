@@ -57,13 +57,13 @@ class VectorQuantize(nn.Layer):
 
         if transformer_size==1:
             self.transformer = Transformer(dim**2*2, 6, 8, 1024, dim**2*2, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 512), dtype='float32')
+            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 512), dtype='float32', is_bias=True)
         elif transformer_size==2:
             self.transformer = Transformer(256, 4, 8, 256, 256, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32')
+            self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32', is_bias=True)
         elif transformer_size==3:
             self.transformer = Transformer(2048, 2, 8, 2048, 2048, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32')
+            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32', is_bias=True)
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -130,8 +130,10 @@ class DecoderQuantized(nn.Layer):
                                         nn.Conv2D(64, 3, (3, 3)))
 
         self.skipconnect_conv = ConvBlock(256, 128)
-        self.skipconnect_weight = paddle.create_parameter(shape=(1,),dtype='float32')
-        self.book_weight = paddle.create_parameter(shape=(3,),dtype='float32',is_bias=True)
+        self.skipconnect_weight = paddle.create_parameter(shape=(1,),dtype='float32', is_bias=True)
+        self.book_weight = paddle.create_parameter(shape=(1,),dtype='float32',is_bias=True)
+        self.book_weight2 = paddle.create_parameter(shape=(1,),dtype='float32',is_bias=True)
+        self.book_weight3 = paddle.create_parameter(shape=(1,),dtype='float32',is_bias=True)
 
     def forward(self, cF, sF):
         out = adaptive_instance_normalization(cF['r41'], sF['r41'])

@@ -47,23 +47,22 @@ class VectorQuantize(nn.Layer):
         self.register_buffer('embed', embed)
         self.register_buffer('cluster_size', paddle.zeros(shape=(n_embed,)))
         self.register_buffer('embed_avg', embed.clone())
-        if codebook_size != 1280:
-            self.rearrange = Rearrange('b c h w -> b (h w) c')
-            self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
+        self.rearrange = Rearrange('b c h w -> b c (h w)')
+        self.decompose_axis = Rearrange('b c (h w) -> b c h w',h=dim)
 
         else:
             self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=4,p2=4)
             self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
 
         if transformer_size==1:
-            self.transformer = Transformer(16, 4, 8, 16, 16, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 512, 16), dtype='float32')
-        elif transformer_size==2:
             self.transformer = Transformer(32, 4, 8, 32, 32, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 32), dtype='float32')
+            self.pos_embedding = paddle.create_parameter(shape=(1, 512, 32), dtype='float32')
+        elif transformer_size==2:
+            self.transformer = Transformer(64, 4, 8, 64, 64, dropout=0.1)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 64), dtype='float32')
         elif transformer_size==3:
-            self.transformer = Transformer(64, 4, 4, 64, 64, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 128, 64), dtype='float32')
+            self.transformer = Transformer(128, 4, 4, 128, 128, dropout=0.1)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 128, 128), dtype='float32')
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -80,7 +79,10 @@ class VectorQuantize(nn.Layer):
         embed_ind = paddle.reshape(embed_ind,shape=(input.shape[0],input.shape[1],input.shape[2]))
 
         quantize = F.embedding(embed_ind, self.embed.transpose((1,0)))
-        print(quantize.shape)
+        quantize = self.rearrange(quantize)
+        quantize += self.pos_embedding
+        quantize = self.transformer(quantize)
+        quantize = self.decompose_axis(quantize)
         if self.training:
             ema_inplace(self.cluster_size, embed_onehot.sum(0), self.decay)
             embed_sum = paddle.matmul(flatten.transpose((1,0)), embed_onehot)

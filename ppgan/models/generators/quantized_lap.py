@@ -129,16 +129,19 @@ class DecoderQuantized(nn.Layer):
         self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(64, 3, (3, 3)))
 
+        self.skipconnect_conv = ConvBlock(256, 128)
+        self.skipconnect_weight = paddle.create_parameter(shape=(1),dtype='float32')
+
     def forward(self, cF, sF):
         out = adaptive_instance_normalization(cF['r41'], sF['r41'])
-        out, embed_ind, code_losses = self.quantize_4(out)
-        out = self.resblock_41(out)
+        quantize, embed_ind, code_losses = self.quantize_4(out)
+        out = self.resblock_41(quantize)
         out = self.convblock_41(out)
 
-        out = self.upsample(out)
+        upscale_4 = self.upsample(out)
         # Transformer goes here?
         quantize, embed_ind, loss = self.quantize_3(adaptive_instance_normalization(cF['r31'], sF['r31']))
-        out += quantize
+        out = upscale_4+quantize
         out = self.resblock_31(out)
         out = self.convblock_31(out)
 
@@ -146,10 +149,15 @@ class DecoderQuantized(nn.Layer):
 
         out = self.upsample(out)
         quantize, embed_ind, loss = self.quantize_2(adaptive_instance_normalization(cF['r21'], sF['r21']))
+        code_losses+=loss
         out += quantize
+
+        upscale_4 = self.upsample(upscale_4)
+        upscale_4 = self.skipconnect_conv(upscale_4)
+        out += (upscale_4 * self.skipconnect_weight)
+
         out = self.convblock_21(out)
         out = self.convblock_22(out)
-        code_losses+=loss
         out = self.upsample(out)
         out = self.convblock_11(out)
         out = self.final_conv(out)

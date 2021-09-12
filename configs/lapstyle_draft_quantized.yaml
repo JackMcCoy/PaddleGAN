@@ -12,7 +12,7 @@ model:
     name: DecoderQuantized
   discriminator:
     name: LapStyleSingleDiscriminator
-    num_channels: 16
+    num_channels: 32
     num_layer: 3
     noise: 0
     kernel_size: 3

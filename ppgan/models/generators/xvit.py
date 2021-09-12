@@ -223,8 +223,8 @@ class Transformer(nn.Layer):
         self.norm = nn.LayerNorm(dim)
         for _ in range(depth):
             self.layers.append(nn.LayerList([
-                PreNorm(dim, Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout)),
-                PreNorm(dim, FeedForward(dim, mlp_dim, dropout = dropout))
+                Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout),
+                FeedForward(dim, mlp_dim, dropout = dropout)
             ]))
 
     def forward(self, x, style=None):

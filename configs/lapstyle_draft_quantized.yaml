@@ -8,7 +8,7 @@ model:
   name: LapStyleDraXDOG
   generator_encode:
     name: Encoder
-  generator_decode:
+  generator_transformer:
     name: DecoderQuantized
   discriminator:
     name: LapStyleSingleDiscriminator

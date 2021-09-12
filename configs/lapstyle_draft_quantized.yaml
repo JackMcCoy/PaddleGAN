@@ -33,7 +33,7 @@ model:
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
-  style_weight: 3.25
+  style_weight: 5
   morph_cutoff: 8.85
   gamma: .9
 

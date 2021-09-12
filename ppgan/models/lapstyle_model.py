@@ -367,9 +367,9 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['book_weight2'] = self.nets['net_vit'].book_weight2
         self.losses['book_weight3'] = self.nets['net_vit'].book_weight3
 
-        self.losses['map_loss'] = self.map_loss * self.nets['net_vit'].book_weight
-        self.losses['ci_book_loss'] = book_loss * self.nets['net_vit'].book_weight2
-        self.losses['si_book_loss'] = book_loss_s * self.nets['net_vit'].book_weight3
+        self.losses['map_loss'] = self.map_loss
+        self.losses['ci_book_loss'] = book_loss
+        self.losses['si_book_loss'] = book_loss_s
 
         pred_fake = self.nets['netD'](self.stylized)
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)

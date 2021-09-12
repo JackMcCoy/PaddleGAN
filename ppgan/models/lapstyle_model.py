@@ -242,7 +242,7 @@ class LapStyleDraXDOG(BaseModel):
         self.calc_content_relt_loss = build_criterion(calc_content_relt_loss)
         self.calc_content_loss = build_criterion(calc_content_loss)
         self.calc_style_loss = build_criterion(calc_style_loss)
-        self.mes_loss = build_criterion(mes_loss)
+        self.mse_loss = build_criterion(mse_loss)
         self.gan_criterion = build_criterion(gan_criterion)
 
         self.content_layers = content_layers

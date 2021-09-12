@@ -386,7 +386,8 @@ class Trainer:
         state_dicts['epoch'] = epoch
 
         for opt_name, opt in self.model.optimizers.items():
-            state_dicts[opt_name] = opt.state_dict()
+            if opt_name != 'optimD':
+                state_dicts[opt_name] = opt.state_dict()
 
         save(state_dicts, save_path)
 

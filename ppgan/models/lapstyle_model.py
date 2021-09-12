@@ -281,7 +281,6 @@ class LapStyleDraXDOG(BaseModel):
         self.set_requires_grad([self.gaussian_filter_2],False)
         self.steps=0
         self.mxdog_weight = .5
-        self.book_weight = paddle.create_parameter(shape=(3,),dtype='float32')
 
     def setup_input(self, input):
         self.ci = paddle.to_tensor(input['ci'])
@@ -364,9 +363,9 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_CnsS'] = mxdog_content_img*1000
         mxdog_losses = mxdog_content * .3 + mxdog_content_contraint *100 + mxdog_content_img * 1000
 
-        self.losses['map_loss'] = self.map_loss * self.book_weight[0]
-        self.losses['ci_book_loss'] = book_loss * self.book_weight[1]
-        self.losses['si_book_loss'] = book_loss_s * self.book_weight[2]
+        self.losses['map_loss'] = self.map_loss * self.nets['net_vit'].book_weight[0]
+        self.losses['ci_book_loss'] = book_loss * self.nets['net_vit'].book_weight[1]
+        self.losses['si_book_loss'] = book_loss_s * self.nets['net_vit'].book_weight[2]
 
         pred_fake = self.nets['netD'](self.stylized)
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)
@@ -377,7 +376,7 @@ class LapStyleDraXDOG(BaseModel):
                     self.l_identity3 * 50 + self.l_identity4 * 1 + \
                     mxdog_losses*self.mxdog_weight+\
                     self.loss_content_relt * 16 +\
-                    self.map_loss * self.book_weight[0] + book_loss * self.book_weight[1] + book_loss_s * self.book_weight[2]
+                    self.map_loss * self.nets['net_vit'].book_weight[0] + book_loss * self.nets['net_vit'].book_weight[1] + book_loss_s * self.nets['net_vit'].book_weight[2]
 
         return self.loss
 

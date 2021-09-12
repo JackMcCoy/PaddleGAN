@@ -322,7 +322,7 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_s'] = self.loss_s
         """IDENTITY LOSSES"""
         #dual_ci = paddle.concat(x=[self.ci, self.ci], axis=1)
-        self.Iss, book_loss = self.nets['net_vit'](self.sF,self.sF)
+        self.Iss, book_loss_s = self.nets['net_vit'](self.sF,self.sF)
         self.l_identity1 = self.calc_content_loss(self.Iss, self.si)
         self.Fss = self.nets['net_enc'](self.Iss)
         self.l_identity2 = 0
@@ -362,6 +362,7 @@ class LapStyleDraXDOG(BaseModel):
 
         self.losses['map_loss'] = self.map_loss
         self.losses['ci_book_loss'] = book_loss
+        self.losses['si_book_loss'] = book_loss_s
 
         pred_fake = self.nets['netD'](self.stylized)
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)
@@ -371,7 +372,7 @@ class LapStyleDraXDOG(BaseModel):
                     self.l_identity1 * 50 + self.l_identity2 * 1 + \
                     self.l_identity3 * 50 + self.l_identity4 * 1 + \
                     mxdog_losses*self.mxdog_weight+\
-                    self.loss_content_relt * 16 + self.map_loss
+                    self.loss_content_relt * 16 + self.map_loss + book_loss + book_loss_s
 
         return self.loss
 

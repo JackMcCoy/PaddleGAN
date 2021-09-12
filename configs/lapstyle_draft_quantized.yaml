@@ -25,6 +25,11 @@ model:
     name: CalcContentLoss
   calc_style_loss:
     name: CalcStyleLoss
+  mse_loss:
+    name: GramErrors
+  gan_criterion:
+    name: GANLoss
+    gan_mode: vanilla
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1
@@ -39,7 +44,7 @@ dataset:
     load_size: 128
     style_upsize: 1
     crop_size: 128
-    num_workers: 4
+    num_workers: 16
     batch_size: 5
   test:
     name: LapStyleThumbsetInference

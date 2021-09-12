@@ -215,6 +215,7 @@ class LapStyleDraXDOG(BaseModel):
                  calc_content_loss=None,
                  calc_style_loss=None,
                  gram_errors=None,
+                 gan_criterion=None,
                  content_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
                  style_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
                  content_weight=1.0,
@@ -242,6 +243,7 @@ class LapStyleDraXDOG(BaseModel):
         self.calc_content_loss = build_criterion(calc_content_loss)
         self.calc_style_loss = build_criterion(calc_style_loss)
         self.gram_errors = build_criterion(gram_errors)
+        self.gan_criterion = build_criterion(gan_criterion)
 
         self.content_layers = content_layers
         self.style_layers = style_layers

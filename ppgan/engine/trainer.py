@@ -199,7 +199,7 @@ class Trainer:
                 reader_cost_averager.reset()
                 batch_cost_averager.reset()
 
-            if self.current_iter % self.visual_interval == 0:
+            if self.current_iter % self.visual_interval == 0 or self.current_iter == 1:
                 self.visual('visual_train')
 
             self.learning_rate_scheduler_step()
@@ -376,7 +376,8 @@ class Trainer:
         os.makedirs(self.output_dir, exist_ok=True)
         save_path = os.path.join(self.output_dir, save_filename)
         for net_name, net in self.model.nets.items():
-            state_dicts[net_name] = net.state_dict()
+            if net_name != 'netD':
+                state_dicts[net_name] = net.state_dict()
 
         if name == 'weight':
             save(state_dicts, save_path)

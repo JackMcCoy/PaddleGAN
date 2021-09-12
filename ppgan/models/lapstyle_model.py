@@ -281,6 +281,7 @@ class LapStyleDraXDOG(BaseModel):
         self.set_requires_grad([self.gaussian_filter_2],False)
         self.steps=0
         self.mxdog_weight = .5
+        self.book_weight = paddle.create_parameter(shape=(3,),dtype='float32')
 
     def setup_input(self, input):
         self.ci = paddle.to_tensor(input['ci'])
@@ -375,7 +376,8 @@ class LapStyleDraXDOG(BaseModel):
                     self.l_identity1 * 50 + self.l_identity2 * 1 + \
                     self.l_identity3 * 50 + self.l_identity4 * 1 + \
                     mxdog_losses*self.mxdog_weight+\
-                    self.loss_content_relt * 16 + self.map_loss + random.choice([book_loss, book_loss_s])
+                    self.loss_content_relt * 16 +\
+                    self.map_loss * self.book_weight[0] + book_loss * self.book_weight[1] + book_loss_s * self.book_weight[2]
 
         return self.loss
 
@@ -701,6 +703,7 @@ class LapStyleRevFirstMXDOG(BaseModel):
                                         initializer=paddle.fluid.initializer.NumpyArrayInitializer(
                                             value=l), trainable=False)
                                            )
+
 
     def setup_input(self, input):
         self.ci = paddle.to_tensor(input['ci'])

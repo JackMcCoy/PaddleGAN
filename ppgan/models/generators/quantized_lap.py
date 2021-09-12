@@ -36,12 +36,12 @@ class ImageLinearAttention(nn.Layer):
         self.norm_queries = norm_queries
 
         conv_kwargs = {'padding': padding, 'stride': stride}
-        self.to_q = nn.Conv2d(chan, key_dim * heads, kernel_size, **conv_kwargs)
-        self.to_k = nn.Conv2d(chan, key_dim * heads, kernel_size, **conv_kwargs)
-        self.to_v = nn.Conv2d(chan, value_dim * heads, kernel_size, **conv_kwargs)
+        self.to_q = nn.Conv2D(chan, key_dim * heads, kernel_size, **conv_kwargs)
+        self.to_k = nn.Conv2D(chan, key_dim * heads, kernel_size, **conv_kwargs)
+        self.to_v = nn.Conv2D(chan, value_dim * heads, kernel_size, **conv_kwargs)
 
         out_conv_kwargs = {'padding': padding}
-        self.to_out = nn.Conv2d(value_dim * heads, chan_out, kernel_size, **out_conv_kwargs)
+        self.to_out = nn.Conv2D(value_dim * heads, chan_out, kernel_size, **out_conv_kwargs)
 
     def forward(self, x, context = None):
         b, c, h, w, k_dim, heads = *x.shape, self.key_dim, self.heads

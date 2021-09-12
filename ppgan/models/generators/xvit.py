@@ -156,7 +156,7 @@ class ConvBlock(nn.Layer):
 class PreNorm(nn.Layer):
     def __init__(self, dim, fn):
         super().__init__()
-        self.norm = nn.LayerNorm(dim)
+        self.norm = nn.InstanceNorm1D(dim,data_format='NCL')
         self.fn = fn
     def forward(self, x, **kwargs):
         return self.fn(self.norm(x), **kwargs)

@@ -5,11 +5,18 @@ min_max:
   (0., 1.)
 
 model:
-  name: LapStyleDraModel
+  name: LapStyleDraXDOG
   generator_encode:
     name: Encoder
   generator_decode:
     name: DecoderQuantized
+  discriminator:
+    name: LapStyleSingleDiscriminator
+    num_channels: 32
+    num_layer: 5
+    noise: 0
+    kernel_size: 3
+    padding: 1
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:
@@ -28,7 +35,7 @@ dataset:
   train:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/gdrive/My Drive/img_style/styles_small/
+    style_root: /content/PaddleGAN/cypresssmall.png
     load_size: 128
     style_upsize: 1
     crop_size: 128
@@ -57,7 +64,14 @@ optimizer:
   optimG:
     name: Adam
     net_names:
-      - net_dec
+      - net_vit
+    beta1: 0.9
+    beta2: 0.999
+    weight_decay: .1
+  optimD:
+    name: Adam
+    net_names:
+      - netD
     beta1: 0.9
     beta2: 0.999
     weight_decay: .1

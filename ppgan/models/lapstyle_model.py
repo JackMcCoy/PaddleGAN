@@ -209,6 +209,7 @@ class LapStyleDraXDOG(BaseModel):
     def __init__(self,
                  generator_encode,
                  generator_transformer,
+                 discriminator,
                  calc_style_emd_loss=None,
                  calc_content_relt_loss=None,
                  calc_content_loss=None,
@@ -229,6 +230,8 @@ class LapStyleDraXDOG(BaseModel):
         #self.nets['net_dec'] = build_generator(generator_decode)
         self.nets['net_vit'] = build_generator(generator_transformer)
         #init_weights(self.nets['net_dec'])
+        self.nets['netD'] = build_discriminator(discriminator)
+        init_weights(self.nets['netD'])
         self.set_requires_grad([self.nets['net_enc']], False)
         #self.set_requires_grad([self.nets['net_dec']], False)
         init_weights(self.nets['net_vit'])
@@ -351,14 +354,32 @@ class LapStyleDraXDOG(BaseModel):
         self.loss = self.loss_c * self.content_weight + self.style_weight * (self.loss_s+self.loss_style_remd*3)+\
                     self.l_identity3 * 50 + self.l_identity4 * 1 + \
                     mxdog_losses*self.mxdog_weight+\
-                    self.loss_content_relt * 16 + self.map_loss + book_loss
+                    self.loss_content_relt * 16 + self.map_loss
 
         return self.loss
+
+    def backward_D(self):
+        """Calculate GAN loss for the discriminator"""
+        pred_fake = self.nets['netD'](self.stylized.detach())
+        self.loss_D_fake = self.gan_criterion(pred_fake, False)
+        pred_real = self.nets['netD'](self.ci)
+        self.loss_D_real = self.gan_criterion(pred_real, True)
+        self.loss_D = (self.loss_D_fake + self.loss_D_real) * 0.5
+
+        self.losses['D_fake_loss'] = self.loss_D_fake
+        self.losses['D_real_loss'] = self.loss_D_real
+
+        return self.loss_D
 
     def train_iter(self, optimizers=None):
         """Calculate losses, gradients, and update network weights"""
         self.steps+=1
-        optimizers['optimG'].clear_grad()
+        with paddle.amp.auto_cast():
+            self.forward()
+            loss = self.backward_D()
+        scaled = self.scaler.scale(loss)
+        scaled.backward()
+        self.scaler.minimize(optimizers['optimD'], scaled)
         with paddle.amp.auto_cast():
             self.forward()
             loss = self.backward_Dec()

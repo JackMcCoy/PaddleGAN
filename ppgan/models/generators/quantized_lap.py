@@ -129,8 +129,6 @@ class DecoderQuantized(nn.Layer):
         self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(64, 3, (3, 3)))
 
-        self.skipconnect_conv = ConvBlock(256, 128)
-        self.skipconnect_weight = 1
 
     def forward(self, cF, sF):
         out = adaptive_instance_normalization(cF['r41'], sF['r41'])
@@ -151,10 +149,6 @@ class DecoderQuantized(nn.Layer):
         quantize, embed_ind, loss = self.quantize_2(adaptive_instance_normalization(cF['r21'], sF['r21']))
         code_losses+=loss
         out += quantize
-
-        upscale_4 = self.upsample(upscale_4)
-        upscale_4 = self.skipconnect_conv(upscale_4)
-        out += (upscale_4 * self.skipconnect_weight)
 
         out = self.convblock_21(out)
         out = self.convblock_22(out)

@@ -110,6 +110,7 @@ class LapStyleDraModel(BaseModel):
         super(LapStyleDraModel, self).__init__()
 
         # define generators
+        self.scaler=paddle.amp.GradScaler(init_loss_scaling=1024)
         self.nets['net_enc'] = build_generator(generator_encode)
         self.nets['net_dec'] = build_generator(generator_decode)
         init_weights(self.nets['net_dec'])
@@ -192,17 +193,17 @@ class LapStyleDraModel(BaseModel):
                     self.l_identity3 * 50 + self.l_identity4 * 1 +\
                     self.loss_style_remd * 10 + \
                     self.loss_content_relt * 16 + self.code_loss
-        self.loss.backward()
 
         return self.loss
 
     def train_iter(self, optimizers=None):
         """Calculate losses, gradients, and update network weights"""
-
-        self.forward()
-        loss = self.backward_Dec()
-        loss.backward()
-        optimizers['optimG'].step()
+        with paddle.amp.auto_cast():
+            self.forward()
+            loss = self.backward_Dec()
+        scaled = self.scaler.scale(loss)
+        scaled.backward()
+        self.scaler.minimize(optimizers['optimG'], scaled)
         optimizers['optimG'].clear_grad()
 
 

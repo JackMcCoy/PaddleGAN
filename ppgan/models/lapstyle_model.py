@@ -304,7 +304,7 @@ class LapStyleDraXDOG(BaseModel):
         self.sX,_ = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
         self.cXF = self.nets['net_enc'](self.cX)
         self.sXF = self.nets['net_enc'](self.sX)
-        stylized_dog,_ = xdog(self.stylized,self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
+        stylized_dog,_ = xdog(paddle.clip(self.stylized,min=0,max=1),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
         self.cdogF = self.nets['net_enc'](stylized_dog)
 
         self.tF = self.nets['net_enc'](self.stylized)
@@ -353,15 +353,11 @@ class LapStyleDraXDOG(BaseModel):
 
         mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])+self.calc_content_loss(self.tF['r41'], self.cXF['r41'])
         mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])+self.calc_content_loss(self.cdogF['r41'], self.cXF['r41'])
-        if 0:
-            mxdog_content_img = self.mse_loss(self.cdogF['r31'],self.sXF['r31']) + self.mse_loss(self.cdogF['r41'],self.sXF['r41'])
-        else:
-            mxdog_content_img = paddle.to_tensor([0])
+
 
         self.losses['loss_MD'] = mxdog_content*.3
         self.losses['loss_CnsC'] = mxdog_content_contraint*100
-        self.losses['loss_CnsS'] = mxdog_content_img*1000
-        mxdog_losses = mxdog_content * .3 + mxdog_content_contraint *100 + mxdog_content_img * 1000
+        mxdog_losses = mxdog_content * .3 + mxdog_content_contraint *100
 
         self.losses['map_loss'] = self.map_loss
 
@@ -396,10 +392,13 @@ class LapStyleDraXDOG(BaseModel):
         self.steps+=1
         with paddle.amp.auto_cast():
             self.forward()
+            self.set_requires_grad(self.nets['netD'], True)
             loss = self.backward_D()
         scaled = self.scaler.scale(loss)
         scaled.backward()
         self.scaler.minimize(optimizers['optimD'], scaled)
+        optimizers['optimD'].clear_grad()
+        self.set_requires_grad(self.nets['netD'], False)
         with paddle.amp.auto_cast():
             self.forward()
             loss = self.backward_Dec()

@@ -78,11 +78,9 @@ class VectorQuantize(nn.Layer):
         embed_ind = (-dist).argmax(axis=1)
         embed_onehot = F.one_hot(embed_ind, self.n_embed)
         embed_ind = paddle.reshape(embed_ind,shape=(input.shape[0],input.shape[1],input.shape[2]))
-        b, n, _ = embed_ind.shape
-        embed_ind += self.pos_embedding[:, :n]
-        embed_ind = self.transformer(embed_ind)
 
         quantize = F.embedding(embed_ind, self.embed.transpose((1,0)))
+        print(quantize.shape)
         if self.training:
             ema_inplace(self.cluster_size, embed_onehot.sum(0), self.decay)
             embed_sum = paddle.matmul(flatten.transpose((1,0)), embed_onehot)

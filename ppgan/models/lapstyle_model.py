@@ -172,8 +172,8 @@ class LapStyleDraModel(BaseModel):
                                                        self.sF[layer])
         self.losses['l_identity1'] = self.l_identity1
         self.losses['l_identity2'] = self.l_identity2
-        self.losses['l_identity3'] = self.l_identity1
-        self.losses['l_identity4'] = self.l_identity2
+        self.losses['l_identity3'] = self.l_identity3
+        self.losses['l_identity4'] = self.l_identity4
         """relative loss"""
         self.loss_style_remd = self.calc_style_emd_loss(
             self.tF['r31'], self.sF['r31']) + self.calc_style_emd_loss(

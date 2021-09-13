@@ -400,8 +400,6 @@ class ImageLinearAttention(nn.Layer):
             q = F.softmax(q,axis=-2)
 
         context = paddle.matmul(k, v.transpose([0,1,3,2]))
-        print('q size - '+str(q.shape))
-        print('context size - '+str(context.shape))
         #out = paddle.matmul(q, context)
         out = einsum('bhdn,bhde->bhen', q, context)
         out = out.reshape((b, -1, h, w))

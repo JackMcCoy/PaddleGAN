@@ -471,13 +471,14 @@ class VectorQuantize(nn.Layer):
             embed_normalized = self.embed_avg / cluster_size.unsqueeze(axis=0)
             self.embed = embed_normalized
 
-
-        loss = F.mse_loss(quantize.detach(), input) * self.commitment
         quantize = self.rearrange(quantize)
         b, n, _ = quantize.shape
         quantize += self.pos_embedding[:, :n]
         quantize = self.transformer(quantize)
         quantize = self.decompose_axis(quantize)
+
+        loss = F.mse_loss(quantize.detach(), input) * self.commitment
+
         quantize = input + (quantize - input).detach()
         return quantize, embed_ind, loss
 

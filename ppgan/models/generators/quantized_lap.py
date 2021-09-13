@@ -439,25 +439,20 @@ class VectorQuantize(nn.Layer):
             self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
 
         if transformer_size==1:
-            self.transformer = Transformer(dim**2*2, 2, 8, dim**2*2, dim**2*2, dropout=0.1)
+            self.transformer = Transformer(dim**2*2, 6, 8, dim**2*2, dim**2*2, dropout=0.1)
             self.pos_embedding = paddle.create_parameter(shape=(1, 256, 512), dtype='float32')
         elif transformer_size==2:
-            self.transformer = Transformer(256, 2, 8, 256, 256, dropout=0.1)
+            self.transformer = Transformer(256, 4, 8, 256, 256, dropout=0.1)
             self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32')
         elif transformer_size==3:
-            self.transformer = Transformer(2048, 1, 8, 1024, 2048, dropout=0.1)
+            self.transformer = Transformer(2048, 2, 8, 1024, 2048, dropout=0.1)
             self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32')
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
 
     def forward(self, input):
-        quantize = self.rearrange(input)
-        b, n, _ = quantize.shape
-        quantize += self.pos_embedding[:, :n]
-        quantize = self.transformer(quantize)
-        quantize = self.decompose_axis(quantize)
-        flatten = quantize.reshape((-1, self.dim))
+        flatten = input.reshape((-1, self.dim))
         dist = (
             flatten.pow(2).sum(1, keepdim=True)
             - 2 * flatten @ self.embed
@@ -478,6 +473,11 @@ class VectorQuantize(nn.Layer):
 
 
         loss = F.mse_loss(quantize.detach(), input) * self.commitment
+        quantize = self.rearrange(quantize)
+        b, n, _ = quantize.shape
+        quantize += self.pos_embedding[:, :n]
+        quantize = self.transformer(quantize)
+        quantize = self.decompose_axis(quantize)
         quantize = input + (quantize - input).detach()
         return quantize, embed_ind, loss
 

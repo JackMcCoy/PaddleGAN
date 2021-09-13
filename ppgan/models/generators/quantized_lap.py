@@ -439,13 +439,13 @@ class VectorQuantize(nn.Layer):
             self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
 
         if transformer_size==1:
-            self.transformer = Transformer(dim**2*2, 6, 12, 64, dim**2*2, dropout=0.1)
+            self.transformer = Transformer(dim**2*2, 8, 16, 64, dim**2*2, dropout=0.1)
             self.pos_embedding = paddle.create_parameter(shape=(1, 256, 512), dtype='float32', is_bias=True)
         elif transformer_size==2:
-            self.transformer = Transformer(256, 6, 12, 64, 256, dropout=0.1)
+            self.transformer = Transformer(256, 8, 16, 64, 256, dropout=0.1)
             self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32', is_bias=True)
         elif transformer_size==3:
-            self.transformer = Transformer(2048, 6, 12, 64, 768, dropout=0.1)
+            self.transformer = Transformer(2048, 8, 16, 64, 768, dropout=0.1)
             self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32', is_bias=True)
     @property
     def codebook(self):

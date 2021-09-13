@@ -439,7 +439,7 @@ class VectorQuantize(nn.Layer):
             self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
 
         if transformer_size==1:
-            self.transformer = nn.Sequential(*[ImageLinearAttention(512, kernel_size = 1, padding = 0, stride = 1, key_dim = 512, value_dim = 512, heads = 8, norm_queries = True),nn.Linear(512,1024),nn.GELU(),nn.Lineaer(1024,512)]*4)
+            self.transformer = nn.Sequential(*[ImageLinearAttention(512, kernel_size = 1, padding = 0, stride = 1, key_dim = 512, value_dim = 512, heads = 8, norm_queries = True),nn.Linear(512,1024),nn.GELU(),nn.Linear(1024,512)]*4)
             #self.transformer = Transformer(dim**2*2, 6, 8, dim**2*2, dim**2*2, dropout=0.1)
             self.pos_embedding = paddle.create_parameter(shape=(1, 512, 16, 16), dtype='float32')
         elif transformer_size==2:

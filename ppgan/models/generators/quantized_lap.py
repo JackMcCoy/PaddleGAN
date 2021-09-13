@@ -440,13 +440,13 @@ class VectorQuantize(nn.Layer):
 
         if transformer_size==1:
             self.transformer = Transformer(dim**2*2, 6, 12, 64, dim**2*2, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 512), dtype='float32')
+            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 512), dtype='float32', is_bias=True)
         elif transformer_size==2:
             self.transformer = Transformer(256, 6, 12, 64, 256, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32')
+            self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32', is_bias=True)
         elif transformer_size==3:
             self.transformer = Transformer(2048, 6, 12, 64, 768, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32')
+            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32', is_bias=True)
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -509,6 +509,8 @@ class DecoderQuantized(nn.Layer):
 
         self.downsample = nn.Upsample(scale_factor=.5, mode='nearest')
         self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
+
+        self.skip_connect_conv = ConvBlock(128, 128)
 
         self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(64, 3, (3, 3)))

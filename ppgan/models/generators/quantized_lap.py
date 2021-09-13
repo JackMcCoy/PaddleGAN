@@ -510,7 +510,7 @@ class DecoderQuantized(nn.Layer):
         self.downsample = nn.Upsample(scale_factor=.5, mode='nearest')
         self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
 
-        self.skip_connect_conv = ConvBlock(128, 128)
+        self.skip_connect_conv = ConvBlock(256, 128)
         self.skip_connect_weight = paddle.create_parameter(shape=(1, ), dtype='float32', is_bias=True)
 
         self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),

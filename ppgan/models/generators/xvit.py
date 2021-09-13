@@ -248,13 +248,15 @@ class Transformer(nn.Layer):
         super().__init__()
         self.layers = nn.LayerList()
         self.norm = nn.LayerNorm(dim)
+        attn = Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout)
+        parallel_net = FeedForward(dim, mlp_dim, dropout = dropout)
         for _ in range(depth):
             shifts = (1, 0, -1)
-            attn, parallel_net = map(partial(PreShiftTokens, shifts), (Attention, FeedForward))
+            attn, parallel_net = map(partial(PreShiftTokens, shifts), (attn, parallel_net))
             self.layers.append(nn.LayerList([
 
-                PreNorm(dim, attn(dim, heads = heads, dim_head = dim_head, dropout = dropout)),
-                PreNorm(dim, parallel_net(dim, mlp_dim, dropout = dropout))
+                PreNorm(dim, attn),
+                PreNorm(dim, parallel_net)
             ]))
 
     def forward(self, x, style=None):

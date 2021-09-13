@@ -228,8 +228,11 @@ class Transformer(nn.Layer):
             ]))
 
     def forward(self, x, style=None):
-        for attn, ff in self.layers:
-            x = attn(x,style=style) + x
+        for idx, attn, ff in enumerate(self.layers):
+            if idx==0:
+                x = attn(x,style=style) + x
+            else:
+                x = attn(x) + x
             x = ff(x) + x
         return self.norm(x)
 

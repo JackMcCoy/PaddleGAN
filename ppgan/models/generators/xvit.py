@@ -33,7 +33,7 @@ class PreShiftTokens(nn.Layer):
     def forward(self, x, **kwargs):
         mask = kwargs.get('mask', None)
         shifts = self.shifts
-        segments = len(shifts) + 1
+        segments = len(shifts)
         feats_per_shift = x.shape[-1] // segments
         splitted = x.split(feats_per_shift, axis = -1)
         segments_to_shift, rest = splitted[:segments], splitted[segments:]
@@ -251,7 +251,7 @@ class Transformer(nn.Layer):
         attn = Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout)
         parallel_net = FeedForward(dim, mlp_dim, dropout = dropout)
         for _ in range(depth):
-            shifts = (1, 0, -1)
+            shifts = (1, 0)
             attn, parallel_net = map(partial(PreShiftTokens, shifts), (attn, parallel_net))
             self.layers.append(nn.LayerList([
 

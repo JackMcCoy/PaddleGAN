@@ -458,16 +458,11 @@ class VectorQuantize(nn.Layer):
             - 2 * flatten @ self.embed
             + self.embed.pow(2).sum(0, keepdim=True)
         )
+        print(dist.shape)
         embed_ind = (-dist).argmax(axis=1)
         embed_onehot = F.one_hot(embed_ind, self.n_embed)
         embed_ind = paddle.reshape(embed_ind,shape=(input.shape[0],input.shape[1],input.shape[2]))
         quantize = F.embedding(embed_ind, self.embed.transpose((1,0)))
-
-        quantize = self.rearrange(quantize)
-        b, n, _ = quantize.shape
-        quantize += self.pos_embedding[:, :n]
-        quantize = self.transformer(quantize)
-        quantize = self.decompose_axis(quantize)
 
         if self.training:
             ema_inplace(self.cluster_size, embed_onehot.sum(0), self.decay)

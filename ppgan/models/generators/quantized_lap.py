@@ -452,13 +452,17 @@ class VectorQuantize(nn.Layer):
         return self.embed.transpose([1, 0])
 
     def forward(self, input):
-        flatten = input.reshape((-1, self.dim))
+        quantize = self.rearrange(input)
+        b, n, _ = quantize.shape
+        quantize += self.pos_embedding[:, :n]
+        quantize = self.transformer(quantize)
+        quantize = self.decompose_axis(quantize)
+        flatten = quantize.reshape((-1, self.dim))
         dist = (
             flatten.pow(2).sum(1, keepdim=True)
             - 2 * flatten @ self.embed
             + self.embed.pow(2).sum(0, keepdim=True)
         )
-        print(dist.shape)
         embed_ind = (-dist).argmax(axis=1)
         embed_onehot = F.one_hot(embed_ind, self.n_embed)
         embed_ind = paddle.reshape(embed_ind,shape=(input.shape[0],input.shape[1],input.shape[2]))

@@ -244,15 +244,16 @@ class Attention(nn.Layer):
 # transformer encoder, for small and large patches
 
 class Transformer(nn.Layer):
-    def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0.):
+    def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0., shift_tokens=False):
         super().__init__()
         self.layers = nn.LayerList()
         self.norm = nn.LayerNorm(dim)
         attn = Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout)
         parallel_net = FeedForward(dim, mlp_dim, dropout = dropout)
-        for _ in range(depth):
+        if shift_tokens==True:
             shifts = (1, 0)
             attn, parallel_net = map(partial(PreShiftTokens, shifts), (attn, parallel_net))
+        for _ in range(depth):
             self.layers.append(nn.LayerList([
 
                 PreNorm(dim, attn),

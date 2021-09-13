@@ -519,7 +519,9 @@ class DecoderQuantized(nn.Layer):
 
     def forward(self, cF, sF):
         out = adaptive_instance_normalization(cF['r41'], sF['r41'])
+        print(out.shape)
         out = self.resblock_41(out)
+        print(out.shape)
         quantize, embed_ind, code_losses = self.quantize_4(out)
         out = self.convblock_41(quantize)
 

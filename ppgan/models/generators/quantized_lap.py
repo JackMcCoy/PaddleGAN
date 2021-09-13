@@ -439,15 +439,15 @@ class VectorQuantize(nn.Layer):
             self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
 
         if transformer_size==1:
-            self.transformer = nn.Sequential(nn.LayerNorm(16),*[ImageLinearAttention(512, kernel_size = 1, padding = 0, stride = 1, key_dim = 512, value_dim = 512, heads = 8, norm_queries = False),nn.Linear(16,32),nn.GELU(),nn.Linear(32,16)]*4,nn.LayerNorm(16))
+            self.transformer = nn.Sequential(*[nn.LayerNorm(16),ImageLinearAttention(512, kernel_size = 1, padding = 0, stride = 1, key_dim = 512, value_dim = 512, heads = 8, norm_queries = False),nn.Linear(16,32),nn.GELU(),nn.Linear(32,16)]*4,nn.LayerNorm(16))
             #self.transformer = Transformer(dim**2*2, 6, 8, dim**2*2, dim**2*2, dropout=0.1)
             self.pos_embedding = paddle.create_parameter(shape=(1, 512, 16, 16), dtype='float32')
         elif transformer_size==2:
-            self.transformer = nn.Sequential(nn.LayerNorm(32),*[ImageLinearAttention(256, kernel_size = 1, padding = 0, stride = 1, key_dim = 512, value_dim = 512, heads = 8, norm_queries = False),nn.Linear(32,64),nn.GELU(),nn.Linear(64, 32)]*4,nn.LayerNorm(32))
+            self.transformer = nn.Sequential(*[nn.LayerNorm(32),ImageLinearAttention(256, kernel_size = 1, padding = 0, stride = 1, key_dim = 512, value_dim = 512, heads = 8, norm_queries = False),nn.Linear(32,64),nn.GELU(),nn.Linear(64, 32)]*4,nn.LayerNorm(32))
             #self.transformer = Transformer(256, 4, 8, 256, 256, dropout=0.1)
             self.pos_embedding = paddle.create_parameter(shape=(1, 256, 32, 32), dtype='float32')
         elif transformer_size==3:
-            self.transformer = nn.Sequential(nn.LayerNorm(64),*[ImageLinearAttention(128, kernel_size = 1, padding = 0, stride = 1, key_dim = 512, value_dim = 512, heads = 8, norm_queries = False),nn.Linear(64,128),nn.GELU(),nn.Linear(128,64)]*2,nn.LayerNorm(64))
+            self.transformer = nn.Sequential(*[nn.LayerNorm(64),ImageLinearAttention(128, kernel_size = 1, padding = 0, stride = 1, key_dim = 512, value_dim = 512, heads = 8, norm_queries = False),nn.Linear(64,128),nn.GELU(),nn.Linear(128,64)]*2,nn.LayerNorm(64))
             #self.transformer = Transformer(2048, 2, 8, 1024, 2048, dropout=0.1)
             self.pos_embedding = paddle.create_parameter(shape=(1, 128, 64, 64), dtype='float32')
     @property

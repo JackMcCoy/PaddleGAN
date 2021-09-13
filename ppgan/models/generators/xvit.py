@@ -228,12 +228,12 @@ class Transformer(nn.Layer):
             ]))
 
     def forward(self, x, style=None):
-        for idx, attn, ff in enumerate(self.layers):
+        for idx, layers in enumerate(self.layers):
             if idx==0:
-                x = attn(x,style=style) + x
+                x = layers[0](x,style=style) + x
             else:
-                x = attn(x) + x
-            x = ff(x) + x
+                x = layers[0](x) + x
+            x = layers[1](x) + x
         return self.norm(x)
 
 # projecting CLS tokens, in the case that small and large patch tokens have different dimensions

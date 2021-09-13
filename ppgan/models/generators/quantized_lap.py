@@ -544,7 +544,7 @@ class DecoderQuantized(nn.Layer):
         upscale_4 = self.skip_connect_conv(upscale_4)
         out += upscale_4*self.skip_connect_weight
 
-        quantize, embed_ind, loss = quantize_2(out)
+        quantize, embed_ind, loss = self.quantize_2(out)
         out += quantize
         out = self.convblock_22(out)
         out = self.upsample(out)

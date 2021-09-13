@@ -399,7 +399,7 @@ class ImageLinearAttention(nn.Layer):
         if self.norm_queries:
             q = F.softmax(q,axis=-2)
 
-        context = einsum('bhdn,bhen->bhde', k, v)
+        context = paddle.matmul(k, v.transpose([0,1,3,2]))
         #out = paddle.matmul(q, context)
         out = einsum('bhdn,bhde->bhen', q, context)
         out = out.reshape((b, -1, h, w))
@@ -439,17 +439,14 @@ class VectorQuantize(nn.Layer):
             self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
 
         if transformer_size==1:
-            self.transformer = nn.Sequential(*[nn.LayerNorm(16),ImageLinearAttention(512, kernel_size = 1, padding = 0, stride = 1, key_dim = 512, value_dim = 512, heads = 8, norm_queries = False),nn.Linear(16,32),nn.GELU(),nn.Linear(32,16)]*4,nn.LayerNorm(16))
-            #self.transformer = Transformer(dim**2*2, 6, 8, dim**2*2, dim**2*2, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 512, 16, 16), dtype='float32')
+            self.transformer = Transformer(dim**2*2, 6, 8, dim**2*2, dim**2*2, dropout=0.1)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 512), dtype='float32')
         elif transformer_size==2:
-            self.transformer = nn.Sequential(*[nn.LayerNorm(32),ImageLinearAttention(256, kernel_size = 1, padding = 0, stride = 1, key_dim = 512, value_dim = 512, heads = 8, norm_queries = False),nn.Linear(32,64),nn.GELU(),nn.Linear(64, 32)]*4,nn.LayerNorm(32))
-            #self.transformer = Transformer(256, 4, 8, 256, 256, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 32, 32), dtype='float32')
+            self.transformer = Transformer(256, 4, 8, 256, 256, dropout=0.1)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32')
         elif transformer_size==3:
-            self.transformer = nn.Sequential(*[nn.LayerNorm(64),ImageLinearAttention(128, kernel_size = 1, padding = 0, stride = 1, key_dim = 512, value_dim = 512, heads = 8, norm_queries = False),nn.Linear(64,128),nn.GELU(),nn.Linear(128,64)]*2,nn.LayerNorm(64))
-            #self.transformer = Transformer(2048, 2, 8, 1024, 2048, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(shape=(1, 128, 64, 64), dtype='float32')
+            self.transformer = Transformer(2048, 2, 8, 1024, 2048, dropout=0.1)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32')
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -465,6 +462,7 @@ class VectorQuantize(nn.Layer):
         embed_onehot = F.one_hot(embed_ind, self.n_embed)
         embed_ind = paddle.reshape(embed_ind,shape=(input.shape[0],input.shape[1],input.shape[2]))
         quantize = F.embedding(embed_ind, self.embed.transpose((1,0)))
+        print(self.embed.transpose((1,0)).shape)
 
         if self.training:
             ema_inplace(self.cluster_size, embed_onehot.sum(0), self.decay)
@@ -476,7 +474,11 @@ class VectorQuantize(nn.Layer):
 
 
         loss = F.mse_loss(quantize.detach(), input) * self.commitment
-        quantize = self.transformer(self.pos_embedding+quantize)
+        quantize = self.rearrange(quantize)
+        b, n, _ = quantize.shape
+        quantize += self.pos_embedding[:, :n]
+        quantize = self.transformer(quantize)
+        quantize = self.decompose_axis(quantize)
         quantize = input + (quantize - input).detach()
         return quantize, embed_ind, loss
 

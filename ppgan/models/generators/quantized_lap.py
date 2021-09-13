@@ -463,6 +463,12 @@ class VectorQuantize(nn.Layer):
         embed_ind = paddle.reshape(embed_ind,shape=(input.shape[0],input.shape[1],input.shape[2]))
         quantize = F.embedding(embed_ind, self.embed.transpose((1,0)))
 
+        quantize = self.rearrange(quantize)
+        b, n, _ = quantize.shape
+        quantize += self.pos_embedding[:, :n]
+        quantize = self.transformer(quantize)
+        quantize = self.decompose_axis(quantize)
+
         if self.training:
             ema_inplace(self.cluster_size, embed_onehot.sum(0), self.decay)
             embed_sum = paddle.matmul(flatten.transpose((1,0)), embed_onehot)
@@ -470,12 +476,6 @@ class VectorQuantize(nn.Layer):
             cluster_size = laplace_smoothing(self.cluster_size, self.n_embed, self.eps) * self.cluster_size.sum()
             embed_normalized = self.embed_avg / cluster_size.unsqueeze(axis=0)
             self.embed = embed_normalized
-
-        quantize = self.rearrange(quantize)
-        b, n, _ = quantize.shape
-        quantize += self.pos_embedding[:, :n]
-        quantize = self.transformer(quantize)
-        quantize = self.decompose_axis(quantize)
 
         loss = F.mse_loss(quantize.detach(), input) * self.commitment
 

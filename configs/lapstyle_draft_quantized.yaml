@@ -64,8 +64,8 @@ lr_scheduler:
   name: WarmupNonLinear
   learning_rate: 1e-4
   lr_decay: 5e-5
-  warmupstart: 1e-8
-  warmupperiod: 1000
+  warmupstart: 1e-9
+  warmupperiod: 5000
 
 optimizer:
   optimG:

@@ -447,7 +447,7 @@ class VectorQuantize(nn.Layer):
             #self.transformer = Transformer(256, 4, 8, 256, 256, dropout=0.1)
             self.pos_embedding = paddle.create_parameter(shape=(1, 256, 32, 32), dtype='float32')
         elif transformer_size==3:
-            self.transformer = nn.Sequential(*[ImageLinearAttention(128, kernel_size = 1, padding = 0, stride = 1, key_dim = 512, value_dim = 512, heads = 8, norm_queries = True),nn.Linear(128,256),nn.GELU(),nn.Linear(256,128)]*2,nn.GELU())
+            self.transformer = nn.Sequential(*[ImageLinearAttention(128, kernel_size = 1, padding = 0, stride = 1, key_dim = 512, value_dim = 512, heads = 8, norm_queries = True),nn.Linear(64,128),nn.GELU(),nn.Linear(128,64)]*2,nn.GELU())
             #self.transformer = Transformer(2048, 2, 8, 1024, 2048, dropout=0.1)
             self.pos_embedding = paddle.create_parameter(shape=(1, 128, 64, 64), dtype='float32')
     @property

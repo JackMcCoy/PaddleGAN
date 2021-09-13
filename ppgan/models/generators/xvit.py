@@ -244,7 +244,7 @@ class Attention(nn.Layer):
 # transformer encoder, for small and large patches
 
 class Transformer(nn.Layer):
-    def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0., shift_tokens=False):
+    def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0., shift_tokens=True):
         super().__init__()
         self.layers = nn.LayerList()
         self.norm = nn.LayerNorm(dim)

@@ -519,29 +519,31 @@ class DecoderQuantized(nn.Layer):
 
     def forward(self, cF, sF):
         out = adaptive_instance_normalization(cF['r41'], sF['r41'])
-        quantize, embed_ind, code_losses = self.quantize_4(out)
-        out = self.resblock_41(quantize)
+        out = self.resblock_41(out)
         out = self.convblock_41(out)
+        quantize, embed_ind, code_losses = self.quantize_4(out)
 
-        upscale_4 = self.upsample(out)
+        upscale_4 = self.upsample(quantize)
         # Transformer goes here?
-        quantize, embed_ind, loss = self.quantize_3(adaptive_instance_normalization(cF['r31'], sF['r31']))
-        out = upscale_4+quantize
+        out += adaptive_instance_normalization(cF['r31'], sF['r31'])
         out = self.resblock_31(out)
         out = self.convblock_31(out)
+        quantize, embed_ind, loss = self.quantize_3(out)
 
         code_losses+=loss
 
-        out = self.upsample(out)
-        quantize, embed_ind, loss = self.quantize_2(adaptive_instance_normalization(cF['r21'], sF['r21']))
-        code_losses+=loss
-        out += quantize
+        out = self.upsample(quantize)
 
+        code_losses+=loss
+
+        out += adaptive_instance_normalization(cF['r21'], sF['r21'])
+
+        out = self.convblock_21(out)
         upscale_4 = self.upsample(upscale_4)
         upscale_4 = self.skip_connect_conv(upscale_4)
         out += upscale_4*self.skip_connect_weight
-
-        out = self.convblock_21(out)
+        quantize, embed_ind, loss = quantize_2(out)
+        out += quantize
         out = self.convblock_22(out)
         out = self.upsample(out)
         out = self.convblock_11(out)

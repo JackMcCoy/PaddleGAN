@@ -286,6 +286,7 @@ class LapStyleDraXDOG(BaseModel):
         self.ci = paddle.to_tensor(input['ci'])
         self.visual_items['ci'] = self.ci
         self.si = paddle.to_tensor(input['si'])
+        self.visual_items['si'] = self.si
         self.image_paths = input['ci_path']
 
     def forward(self):

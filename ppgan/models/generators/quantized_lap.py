@@ -399,7 +399,7 @@ class ImageLinearAttention(nn.Layer):
         if self.norm_queries:
             q = F.softmax(q,axis=-2)
 
-        context = einsum('bhdn,bhen->bhde', k, v))
+        context = einsum('bhdn,bhen->bhde', k, v)
         #out = paddle.matmul(q, context)
         out = einsum('bhdn,bhde->bhen', q, context)
         out = out.reshape((b, -1, h, w))

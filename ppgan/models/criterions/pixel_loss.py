@@ -251,7 +251,7 @@ class GramErrors():
 
         # we 'normalize' the values of the gram matrix
         # by dividing by the number of element in each feature maps.
-        return G/(a * b * c * d)
+        return G.divide(a * b * c * d)
 
     def __call__(self, pred, target):
         """Forward Function.

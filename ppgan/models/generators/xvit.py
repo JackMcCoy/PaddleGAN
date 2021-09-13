@@ -14,6 +14,32 @@ def exists(val):
 def default(val, d):
     return val if exists(val) else d
 
+def shift(t, amount, mask = None):
+    if amount == 0:
+        return t
+
+    if exists(mask):
+        t = t.masked_fill(~mask[..., None], 0.)
+
+    return F.pad(t, [amount, -amount],data_format='NCL', value = 0.)
+
+class PreShiftTokens(nn.Layer):
+    def __init__(self, shifts, fn):
+        super().__init__()
+        self.fn = fn
+        self.shifts = tuple(shifts)
+
+    def forward(self, x, **kwargs):
+        mask = kwargs.get('mask', None)
+        shifts = self.shifts
+        segments = len(shifts)
+        feats_per_shift = x.shape[-1] // segments
+        splitted = x.split(feats_per_shift, axis = -1)
+        segments_to_shift, rest = splitted[:segments], splitted[segments:]
+        segments_to_shift = list(map(lambda args: shift(*args, mask = mask), zip(segments_to_shift, shifts)))
+        x = paddle.concat((*segments_to_shift, *rest), axis = -1)
+        return self.fn(x, **kwargs)
+
 class TransformerDecoderLayer(nn.Layer):
 
     def __init__(self,
@@ -222,7 +248,10 @@ class Transformer(nn.Layer):
         self.layers = nn.LayerList()
         self.norm = nn.LayerNorm(dim)
         for _ in range(depth):
+            shifts = (1, 0, -1) if not causal else (1, 0)
+            attn, parallel_net = map(partial(PreShiftTokens, shifts), (Attention, FeedForward))
             self.layers.append(nn.LayerList([
+
                 PreNorm(dim, Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout)),
                 PreNorm(dim, FeedForward(dim, mlp_dim, dropout = dropout))
             ]))

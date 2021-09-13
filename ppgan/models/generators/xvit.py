@@ -2,6 +2,7 @@ import paddle
 from paddle import nn
 import paddle.nn.functional as F
 
+from functools import partial
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
 from .builder import GENERATORS
@@ -13,6 +14,32 @@ def exists(val):
 
 def default(val, d):
     return val if exists(val) else d
+
+def shift(t, amount, mask = None):
+    if amount == 0:
+        return t
+
+    if exists(mask):
+        t = t.masked_fill(~mask[..., None], 0.)
+
+    return F.pad(t, [amount, -amount],data_format='NCL', value = 0.)
+
+class PreShiftTokens(nn.Layer):
+    def __init__(self, shifts, fn):
+        super().__init__()
+        self.fn = fn
+        self.shifts = tuple(shifts)
+
+    def forward(self, x, **kwargs):
+        mask = kwargs.get('mask', None)
+        shifts = self.shifts
+        segments = len(shifts)
+        feats_per_shift = x.shape[-1] // segments
+        splitted = x.split(feats_per_shift, axis = -1)
+        segments_to_shift, rest = splitted[:segments], splitted[segments:]
+        segments_to_shift = list(map(lambda args: shift(*args, mask = mask), zip(segments_to_shift, shifts)))
+        x = paddle.concat((*segments_to_shift, *rest), axis = -1)
+        return self.fn(x, **kwargs)
 
 class TransformerDecoderLayer(nn.Layer):
 
@@ -217,20 +244,29 @@ class Attention(nn.Layer):
 # transformer encoder, for small and large patches
 
 class Transformer(nn.Layer):
-    def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0.):
+    def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0., shift_tokens=False):
         super().__init__()
         self.layers = nn.LayerList()
         self.norm = nn.LayerNorm(dim)
+        attn = Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout)
+        parallel_net = FeedForward(dim, mlp_dim, dropout = dropout)
+        if shift_tokens==True:
+            shifts = (1, 0)
+            attn, parallel_net = map(partial(PreShiftTokens, shifts), (attn, parallel_net))
         for _ in range(depth):
             self.layers.append(nn.LayerList([
-                PreNorm(dim, Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout)),
-                PreNorm(dim, FeedForward(dim, mlp_dim, dropout = dropout))
+
+                PreNorm(dim, attn),
+                PreNorm(dim, parallel_net)
             ]))
 
     def forward(self, x, style=None):
-        for attn, ff in self.layers:
-            x = attn(x,style=style) + x
-            x = ff(x) + x
+        for idx, layers in enumerate(self.layers):
+            if idx==0:
+                x = layers[0](x,style=style) + x
+            else:
+                x = layers[0](x) + x
+            x = layers[1](x) + x
         return self.norm(x)
 
 # projecting CLS tokens, in the case that small and large patch tokens have different dimensions

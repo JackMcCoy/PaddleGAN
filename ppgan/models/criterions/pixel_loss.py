@@ -251,6 +251,7 @@ class GramErrors():
 
         # we 'normalize' the values of the gram matrix
         # by dividing by the number of element in each feature maps.
+
         return G/(a * b * c * d)
 
     def __call__(self, pred, target):
@@ -260,6 +261,6 @@ class GramErrors():
             pred (Tensor): of shape (N, C, H, W). Predicted tensor.
             target (Tensor): of shape (N, C, H, W). Ground truth tensor.
         """
-        gram_pred = paddle.clip(self.gram_matrix(pred), min = 1e-12, max = 1e12)
-        gram_target = paddle.clip(self.gram_matrix(target), min = 1e-12, max = 1e12)
-        return paddle.clip(self.mse_loss(gram_pred, gram_target), min = 1e-12, max = 1e12)
+        gram_pred = paddle.clip(self.gram_matrix(pred), min = -1, max = 1)
+        gram_target = paddle.clip(self.gram_matrix(target), min = -1, max = 1)
+        return paddle.clip(self.mse_loss(gram_pred, gram_target), min = -1, max = 1)

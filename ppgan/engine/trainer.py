@@ -209,7 +209,7 @@ class Trainer:
 
             if self.current_iter % self.weight_interval == 0:
                 self.save(self.current_iter, 'weight', keep=-1)
-                #self.save(self.current_iter)
+                self.save(self.current_iter)
 
             self.current_iter += 1
 
@@ -376,8 +376,7 @@ class Trainer:
         os.makedirs(self.output_dir, exist_ok=True)
         save_path = os.path.join(self.output_dir, save_filename)
         for net_name, net in self.model.nets.items():
-            if net_name != 'netD':
-                state_dicts[net_name] = net.state_dict()
+            state_dicts[net_name] = net.state_dict()
 
         if name == 'weight':
             save(state_dicts, save_path)
@@ -386,8 +385,7 @@ class Trainer:
         state_dicts['epoch'] = epoch
 
         for opt_name, opt in self.model.optimizers.items():
-            if opt_name != 'optimD':
-                state_dicts[opt_name] = opt.state_dict()
+            state_dicts[opt_name] = opt.state_dict()
 
         save(state_dicts, save_path)
 

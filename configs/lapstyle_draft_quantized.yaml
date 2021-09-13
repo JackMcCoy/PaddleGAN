@@ -42,7 +42,7 @@ dataset:
   train:
     name: LapStyleDataset
     content_root: /content/gdrive/My Drive/img_style/cocostuff/dataset/img/train2017/
-    style_root: /content/PaddleGAN/cypresssmall.png
+    style_root: /content/gdrive/My Drive/img_style/styles_small/
     load_size: 128
     style_upsize: 1
     crop_size: 128
@@ -64,8 +64,8 @@ lr_scheduler:
   name: WarmupNonLinear
   learning_rate: 1e-4
   lr_decay: 5e-5
-  warmupstart: 1e-8
-  warmupperiod: 1000
+  warmupstart: 1e-9
+  warmupperiod: 5000
 
 optimizer:
   optimG:

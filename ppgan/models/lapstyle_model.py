@@ -322,6 +322,7 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_s'] = self.loss_s
         """IDENTITY LOSSES"""
         #dual_ci = paddle.concat(x=[self.ci, self.ci], axis=1)
+
         self.Iss, book_loss_s = self.nets['net_vit'](self.sF,self.sF)
         self.l_identity1 = self.calc_content_loss(self.Iss, self.si)
         self.Fss = self.nets['net_enc'](self.Iss)
@@ -353,11 +354,13 @@ class LapStyleDraXDOG(BaseModel):
 
         mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])+self.calc_content_loss(self.tF['r41'], self.cXF['r41'])
         mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])+self.calc_content_loss(self.cdogF['r41'], self.cXF['r41'])
+        mxdog_style = self.mse_loss(self.cdogF['r31'],self.sXF['r31']) + self.mse_loss(self.cdogF['r41'],self.sXF['r41'])
 
 
         self.losses['loss_MD'] = mxdog_content*.3
         self.losses['loss_CnsC'] = mxdog_content_contraint*100
-        mxdog_losses = mxdog_content * .3 + mxdog_content_contraint *100
+        self.losses['loss_CnsS'] = mxdog_style * 1000
+        mxdog_losses = mxdog_content * .3 + mxdog_content_contraint *100 + mxdog_style * 1000
 
         self.losses['map_loss'] = self.map_loss
 
@@ -366,11 +369,11 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_gan_G'] = self.loss_G_GAN
 
         self.loss = self.loss_G_GAN + self.loss_c * self.content_weight + self.style_weight * (self.loss_s+self.loss_style_remd*3)+\
-                    self.l_identity1 * 50 + self.l_identity2 * 1 + \
+                    self.l_identity1 * 25 + self.l_identity2 * .5 + \
                     self.l_identity3 * 50 + self.l_identity4 * 1 + \
                     mxdog_losses*self.mxdog_weight+\
                     self.loss_content_relt * 16 +\
-                    self.map_loss
+                    self.map_loss + book_loss + book_loss_s
 
         return self.loss
 

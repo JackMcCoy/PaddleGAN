@@ -2,6 +2,7 @@ import paddle
 from paddle import nn
 import paddle.nn.functional as F
 
+from functools import partial
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
 from .builder import GENERATORS

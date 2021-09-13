@@ -510,8 +510,8 @@ class DecoderQuantized(nn.Layer):
         self.downsample = nn.Upsample(scale_factor=.5, mode='nearest')
         self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
 
-        #self.skip_connect_conv = ConvBlock(256, 128)
-        #self.skip_connect_weight = paddle.create_parameter(shape=(1, ), dtype='float32', is_bias=True)
+        self.skip_connect_conv = ConvBlock(256, 128)
+        self.skip_connect_weight = paddle.create_parameter(shape=(1, ), dtype='float32', is_bias=True)
 
         self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
                                         nn.Conv2D(64, 3, (3, 3)))
@@ -537,9 +537,9 @@ class DecoderQuantized(nn.Layer):
         code_losses+=loss
         out += quantize
 
-        #upscale_4 = self.upsample(upscale_4)
-        #upscale_4 = self.skip_connect_conv(upscale_4)
-        #out += upscale_4*self.skip_connect_weight
+        upscale_4 = self.upsample(upscale_4)
+        upscale_4 = self.skip_connect_conv(upscale_4)
+        out += upscale_4*self.skip_connect_weight
 
         out = self.convblock_21(out)
         out = self.convblock_22(out)

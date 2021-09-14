@@ -226,6 +226,7 @@ class LapStyleDraXDOG(BaseModel):
         super(LapStyleDraXDOG, self).__init__()
 
         self.scaler=paddle.amp.GradScaler(init_loss_scaling=1024)
+        self.first = True
         # define generators
         self.nets['net_enc'] = build_generator(generator_encode)
         #self.nets['net_dec'] = build_generator(generator_decode)
@@ -410,6 +411,9 @@ class LapStyleDraXDOG(BaseModel):
         scaled.backward()
         self.scaler.minimize(optimizers['optimG'], scaled)
         optimizers['optimG'].clear_grad()
+        if self.first:
+            self.scaler.incr_ratio=1
+            self.first=False
         #self.optimizers['optimG'].step()
         '''
         if self.steps<=1000:

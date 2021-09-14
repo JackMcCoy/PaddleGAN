@@ -411,9 +411,6 @@ class LapStyleDraXDOG(BaseModel):
         scaled.backward()
         self.scaler.minimize(optimizers['optimG'], scaled)
         optimizers['optimG'].clear_grad()
-        if self.first:
-            self.scaler.incr_ratio=1
-            self.first=False
         #self.optimizers['optimG'].step()
         '''
         if self.steps<=1000:

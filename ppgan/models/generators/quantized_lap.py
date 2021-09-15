@@ -738,9 +738,9 @@ class ResnetBlock(nn.Layer):
     def __init__(self, dim):
         super(ResnetBlock, self).__init__()
         self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        DeformableConvV2(dim, dim, (3, 3)), nn.ReLU(),
+                                        DeformableConvV2(dim, dim, 3), nn.ReLU(),
                                         nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        DeformableConvV2(dim, dim, (3, 3)))
+                                        DeformableConvV2(dim, dim, 3))
 
     def forward(self, x):
         out = x + self.conv_block(x)
@@ -760,7 +760,7 @@ class ConvBlock(nn.Layer):
     def __init__(self, dim1, dim2,noise=0):
         super(ConvBlock, self).__init__()
         self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        DeformableConvV2(dim1, dim2, (3, 3)),
+                                        DeformableConvV2(dim1, dim2, 3),
                                         nn.ReLU())
         if noise==1:
             self.conv_block.add_sublayer('noise',NoiseBlock(dim2))

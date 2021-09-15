@@ -440,13 +440,13 @@ class VectorQuantize(nn.Layer):
 
         if transformer_size==1:
             self.transformer = Transformer(dim**2*2, 8, 16, 64, dim**2*2, dropout=0.1)
-            #self.pos_embedding = paddle.create_parameter(shape=(1, 256, 512), dtype='float32', is_bias=True)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 512), dtype='float32', is_bias=True)
         elif transformer_size==2:
             self.transformer = Transformer(256, 8, 16, 64, 256, dropout=0.1)
-            #self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32', is_bias=True)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32', is_bias=True)
         elif transformer_size==3:
             self.transformer = Transformer(2048, 8, 16, 64, 768, dropout=0.1)
-            #self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32', is_bias=True)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32', is_bias=True)
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -475,7 +475,7 @@ class VectorQuantize(nn.Layer):
 
         quantize = self.rearrange(quantize)
         b, n, _ = quantize.shape
-        #quantize += self.pos_embedding[:, :n]
+        quantize += self.pos_embedding[:, :n]
         quantize = self.transformer(quantize)
         quantize = self.decompose_axis(quantize)
 
@@ -543,228 +543,3 @@ class DecoderQuantized(nn.Layer):
         out = self.convblock_11(out)
         out = self.final_conv(out)
         return out, code_losses
-
-from paddle.vision.ops import DeformConv2D
-from paddle.nn.initializer import Normal, Constant, XavierUniform
-from paddle.regularizer import L2Decay
-
-from paddle import ParamAttr
-
-def _to_list(l):
-    if isinstance(l, (list, tuple)):
-        return list(l)
-    return [l]
-
-
-class DeformableConvV2(nn.Layer):
-    def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride=1,
-                 padding=0,
-                 dilation=1,
-                 groups=1,
-                 weight_attr=None,
-                 bias_attr=None,
-                 lr_scale=1,
-                 regularizer=None,
-                 skip_quant=False,
-                 dcn_bias_regularizer=L2Decay(0.),
-                 dcn_bias_lr_scale=2.):
-        super(DeformableConvV2, self).__init__()
-        self.offset_channel = 2 * kernel_size**2
-        self.mask_channel = kernel_size**2
-
-        if lr_scale == 1 and regularizer is None:
-            offset_bias_attr = ParamAttr(initializer=Constant(0.))
-        else:
-            offset_bias_attr = ParamAttr(
-                initializer=Constant(0.),
-                learning_rate=lr_scale,
-                regularizer=regularizer)
-        self.conv_offset = nn.Conv2D(
-            in_channels,
-            3 * kernel_size**2,
-            kernel_size,
-            stride=stride,
-            padding=(kernel_size - 1) // 2,
-            weight_attr=ParamAttr(initializer=Constant(0.0)),
-            bias_attr=offset_bias_attr)
-        if skip_quant:
-            self.conv_offset.skip_quant = True
-
-        if bias_attr:
-            # in FCOS-DCN head, specifically need learning_rate and regularizer
-            dcn_bias_attr = ParamAttr(
-                initializer=Constant(value=0),
-                regularizer=dcn_bias_regularizer,
-                learning_rate=dcn_bias_lr_scale)
-        else:
-            # in ResNet backbone, do not need bias
-            dcn_bias_attr = False
-        self.conv_dcn = DeformConv2D(
-            in_channels,
-            out_channels,
-            kernel_size,
-            stride=stride,
-            padding=(kernel_size - 1) // 2 * dilation,
-            dilation=dilation,
-            groups=groups,
-            weight_attr=weight_attr,
-            bias_attr=dcn_bias_attr)
-
-    def forward(self, x):
-        offset_mask = self.conv_offset(x)
-        offset, mask = paddle.split(
-            offset_mask,
-            num_or_sections=[self.offset_channel, self.mask_channel],
-            axis=1)
-        mask = F.sigmoid(mask)
-        y = self.conv_dcn(x, offset, mask=mask)
-        return y
-
-
-class ConvNormLayer(nn.Layer):
-    def __init__(self,
-                 ch_in,
-                 ch_out,
-                 filter_size,
-                 stride,
-                 groups=1,
-                 norm_type='bn',
-                 norm_decay=0.,
-                 norm_groups=32,
-                 use_dcn=False,
-                 bias_on=False,
-                 lr_scale=1.,
-                 freeze_norm=False,
-                 initializer=Normal(
-                     mean=0., std=0.01),
-                 skip_quant=False,
-                 dcn_lr_scale=2.,
-                 dcn_regularizer=L2Decay(0.)):
-        super(ConvNormLayer, self).__init__()
-        assert norm_type in ['bn', 'sync_bn', 'gn']
-
-        if bias_on:
-            bias_attr = ParamAttr(
-                initializer=Constant(value=0.), learning_rate=lr_scale)
-        else:
-            bias_attr = False
-
-        if not use_dcn:
-            self.conv = nn.Conv2D(
-                in_channels=ch_in,
-                out_channels=ch_out,
-                kernel_size=filter_size,
-                stride=stride,
-                padding=(filter_size - 1) // 2,
-                groups=groups,
-                weight_attr=ParamAttr(
-                    initializer=initializer, learning_rate=1.),
-                bias_attr=bias_attr)
-            if skip_quant:
-                self.conv.skip_quant = True
-        else:
-            # in FCOS-DCN head, specifically need learning_rate and regularizer
-            self.conv = DeformableConvV2(
-                in_channels=ch_in,
-                out_channels=ch_out,
-                kernel_size=filter_size,
-                stride=stride,
-                padding=(filter_size - 1) // 2,
-                groups=groups,
-                weight_attr=ParamAttr(
-                    initializer=initializer, learning_rate=1.),
-                bias_attr=True,
-                lr_scale=dcn_lr_scale,
-                regularizer=dcn_regularizer,
-                dcn_bias_regularizer=dcn_regularizer,
-                dcn_bias_lr_scale=dcn_lr_scale,
-                skip_quant=skip_quant)
-
-        norm_lr = 0. if freeze_norm else 1.
-        param_attr = ParamAttr(
-            learning_rate=norm_lr,
-            regularizer=L2Decay(norm_decay) if norm_decay is not None else None)
-        bias_attr = ParamAttr(
-            learning_rate=norm_lr,
-            regularizer=L2Decay(norm_decay) if norm_decay is not None else None)
-        if norm_type == 'bn':
-            self.norm = nn.BatchNorm2D(
-                ch_out, weight_attr=param_attr, bias_attr=bias_attr)
-        elif norm_type == 'sync_bn':
-            self.norm = nn.SyncBatchNorm(
-                ch_out, weight_attr=param_attr, bias_attr=bias_attr)
-        elif norm_type == 'gn':
-            self.norm = nn.GroupNorm(
-                num_groups=norm_groups,
-                num_channels=ch_out,
-                weight_attr=param_attr,
-                bias_attr=bias_attr)
-
-    def forward(self, inputs):
-        out = self.conv(inputs)
-        out = self.norm(out)
-        return out
-
-class NoiseBlock(nn.Layer):
-    def __init__(self, channels,noise_weight=0):
-        super().__init__()
-        #self.weight = paddle.create_parameter((1,channels),dtype='float32',is_bias=True)
-        self.noise_weight=noise_weight
-    def change_noise_weight(self,weight):
-        print('changing noise weight to '+str(weight))
-        self.noise_weight = weight
-    def forward(self,x):
-        noise = paddle.randn((x.shape[0], 1, x.shape[2], x.shape[3]))
-        if self.noise_weight>0:
-            x = x + noise * self.noise_weight
-        else:
-            x = x + noise
-        return x
-
-class ResnetBlock(nn.Layer):
-    """Residual block.
-
-    It has a style of:
-        ---Pad-Conv-ReLU-Pad-Conv-+-
-         |________________________|
-
-    Args:
-        dim (int): Channel number of intermediate features.
-    """
-    def __init__(self, dim):
-        super(ResnetBlock, self).__init__()
-        self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        DeformableConvV2(dim, dim, 3), nn.ReLU(),
-                                        nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        DeformableConvV2(dim, dim, 3))
-
-    def forward(self, x):
-        out = x + self.conv_block(x)
-        return out
-
-
-class ConvBlock(nn.Layer):
-    """convolution block.
-
-    It has a style of:
-        ---Pad-Conv-ReLU---
-
-    Args:
-        dim1 (int): Channel number of input features.
-        dim2 (int): Channel number of output features.
-    """
-    def __init__(self, dim1, dim2,noise=0):
-        super(ConvBlock, self).__init__()
-        self.conv_block = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        DeformableConvV2(dim1, dim2, 3),
-                                        nn.ReLU())
-        if noise==1:
-            self.conv_block.add_sublayer('noise',NoiseBlock(dim2))
-
-    def forward(self, x):
-        out = self.conv_block(x)
-        return out

@@ -548,10 +548,7 @@ from paddle.vision.ops import DeformConv2D
 from paddle.nn.initializer import Normal, Constant, XavierUniform
 from paddle.regularizer import L2Decay
 
-from .initializer import xavier_uniform_, constant_
 from paddle import ParamAttr
-from paddle import to_tensor
-from numbers import Integral
 
 def _to_list(l):
     if isinstance(l, (list, tuple)):

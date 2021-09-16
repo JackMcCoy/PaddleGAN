@@ -382,7 +382,7 @@ class VectorQuantize(nn.Layer):
         self.register_buffer('embed', embed)
         self.register_buffer('cluster_size', paddle.zeros(shape=(n_embed,)))
         self.register_buffer('embed_avg', embed.clone())
-        if codebook_size != 2560:
+        if codebook_size != 1280:
             self.rearrange = Rearrange('b c h w -> b (h w) c')
             self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
 
@@ -451,9 +451,8 @@ class DecoderQuantized(nn.Layer):
     def __init__(self):
         super(DecoderQuantized, self).__init__()
 
-        self.quantize_4 = VectorQuantize(16, 640, 1)
-        self.quantize_3 = VectorQuantize(32, 640, 2)
-        self.quantize_2 = VectorQuantize(64, 2560, 3)
+        self.quantize_4 = VectorQuantize(16, 1280, 1)
+
 
         self.resblock_41 = ResnetBlock(512)
         self.convblock_41 = ConvBlock(512, 256)
@@ -481,19 +480,14 @@ class DecoderQuantized(nn.Layer):
         out = self.resblock_41(out)
         out = self.convblock_41(out)
 
-        upscale_4 = self.upsample(out)
+        out = self.upsample(out)
         # Transformer goes here?
-        quantize, embed_ind, loss = self.quantize_3(adaptive_instance_normalization(cF['r31'], sF['r31']))
-        out = upscale_4+quantize
         out = self.resblock_31(out)
         out = self.convblock_31(out)
 
         code_losses+=loss
 
         out = self.upsample(out)
-        quantize, embed_ind, loss = self.quantize_2(adaptive_instance_normalization(cF['r21'], sF['r21']))
-        code_losses+=loss
-        out += quantize
 
         out = self.convblock_21(out)
         out = self.convblock_22(out)

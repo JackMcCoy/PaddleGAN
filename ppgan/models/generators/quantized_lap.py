@@ -392,13 +392,13 @@ class VectorQuantize(nn.Layer):
 
         if transformer_size==1:
             self.transformer = Transformer(dim**2*2, 8, 16, 64, dim**2*2, dropout=0.1)
-            self.pos_embedding = nn.Embedding(256, 512)
+            self.pos_embedding = nn.Embedding(256, 256)
         elif transformer_size==2:
             self.transformer = Transformer(256, 8, 16, 64, 256, dropout=0.1)
-            self.pos_embedding = nn.Embedding(1024, 256)
+            self.pos_embedding = nn.Embedding(1024, 128)
         elif transformer_size==3:
             self.transformer = Transformer(2048, 8, 16, 64, 768, dropout=0.1)
-            self.pos_embedding = nn.Embedding(256, 2048)
+            self.pos_embedding = nn.Embedding(256, 1024)
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -432,6 +432,7 @@ class VectorQuantize(nn.Layer):
         position_ids = seq_length - ones
         position_ids.stop_gradient = True
         position_embeddings = self.pos_embedding(position_ids)
+        position_embeddings = self.rearrange(position_embeddings)
         quantize = self.transformer(quantize + position_embeddings)
         quantize = self.decompose_axis(quantize)
 

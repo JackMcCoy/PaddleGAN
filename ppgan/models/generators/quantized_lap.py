@@ -358,54 +358,6 @@ def ema_inplace(moving_avg, new, decay):
 def laplace_smoothing(x, n_categories, eps=1e-5):
     return (x + eps) / (x.sum() + n_categories * eps)
 
-class ImageLinearAttention(nn.Layer):
-    def __init__(self, chan, chan_out = None, kernel_size = 1, padding = 0, stride = 1, key_dim = 64, value_dim = 64, heads = 8, norm_queries = True):
-        super().__init__()
-        self.chan = chan
-        chan_out = chan if chan_out is None else chan_out
-
-        self.key_dim = key_dim
-        self.value_dim = value_dim
-        self.heads = heads
-
-        self.norm_queries = norm_queries
-
-        conv_kwargs = {'padding': padding, 'stride': stride}
-        self.to_q = nn.Conv2D(chan, key_dim * heads, kernel_size, **conv_kwargs)
-        self.to_k = nn.Conv2D(chan, key_dim * heads, kernel_size, **conv_kwargs)
-        self.to_v = nn.Conv2D(chan, value_dim * heads, kernel_size, **conv_kwargs)
-
-        out_conv_kwargs = {'padding': padding}
-        self.to_out = nn.Conv2D(value_dim * heads, chan_out, kernel_size, **out_conv_kwargs)
-
-    def forward(self, x, context = None):
-        b, c, h, w, k_dim, heads = *x.shape, self.key_dim, self.heads
-
-        q, k, v = (self.to_q(x), self.to_k(x), self.to_v(x))
-
-        q, k, v = map(lambda t: t.reshape((b, heads, -1, h * w)), (q, k, v))
-
-        q, k = map(lambda x: x * (self.key_dim ** -0.25), (q, k))
-
-        if context is not None:
-            context = context.reshape((b, c, 1, -1))
-            ck, cv = self.to_k(context), self.to_v(context)
-            ck, cv = map(lambda t: t.reshape((b, heads, k_dim, -1)), (ck, cv))
-            k = paddle.concat((k, ck), axis=3)
-            v = paddle.concat((v, cv), axis=3)
-
-        k = F.softmax(k,axis=-1)
-
-        if self.norm_queries:
-            q = F.softmax(q,axis=-2)
-
-        context = paddle.matmul(k, v.transpose([0,1,3,2]))
-        #out = paddle.matmul(q, context)
-        out = einsum('bhdn,bhde->bhen', q, context)
-        out = out.reshape((b, -1, h, w))
-        out = self.to_out(out)
-        return out
-
 class VectorQuantize(nn.Layer):
     def __init__(
         self,
@@ -440,13 +392,13 @@ class VectorQuantize(nn.Layer):
 
         if transformer_size==1:
             self.transformer = Transformer(dim**2*2, 8, 16, 64, dim**2*2, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(attr=paddle.ParamAttr(),shape=(1, 256, 512), dtype='float32')
+            self.pos_embedding = nn.Embedding(256, 512)
         elif transformer_size==2:
             self.transformer = Transformer(256, 8, 16, 64, 256, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(attr=paddle.ParamAttr(),shape=(1, 1024, 256), dtype='float32')
+            self.pos_embedding = nn.Embedding(1024, 256)
         elif transformer_size==3:
             self.transformer = Transformer(2048, 8, 16, 64, 768, dropout=0.1)
-            self.pos_embedding = paddle.create_parameter(attr=paddle.ParamAttr(), shape=(1, 256, 2048), dtype='float32')
+            self.pos_embedding = nn.Embedding(256, 2048)
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -475,8 +427,12 @@ class VectorQuantize(nn.Layer):
 
         quantize = self.rearrange(quantize)
         b, n, _ = quantize.shape
-        quantize += self.pos_embedding[:, :n]
-        quantize = self.transformer(quantize)
+        ones = paddle.ones_like(input_ids, dtype="int64")
+        seq_length = paddle.cumsum(ones, axis=1)
+        position_ids = seq_length - ones
+        position_ids.stop_gradient = True
+        position_embeddings = self.position_embeddings(position_ids)
+        quantize = self.transformer(quantize + position_embeddings)
         quantize = self.decompose_axis(quantize)
 
         quantize = input + (quantize - input).detach()

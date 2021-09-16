@@ -424,8 +424,8 @@ class DecoderQuantized(nn.Layer):
     def __init__(self):
         super(DecoderQuantized, self).__init__()
 
-        self.quantize_4 = VectorQuantize(16, 640, 1)
-        self.quantize_3 = VectorQuantize(32, 640, 2)
+        self.quantize_4 = VectorQuantize(16, 320, 1)
+        self.quantize_3 = VectorQuantize(32, 320, 2)
         self.quantize_2 = VectorQuantize(64, 1280, 3)
 
         self.resblock_41 = ResnetBlock(512)

@@ -431,7 +431,7 @@ class VectorQuantize(nn.Layer):
         seq_length = paddle.cumsum(ones, axis=1)
         position_ids = seq_length - ones
         position_ids.stop_gradient = True
-        position_embeddings = self.pos_embeddings(position_ids)
+        position_embeddings = self.pos_embedding(position_ids)
         quantize = self.transformer(quantize + position_embeddings)
         quantize = self.decompose_axis(quantize)
 

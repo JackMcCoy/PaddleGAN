@@ -440,13 +440,13 @@ class VectorQuantize(nn.Layer):
 
         if transformer_size==1:
             self.transformer = Transformer(dim**2*2, 8, 16, 64, dim**2*2, dropout=0.1)
-            #self.pos_embedding = paddle.create_parameter(shape=(1, 256, 512), dtype='float32', is_bias=True)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 512), dtype='float32', is_bias=True)
         elif transformer_size==2:
             self.transformer = Transformer(256, 8, 16, 64, 256, dropout=0.1)
-            #self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32', is_bias=True)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 1024, 256), dtype='float32', is_bias=True)
         elif transformer_size==3:
             self.transformer = Transformer(2048, 8, 16, 64, 768, dropout=0.1)
-            #self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32', is_bias=True)
+            self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32', is_bias=True)
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -475,7 +475,7 @@ class VectorQuantize(nn.Layer):
 
         quantize = self.rearrange(quantize)
         b, n, _ = quantize.shape
-        #quantize += self.pos_embedding[:, :n]
+        quantize += self.pos_embedding[:, :n]
         quantize = self.transformer(quantize)
         quantize = self.decompose_axis(quantize)
 
@@ -496,6 +496,7 @@ class DecoderQuantized(nn.Layer):
         self.quantize_4 = VectorQuantize(16, 320, 1)
         self.quantize_3 = VectorQuantize(32, 320, 2)
         self.quantize_2 = VectorQuantize(64, 1280, 3)
+        self.quantize_1 = VectorQuantize(128, 1280, 4)
 
         self.resblock_41 = ResnetBlock(512)
         self.convblock_41 = ConvBlock(512, 256)

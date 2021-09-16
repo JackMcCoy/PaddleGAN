@@ -362,7 +362,6 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_CnsS'] = mxdog_style * 1000
         mxdog_losses = mxdog_content * .3 + mxdog_content_contraint *100 + mxdog_style * 1000
 
-        self.losses['map_loss'] = self.map_loss
 
         pred_fake = self.nets['netD'](self.stylized)
         self.loss_G_GAN = self.gan_criterion(pred_fake, True)

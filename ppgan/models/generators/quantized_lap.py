@@ -433,8 +433,7 @@ class VectorQuantize(nn.Layer):
         if codebook_size != 1280:
             self.rearrange = Rearrange('b c h w -> b (h w) c')
             self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
-        elif transformer_size==4:
-            self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=8,w=8, e=16,d=16)
+
         else:
             self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=4,p2=4)
             self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
@@ -448,8 +447,6 @@ class VectorQuantize(nn.Layer):
         elif transformer_size==3:
             self.transformer = Transformer(2048, 8, 16, 64, 768, dropout=0.1)
             #self.pos_embedding = paddle.create_parameter(shape=(1, 256, 2048), dtype='float32', is_bias=True)
-        elif transformer_size==4:
-            self.transformer = Transformer(128, 2, 16, 128, 128, dropout=0.1)
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -499,7 +496,6 @@ class DecoderQuantized(nn.Layer):
         self.quantize_4 = VectorQuantize(16, 320, 1)
         self.quantize_3 = VectorQuantize(32, 320, 2)
         self.quantize_2 = VectorQuantize(64, 1280, 3)
-        self.quantize_1 = VectorQuantize(128, 960, 4)
 
         self.resblock_41 = ResnetBlock(512)
         self.convblock_41 = ConvBlock(512, 256)
@@ -544,8 +540,6 @@ class DecoderQuantized(nn.Layer):
         out = self.convblock_21(out)
         out = self.convblock_22(out)
         out = self.upsample(out)
-        quantize, embed_ind, loss = self.quantize_1(out)
-        code_losses+=loss
-        out = self.convblock_11(quantize)
+        out = self.convblock_11(out)
         out = self.final_conv(out)
         return out, code_losses

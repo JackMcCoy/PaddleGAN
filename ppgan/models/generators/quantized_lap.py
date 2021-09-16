@@ -450,19 +450,21 @@ class DecoderQuantized(nn.Layer):
 
     def forward(self, cF, sF):
         out = adaptive_instance_normalization(cF['r41'], sF['r41'])
-        quantize = self.quantize_4(out)
+        quantize, embed_ind, book_loss = self.quantize_4(out)
         out = self.resblock_41(quantize)
         out = self.convblock_41(out)
 
         upscale_4 = self.upsample(out)
         # Transformer goes here?
-        quantize = self.quantize_3(adaptive_instance_normalization(cF['r31'], sF['r31']))
+        quantize, embed_ind, loss = self.quantize_3(adaptive_instance_normalization(cF['r31'], sF['r31']))
+        book_loss += loss
         out = upscale_4+quantize
         out = self.resblock_31(out)
         out = self.convblock_31(out)
 
         out = self.upsample(out)
-        quantize = self.quantize_2(adaptive_instance_normalization(cF['r21'], sF['r21']))
+        quantize, embed_ind, loss = self.quantize_2(adaptive_instance_normalization(cF['r21'], sF['r21']))
+        book_loss += loss
         out += quantize
 
         out = self.convblock_21(out)
@@ -470,7 +472,7 @@ class DecoderQuantized(nn.Layer):
         out = self.upsample(out)
         out = self.convblock_11(out)
         out = self.final_conv(out)
-        return out
+        return out, book_loss
 
 class VectorQuantize(nn.Layer):
     def __init__(

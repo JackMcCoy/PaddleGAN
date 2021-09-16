@@ -295,7 +295,7 @@ class LapStyleDraXDOG(BaseModel):
         self.cF = self.nets['net_enc'](self.ci)
         self.sF = self.nets['net_enc'](self.si)
         #dual_tensor = paddle.concat(x=[self.ci, self.si], axis=1)
-        self.stylized, self.map_loss = self.nets['net_vit'](self.cF, self.sF)
+        self.stylized = self.nets['net_vit'](self.cF, self.sF)
         self.visual_items['stylized'] = self.stylized
         #self.stylized = self.nets['net_vit'](self.stylized)
         #self.visual_items['stylized_vit'] = self.stylized
@@ -324,7 +324,7 @@ class LapStyleDraXDOG(BaseModel):
         """IDENTITY LOSSES"""
         #dual_ci = paddle.concat(x=[self.ci, self.ci], axis=1)
 
-        self.Iss, book_loss_s = self.nets['net_vit'](self.sF,self.sF)
+        self.Iss = self.nets['net_vit'](self.sF,self.sF)
         self.l_identity1 = self.calc_content_loss(self.Iss, self.si)
         self.Fss = self.nets['net_enc'](self.Iss)
         self.l_identity2 = 0
@@ -334,7 +334,7 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['l_identity1'] = self.l_identity1
         self.losses['l_identity2'] = self.l_identity2
 
-        self.Icc, book_loss = self.nets['net_vit'](self.cF,self.cF)
+        self.Icc = self.nets['net_vit'](self.cF,self.cF)
         self.l_identity3 = self.calc_content_loss(self.Icc, self.ci)
         self.Fcc = self.nets['net_enc'](self.Icc)
         self.l_identity4 = 0
@@ -372,8 +372,7 @@ class LapStyleDraXDOG(BaseModel):
                     self.l_identity1 * 25 + self.l_identity2 * .5 + \
                     self.l_identity3 * 50 + self.l_identity4 * 1 + \
                     self.loss_content_relt * 16 +\
-                    mxdog_losses * self.mxdog_weight +\
-                    self.map_loss + book_loss + book_loss_s
+                    mxdog_losses * self.mxdog_weight
 
         return self.loss
 

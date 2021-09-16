@@ -358,6 +358,120 @@ def ema_inplace(moving_avg, new, decay):
 def laplace_smoothing(x, n_categories, eps=1e-5):
     return (x + eps) / (x.sum() + n_categories * eps)
 
+class VectorTransformer(nn.Layer):
+    def __init__(
+        self,
+        dim,
+        codebook_size,
+        transformer_size,
+        decay = 0.8,
+        commitment = 1.,
+        eps = 1e-5,
+        n_embed = None,
+    ):
+        super().__init__()
+        n_embed = default(n_embed, codebook_size)
+
+        self.dim = dim
+        self.n_embed = n_embed
+        self.decay = decay
+        self.eps = eps
+        self.commitment = commitment
+
+        if codebook_size != 1280:
+            self.rearrange = Rearrange('b c h w -> b (h w) c')
+            self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
+
+        else:
+            self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=4,p2=4)
+            self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
+
+        if transformer_size==1:
+            self.transformer = Transformer(dim**2*2, 8, 16, 64, dim**2*2, dropout=0.1)
+            self.pos_embedding = nn.Embedding(256, 512)
+        elif transformer_size==2:
+            self.transformer = Transformer(256, 8, 16, 64, 256, dropout=0.1)
+            self.pos_embedding = nn.Embedding(1024, 256)
+        elif transformer_size==3:
+            self.transformer = Transformer(2048, 8, 16, 64, 768, dropout=0.1)
+            self.pos_embedding = nn.Embedding(256, 2048)
+
+    def forward(self, input):
+
+        quantize = self.rearrange(input)
+        b, n, _ = quantize.shape
+
+        ones = paddle.ones((b,n), dtype="int64")
+        seq_length = paddle.cumsum(ones, axis=1)
+        position_ids = seq_length - ones
+        position_ids.stop_gradient = True
+        position_embeddings = self.pos_embedding(position_ids)
+
+        quantize = self.transformer(quantize + position_embeddings)
+        quantize = self.decompose_axis(quantize)
+
+        quantize = input + quantize
+        return quantize
+
+
+@GENERATORS.register()
+class DecoderQuantized(nn.Layer):
+    """Decoder of Drafting module.
+    Paper:
+        Drafting and Revision: Laplacian Pyramid Network for Fast High-Quality
+        Artistic Style Transfer.
+    """
+    def __init__(self):
+        super(DecoderQuantized, self).__init__()
+
+        self.quantize_4 = VectorTransformer(16, 640, 1)
+        self.quantize_3 = VectorTransformer(32, 640, 2)
+        self.quantize_2 = VectorTransformer(64, 1280, 3)
+
+        self.resblock_41 = ResnetBlock(512)
+        self.convblock_41 = ConvBlock(512, 256)
+        self.resblock_31 = ResnetBlock(256)
+        self.convblock_31 = ConvBlock(256, 128)
+
+
+        self.convblock_21 = ConvBlock(128, 128)
+        self.convblock_22 = ConvBlock(128, 64)
+        self.convblock_11 = ConvBlock(64, 64)
+
+        self.downsample = nn.Upsample(scale_factor=.5, mode='nearest')
+        self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
+
+        #self.skip_connect_conv = ConvBlock(256, 128)
+        #self.skip_connect_weight = paddle.create_parameter(shape=(1, ), dtype='float32', is_bias=True)
+
+        self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                        nn.Conv2D(64, 3, (3, 3)))
+
+
+    def forward(self, cF, sF):
+        out = adaptive_instance_normalization(cF['r41'], sF['r41'])
+        quantize = self.quantize_4(out)
+        out = self.resblock_41(quantize)
+        out = self.convblock_41(out)
+
+        upscale_4 = self.upsample(out)
+        # Transformer goes here?
+        quantize = self.quantize_3(adaptive_instance_normalization(cF['r31'], sF['r31']))
+        out = upscale_4+quantize
+        out = self.resblock_31(out)
+        out = self.convblock_31(out)
+
+        out = self.upsample(out)
+        quantize = self.quantize_2(adaptive_instance_normalization(cF['r21'], sF['r21']))
+        out += quantize
+
+        out = self.convblock_21(out)
+        out = self.convblock_22(out)
+        out = self.upsample(out)
+        out = self.convblock_11(out)
+        out = self.final_conv(out)
+        return out
+
 class VectorQuantize(nn.Layer):
     def __init__(
         self,
@@ -382,9 +496,13 @@ class VectorQuantize(nn.Layer):
         self.register_buffer('embed', embed)
         self.register_buffer('cluster_size', paddle.zeros(shape=(n_embed,)))
         self.register_buffer('embed_avg', embed.clone())
+        if codebook_size != 1280:
+            self.rearrange = Rearrange('b c h w -> b (h w) c')
+            self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
 
-        self.rearrange = Rearrange('b c h w -> b (h w) c')
-        self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
+        else:
+            self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=4,p2=4)
+            self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
 
         if transformer_size==1:
             self.transformer = Transformer(dim**2*2, 8, 16, 64, dim**2*2, dropout=0.1)
@@ -435,57 +553,3 @@ class VectorQuantize(nn.Layer):
 
         quantize = input + (quantize - input).detach()
         return quantize, embed_ind, loss
-
-
-@GENERATORS.register()
-class DecoderQuantized(nn.Layer):
-    """Decoder of Drafting module.
-    Paper:
-        Drafting and Revision: Laplacian Pyramid Network for Fast High-Quality
-        Artistic Style Transfer.
-    """
-    def __init__(self):
-        super(DecoderQuantized, self).__init__()
-
-        self.quantize_4 = VectorQuantize(16, 1280, 1)
-
-
-        self.resblock_41 = ResnetBlock(512)
-        self.convblock_41 = ConvBlock(512, 256)
-        self.resblock_31 = ResnetBlock(256)
-        self.convblock_31 = ConvBlock(256, 128)
-
-
-        self.convblock_21 = ConvBlock(128, 128)
-        self.convblock_22 = ConvBlock(128, 64)
-        self.convblock_11 = ConvBlock(64, 64)
-
-        self.downsample = nn.Upsample(scale_factor=.5, mode='nearest')
-        self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
-
-        #self.skip_connect_conv = ConvBlock(256, 128)
-        #self.skip_connect_weight = paddle.create_parameter(shape=(1, ), dtype='float32', is_bias=True)
-
-        self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-                                        nn.Conv2D(64, 3, (3, 3)))
-
-
-    def forward(self, cF, sF):
-        out = adaptive_instance_normalization(cF['r41'], sF['r41'])
-        quantize, embed_ind, code_losses = self.quantize_4(out)
-        out = self.resblock_41(out)
-        out = self.convblock_41(out)
-
-        out = self.upsample(out)
-        # Transformer goes here?
-        out = self.resblock_31(out)
-        out = self.convblock_31(out)
-
-        out = self.upsample(out)
-
-        out = self.convblock_21(out)
-        out = self.convblock_22(out)
-        out = self.upsample(out)
-        out = self.convblock_11(out)
-        out = self.final_conv(out)
-        return out, code_losses

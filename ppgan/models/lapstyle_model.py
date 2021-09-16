@@ -412,7 +412,7 @@ class LapStyleDraXDOG(BaseModel):
         self.scaler.minimize(optimizers['optimG'], scaled)
         optimizers['optimG'].clear_grad()
         #self.optimizers['optimG'].step()
-        if self.steps%200=0:
+        if self.steps%200==0:
             for param in self.nets['net_vit'].parameters():
                 if 'pos_emb' in param.name:
                     print(param)

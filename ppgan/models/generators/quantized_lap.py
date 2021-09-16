@@ -428,13 +428,11 @@ class VectorQuantize(nn.Layer):
         quantize = self.rearrange(quantize)
         b, n, _ = quantize.shape
 
-        ones = paddle.ones_like(quantize, dtype="int64")
+        ones = paddle.ones((b,n), dtype="int64")
         seq_length = paddle.cumsum(ones, axis=1)
         position_ids = seq_length - ones
         position_ids.stop_gradient = True
         position_embeddings = self.pos_embedding(position_ids)
-
-        print(position_embeddings.shape)
 
         quantize = self.transformer(quantize + position_embeddings)
         quantize = self.decompose_axis(quantize)

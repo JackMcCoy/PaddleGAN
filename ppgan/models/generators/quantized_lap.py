@@ -424,9 +424,9 @@ class DecoderQuantized(nn.Layer):
     def __init__(self):
         super(DecoderQuantized, self).__init__()
 
-        self.quantize_4 = VectorTransformer(16, 640, 1)
-        self.quantize_3 = VectorTransformer(32, 640, 2)
-        self.quantize_2 = VectorTransformer(64, 1280, 3)
+        self.quantize_4 = VectorQuantize(16, 640, 1)
+        self.quantize_3 = VectorQuantize(32, 640, 2)
+        self.quantize_2 = VectorQuantize(64, 1280, 3)
 
         self.resblock_41 = ResnetBlock(512)
         self.convblock_41 = ConvBlock(512, 256)
@@ -518,7 +518,21 @@ class VectorQuantize(nn.Layer):
         return self.embed.transpose([1, 0])
 
     def forward(self, input):
-        flatten = input.reshape((-1, self.dim))
+        quantize = self.rearrange(input)
+        b, n, _ = quantize.shape
+
+        ones = paddle.ones((b, n), dtype="int64")
+        seq_length = paddle.cumsum(ones, axis=1)
+        position_ids = seq_length - ones
+        position_ids.stop_gradient = True
+        position_embeddings = self.pos_embedding(position_ids)
+
+        quantize = self.transformer(quantize + position_embeddings)
+        quantize = self.decompose_axis(quantize)
+
+        quantize = input + (quantize - input).detach()
+
+        flatten = quantize.reshape((-1, self.dim))
         dist = (
             flatten.pow(2).sum(1, keepdim=True)
             - 2 * flatten @ self.embed
@@ -539,17 +553,4 @@ class VectorQuantize(nn.Layer):
 
         loss = F.mse_loss(quantize.detach(), input) * self.commitment
 
-        quantize = self.rearrange(quantize)
-        b, n, _ = quantize.shape
-
-        ones = paddle.ones((b,n), dtype="int64")
-        seq_length = paddle.cumsum(ones, axis=1)
-        position_ids = seq_length - ones
-        position_ids.stop_gradient = True
-        position_embeddings = self.pos_embedding(position_ids)
-
-        quantize = self.transformer(quantize + position_embeddings)
-        quantize = self.decompose_axis(quantize)
-
-        quantize = input + (quantize - input).detach()
         return quantize, embed_ind, loss

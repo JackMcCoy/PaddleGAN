@@ -481,8 +481,6 @@ class DecoderQuantized(nn.Layer):
         out = self.resblock_31(out)
         out = self.convblock_31(out)
 
-        code_losses+=loss
-
         out = self.upsample(out)
 
         out = self.convblock_21(out)

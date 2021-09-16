@@ -410,7 +410,7 @@ class VectorTransformer(nn.Layer):
         quantize = self.transformer(quantize + position_embeddings)
         quantize = self.decompose_axis(quantize)
 
-        quantize = input + quantize
+        quantize = input + quantize.detach()
         return quantize
 
 

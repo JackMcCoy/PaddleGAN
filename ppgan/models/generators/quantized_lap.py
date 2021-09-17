@@ -391,7 +391,7 @@ class VectorQuantize(nn.Layer):
             self.pos_embedding = nn.Embedding(256, 2048)
         elif transformer_size==4:
             self.transformer = Transformer(64, 4, 16, 64, 128, dropout=0.1)
-            self.pos_embedding = nn.Embedding(256, 64)
+            self.pos_embedding = nn.Embedding(256, 4096)
             self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = 8, p2 = 8)
     @property
     def codebook(self):

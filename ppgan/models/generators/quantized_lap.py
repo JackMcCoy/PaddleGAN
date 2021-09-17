@@ -581,7 +581,7 @@ class DecoderQuantized(nn.Layer):
         position_ids = seq_length - ones
         position_ids.stop_gradient = True
         position_embeddings = self.pos_embedding(position_ids)
-        transformed = self.vit(transformed+postion_embeddings)
+        transformed = self.vit(transformed+position_embeddings)
         transformed = self.decompose_axis(transformed)
         out += (out-transformed)
         return out, book_loss

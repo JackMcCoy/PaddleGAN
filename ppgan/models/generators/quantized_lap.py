@@ -364,6 +364,7 @@ class VectorQuantize(nn.Layer):
         self.eps = eps
         self.commitment = commitment
         self.perceptual_loss = CalcContentLoss()
+        self.transformer_size = transformer_size
 
         embed = paddle.randn((dim, n_embed))
         self.register_buffer('embed', embed)
@@ -396,20 +397,22 @@ class VectorQuantize(nn.Layer):
         return self.embed.transpose([1, 0])
 
     def forward(self, input):
-        quantize = self.rearrange(input)
-        b, n, _ = quantize.shape
+        if transformer != 4:
+            quantize = self.rearrange(input)
+            b, n, _ = quantize.shape
 
-        ones = paddle.ones((b, n), dtype="int64")
-        seq_length = paddle.cumsum(ones, axis=1)
-        position_ids = seq_length - ones
-        position_ids.stop_gradient = True
-        position_embeddings = self.pos_embedding(position_ids)
+            ones = paddle.ones((b, n), dtype="int64")
+            seq_length = paddle.cumsum(ones, axis=1)
+            position_ids = seq_length - ones
+            position_ids.stop_gradient = True
+            position_embeddings = self.pos_embedding(position_ids)
 
-        quantize = self.transformer(quantize + position_embeddings)
-        quantize = self.decompose_axis(quantize)
+            quantize = self.transformer(quantize + position_embeddings)
+            quantize = self.decompose_axis(quantize)
 
-        quantize = input + (quantize - input).detach()
-
+            quantize = input + (quantize - input).detach()
+        else:
+            quantize = input
         flatten = quantize.reshape((-1, self.dim))
         dist = (
             flatten.pow(2).sum(1, keepdim=True)
@@ -431,6 +434,20 @@ class VectorQuantize(nn.Layer):
 
         loss = self.perceptual_loss(quantize.detach(), input, norm=True) * self.commitment
 
+        if self.transformer_size==4:
+            quantize = self.rearrange(quantize)
+            b, n, _ = quantize.shape
+
+            ones = paddle.ones((b, n), dtype="int64")
+            seq_length = paddle.cumsum(ones, axis=1)
+            position_ids = seq_length - ones
+            position_ids.stop_gradient = True
+            position_embeddings = self.pos_embedding(position_ids)
+
+            quantize = self.transformer(quantize + position_embeddings)
+            quantize = self.decompose_axis(quantize)
+
+            quantize = input + (quantize - input).detach()
         return quantize, embed_ind, loss
 
 

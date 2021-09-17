@@ -157,7 +157,7 @@ class ViT(nn.Layer):
         self.to_patch_embedding = nn.Linear(patch_dim, dim)
 
         self.pos_embedding = nn.Embedding(num_patches, dim)
-        self.cls_token = nn.Embedding(1, dim)
+        self.cls_token = paddle.create_parameter(shape=(1, 1, dim),dtype='float32')
         self.dropout = nn.Dropout(emb_dropout)
 
         self.transformer = Transformer(dim, depth, heads, dim_head, mlp_dim, dropout)

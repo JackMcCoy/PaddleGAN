@@ -521,7 +521,7 @@ class DecoderQuantized(nn.Layer):
         patch_dim = 3 * patch_height * patch_width
 
         self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width)
-        self.decompose_axis=Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', w=(image_width // patch_width),p1=patch_height,p2=patch_width)
+        self.decompose_axis=Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', w=(128 // patch_width),p1=patch_height,p2=patch_width)
         self.to_patch_embedding = nn.Linear(patch_dim, dim)
 
         self.pos_embedding = nn.Embedding(num_patches, dim)

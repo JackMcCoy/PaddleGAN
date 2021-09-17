@@ -373,7 +373,7 @@ class LapStyleDraXDOG(BaseModel):
                     self.l_identity3 * 50 + self.l_identity4 * 1 + \
                     self.loss_content_relt * 16 +\
                     mxdog_losses * self.mxdog_weight +\
-                    book_loss + book_loss_s
+                    self.map_loss + book_loss + book_loss_s
 
         return self.loss
 

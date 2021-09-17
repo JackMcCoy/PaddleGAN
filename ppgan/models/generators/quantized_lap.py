@@ -8,7 +8,7 @@ from functools import partial, reduce
 from einops.layers.paddle import Rearrange
 
 from .builder import GENERATORS
-from . import ResnetBlock, ConvBlock, adaptive_instance_normalization, Transformer, ViT
+from . import ResnetBlock, ConvBlock, adaptive_instance_normalization, Transformer, LinearAttentionTransformer
 
 
 class CalcContentLoss():
@@ -513,7 +513,13 @@ class DecoderQuantized(nn.Layer):
         self.quantize_4 = VectorQuantize(16, 320, 1)
         self.quantize_3 = VectorQuantize(32, 320, 2)
         self.quantize_2 = VectorQuantize(64, 1280, 3)
-        self.vit = ViT(128, 8, 256, 4, 16, 128)
+        self.vit = LinearAttentionTransformer(128, 4,16, 128)
+        self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width)
+        self.decompose_axis=Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', w=(image_width // patch_width),p1=patch_height,p2=patch_width)
+        self.to_patch_embedding = nn.Linear(patch_dim, dim)
+
+        self.pos_embedding = nn.Embedding(num_patches, dim)
+
 
         self.resblock_41 = ResnetBlock(512)
         self.convblock_41 = ConvBlock(512, 256)
@@ -559,5 +565,11 @@ class DecoderQuantized(nn.Layer):
         out = self.upsample(out)
         out = self.convblock_11(out)
         out = self.final_conv(out)
-        out += self.vit(out)
+
+        transformed = self.rearrange(out)
+        transformed = self.to_patch_embedding(transformed)
+        transformed += self.pos_embedding(transformed)
+        transformed = self.vit(transformed)
+        transformed = self.decompose_axis(transformed)
+        out += (out-transformed)
         return out, book_loss

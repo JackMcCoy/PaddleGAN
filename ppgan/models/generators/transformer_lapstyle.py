@@ -181,8 +181,6 @@ class ViT(nn.Layer):
         x = self.to_patch_embedding(x)
         b, n, _ = x.shape
 
-        cls_tokens = repeat(self.cls_token, '() n d -> b n d', b=b)
-        x = paddle.concat((cls_tokens, x), axis=1)
         ones = paddle.ones((b, n), dtype="int64")
         seq_length = paddle.cumsum(ones, axis=1)
         position_ids = seq_length - ones
@@ -190,6 +188,9 @@ class ViT(nn.Layer):
         pos_embedding = self.pos_embedding(position_ids)
         x += pos_embedding
         x = self.dropout(x)
+
+        cls_tokens = repeat(self.cls_token, '() n d -> b n d', b=b)
+        x = paddle.concat((cls_tokens, x), axis=1)
 
         x = self.transformer(x)
         x = self.decoder_transformer(x,x)

@@ -11,12 +11,7 @@ model:
   generator_transformer:
     name: DecoderQuantized
   discriminator:
-    name: LapStyleSingleDiscriminator
-    num_channels: 64
-    num_layer: 5
-    noise: 0
-    kernel_size: 3
-    padding: 1
+    name: ViTDiscriminator
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:

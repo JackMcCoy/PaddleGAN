@@ -15,7 +15,7 @@
 from .vgg_discriminator import VGGDiscriminator128
 from .nlayers import NLayerDiscriminator, NLayerDiscriminatorWithClassification
 from .discriminator_ugatit import UGATITDiscriminator
-from .discriminator_lapstyle_multihead import LapStyleMultiresDiscriminator,LapStyleSingleDiscriminator
+from .discriminator_lapstyle_multihead import LapStyleMultiresDiscriminator,LapStyleSingleDiscriminator, ViTDiscriminator
 from .dcdiscriminator import DCDiscriminator
 from .discriminator_animegan import AnimeDiscriminator
 from .discriminator_styleganv2 import StyleGANv2Discriminator

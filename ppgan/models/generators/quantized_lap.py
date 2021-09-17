@@ -442,7 +442,7 @@ class DecoderQuantized(nn.Layer):
         self.quantize_4 = VectorQuantize(16, 320, 1)
         self.quantize_3 = VectorQuantize(32, 320, 2)
         self.quantize_2 = VectorQuantize(64, 1280, 3)
-        self.vit = LinearAttentionTransformer(128, 4,16, 128)
+        self.vit = Transformer(128, 4, 16, 64, 128, dropout=0.1)
 
         patch_height, patch_width = (8,8)
 

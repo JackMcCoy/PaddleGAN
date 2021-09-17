@@ -282,7 +282,7 @@ class LapStyleDraXDOG(BaseModel):
         self.set_requires_grad([self.gaussian_filter_2],False)
         self.steps=0
         self.mxdog_weight = 1
-        self.nets['net_vit'].freeze_weight(False)
+        #self.nets['net_vit'].freeze_weight(False)
 
     def setup_input(self, input):
         self.ci = paddle.to_tensor(input['ci'])

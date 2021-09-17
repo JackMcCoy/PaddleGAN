@@ -574,8 +574,14 @@ class DecoderQuantized(nn.Layer):
 
         transformed = self.rearrange(out)
         transformed = self.to_patch_embedding(transformed)
-        transformed += self.pos_embedding(transformed)
-        transformed = self.vit(transformed)
+        b, n, _ = transformed.shape
+
+        ones = paddle.ones((b, n), dtype="int64")
+        seq_length = paddle.cumsum(ones, axis=1)
+        position_ids = seq_length - ones
+        position_ids.stop_gradient = True
+        position_embeddings = self.pos_embedding(position_ids)
+        transformed = self.vit(transformed+postion_embedding)
         transformed = self.decompose_axis(transformed)
         out += (out-transformed)
         return out, book_loss

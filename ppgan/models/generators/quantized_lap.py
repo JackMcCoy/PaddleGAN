@@ -390,10 +390,9 @@ class VectorQuantize(nn.Layer):
             self.transformer = Transformer(2048, 8, 16, 64, 768, dropout=0.1)
             self.pos_embedding = nn.Embedding(256, 2048)
         elif transformer_size==4:
-            self.transformer = Transformer(1024, 4, 16, 256, 128, dropout=0.1)
+            self.transformer = Transformer(1024, 4, 16, 64, 128, dropout=0.1)
             self.pos_embedding = nn.Embedding(256, 1024)
             self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (c p1 p2)', p1 = 4, p2 = 4)
-            self.decompose_axis=Rearrange('b (h w) (c p1 p2) -> b c (h p1) (w p2)', p1=4,p2=4,h=32,w=32)
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -537,9 +536,10 @@ class DecoderQuantized(nn.Layer):
         out = self.convblock_21(out)
         out = self.convblock_22(out)
         out = self.upsample(out)
-        quantize, embed_ind, book_loss = self.quantize_1(out)
+        quantize, embed_ind, loss = self.quantize_1(out)
+        book_loss += loss
         out += quantize
-        out = self.convblock_11(out)
+        out = self.convblock_11(quantize)
         out = self.final_conv(out)
 
         return out, book_loss

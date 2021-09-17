@@ -187,7 +187,7 @@ class ViT(nn.Layer):
         seq_length = paddle.cumsum(ones, axis=1)
         position_ids = seq_length - ones
         position_ids.stop_gradient = True
-        pos_embeddings = self.pos_embedding(position_ids)
+        pos_embedding = self.pos_embedding(position_ids)
         x += pos_embedding
         x = self.dropout(x)
 

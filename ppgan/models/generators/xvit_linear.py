@@ -695,20 +695,12 @@ class SelfAttention(nn.Layer):
 
         out = []
 
-        split_index_fn = partial(split_at_index, 1, self.local_attn_heads)
+        local_out = self.local_attn(q, k, v, input_mask = input_mask)
+        out.append(local_out)
 
-        (lq, q), (lk, k), (lv, v) = map(split_index_fn, (q, k, v))
-
-        has_local, has_global = map(lambda x: x.shape[1] > 0, (lq, q))
-
-        if has_local:
-            local_out = self.local_attn(lq, lk, lv, input_mask = input_mask)
-            out.append(local_out)
-
-        if has_global:
-            kv_mask = input_mask if not self.receives_context else context_mask
-            global_out = self.global_attn_fn(q, k, v, kv_mask = kv_mask)
-            out.append(global_out)
+        kv_mask = input_mask if not self.receives_context else context_mask
+        global_out = self.global_attn_fn(q, k, v, kv_mask = kv_mask)
+        out.append(global_out)
 
         attn = paddle.concat(out, axis=1)
         attn = paddle.transpose(attn,(0,2,1,3)).reshape((b, t, -1))

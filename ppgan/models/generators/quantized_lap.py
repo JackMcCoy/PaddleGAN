@@ -463,19 +463,18 @@ class DecoderQuantized(nn.Layer):
         self.quantize_4 = VectorQuantize(16, 320, 1)
         self.quantize_3 = VectorQuantize(32, 320, 2)
         self.quantize_2 = VectorQuantize(64, 1280, 3)
-        self.quantize_1 = VectorQuantize(128, 320, 4)
-        #self.vit = Transformer(192, 4, 16, 64, 192, dropout=0.1)
+        self.vit = Transformer(192, 4, 16, 64, 192, dropout=0.1)
 
         patch_height, patch_width = (8,8)
 
         num_patches = (128 // patch_height) * (128 // patch_width)
         patch_dim = 3 * patch_height * patch_width
 
-        #self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width)
-        #self.decompose_axis=Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,d=8,e=8)
-        #self.to_patch_embedding = nn.Linear(patch_dim, 192)
+        self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width)
+        self.decompose_axis=Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,d=8,e=8)
+        self.to_patch_embedding = nn.Linear(patch_dim, 192)
 
-        #self.pos_embedding = nn.Embedding(num_patches, 192)
+        self.pos_embedding = nn.Embedding(num_patches, 192)
 
 
         self.resblock_41 = ResnetBlock(512)
@@ -534,9 +533,16 @@ class DecoderQuantized(nn.Layer):
         out = self.convblock_21(out)
         out = self.convblock_22(out)
         out = self.upsample(out)
-        quantize, embed_ind, loss = self.quantize_1(out)
-        book_loss += loss
-        out += quantize
+
+        b, n, _ = out.shape
+
+        ones = paddle.ones((b, n), dtype="int64")
+        seq_length = paddle.cumsum(ones, axis=1)
+        position_ids = seq_length - ones
+        position_ids.stop_gradient = True
+        position_embeddings = self.pos_embedding(position_ids)
+        transformer = self.vit(out+position_embeddings)
+        out += transformer
         out = self.convblock_11(out)
         out = self.final_conv(out)
 

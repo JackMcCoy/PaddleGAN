@@ -85,6 +85,9 @@ class NoiseBlock(nn.Layer):
         x = x + noise
         return x
 
+def default(val, d):
+    return val if exists(val) else d
+
 @DISCRIMINATORS.register()
 class LapStyleSingleDiscriminator(nn.Layer):
     def __init__(self, num_channels=32,kernel_size=3,padding=1,noise=0,num_layer=3):

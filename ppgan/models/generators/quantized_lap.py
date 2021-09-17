@@ -397,7 +397,7 @@ class VectorQuantize(nn.Layer):
         return self.embed.transpose([1, 0])
 
     def forward(self, input):
-        if transformer != 4:
+        if self.transformer_size != 4:
             quantize = self.rearrange(input)
             b, n, _ = quantize.shape
 

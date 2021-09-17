@@ -101,7 +101,7 @@ class LapStyleSingleDiscriminator(nn.Layer):
              nn.Conv2D(3, num_channel, kernel_size=kernel_size, stride=1, padding=padding)),
             ('norm', nn.BatchNorm2D(num_channel)),
             ('LeakyRelu', nn.LeakyReLU(0.2)))
-        self.quantizer = VectorDiscQuantize(128, 1280, 3)
+        self.quantizer = VectorDiscQuantize(64, 1280, 3)
         if noise==1:
             self.head.add_sublayer('noise',NoiseBlock(num_channel))
         self.body = nn.Sequential()
@@ -177,7 +177,7 @@ class VectorDiscQuantize(nn.Layer):
         self.register_buffer('cluster_size', paddle.zeros(shape=(n_embed,)))
         self.register_buffer('embed_avg', embed.clone())
 
-        self.rearrange = Rearrange('b c h w -> b (h w) c')
+        self.rearrange = Rearrange('b c h w -> b c (h w)')
         self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
 
         if transformer_size==1:

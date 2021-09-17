@@ -68,7 +68,7 @@ class LapStyleSingleDiscriminator(nn.Layer):
 @DISCRIMINATORS.register()
 class ViTDiscriminator(nn.Layer):
     def __init__(self, image_size= 128, patch_size=8, dim=128, depth=4, heads=16, mlp_dim=128):
-        super(LapStyleSingleDiscriminator, self).__init__()
+        super(ViTDiscriminator, self).__init__()
         self.vit = ViT(image_size, patch_size, dim, depth, heads, mlp_dim)
 
     def forward(self, x):

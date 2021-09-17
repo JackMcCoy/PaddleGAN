@@ -371,13 +371,13 @@ class VectorQuantize(nn.Layer):
         self.register_buffer('embed_avg', embed.clone())
         if n_embed != 1280:
             self.rearrange = Rearrange('b c h w -> b (h w) c')
-            self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
-        else:
-            self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=4,p2=4)
             if transformer_size==4:
                 self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=32,w=32, e=4,d=4)
             else:
-                self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
+                self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
+        else:
+            self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=4,p2=4)
+            self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
 
         if transformer_size==1:
             self.transformer = Transformer(dim**2*2, 8, 16, 64, dim**2*2, dropout=0.1)
@@ -447,7 +447,7 @@ class DecoderQuantized(nn.Layer):
         self.quantize_4 = VectorQuantize(16, 320, 1)
         self.quantize_3 = VectorQuantize(32, 320, 2)
         self.quantize_2 = VectorQuantize(64, 1280, 3)
-        self.quantize_1 = VectorQuantize(64, 1280, 4)
+        self.quantize_1 = VectorQuantize(64, 2560, 4)
         #self.vit = Transformer(192, 4, 16, 64, 192, dropout=0.1)
 
         patch_height, patch_width = (8,8)

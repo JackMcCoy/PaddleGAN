@@ -434,6 +434,7 @@ class VectorQuantize(nn.Layer):
         loss = self.perceptual_loss(quantize.detach(), input, norm=True) * self.commitment
 
         if self.transformer_size==4:
+            quantize = input + (quantize - input).detach()
             quantize = self.rearrange(quantize)
             b, n, _ = quantize.shape
 

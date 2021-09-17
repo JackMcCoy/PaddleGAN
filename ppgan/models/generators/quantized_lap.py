@@ -387,7 +387,7 @@ class VectorQuantize(nn.Layer):
             self.transformer = Transformer(2048, 8, 16, 64, 768, dropout=0.1)
             self.pos_embedding = nn.Embedding(256, 2048)
         elif transformer_size==4:
-            self.transformer = Transformer(1024, 1, 12, 64, 64, dropout=0.1)
+            self.transformer = Transformer(1024, 1, 8, 64, 64, dropout=0.1)
             self.pos_embedding = nn.Embedding(256, 1024)
             self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (c p1 p2)', p1 = 4, p2 = 4)
             self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=32,w=32, e=4,d=4)

@@ -512,5 +512,5 @@ class DecoderQuantized(nn.Layer):
         position_embeddings = self.pos_embedding(position_ids)
         transformed = self.vit(transformed+position_embeddings)
         transformed = self.decompose_axis(transformed)
-        out += out+transformed
+        out += transformed
         return out, book_loss

@@ -7,6 +7,7 @@ import numpy as np
 from functools import partial, reduce
 from einops.layers.paddle import Rearrange
 
+from ppgan.models.criterons.pixel_loss import CalcContentLoss
 from .builder import GENERATORS
 from . import ResnetBlock, ConvBlock, adaptive_instance_normalization, Transformer
 
@@ -553,6 +554,6 @@ class VectorQuantize(nn.Layer):
             embed_normalized = self.embed_avg / cluster_size.unsqueeze(axis=0)
             self.embed = embed_normalized
 
-        loss = F.mse_loss(quantize.detach(), input) * self.commitment
+        loss = CalcContentLoss(quantize.detach(), input) * self.commitment
 
         return quantize, embed_ind, loss

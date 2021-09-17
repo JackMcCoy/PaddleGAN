@@ -472,7 +472,7 @@ class DecoderQuantized(nn.Layer):
 
         self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width)
         self.decompose_axis=Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,d=8,e=8)
-        self.to_patch_embedding = nn.Linear(patch_dim, 192)
+        self.to_patch_embedding = nn.Linear(256, 4096)
 
         self.pos_embedding = nn.Embedding(256, 4096)
 
@@ -536,7 +536,7 @@ class DecoderQuantized(nn.Layer):
 
         b, n, _, _ = out.shape
 
-        ones = paddle.ones((b, n), dtype="int64")
+        ones = paddle.ones((b, 256), dtype="int64")
         seq_length = paddle.cumsum(ones, axis=1)
         position_ids = seq_length - ones
         position_ids.stop_gradient = True

@@ -8,6 +8,7 @@ from functools import partial, reduce
 
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
+from . import einsum
 from .builder import GENERATORS
 
 # helpers
@@ -286,13 +287,13 @@ def linear_attn(q, k, v, kv_mask = None):
     attn = paddle.matmul(q, context)
     return attn.reshape(q.shape)
 
-class LocalAttention(nn.Layer):
+class LocalAttention(nn.Module):
     def __init__(
         self,
         window_size,
         causal = False,
-        look_backward = 0,
-        look_forward = 0,
+        look_backward = 1,
+        look_forward = None,
         dropout = 0.,
         shared_qk = False,
         rel_pos_emb_config = None,
@@ -319,18 +320,14 @@ class LocalAttention(nn.Layer):
         if exists(rel_pos_emb_config) or exists(dim):  # backwards compatible with old `rel_pos_emb_config` deprecated argument
             if exists(rel_pos_emb_config):
                 dim = rel_pos_emb_config[0]
-                print(dim)
-            print('dim'+str(dim))
             self.rel_pos = SinusoidalEmbeddings(dim)
 
     def forward(self, q, k, v, input_mask = None):
         shape = q.shape
-        v_cls=v[:,:,0]
-        q_cls=q[:,:,0]
-        k_cls=q[:,:,0]
-        merge_into_batch = lambda t: t.reshape((-1, t.shape[-2],t.shape[-1]))
 
-        q, k, v,v_cls,k_cls = map(merge_into_batch, (q[:,:,1:], k[:,:,1:], v[:,:,1:],v_cls,k_cls))
+        merge_into_batch = lambda t: t.reshape(-1, *t.shape[-2:])
+        q, k, v = map(merge_into_batch, (q, k, v))
+
         if exists(self.rel_pos):
             pos_emb = self.rel_pos(q)
             q, k = apply_rotary_pos_emb(q, k, pos_emb)
@@ -347,33 +344,6 @@ class LocalAttention(nn.Layer):
 
         if shared_qk:
             k = F.normalize(k, 2, axis=-1)
-
-        ticker = paddle.reshape(paddle.arange(t),(1,-1))
-        b_t = ticker.reshape((1, windows, window_size))
-
-        bucket_fn = lambda t: t.reshape((b, windows, window_size, -1))
-        bq, bk, bv = map(bucket_fn, (q, k, v))
-        cls_fn = lambda t: t.reshape((b, 1, 1, -1))
-        v_cls,k_cls = map(cls_fn, (v_cls,k_cls))
-
-        look_around_kwargs = {'backward': look_backward, 'forward': look_forward}
-        bk = look_around(bk,cls=k_cls, **look_around_kwargs)
-        bv = look_around(bv,cls=v_cls, **look_around_kwargs)
-
-        bq_t = b_t
-        bq_k = look_around(b_t,cls=paddle.ones((k_cls.shape)) **look_around_kwargs)
-
-        dots = paddle.matmul(bq, paddle.transpose(bk,(0,1,3,2))) * (e ** -0.5)
-
-        mask_value = max_neg_value(dots)
-        a,b,c,d = bq_t.shape
-        reshaped_bq_t = paddle.reshape(bq_t,(a,b,c,1,d))
-        a,b,c,d = bq_k.shape
-        reshaped_bq_k = paddle.reshape(bq_k,(a,b,c,1,d))
-        if shared_qk:
-            mask = reshaped_bq_t == reshape_bq_k
-            dots[mask] = TOKEN_SELF_ATTN_VALUE
-            del mask
 
         if causal:
             mask = reshaped_bq_t < reshape_bq_k
@@ -405,16 +375,16 @@ class LocalAttention(nn.Layer):
             dots[~mask]= mask_value
             del mask
 
-        attn = nn.Softmax(dots)
+        attn = nn.Softmax(dim=-1)
         attn = self.dropout(attn)
 
-        out = paddle.matmul(attn, bv)
+        out = einsum('bhij,bhje->bhie', attn, bv)
         out = out.reshape((-1, t, e))
 
         if self.autopad:
             out = out[:, :orig_t, :]
 
-        return out.reshape((*shape))
+        return out.reshape(*shape)
 
 class SelfAttention(nn.Layer):
     def __init__(self, dim, heads, causal = False, dim_head = None, blindspot_size = 1, n_local_attn_heads = 0, local_attn_window_size = 128, receives_context = False, dropout = 0., attn_dropout = 0.):
@@ -428,6 +398,9 @@ class SelfAttention(nn.Layer):
 
         self.global_attn_heads = heads - n_local_attn_heads
         self.global_attn_fn = linear_attn
+
+        self.local_attn_heads = n_local_attn_heads
+        self.local_attn  = LocalAttention(local_attn_window_size, causal = causal, dropout = attn_dropout)
 
         self.to_q = nn.Linear(dim, d_heads * heads, bias_attr = False)
 
@@ -459,9 +432,20 @@ class SelfAttention(nn.Layer):
 
         out = []
 
-        kv_mask = input_mask if not self.receives_context else context_mask
-        global_out = self.global_attn_fn(q, k, v, kv_mask = kv_mask)
-        out.append(global_out)
+        split_index_fn = partial(split_at_index, 1, self.local_attn_heads)
+
+        (lq, q), (lk, k), (lv, v) = map(split_index_fn, (q, k, v))
+
+        has_local, has_global = map(lambda x: x.shape[1] > 0, (lq, q))
+
+        if has_local:
+            local_out = self.local_attn(lq, lk, lv, input_mask = input_mask)
+            out.append(local_out)
+
+        if has_global:
+            kv_mask = input_mask if not self.receives_context else context_mask
+            global_out = self.global_attn_fn(q, k, v, kv_mask = kv_mask)
+            out.append(global_out)
 
         attn = paddle.concat(out, axis=1)
         attn = paddle.transpose(attn,(0,2,1,3)).reshape((b, t, -1))

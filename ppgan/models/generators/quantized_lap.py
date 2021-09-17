@@ -476,6 +476,20 @@ class DecoderQuantized(nn.Layer):
                                         nn.Conv2D(64, 3, (3, 3)))
 
 
+    def freeze_weight(self, requires_grad):
+        for layer in [self.resblock_41,
+                      self.convblock_41,
+                      self.resblock_31,
+                      self.convblock_31,
+                      self.convblock_22,
+                      self.convblock_21,
+                      self.convblock_11,
+                      self.quantize_4,
+                      self.quantize_3,
+                      self.quantize_2]:
+            for param in layer.parameters():
+                    param.trainable = requires_grad
+
     def forward(self, cF, sF):
         out = adaptive_instance_normalization(cF['r41'], sF['r41'])
         quantize, embed_ind, book_loss = self.quantize_4(out)

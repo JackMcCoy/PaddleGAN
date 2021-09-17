@@ -544,7 +544,7 @@ class DecoderQuantized(nn.Layer):
         transformer = self.rearrange(out) + position_embeddings
         transformer = self.vit(transformer)
         transformer = self.decompose_axis(transformer)
-        out += transformer
+        out += (transformer - out)
         out = self.convblock_11(out)
         out = self.final_conv(out)
 

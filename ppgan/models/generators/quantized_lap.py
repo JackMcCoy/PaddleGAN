@@ -7,10 +7,43 @@ import numpy as np
 from functools import partial, reduce
 from einops.layers.paddle import Rearrange
 
-from ..criterions.pixel_loss import CalcContentLoss
 from .builder import GENERATORS
 from . import ResnetBlock, ConvBlock, adaptive_instance_normalization, Transformer
 
+
+class CalcContentLoss():
+    """Calc Content Loss.
+    """
+    def __init__(self):
+        self.mse_loss = nn.MSELoss()
+
+    def __call__(self, pred, target, norm=False):
+        """Forward Function.
+
+        Args:
+            pred (Tensor): of shape (N, C, H, W). Predicted tensor.
+            target (Tensor): of shape (N, C, H, W). Ground truth tensor.
+            norm(Bool): whether use mean_variance_norm for pred and target
+        """
+        if (norm == False):
+            return self.mse_loss(pred, target)
+        else:
+            return self.mse_loss(mean_variance_norm(pred),
+                                 mean_variance_norm(target))
+
+def mean_variance_norm(feat):
+    """mean_variance_norm.
+
+    Args:
+        feat (Tensor): Tensor with shape (N, C, H, W).
+
+    Return:
+        Normalized feat with shape (N, C, H, W)
+    """
+    size = feat.shape
+    mean, std = calc_mean_std(feat)
+    normalized_feat = (feat - mean.expand(size)) / std.expand(size)
+    return normalized_feat
 
 def einsum(equation, *operands):
     r"""

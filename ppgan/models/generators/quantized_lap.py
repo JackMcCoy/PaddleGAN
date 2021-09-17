@@ -8,7 +8,7 @@ from functools import partial, reduce
 from einops.layers.paddle import Rearrange
 
 from .builder import GENERATORS
-from . import ResnetBlock, ConvBlock, adaptive_instance_normalization, Transformer
+from . import ResnetBlock, ConvBlock, adaptive_instance_normalization, Transformer, ViT
 
 
 class CalcContentLoss():
@@ -513,6 +513,7 @@ class DecoderQuantized(nn.Layer):
         self.quantize_4 = VectorQuantize(16, 320, 1)
         self.quantize_3 = VectorQuantize(32, 320, 2)
         self.quantize_2 = VectorQuantize(64, 1280, 3)
+        self.vit = ViT(image_size, patch_size, dim, depth, heads, mlp_dim)
 
         self.resblock_41 = ResnetBlock(512)
         self.convblock_41 = ConvBlock(512, 256)
@@ -558,4 +559,5 @@ class DecoderQuantized(nn.Layer):
         out = self.upsample(out)
         out = self.convblock_11(out)
         out = self.final_conv(out)
+        out += self.vit(out)
         return out, book_loss

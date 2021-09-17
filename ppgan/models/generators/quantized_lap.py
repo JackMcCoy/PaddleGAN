@@ -451,9 +451,9 @@ class DecoderQuantized(nn.Layer):
 
         self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width)
         self.decompose_axis=Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,d=8,e=8)
-        self.to_patch_embedding = nn.Linear(patch_dim, 256)
+        self.to_patch_embedding = nn.Linear(patch_dim, 128)
 
-        self.pos_embedding = nn.Embedding(num_patches, 256)
+        self.pos_embedding = nn.Embedding(num_patches, 128)
 
 
         self.resblock_41 = ResnetBlock(512)
@@ -501,8 +501,11 @@ class DecoderQuantized(nn.Layer):
         out = self.convblock_11(out)
         out = self.final_conv(out)
 
+        print(out.shape)
         transformed = self.rearrange(out)
+        print(transformed.shape)
         transformed = self.to_patch_embedding(transformed)
+        print(transformed.shape)
         b, n, _ = transformed.shape
 
         ones = paddle.ones((b, n), dtype="int64")
@@ -511,6 +514,8 @@ class DecoderQuantized(nn.Layer):
         position_ids.stop_gradient = True
         position_embeddings = self.pos_embedding(position_ids)
         transformed = self.vit(transformed+position_embeddings)
+        print(transformed.shape)
         transformed = self.decompose_axis(transformed)
+        print(transformed.shape)
         out += (out-transformed)
         return out, book_loss

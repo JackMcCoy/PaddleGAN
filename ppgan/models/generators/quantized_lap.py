@@ -7,29 +7,10 @@ import numpy as np
 from functools import partial, reduce
 from einops.layers.paddle import Rearrange
 
+from ..criterions.pixel_loss import CalcContentLoss
 from .builder import GENERATORS
 from . import ResnetBlock, ConvBlock, adaptive_instance_normalization, Transformer
 
-
-class CalcContentLoss():
-    """Calc Content Loss.
-    """
-    def __init__(self):
-        self.mse_loss = nn.MSELoss()
-
-    def __call__(self, pred, target, norm=False):
-        """Forward Function.
-
-        Args:
-            pred (Tensor): of shape (N, C, H, W). Predicted tensor.
-            target (Tensor): of shape (N, C, H, W). Ground truth tensor.
-            norm(Bool): whether use mean_variance_norm for pred and target
-        """
-        if (norm == False):
-            return self.mse_loss(pred, target)
-        else:
-            return self.mse_loss(mean_variance_norm(pred),
-                                 mean_variance_norm(target))
 
 def einsum(equation, *operands):
     r"""
@@ -513,6 +494,7 @@ class VectorQuantize(nn.Layer):
         self.decay = decay
         self.eps = eps
         self.commitment = commitment
+        self.perceptual_loss = CalcContentLoss()
 
         embed = paddle.randn((dim, n_embed))
         self.register_buffer('embed', embed)
@@ -573,6 +555,6 @@ class VectorQuantize(nn.Layer):
             embed_normalized = self.embed_avg / cluster_size.unsqueeze(axis=0)
             self.embed = embed_normalized
 
-        loss = CalcContentLoss(quantize.detach(), input, norm=True) * self.commitment
+        loss = self.perceptual_loss(quantize.detach(), input, norm=True) * self.commitment
 
         return quantize, embed_ind, loss

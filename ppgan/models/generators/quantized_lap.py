@@ -534,14 +534,16 @@ class DecoderQuantized(nn.Layer):
         out = self.convblock_22(out)
         out = self.upsample(out)
 
-        b, n, _ = out.shape
+        b, n, _, _ = out.shape
 
         ones = paddle.ones((b, n), dtype="int64")
         seq_length = paddle.cumsum(ones, axis=1)
         position_ids = seq_length - ones
         position_ids.stop_gradient = True
         position_embeddings = self.pos_embedding(position_ids)
-        transformer = self.vit(out+position_embeddings)
+        transformer = self.rearrange(out) + position_embeddings
+        transformer = self.vit(transformer)
+        transformer = self.decompose_axis(transformer)
         out += transformer
         out = self.convblock_11(out)
         out = self.final_conv(out)

@@ -537,7 +537,7 @@ class DecoderQuantized(nn.Layer):
         quantize, embed_ind, loss = self.quantize_1(out)
         book_loss += loss
         out += quantize
-        out = self.convblock_11(quantize)
+        out = self.convblock_11(out)
         out = self.final_conv(out)
 
         return out, book_loss

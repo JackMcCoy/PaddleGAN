@@ -513,7 +513,7 @@ class DecoderQuantized(nn.Layer):
         self.quantize_4 = VectorQuantize(16, 320, 1)
         self.quantize_3 = VectorQuantize(32, 320, 2)
         self.quantize_2 = VectorQuantize(64, 1280, 3)
-        self.vit = ViT(image_size, patch_size, dim, depth, heads, mlp_dim)
+        self.vit = ViT(128, 8, 256, 4, 16, 128)
 
         self.resblock_41 = ResnetBlock(512)
         self.convblock_41 = ConvBlock(512, 256)

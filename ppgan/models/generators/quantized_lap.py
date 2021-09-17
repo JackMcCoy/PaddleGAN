@@ -386,6 +386,9 @@ class VectorQuantize(nn.Layer):
         elif transformer_size==3:
             self.transformer = Transformer(2048, 8, 16, 64, 768, dropout=0.1)
             self.pos_embedding = nn.Embedding(256, 2048)
+        elif transformer_size==4:
+            self.transformer = Transformer(2048, 8, 16, 64, 768, dropout=0.1)
+            self.pos_embedding = nn.Embedding(256, 2048)
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -442,7 +445,8 @@ class DecoderQuantized(nn.Layer):
         self.quantize_4 = VectorQuantize(16, 320, 1)
         self.quantize_3 = VectorQuantize(32, 320, 2)
         self.quantize_2 = VectorQuantize(64, 1280, 3)
-        self.vit = Transformer(192, 4, 16, 64, 192, dropout=0.1)
+        self.quantize_1 = VectorQuantize(128, 1280, 4)
+        #self.vit = Transformer(192, 4, 16, 64, 192, dropout=0.1)
 
         patch_height, patch_width = (8,8)
 
@@ -512,19 +516,8 @@ class DecoderQuantized(nn.Layer):
         out = self.convblock_21(out)
         out = self.convblock_22(out)
         out = self.upsample(out)
-        out = self.convblock_11(out)
+        quantize, embed_ind, book_loss = self.quantize_1(out)
+        out = self.convblock_11(quantize)
         out = self.final_conv(out)
 
-        transformed = self.rearrange(out)
-        transformed = self.to_patch_embedding(transformed)
-        b, n, _ = transformed.shape
-
-        ones = paddle.ones((b, n), dtype="int64")
-        seq_length = paddle.cumsum(ones, axis=1)
-        position_ids = seq_length - ones
-        position_ids.stop_gradient = True
-        position_embeddings = self.pos_embedding(position_ids)
-        transformed = self.vit(transformed+position_embeddings)
-        transformed = self.decompose_axis(transformed)
-        out += transformed
         return out, book_loss

@@ -650,7 +650,7 @@ class LocalAttention(nn.Layer):
         return out.reshape(*shape)
 
 class SelfAttention(nn.Layer):
-    def __init__(self, dim, heads, causal = False, dim_head = None, blindspot_size = 1, n_local_attn_heads = 0, local_attn_window_size = 128, receives_context = False, dropout = 0., attn_dropout = 0.):
+    def __init__(self, dim, heads, causal = False, dim_head = None, blindspot_size = 1, n_local_attn_heads = 0, local_attn_window_size = 16, receives_context = False, dropout = 0., attn_dropout = 0.):
         super().__init__()
         assert dim_head or (dim % heads) == 0, 'embedding dimension must be divisible by number of heads'
         d_heads = default(dim_head, dim // heads)

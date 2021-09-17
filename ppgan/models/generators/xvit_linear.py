@@ -550,7 +550,7 @@ def linear_attn(q, k, v, kv_mask = None):
     attn = paddle.matmul(q, context)
     return attn.reshape(q.shape)
 
-class LocalAttention(nn.Module):
+class LocalAttention(nn.Layer):
     def __init__(
         self,
         window_size,
@@ -588,7 +588,7 @@ class LocalAttention(nn.Module):
     def forward(self, q, k, v, input_mask = None):
         shape = q.shape
 
-        merge_into_batch = lambda t: t.reshape(-1, *t.shape[-2:])
+        merge_into_batch = lambda t: t.reshape((-1, *t.shape[-2:]))
         q, k, v = map(merge_into_batch, (q, k, v))
 
         if exists(self.rel_pos):

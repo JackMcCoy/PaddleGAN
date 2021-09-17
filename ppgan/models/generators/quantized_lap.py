@@ -387,7 +387,7 @@ class VectorQuantize(nn.Layer):
             self.transformer = Transformer(2048, 8, 16, 64, 768, dropout=0.1)
             self.pos_embedding = nn.Embedding(256, 2048)
         elif transformer_size==4:
-            self.transformer = Transformer(1024, 2, 12, 64, 64, dropout=0.1)
+            self.transformer = Transformer(1024, 1, 12, 64, 64, dropout=0.1)
             self.pos_embedding = nn.Embedding(256, 1024)
             self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (c p1 p2)', p1 = 4, p2 = 4)
             self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=32,w=32, e=4,d=4)
@@ -396,19 +396,22 @@ class VectorQuantize(nn.Layer):
         return self.embed.transpose([1, 0])
 
     def forward(self, input):
-        quantize = self.rearrange(input)
-        b, n, _ = quantize.shape
+        if self.transformer_size != 4:
+            quantize = self.rearrange(input)
+            b, n, _ = quantize.shape
 
-        ones = paddle.ones((b, n), dtype="int64")
-        seq_length = paddle.cumsum(ones, axis=1)
-        position_ids = seq_length - ones
-        position_ids.stop_gradient = True
-        position_embeddings = self.pos_embedding(position_ids)
+            ones = paddle.ones((b, n), dtype="int64")
+            seq_length = paddle.cumsum(ones, axis=1)
+            position_ids = seq_length - ones
+            position_ids.stop_gradient = True
+            position_embeddings = self.pos_embedding(position_ids)
 
-        quantize = self.transformer(quantize + position_embeddings)
-        quantize = self.decompose_axis(quantize)
+            quantize = self.transformer(quantize + position_embeddings)
+            quantize = self.decompose_axis(quantize)
 
-        quantize = input + (quantize - input)
+            quantize = input + (quantize - input).detach()
+        else:
+            quantize = input
         flatten = quantize.reshape((-1, self.dim))
         dist = (
             flatten.pow(2).sum(1, keepdim=True)
@@ -430,6 +433,20 @@ class VectorQuantize(nn.Layer):
 
         loss = self.perceptual_loss(quantize.detach(), input, norm=True) * self.commitment
 
+        if self.transformer_size==4:
+            quantize = self.rearrange(quantize)
+            b, n, _ = quantize.shape
+
+            ones = paddle.ones((b, n), dtype="int64")
+            seq_length = paddle.cumsum(ones, axis=1)
+            position_ids = seq_length - ones
+            position_ids.stop_gradient = True
+            position_embeddings = self.pos_embedding(position_ids)
+
+            quantize = self.transformer(quantize + position_embeddings)
+            quantize = self.decompose_axis(quantize)
+
+            quantize = input + (quantize - input).detach()
         return quantize, embed_ind, loss
 
 

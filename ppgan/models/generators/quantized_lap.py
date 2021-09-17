@@ -514,6 +514,12 @@ class DecoderQuantized(nn.Layer):
         self.quantize_3 = VectorQuantize(32, 320, 2)
         self.quantize_2 = VectorQuantize(64, 1280, 3)
         self.vit = LinearAttentionTransformer(128, 4,16, 128)
+
+        patch_height, patch_width = (8,8)
+
+        num_patches = (128 // patch_height) * (128 // patch_width)
+        patch_dim = 3 * patch_height * patch_width
+
         self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width)
         self.decompose_axis=Rearrange('b (h w) (p1 p2 c) -> b c (h p1) (w p2)', w=(image_width // patch_width),p1=patch_height,p2=patch_width)
         self.to_patch_embedding = nn.Linear(patch_dim, dim)

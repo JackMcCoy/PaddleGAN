@@ -408,7 +408,7 @@ class VectorQuantize(nn.Layer):
         quantize = self.transformer(quantize + position_embeddings)
         quantize = self.decompose_axis(quantize)
 
-        quantize = input + (quantize - input).detach()
+        quantize = input + (quantize - input)
         flatten = quantize.reshape((-1, self.dim))
         dist = (
             flatten.pow(2).sum(1, keepdim=True)

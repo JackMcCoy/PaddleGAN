@@ -501,11 +501,8 @@ class DecoderQuantized(nn.Layer):
         out = self.convblock_11(out)
         out = self.final_conv(out)
 
-        print(out.shape)
         transformed = self.rearrange(out)
-        print(transformed.shape)
         transformed = self.to_patch_embedding(transformed)
-        print(transformed.shape)
         b, n, _ = transformed.shape
 
         ones = paddle.ones((b, n), dtype="int64")
@@ -514,8 +511,6 @@ class DecoderQuantized(nn.Layer):
         position_ids.stop_gradient = True
         position_embeddings = self.pos_embedding(position_ids)
         transformed = self.vit(transformed+position_embeddings)
-        print(transformed.shape)
         transformed = self.decompose_axis(transformed)
-        print(transformed.shape)
         out += (out-transformed)
         return out, book_loss

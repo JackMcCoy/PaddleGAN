@@ -371,6 +371,8 @@ class VectorQuantize(nn.Layer):
         self.register_buffer('embed_avg', embed.clone())
         if n_embed != 1280:
             self.rearrange = Rearrange('b c h w -> b (h w) c')
+            if transformer_size==4:
+                self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=32,w=32, e=4,d=4)
             self.decompose_axis = Rearrange('b (h w) c -> b c h w',h=dim)
         else:
             self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)',p1=4,p2=4)
@@ -393,7 +395,6 @@ class VectorQuantize(nn.Layer):
         return self.embed.transpose([1, 0])
 
     def forward(self, input):
-        print(input.shape)
         quantize = self.rearrange(input)
         b, n, _ = quantize.shape
 
@@ -404,7 +405,6 @@ class VectorQuantize(nn.Layer):
         position_embeddings = self.pos_embedding(position_ids)
 
         quantize = self.transformer(quantize + position_embeddings)
-        print(quantize.shape)
         quantize = self.decompose_axis(quantize)
 
         quantize = input + (quantize - input).detach()

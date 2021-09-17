@@ -390,7 +390,7 @@ class VectorQuantize(nn.Layer):
             self.pos_embedding = nn.Embedding(256, 2048)
         elif transformer_size==4:
             self.transformer = Transformer(1024, 8, 16, 64, 768, dropout=0.1)
-            self.pos_embedding = nn.Embedding(256, 1024)
+            self.pos_embedding = nn.Embedding(128, 1024)
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -447,7 +447,7 @@ class DecoderQuantized(nn.Layer):
         self.quantize_4 = VectorQuantize(16, 320, 1)
         self.quantize_3 = VectorQuantize(32, 320, 2)
         self.quantize_2 = VectorQuantize(64, 1280, 3)
-        self.quantize_1 = VectorQuantize(32, 2560, 4)
+        self.quantize_1 = VectorQuantize(64, 2560, 4)
         #self.vit = Transformer(192, 4, 16, 64, 192, dropout=0.1)
 
         patch_height, patch_width = (8,8)

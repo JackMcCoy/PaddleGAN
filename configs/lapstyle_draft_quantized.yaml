@@ -46,7 +46,7 @@ dataset:
     load_size: 128
     style_upsize: 1
     crop_size: 128
-    num_workers: 8
+    num_workers: 4
     batch_size: 1
   test:
     name: LapStyleThumbsetInference

@@ -573,6 +573,6 @@ class VectorQuantize(nn.Layer):
             embed_normalized = self.embed_avg / cluster_size.unsqueeze(axis=0)
             self.embed = embed_normalized
 
-        loss = CalcContentLoss(quantize.detach(), input) * self.commitment
+        loss = CalcContentLoss(quantize.detach(), input, norm=True) * self.commitment
 
         return quantize, embed_ind, loss

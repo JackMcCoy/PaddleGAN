@@ -451,9 +451,9 @@ class DecoderQuantized(nn.Layer):
 
         self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width)
         self.decompose_axis=Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,d=8,e=8)
-        self.to_patch_embedding = nn.Linear(patch_dim, 128)
+        self.to_patch_embedding = nn.Linear(patch_dim, 256)
 
-        self.pos_embedding = nn.Embedding(num_patches, 128)
+        self.pos_embedding = nn.Embedding(num_patches, 256)
 
 
         self.resblock_41 = ResnetBlock(512)

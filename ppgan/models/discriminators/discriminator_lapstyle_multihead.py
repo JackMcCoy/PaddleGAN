@@ -100,8 +100,8 @@ class LapStyleSingleDiscriminator(nn.Layer):
             ('conv',
              nn.Conv2D(3, num_channel, kernel_size=kernel_size, stride=1, padding=padding)),
             ('norm', nn.BatchNorm2D(num_channel)),
-            ('LeakyRelu', nn.LeakyReLU(0.2)),
-            ('Quantization'), VectorDiscQuantize(128, 1280, 3))
+            ('LeakyRelu', nn.LeakyReLU(0.2)))
+        self.quantizer = VectorDiscQuantize(128, 1280, 3)
         if noise==1:
             self.head.add_sublayer('noise',NoiseBlock(num_channel))
         self.body = nn.Sequential()
@@ -126,9 +126,10 @@ class LapStyleSingleDiscriminator(nn.Layer):
 
     def forward(self, x):
         x = self.head(x)
+        x, ind, book_loss = self.quantizer(x)
         x = self.body(x)
         x = self.tail(x)
-        return x
+        return x, book_loss
 
 @DISCRIMINATORS.register()
 class LapStyleMultiresDiscriminator(nn.Layer):

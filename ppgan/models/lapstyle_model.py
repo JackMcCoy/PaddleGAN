@@ -380,7 +380,7 @@ class LapStyleDraXDOG(BaseModel):
     def backward_D(self):
         """Calculate GAN loss for the discriminator"""
         pred_fake = self.nets['netD'](self.stylized.detach())
-        self.loss_D_fake = self.gan_criterion(pred_fake, False)
+        self.loss_D_fake, book_loss = self.gan_criterion(pred_fake, False)
         pred_real = self.nets['netD'](self.ci)
         self.loss_D_real = self.gan_criterion(pred_real, True)
         self.loss_D = (self.loss_D_fake + self.loss_D_real) * 0.5
@@ -388,7 +388,7 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['D_fake_loss'] = self.loss_D_fake
         self.losses['D_real_loss'] = self.loss_D_real
 
-        return self.loss_D
+        return self.loss_D + book_loss
 
     def train_iter(self, optimizers=None):
         """Calculate losses, gradients, and update network weights"""

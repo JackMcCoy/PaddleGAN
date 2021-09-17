@@ -608,6 +608,28 @@ class LocalAttention(nn.Layer):
         if shared_qk:
             k = F.normalize(k, 2, axis=-1)
 
+        ticker = paddle.arange(t)[None, :]
+        b_t = ticker.reshape((1, windows, window_size))
+
+        bucket_fn = lambda t: t.reshape((b, windows, window_size, -1))
+        bq, bk, bv = map(bucket_fn, (q, k, v))
+
+        look_around_kwargs = {'backward': look_backward, 'forward': look_forward}
+        bk = look_around(bk, **look_around_kwargs)
+        bv = look_around(bv, **look_around_kwargs)
+
+        bq_t = b_t
+        bq_k = look_around(b_t, **look_around_kwargs)
+
+        dots = einsum('bhie,bhje->bhij', bq, bk) * (e ** -0.5)
+
+        mask_value = max_neg_value(dots)
+
+        if shared_qk:
+            mask = bq_t[:, :, :, None] == bq_k[:, :, None, :]
+            dots.masked_fill_(mask, -5e4)
+            del mask
+
         if causal:
             mask = reshaped_bq_t < reshape_bq_k
 
@@ -618,7 +640,7 @@ class LocalAttention(nn.Layer):
             dots[mask] = mask_value
             del mask
 
-        mask = reshaped_bq_k == -1
+        mask = bq_k == -1
         assert(paddle.any(mask)==False)
         del mask
 

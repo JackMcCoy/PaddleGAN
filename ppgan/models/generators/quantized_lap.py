@@ -463,7 +463,7 @@ class DecoderQuantized(nn.Layer):
         self.quantize_4 = VectorQuantize(16, 320, 1)
         self.quantize_3 = VectorQuantize(32, 320, 2)
         self.quantize_2 = VectorQuantize(64, 1280, 3)
-        self.vit = Transformer(1025, 4, 16, 512, 192, dropout=0.1)
+        self.vit = Transformer(1024, 4, 16, 512, 192, dropout=0.1)
 
         patch_height, patch_width = (8,8)
 

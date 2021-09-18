@@ -463,7 +463,7 @@ class DecoderQuantized(nn.Layer):
         self.quantize_4 = VectorQuantize(16, 320, 1)
         self.quantize_3 = VectorQuantize(32, 320, 2)
         self.quantize_2 = VectorQuantize(64, 1280, 3)
-        self.vit = Transformer(4096, 4, 16, 256, 192, dropout=0.1)
+        self.vit = Transformer(1025, 4, 16, 512, 192, dropout=0.1)
 
         patch_height, patch_width = (8,8)
 
@@ -472,9 +472,9 @@ class DecoderQuantized(nn.Layer):
 
         self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = 4, p2 = 4)
         self.decompose_axis=Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=32,w=32,d=4,e=4)
-        self.to_patch_embedding = nn.Linear(4096, 4096)
+        self.to_patch_embedding = nn.Linear(1024, 1024)
 
-        self.pos_embedding = nn.Embedding(256, 4096)
+        self.pos_embedding = nn.Embedding(1024, 1024)
 
 
         self.resblock_41 = ResnetBlock(512)

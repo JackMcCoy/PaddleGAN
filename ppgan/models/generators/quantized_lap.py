@@ -390,7 +390,7 @@ class VectorQuantize(nn.Layer):
             self.transformer = Transformer(1024, 1, 8, 64, 64, dropout=0.1)
             self.pos_embedding = nn.Embedding(256, 1024)
             self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (c p1 p2)', p1 = 4, p2 = 4)
-            self.decompose_axis = Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=32,w=32, e=4,d=4)
+            self.decompose_axis = Rearrange('b (h w) (c e d) -> b c (h e) (w d)',h=32,w=32, e=4,d=4)
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
@@ -456,8 +456,8 @@ class DecoderQuantized(nn.Layer):
         num_patches = (128 // patch_height) * (128 // patch_width)
         patch_dim = 3 * patch_height * patch_width
 
-        self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width)
-        self.decompose_axis=Rearrange('b (h w) (e d c) -> b c (h e) (w d)',h=16,d=8,e=8)
+        self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (c p1 p2)', p1 = patch_height, p2 = patch_width)
+        self.decompose_axis=Rearrange('b (h w) (c e d) -> b c (h e) (w d)',h=16,d=8,e=8)
         self.to_patch_embedding = nn.Linear(256, 192)
 
         self.pos_embedding = nn.Embedding(256, 192)

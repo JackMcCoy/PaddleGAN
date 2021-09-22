@@ -525,7 +525,7 @@ class DecoderQuantized(nn.Layer):
 
         b, n, _, _ = out.shape
 
-        ones = paddle.ones((1, 256, 192), dtype="int64")
+        ones = paddle.ones((1, 256), dtype="int64")
         seq_length = paddle.cumsum(ones, axis=1)
         position_ids = seq_length - ones
         position_ids.stop_gradient = True

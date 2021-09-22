@@ -433,20 +433,6 @@ class VectorQuantize(nn.Layer):
 
         loss = self.perceptual_loss(quantize.detach(), input, norm=True) * self.commitment
 
-        if self.transformer_size==4:
-            quantize = self.rearrange(quantize)
-            b, n, _ = quantize.shape
-
-            ones = paddle.ones((b, n), dtype="int64")
-            seq_length = paddle.cumsum(ones, axis=1)
-            position_ids = seq_length - ones
-            position_ids.stop_gradient = True
-            position_embeddings = self.pos_embedding(position_ids)
-
-            quantize = self.transformer(quantize + position_embeddings)
-            quantize = self.decompose_axis(quantize)
-
-            quantize = input + (quantize - input).detach()
         return quantize, embed_ind, loss
 
 
@@ -534,9 +520,12 @@ class DecoderQuantized(nn.Layer):
         out = self.convblock_22(out)
         out = self.upsample(out)
 
+        out = self.convblock_11(out)
+        out = self.final_conv(out)
+
         b, n, _, _ = out.shape
 
-        ones = paddle.ones((b, 256), dtype="int64")
+        ones = paddle.ones((b, 128), dtype="int64")
         seq_length = paddle.cumsum(ones, axis=1)
         position_ids = seq_length - ones
         position_ids.stop_gradient = True
@@ -544,8 +533,6 @@ class DecoderQuantized(nn.Layer):
         transformer = self.rearrange(out) + position_embeddings
         transformer = self.vit(transformer)
         transformer = self.decompose_axis(transformer)
-        out += (transformer - out)
-        out = self.convblock_11(out)
-        out = self.final_conv(out)
+        out += (transformer)
 
         return out, book_loss

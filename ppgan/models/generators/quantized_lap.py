@@ -530,7 +530,9 @@ class DecoderQuantized(nn.Layer):
         position_ids = seq_length - ones
         position_ids.stop_gradient = True
         position_embeddings = self.pos_embedding(position_ids)
-        transformer = self.rearrange(out) + position_embeddings
+        transformer = self.rearrange(out)
+        print(transformer.shape)
+        transformer = transformer + position_embeddings
         transformer = self.vit(transformer)
         transformer = self.decompose_axis(transformer)
         out += (transformer)

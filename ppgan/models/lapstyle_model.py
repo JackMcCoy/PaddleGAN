@@ -302,13 +302,14 @@ class LapStyleDraXDOG(BaseModel):
         #self.visual_items['stylized_vit'] = self.stylized
 
     def backward_Dec(self):
+        '''
         self.cX,_ = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
         self.sX,_ = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
         self.cXF = self.nets['net_enc'](self.cX)
         self.sXF = self.nets['net_enc'](self.sX)
         stylized_dog,_ = xdog(paddle.clip(self.stylized,min=0,max=1),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
         self.cdogF = self.nets['net_enc'](stylized_dog)
-
+        '''
         self.tF = self.nets['net_enc'](self.stylized)
         """content loss"""
         self.loss_c = 0
@@ -353,7 +354,7 @@ class LapStyleDraXDOG(BaseModel):
                 self.tF['r41'], self.cF['r41'])
         self.losses['loss_style_remd'] = self.loss_style_remd
         self.losses['loss_content_relt'] = self.loss_content_relt
-
+        '''
         mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])+self.calc_content_loss(self.tF['r41'], self.cXF['r41'])
         mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])+self.calc_content_loss(self.cdogF['r41'], self.cXF['r41'])
         mxdog_style = self.mse_loss(self.cdogF['r31'],self.sXF['r31']) + self.mse_loss(self.cdogF['r41'],self.sXF['r41'])
@@ -362,7 +363,7 @@ class LapStyleDraXDOG(BaseModel):
         self.losses['loss_CnsC'] = mxdog_content_contraint*100
         self.losses['loss_CnsS'] = mxdog_style * 1000
         mxdog_losses = mxdog_content * .3 + mxdog_content_contraint *100 + mxdog_style * 1000
-
+        '''
         self.losses['map_loss'] = self.map_loss
 
         pred_fake = self.nets['netD'](self.stylized)
@@ -373,7 +374,6 @@ class LapStyleDraXDOG(BaseModel):
                     self.l_identity1 * 25 + self.l_identity2 * .5 + \
                     self.l_identity3 * 50 + self.l_identity4 * 1 + \
                     self.loss_content_relt * 16 +\
-                    mxdog_losses * self.mxdog_weight +\
                     self.map_loss + book_loss + book_loss_s
 
         return self.loss

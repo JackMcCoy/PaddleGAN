@@ -476,6 +476,7 @@ class DecoderQuantized(nn.Layer):
         self.downsample = nn.Upsample(scale_factor=.5, mode='nearest')
         self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
 
+        self.transformer_res = ResnetBlock(3)
         self.transformer_conv = ConvBlock(3, 3)
         self.transformer_relu = nn.ReLU()
         #self.skip_connect_weight = paddle.create_parameter(shape=(1, ), dtype='float32', is_bias=True)
@@ -535,8 +536,8 @@ class DecoderQuantized(nn.Layer):
         transformer = transformer + position_embeddings
         transformer = self.vit(transformer)
         transformer = self.decompose_axis(transformer)
+        transformer = self.transformer_res(transformer)
         transformer = self.transformer_conv(transformer)
-        transformer = self.transformer_relu(transformer)
         out += (transformer)
 
         return out, book_loss

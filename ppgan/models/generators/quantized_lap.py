@@ -536,7 +536,8 @@ class DecoderQuantized(nn.Layer):
         transformer = transformer + position_embeddings
         transformer = self.vit(transformer)
         transformer = self.decompose_axis(transformer)
+        transformer = self.transformer_res(transformer)
+        transformer = self.transformer_conv(transformer)
         out += (transformer)
-        out = self.transformer_res(out)
-        out = self.transformer_conv(out)
+
         return out, book_loss

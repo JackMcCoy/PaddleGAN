@@ -353,13 +353,11 @@ class VectorQuantize(nn.Layer):
         decay = 0.8,
         commitment = 1.,
         eps = 1e-5,
-        n_embed = None,
     ):
         super().__init__()
-        n_embed = default(n_embed, codebook_size)
 
         self.dim = dim
-        self.n_embed = n_embed
+        self.n_embed = codebook_size
         self.decay = decay
         self.eps = eps
         self.commitment = commitment
@@ -546,14 +544,25 @@ class DecoderQuantized(nn.Layer):
 class QuantizedRev(nn.Layer):
     def __init__(self):
         super(QuantizedRev, self).__init__()
-        DownBlock = []
-        DownBlock += [
+        self.DownBlock = nn.Sequential(
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            nn.Conv2D(3, 64, (3, 3)),
+            nn.Conv2D(6, 64, (3, 3)),
+            nn.ReLU(),
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(64, 64, (3, 3), stride=2),
             nn.ReLU()
-        ]
+        )
 
         self.resblock = ResnetBlock(64)
+
+        self.UpBlock = nn.Sequential(
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(3, 64, (3, 3)),
+            nn.ReLU(),
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(64, 64, (3, 3), stride=2),
+            nn.ReLU()
+        )
 
         self.vit = Transformer(192, 8, 16, 256, 192, dropout=0.05, shift_tokens=True)
         self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (c p1 p2)', p1=patch_height,
@@ -575,9 +584,11 @@ class QuantizedRev(nn.Layer):
     def forward(self, input):
 
         position_embeddings = self.pos_embedding(self.position_ids)
-        transformer = self.rearrange(input)
-        transformer = transformer + position_embeddings
-        transformer = self.vit(transformer)
-        transformer = self.decompose_axis(transformer)
-        transformer = self.transformer_res(transformer)
-        transformer = self.transformer_conv(transformer)
+        input = self.rearrange(input)
+        input = input + position_embeddings
+        input = self.vit(input)
+        input = self.decompose_axis(input)
+        input = self.transformer_res(input)
+        input = self.transformer_conv(input)
+        input = self.DownBlock(input)
+

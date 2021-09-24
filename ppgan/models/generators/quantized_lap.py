@@ -541,3 +541,43 @@ class DecoderQuantized(nn.Layer):
         out += (transformer)
 
         return out, book_loss
+
+@GENERATORS.register()
+class QuantizedRev(nn.Layer):
+    def __init__(self):
+        super(QuantizedRev, self).__init__()
+        DownBlock = []
+        DownBlock += [
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(3, 64, (3, 3)),
+            nn.ReLU()
+        ]
+
+        self.resblock = ResnetBlock(64)
+
+        self.vit = Transformer(192, 8, 16, 256, 192, dropout=0.05, shift_tokens=True)
+        self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (c p1 p2)', p1=patch_height,
+                                   p2=patch_width)
+        self.decompose_axis = Rearrange('b (h w) (c e d) -> b c (h e) (w d)', h=16, d=8, e=8)
+        self.to_patch_embedding = nn.Linear(256, 192)
+
+        self.pos_embedding = nn.Embedding(256, 192)
+
+        self.transformer_res = ResnetBlock(3)
+        self.transformer_conv = ConvBlock(3, 3)
+        self.transformer_relu = nn.ReLU()
+
+        self.ones = paddle.ones((1, 256), dtype="int64")
+        self.seq_length = paddle.cumsum(self.ones, axis=1)
+        self.position_ids = self.seq_length - self.ones
+        self.position_ids.stop_gradient = True
+
+    def forward(self, input):
+
+        position_embeddings = self.pos_embedding(self.position_ids)
+        transformer = self.rearrange(input)
+        transformer = transformer + position_embeddings
+        transformer = self.vit(transformer)
+        transformer = self.decompose_axis(transformer)
+        transformer = self.transformer_res(transformer)
+        transformer = self.transformer_conv(transformer)

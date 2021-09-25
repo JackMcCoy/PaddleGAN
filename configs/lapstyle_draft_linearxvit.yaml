@@ -10,6 +10,13 @@ model:
     name: Encoder
   generator_transformer:
     name: VQGAN
+  discriminator:
+    name: LapStyleSingleDiscriminator
+    num_channels: 64
+    num_layer: 5
+    noise: 0
+    kernel_size: 3
+    padding: 1
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:

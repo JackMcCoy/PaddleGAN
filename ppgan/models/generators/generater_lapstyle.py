@@ -945,8 +945,9 @@ class RevisionNet32Feats(nn.Layer):
         """
         out = self.DownBlock(input)
         out = self.resblock(out)
+        res_block = out.clone()
         out = self.UpBlock(out)
-        return out
+        return out, res_block
 
 @GENERATORS.register()
 class RevisionNetDeepThumb(nn.Layer):

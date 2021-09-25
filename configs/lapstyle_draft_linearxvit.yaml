@@ -27,6 +27,9 @@ model:
     name: CalcStyleLoss
   mse_loss:
     name: GramErrors
+  gan_criterion:
+    name: GANLoss
+    gan_mode: vanilla
   content_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   style_layers: ['r11', 'r21', 'r31', 'r41', 'r51']
   content_weight: 1

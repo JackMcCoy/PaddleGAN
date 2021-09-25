@@ -424,7 +424,7 @@ class LapStyleDraXDOG(BaseModel):
         '''
 
 @MODELS.register()
-class LapStyleDraXDOG(BaseModel):
+class LapStyleDraVQGAN(BaseModel):
     def __init__(self,
                  generator_encode,
                  generator_transformer,
@@ -442,7 +442,7 @@ class LapStyleDraXDOG(BaseModel):
                  morph_cutoff=8,
                  gamma=.96):
 
-        super(LapStyleDraXDOG, self).__init__()
+        super(LapStyleDraVQGAN, self).__init__()
 
         self.scaler=paddle.amp.GradScaler(init_loss_scaling=1024)
         self.first = True

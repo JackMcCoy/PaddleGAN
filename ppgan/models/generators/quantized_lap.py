@@ -508,7 +508,7 @@ class VQGAN(nn.Layer):
         #self.quantize_3_c = VectorQuantize(256, 1024, 2)
         #self.quantize_2_z = VectorQuantize(256, 2048, 3)
         #self.quantize_2_c = VectorQuantize(256, 2048, 3)
-        self.transformer_4 = Transformer(1024, 8, 16, 256, 1024, dropout=0.1, shift_tokens = True)
+        self.transformer_4 = Transformer(16, 8, 16, 256, 16, dropout=0.1, shift_tokens = True)
         #self.transformer_3 = Transformer(1024, 8, 16, 256, 1024, dropout=0.1, shift_tokens = True)
         #self.transformer_2 = Transformer(2048, 8, 16, 256, 2048, dropout=0.1, shift_tokens = True)
 
@@ -552,9 +552,7 @@ class VQGAN(nn.Layer):
         sF = self.context_mod(si)
 
         quant_z, z4_info, loss1 = self.quantize_4_z(zF['r41'])
-        z_indices = z4_info[2].reshape((quant_z.shape[0],-1))
         quant_s, s4_info, loss2 = self.quantize_4_s(sF['r41'])
-        s_indices = s4_info[2].reshape((quant_s.shape[0],-1))
         target = z_indices
         map_loss = loss1+loss2
         b, n, h, w = s_indices.shape

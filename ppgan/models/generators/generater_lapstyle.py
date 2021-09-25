@@ -915,8 +915,6 @@ class RevisionNet32Feats(nn.Layer):
             nn.Conv2D(64, 64, (3, 3), stride=2),
             nn.ReLU(),
         ]
-        if noise==1:
-            DownBlock+=[NoiseBlock(64,noise_weight)]
 
         self.resblock = ResnetBlock(64)
 

@@ -365,9 +365,9 @@ class VectorQuantize(nn.Layer):
         self.perceptual_loss = CalcContentLoss()
         self.transformer_size = transformer_size
 
-        embed = paddle.randn((dim, n_embed))
+        embed = paddle.randn((dim, self.n_embed))
         self.register_buffer('embed', embed)
-        self.register_buffer('cluster_size', paddle.zeros(shape=(n_embed,)))
+        self.register_buffer('cluster_size', paddle.zeros(shape=(self.n_embed,)))
         self.register_buffer('embed_avg', embed.clone())
         if n_embed != 1280:
             self.rearrange = Rearrange('b c h w -> b (h w) c')

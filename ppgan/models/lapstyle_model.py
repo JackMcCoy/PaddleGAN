@@ -500,7 +500,7 @@ class LapStyleDraVQGAN(BaseModel):
         self.set_requires_grad([self.gaussian_filter],False)
         self.set_requires_grad([self.gaussian_filter_2],False)
         self.steps=0
-        self.cross_entropy = nn.CrossEntropyLoss()
+        self.cross_entropy = paddle.nn.CrossEntropyLoss()
         self.mxdog_weight = 1
         self.nets['net_vit'].freeze_weight(True)
 

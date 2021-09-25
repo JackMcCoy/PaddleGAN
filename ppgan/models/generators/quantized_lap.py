@@ -555,7 +555,7 @@ class VQGAN(nn.Layer):
         quant_s, s4_info, loss2 = self.quantize_4_s(sF['r41'])
         target = z4_info
         map_loss = loss1+loss2
-        zs = paddle.concatenate([s_indices,z_indices],axis=1)
+        zs = paddle.concat([s_indices,z_indices],axis=1)
         logits = self.transformer_4(zs[:, :-1])
         logits = logits[:, s4_info.shape[1]-1:]
 

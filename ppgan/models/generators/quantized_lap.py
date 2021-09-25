@@ -669,7 +669,7 @@ class VGG(nn.Layer):
         Artistic Style Transfer.
     """
     def __init__(self, state_dict):
-        super(Encoder, self).__init__()
+        super(VGG, self).__init__()
         vgg_net = nn.Sequential(
             nn.Conv2D(3, 3, (1, 1)),
             nn.Pad2D([1, 1, 1, 1], mode='reflect'),

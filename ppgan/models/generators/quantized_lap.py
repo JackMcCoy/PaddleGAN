@@ -552,9 +552,9 @@ class VQGAN(nn.Layer):
         sF = self.context_mod(si)
 
         quant_z, z4_info, loss1 = self.quantize_4_z(zF['r41'])
-        z_indices = z4_info[2].view(quant_z.shape[0],-1)
+        z_indices = z4_info[2].reshape((quant_z.shape[0],-1))
         quant_s, s4_info, loss2 = self.quantize_4_s(sF['r41'])
-        s_indices = s4_info[2].view(quant_s.shape[0],-1)
+        s_indices = s4_info[2].reshape((quant_s.shape[0],-1))
         target = z_indices
         map_loss = loss1+loss2
         b, n, h, w = s_indices.shape

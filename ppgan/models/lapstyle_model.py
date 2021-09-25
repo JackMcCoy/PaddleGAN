@@ -502,7 +502,6 @@ class LapStyleDraVQGAN(BaseModel):
         self.steps=0
         self.cross_entropy = paddle.nn.CrossEntropyLoss()
         self.mxdog_weight = 1
-        self.nets['net_vit'].freeze_weight(True)
 
     def setup_input(self, input):
         self.ci = paddle.to_tensor(input['ci'])

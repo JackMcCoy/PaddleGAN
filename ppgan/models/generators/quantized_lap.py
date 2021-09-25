@@ -502,13 +502,13 @@ class VQGAN(nn.Layer):
         self.context_mod = VGG(vgg_state_dict)
         self.z_mod = VGG(vgg_state_dict)
 
-        self.quantize_4_z = VectorQuantize(128, 8192, 1)
-        self.quantize_4_c = VectorQuantize(128, 8192, 1)
+        self.quantize_4_z = VectorQuantize(256, 8192, 1)
+        self.quantize_4_c = VectorQuantize(256, 8192, 1)
         #self.quantize_3_z = VectorQuantize(256, 1024, 2)
         #self.quantize_3_c = VectorQuantize(256, 1024, 2)
         #self.quantize_2_z = VectorQuantize(256, 2048, 3)
         #self.quantize_2_c = VectorQuantize(256, 2048, 3)
-        self.transformer_4 = Transformer(1024, 8, 16, 128, 1024, dropout=0.1, shift_tokens = True)
+        self.transformer_4 = Transformer(1024, 8, 16, 256, 1024, dropout=0.1, shift_tokens = True)
         #self.transformer_3 = Transformer(1024, 8, 16, 256, 1024, dropout=0.1, shift_tokens = True)
         #self.transformer_2 = Transformer(2048, 8, 16, 256, 2048, dropout=0.1, shift_tokens = True)
 

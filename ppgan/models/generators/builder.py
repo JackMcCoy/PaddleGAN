@@ -21,6 +21,8 @@ GENERATORS = Registry("GENERATOR")
 def build_generator(cfg, vgg=None):
     cfg_copy = copy.deepcopy(cfg)
     name = cfg_copy.pop('name')
-    if name=='VQGAN'
-    generator = GENERATORS.get(name)(vgg,**cfg_copy)
+    if name=='VQGAN':
+        generator = GENERATORS.get(name)(vgg,**cfg_copy)
+    else:
+        generator = GENERATORS.get(name)(**cfg_copy)
     return generator

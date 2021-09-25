@@ -423,6 +423,222 @@ class LapStyleDraXDOG(BaseModel):
 
         '''
 
+@MODELS.register()
+class LapStyleDraXDOG(BaseModel):
+    def __init__(self,
+                 generator_encode,
+                 generator_transformer,
+                 discriminator,
+                 calc_style_emd_loss=None,
+                 calc_content_relt_loss=None,
+                 calc_content_loss=None,
+                 calc_style_loss=None,
+                 mse_loss=None,
+                 gan_criterion=None,
+                 content_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
+                 style_layers=['r11', 'r21', 'r31', 'r41', 'r51'],
+                 content_weight=1.0,
+                 style_weight=3.0,
+                 morph_cutoff=8,
+                 gamma=.96):
+
+        super(LapStyleDraXDOG, self).__init__()
+
+        self.scaler=paddle.amp.GradScaler(init_loss_scaling=1024)
+        self.first = True
+        # define generators
+        self.nets['net_enc'] = build_generator(generator_encode)
+        #self.nets['net_dec'] = build_generator(generator_decode)
+        self.nets['net_vit'] = build_generator(generator_transformer, self.nets['net_enc'].state_dict())
+        #init_weights(self.nets['net_dec'])
+        self.nets['netD'] = build_discriminator(discriminator)
+        init_weights(self.nets['netD'])
+        self.set_requires_grad([self.nets['net_enc']], False)
+        #self.set_requires_grad([self.nets['net_dec']], False)
+        init_weights(self.nets['net_vit'])
+
+        # define loss functions
+        self.calc_style_emd_loss = build_criterion(calc_style_emd_loss)
+        self.calc_content_relt_loss = build_criterion(calc_content_relt_loss)
+        self.calc_content_loss = build_criterion(calc_content_loss)
+        self.calc_style_loss = build_criterion(calc_style_loss)
+        self.mse_loss = build_criterion(mse_loss)
+        self.gan_criterion = build_criterion(gan_criterion)
+
+        self.content_layers = content_layers
+        self.style_layers = style_layers
+        self.content_weight = content_weight
+        self.style_weight = style_weight
+        self.morph_cutoff=morph_cutoff
+        self.gamma=gamma
+        g = np.repeat(gaussian(11, 1).numpy(), 3, axis=0)
+        g2 = np.repeat(gaussian(21, 3).numpy(), 3, axis=0)
+        self.gaussian_filter = paddle.nn.Conv2D(3, 3, 11,
+                                                groups=3, bias_attr=False,
+                                                padding=5, padding_mode='reflect',
+                                                weight_attr=paddle.ParamAttr(
+                                                    initializer=paddle.fluid.initializer.NumpyArrayInitializer(
+                                                        value=g), trainable=False)
+                                                )
+        self.gaussian_filter_2 = paddle.nn.Conv2D(3, 3, 21,
+                                                  groups=3, bias_attr=False,
+                                                  padding=10, padding_mode='reflect',
+                                                  weight_attr=paddle.ParamAttr(
+                                                      initializer=paddle.fluid.initializer.NumpyArrayInitializer(
+                                                          value=g2), trainable=False)
+                                                  )
+
+        self.morph_conv = paddle.nn.Conv2D(3, 3, 3, padding=1, groups=3,
+                                           padding_mode='reflect', bias_attr=False,
+                                           weight_attr=paddle.ParamAttr(
+                                               initializer=paddle.fluid.initializer.Constant(
+                                                   value=1), trainable=False)
+                                           )
+
+
+        self.set_requires_grad([self.morph_conv], False)
+        self.set_requires_grad([self.gaussian_filter],False)
+        self.set_requires_grad([self.gaussian_filter_2],False)
+        self.steps=0
+        self.cross_entropy = nn.CrossEntropyLoss()
+        self.mxdog_weight = 1
+        self.nets['net_vit'].freeze_weight(True)
+
+    def setup_input(self, input):
+        self.ci = paddle.to_tensor(input['ci'])
+        self.visual_items['ci'] = self.ci
+        self.si = paddle.to_tensor(input['si'])
+        self.visual_items['si'] = self.si
+        self.image_paths = input['ci_path']
+
+    def forward(self):
+        """Run forward pass; called by both functions <optimize_parameters> and <test>."""
+        self.cF = self.nets['net_enc'](self.ci)
+        self.sF = self.nets['net_enc'](self.si)
+        #dual_tensor = paddle.concat(x=[self.ci, self.si], axis=1)
+        self.stylized, self.map_loss, self.logits, self.target = self.nets['net_vit'](self.cF, self.sF)
+        self.visual_items['stylized'] = self.stylized
+        #self.stylized = self.nets['net_vit'](self.stylized)
+        #self.visual_items['stylized_vit'] = self.stylized
+
+    def backward_Dec(self):
+
+        crossentropy_loss = self.cross_entropy(self.logits, self.target)
+        self.cX,_ = xdog(self.ci.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
+        self.sX,_ = xdog(self.si.detach(),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
+        self.cXF = self.nets['net_enc'](self.cX)
+        self.sXF = self.nets['net_enc'](self.sX)
+        stylized_dog,_ = xdog(paddle.clip(self.stylized,min=0,max=1),self.gaussian_filter,self.gaussian_filter_2,self.morph_conv,gamma=self.gamma,morph_cutoff=self.morph_cutoff,morphs=1)
+        self.cdogF = self.nets['net_enc'](stylized_dog)
+
+        self.tF = self.nets['net_enc'](self.stylized)
+        """content loss"""
+        self.loss_c = 0
+        for idx, layer in enumerate(self.content_layers):
+            self.loss_c += self.calc_content_loss(self.tF[layer],
+                                                  self.cF[layer],
+                                                  norm=True)
+        self.losses['loss_c'] = self.loss_c
+        """style loss"""
+        self.loss_s = 0
+        for layer in self.style_layers:
+            self.loss_s += self.calc_style_loss(self.tF[layer], self.sF[layer])
+        self.losses['loss_s'] = self.loss_s
+        """IDENTITY LOSSES"""
+        #dual_ci = paddle.concat(x=[self.ci, self.ci], axis=1)
+
+        self.Iss, book_loss_s = self.nets['net_vit'](self.sF,self.sF)
+        self.l_identity1 = self.calc_content_loss(self.Iss, self.si)
+        self.Fss = self.nets['net_enc'](self.Iss)
+        self.l_identity2 = 0
+        for layer in self.content_layers:
+            self.l_identity2 += self.calc_content_loss(self.Fss[layer],
+                                                       self.sF[layer])
+        self.losses['l_identity1'] = self.l_identity1
+        self.losses['l_identity2'] = self.l_identity2
+
+        self.Icc, book_loss = self.nets['net_vit'](self.cF,self.cF)
+        self.l_identity3 = self.calc_content_loss(self.Icc, self.ci)
+        self.Fcc = self.nets['net_enc'](self.Icc)
+        self.l_identity4 = 0
+        for layer in self.content_layers:
+            self.l_identity4 += self.calc_content_loss(self.Fcc[layer],
+                                                       self.cF[layer])
+        self.losses['l_identity3'] = self.l_identity3
+        self.losses['l_identity4'] = self.l_identity4
+        """relative loss"""
+        self.loss_style_remd = self.calc_style_emd_loss(
+            self.tF['r31'], self.sF['r31']) + self.calc_style_emd_loss(
+                self.tF['r41'], self.sF['r41'])
+        self.loss_content_relt = self.calc_content_relt_loss(
+            self.tF['r31'], self.cF['r31']) + self.calc_content_relt_loss(
+                self.tF['r41'], self.cF['r41'])
+        self.losses['loss_style_remd'] = self.loss_style_remd
+        self.losses['loss_content_relt'] = self.loss_content_relt
+
+        mxdog_content = self.calc_content_loss(self.tF['r31'], self.cXF['r31'])+self.calc_content_loss(self.tF['r41'], self.cXF['r41'])
+        mxdog_content_contraint = self.calc_content_loss(self.cdogF['r31'], self.cXF['r31'])+self.calc_content_loss(self.cdogF['r41'], self.cXF['r41'])
+        mxdog_style = self.mse_loss(self.cdogF['r31'],self.sXF['r31']) + self.mse_loss(self.cdogF['r41'],self.sXF['r41'])
+
+        self.losses['loss_MD'] = mxdog_content*.3
+        self.losses['loss_CnsC'] = mxdog_content_contraint*100
+        self.losses['loss_CnsS'] = mxdog_style * 1000
+        mxdog_losses = mxdog_content * .3 + mxdog_content_contraint *100 + mxdog_style * 1000
+
+        self.losses['map_loss'] = self.map_loss
+        self.losses['cross_entropy'] = crossentropy_loss
+
+        pred_fake = self.nets['netD'](self.stylized)
+        self.loss_G_GAN = self.gan_criterion(pred_fake, True)
+        self.losses['loss_gan_G'] = self.loss_G_GAN
+
+        self.loss = self.loss_G_GAN + self.loss_c * self.content_weight + self.style_weight * (self.loss_s+self.loss_style_remd*3)+\
+                    self.l_identity1 * 25 + self.l_identity2 * .5 + \
+                    self.l_identity3 * 50 + self.l_identity4 * 1 + \
+                    self.loss_content_relt * 16 +\
+                    self.map_loss + book_loss + book_loss_s+\
+                    mxdog_losses + crossentropy_loss
+
+        return self.loss
+
+    def backward_D(self):
+        """Calculate GAN loss for the discriminator"""
+        pred_fake = self.nets['netD'](self.stylized.detach())
+        self.loss_D_fake = self.gan_criterion(pred_fake, False)
+        pred_real = self.nets['netD'](self.ci)
+        self.loss_D_real = self.gan_criterion(pred_real, True)
+        self.loss_D = (self.loss_D_fake + self.loss_D_real) * 0.5
+
+        self.losses['D_fake_loss'] = self.loss_D_fake
+        self.losses['D_real_loss'] = self.loss_D_real
+
+        return self.loss_D
+
+    def train_iter(self, optimizers=None):
+        """Calculate losses, gradients, and update network weights"""
+        self.steps+=1
+        with paddle.amp.auto_cast():
+            self.forward()
+            self.set_requires_grad(self.nets['netD'], True)
+            loss = self.backward_D()
+        scaled = self.scaler.scale(loss)
+        scaled.backward()
+        self.scaler.minimize(optimizers['optimD'], scaled)
+        optimizers['optimD'].clear_grad()
+        self.set_requires_grad(self.nets['netD'], False)
+        with paddle.amp.auto_cast():
+            self.forward()
+            loss = self.backward_Dec()
+        scaled = self.scaler.scale(loss)
+        scaled.backward()
+        self.scaler.minimize(optimizers['optimG'], scaled)
+        optimizers['optimG'].clear_grad()
+        #self.optimizers['optimG'].step()
+        if self.steps%200==0:
+            for param in self.nets['net_vit'].parameters():
+                if 'pos_emb' in param.name:
+                    print(param)
+
 def tensor_resample(tensor, dst_size, mode='bilinear'):
     return F.interpolate(tensor, dst_size, mode=mode, align_corners=False)
 

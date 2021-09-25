@@ -344,6 +344,7 @@ def ema_inplace(moving_avg, new, decay):
 def laplace_smoothing(x, n_categories, eps=1e-5):
     return (x + eps) / (x.sum() + n_categories * eps)
 
+
 class VectorQuantize(nn.Layer):
     def __init__(
         self,
@@ -375,42 +376,12 @@ class VectorQuantize(nn.Layer):
             self.rearrange = Rearrange('b c (h p1) (w p2) -> b (h w) (c p1 p2)',p1=4,p2=4)
             self.decompose_axis = Rearrange('b (h w) (c e d) -> b c (h e) (w d)',h=16,w=16, e=4,d=4)
 
-        if transformer_size==1:
-            self.transformer = Transformer(dim**2*2, 8, 16, 64, dim**2*2, dropout=0.1)
-            self.pos_embedding = nn.Embedding(256, 512)
-        elif transformer_size==2:
-            self.transformer = Transformer(256, 8, 16, 64, 256, dropout=0.05)
-            self.pos_embedding = nn.Embedding(1024, 256)
-        elif transformer_size==3:
-            self.transformer = Transformer(2048, 8, 16, 64, 768, dropout=0.05)
-            self.pos_embedding = nn.Embedding(256, 2048)
-        elif transformer_size==4:
-            self.transformer = Transformer(1024, 1, 8, 64, 64, dropout=0.05)
-            self.pos_embedding = nn.Embedding(256, 1024)
-            self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (c p1 p2)', p1 = 4, p2 = 4)
-            self.decompose_axis = Rearrange('b (h w) (c e d) -> b c (h e) (w d)',h=32,w=32, e=4,d=4)
     @property
     def codebook(self):
         return self.embed.transpose([1, 0])
 
     def forward(self, input):
-        if self.transformer_size != 4:
-            quantize = self.rearrange(input)
-            b, n, _ = quantize.shape
-
-            ones = paddle.ones((b, n), dtype="int64")
-            seq_length = paddle.cumsum(ones, axis=1)
-            position_ids = seq_length - ones
-            position_ids.stop_gradient = True
-            position_embeddings = self.pos_embedding(position_ids)
-
-            quantize = self.transformer(quantize + position_embeddings)
-            quantize = self.decompose_axis(quantize)
-
-            quantize = input + (quantize - input).detach()
-        else:
-            quantize = input
-        flatten = quantize.reshape((-1, self.dim))
+        flatten = input.reshape((-1, self.dim))
         dist = (
             flatten.pow(2).sum(1, keepdim=True)
             - 2 * flatten @ self.embed
@@ -433,29 +404,6 @@ class VectorQuantize(nn.Layer):
 
         return quantize, embed_ind, loss
 
-@GENERATORS.register()
-class PretrainedGenerator(nn.Layer):
-    def __init__(self, label):
-        super(PretrainedGenerator, self).__init__()
-
-        self.DownBlock = nn.Sequential(
-            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            (label+'_conv1', nn.Conv2D(6, 128, (3, 3))),
-            nn.ReLU(),
-            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            (label+'_conv2', nn.Conv2D(128, 128, (3, 3))),
-            nn.ReLU(),
-            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            (label+'_conv3', nn.Conv2D(128, 64, (3, 3))),
-            nn.ReLU(),
-            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
-            (label+'conv4', nn.Conv2D(64, 64, (3, 3), stride=2)),
-            nn.ReLU()
-        )
-
-    def forward(self, input):
-        x = self.DownBlock(input)
-        return x
 
 @GENERATORS.register()
 class DecoderQuantized(nn.Layer):
@@ -506,38 +454,127 @@ class DecoderQuantized(nn.Layer):
                                         nn.Conv2D(64, 3, (3, 3)))
 
 
-    def freeze_weight(self, requires_grad):
-        for layer in [self.resblock_41,
-                      self.convblock_41,
-                      self.resblock_31,
-                      self.convblock_31,
-                      self.convblock_22,
-                      self.convblock_21,
-                      self.convblock_11,
-                      self.quantize_4,
-                      self.quantize_3,
-                      self.quantize_2]:
-            for param in layer.parameters():
-                    param.trainable = requires_grad
+'''
+      if transformer_size==1:
+            self.transformer = Transformer(dim**2*2, 8, 16, 64, dim**2*2, dropout=0.1)
+            self.pos_embedding = nn.Embedding(256, 512)
+        elif transformer_size==2:
+            self.transformer = Transformer(256, 8, 16, 64, 256, dropout=0.05)
+            self.pos_embedding = nn.Embedding(1024, 256)
+        elif transformer_size==3:
+            self.transformer = Transformer(2048, 8, 16, 64, 768, dropout=0.05)
+            self.pos_embedding = nn.Embedding(256, 2048)
+        elif transformer_size==4:
+            self.transformer = Transformer(1024, 1, 8, 64, 64, dropout=0.05)
+            self.pos_embedding = nn.Embedding(256, 1024)
+            self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (c p1 p2)', p1 = 4, p2 = 4)
+            self.decompose_axis = Rearrange('b (h w) (c e d) -> b c (h e) (w d)',h=32,w=32, e=4,d=4)
+'''
+'''
+if self.transformer_size != 4:
+            quantize = self.rearrange(input)
+            b, n, _ = quantize.shape
 
-    def forward(self, cF, sF):
-        out = adaptive_instance_normalization(cF['r41'], sF['r41'])
-        quantize, embed_ind, book_loss = self.quantize_4(out)
-        out = self.resblock_41(quantize)
+            ones = paddle.ones((b, n), dtype="int64")
+            seq_length = paddle.cumsum(ones, axis=1)
+            position_ids = seq_length - ones
+            position_ids.stop_gradient = True
+            position_embeddings = self.pos_embedding(position_ids)
+
+            quantize = self.transformer(quantize + position_embeddings)
+            quantize = self.decompose_axis(quantize)
+
+            quantize = input + (quantize - input).detach()
+        else:
+            quantize = input
+'''
+
+@GENERATORS.register()
+class VQGAN(nn.Layer):
+    """Decoder of Drafting module.
+    Paper:
+        Drafting and Revision: Laplacian Pyramid Network for Fast High-Quality
+        Artistic Style Transfer.
+    """
+    def __init__(self, vgg_state_dict):
+        super(VQGAN, self).__init__()
+
+        self.context_mod = VGG(vgg_state_dict)
+        self.z_mod = VGG(vgg_state_dict)
+
+        self.quantize_4_z = VectorQuantize(128, 1024, 1)
+        self.quantize_4_c = VectorQuantize(128, 1024, 1)
+        #self.quantize_3_z = VectorQuantize(256, 1024, 2)
+        #self.quantize_3_c = VectorQuantize(256, 1024, 2)
+        #self.quantize_2_z = VectorQuantize(256, 2048, 3)
+        #self.quantize_2_c = VectorQuantize(256, 2048, 3)
+        self.transformer_4 = Transformer(1024, 8, 16, 128, 1024, dropout=0.1, shift_tokens = True)
+        #self.transformer_3 = Transformer(1024, 8, 16, 256, 1024, dropout=0.1, shift_tokens = True)
+        #self.transformer_2 = Transformer(2048, 8, 16, 256, 2048, dropout=0.1, shift_tokens = True)
+
+        '''
+        patch_height, patch_width = (8,8)
+
+        num_patches = (128 // patch_height) * (128 // patch_width)
+        patch_dim = 3 * patch_height * patch_width
+
+        self.rearrange=Rearrange('b c (h p1) (w p2) -> b (h w) (c p1 p2)', p1 = patch_height, p2 = patch_width)
+        self.decompose_axis=Rearrange('b (h w) (c e d) -> b c (h e) (w d)',h=16,d=8,e=8)
+        self.to_patch_embedding = nn.Linear(256, 192)
+
+        self.pos_embedding = nn.Embedding(256, 192)
+        '''
+
+        self.resblock_41 = ResnetBlock(512)
+        self.convblock_41 = ConvBlock(512, 256)
+        self.resblock_31 = ResnetBlock(256)
+        self.convblock_31 = ConvBlock(256, 128)
+
+
+        self.convblock_21 = ConvBlock(128, 128)
+        self.convblock_22 = ConvBlock(128, 64)
+        self.convblock_11 = ConvBlock(64, 64)
+
+        self.downsample = nn.Upsample(scale_factor=.5, mode='nearest')
+        self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
+
+        self.transformer_res = ResnetBlock(3)
+        self.transformer_conv = ConvBlock(3, 3)
+        self.transformer_relu = nn.ReLU()
+        #self.skip_connect_weight = paddle.create_parameter(shape=(1, ), dtype='float32', is_bias=True)
+
+        self.final_conv = nn.Sequential(nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+                                        nn.Conv2D(64, 3, (3, 3)))
+
+
+    def forward(self, ci, si):
+        zF = self.z_mod(ci)
+        sF = self.context_mod(si)
+
+        quant_z, z4_info, loss1 = self.quantize_4_z(zF['r41'])
+        z_indices = z4_info[2].view(quant_z.shape[0],-1)
+        quant_s, s4_info, loss2 = self.quantize_4_s(sF['r41'])
+        s_indices = s4_info[2].view(quant_s.shape[0],-1)
+        target = z_indices
+        map_loss = loss1+loss2
+        b, n, h, w = s_indices.shape
+        zs = paddle.concatenate([s_indices,z_indices],axis=1).reshape((b,n*2,-1))
+        logits = self.transformer_4(zs[:, :-1])
+        logits = logits[:, s_indices.shape[1]-1:]
+
+        out = self.resblock_41(logits.reshape((b,n,h,w)))
         out = self.convblock_41(out)
 
         upscale_4 = self.upsample(out)
-        # Transformer goes here?
-        quantize, embed_ind, loss = self.quantize_3(adaptive_instance_normalization(cF['r31'], sF['r31']))
-        book_loss += loss
-        out = upscale_4+quantize
+
+        out += adaptive_instance_normalization(zF['r31'], sF['r31'])
+
+        out = upscale_4
         out = self.resblock_31(out)
         out = self.convblock_31(out)
 
         out = self.upsample(out)
-        quantize, embed_ind, loss = self.quantize_2(adaptive_instance_normalization(cF['r21'], sF['r21']))
-        book_loss += loss
-        out += quantize
+        out += adaptive_instance_normalization(zF['r21'], sF['r21'])
 
         out = self.convblock_21(out)
         out = self.convblock_22(out)
@@ -546,22 +583,31 @@ class DecoderQuantized(nn.Layer):
         out = self.convblock_11(out)
         out = self.final_conv(out)
 
-        b, n, _, _ = out.shape
+        return out, map_loss, target, logits
 
-        ones = paddle.ones((1, 256), dtype="int64")
-        seq_length = paddle.cumsum(ones, axis=1)
-        position_ids = seq_length - ones
-        position_ids.stop_gradient = True
-        position_embeddings = self.pos_embedding(position_ids)
-        transformer = self.rearrange(out)
-        transformer = transformer + position_embeddings
-        transformer = self.vit(transformer)
-        transformer = self.decompose_axis(transformer)
-        transformer = self.transformer_res(transformer)
-        transformer = self.transformer_conv(transformer)
-        out += (transformer)
+@GENERATORS.register()
+class PretrainedGenerator(nn.Layer):
+    def __init__(self, label):
+        super(PretrainedGenerator, self).__init__()
 
-        return out, book_loss
+        self.DownBlock = nn.Sequential(
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            (label+'_conv1', nn.Conv2D(6, 128, (3, 3))),
+            nn.ReLU(),
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            (label+'_conv2', nn.Conv2D(128, 128, (3, 3))),
+            nn.ReLU(),
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            (label+'_conv3', nn.Conv2D(128, 64, (3, 3))),
+            nn.ReLU(),
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            (label+'conv4', nn.Conv2D(64, 64, (3, 3), stride=2)),
+            nn.ReLU()
+        )
+
+    def forward(self, input):
+        x = self.DownBlock(input)
+        return x
 
 @GENERATORS.register()
 class QuantizedRev(nn.Layer):
@@ -615,3 +661,93 @@ class QuantizedRev(nn.Layer):
         input = self.transformer_conv(input)
         input = self.DownBlock(input)
 
+
+class VGG(nn.Layer):
+    """Encoder of Drafting module.
+    Paper:
+        Drafting and Revision: Laplacian Pyramid Network for Fast High-Quality
+        Artistic Style Transfer.
+    """
+    def __init__(self, state_dict):
+        super(Encoder, self).__init__()
+        vgg_net = nn.Sequential(
+            nn.Conv2D(3, 3, (1, 1)),
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(3, 64, (3, 3)),
+            nn.ReLU(),  # relu1-1
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(64, 64, (3, 3)),
+            nn.ReLU(),  # relu1-2
+            nn.MaxPool2D((2, 2), (2, 2), (0, 0), ceil_mode=True),
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(64, 128, (3, 3)),
+            nn.ReLU(),  # relu2-1
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(128, 128, (3, 3)),
+            nn.ReLU(),  # relu2-2
+            nn.MaxPool2D((2, 2), (2, 2), (0, 0), ceil_mode=True),
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(128, 256, (3, 3)),
+            nn.ReLU(),  # relu3-1
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(256, 256, (3, 3)),
+            nn.ReLU(),  # relu3-2
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(256, 256, (3, 3)),
+            nn.ReLU(),  # relu3-3
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(256, 256, (3, 3)),
+            nn.ReLU(),  # relu3-4
+            nn.MaxPool2D((2, 2), (2, 2), (0, 0), ceil_mode=True),
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(256, 512, (3, 3)),
+            nn.ReLU(),  # relu4-1, this is the last layer used
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(512, 512, (3, 3)),
+            nn.ReLU(),  # relu4-2
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(512, 512, (3, 3)),
+            nn.ReLU(),  # relu4-3
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(512, 512, (3, 3)),
+            nn.ReLU(),  # relu4-4
+            nn.MaxPool2D((2, 2), (2, 2), (0, 0), ceil_mode=True),
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(512, 512, (3, 3)),
+            nn.ReLU(),  # relu5-1
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(512, 512, (3, 3)),
+            nn.ReLU(),  # relu5-2
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(512, 512, (3, 3)),
+            nn.ReLU(),  # relu5-3
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            nn.Conv2D(512, 512, (3, 3)),
+            nn.ReLU()  # relu5-4
+        )
+
+        vgg_net.set_dict(state_dict)
+        self.enc_1 = nn.Sequential(*list(
+            vgg_net.children())[:4])  # input -> relu1_1
+        self.enc_2 = nn.Sequential(*list(
+            vgg_net.children())[4:11])  # relu1_1 -> relu2_1
+        self.enc_3 = nn.Sequential(*list(
+            vgg_net.children())[11:18])  # relu2_1 -> relu3_1
+        self.enc_4 = nn.Sequential(*list(
+            vgg_net.children())[18:31])  # relu3_1 -> relu4_1
+        self.enc_5 = nn.Sequential(*list(
+            vgg_net.children())[31:44])  # relu4_1 -> relu5_1
+
+    def forward(self, x):
+        out = {}
+        x = self.enc_1(x)
+        out['r11'] = x
+        x = self.enc_2(x)
+        out['r21'] = x
+        x = self.enc_3(x)
+        out['r31'] = x
+        x = self.enc_4(x)
+        out['r41'] = x
+        x = self.enc_5(x)
+        out['r51'] = x
+        return out

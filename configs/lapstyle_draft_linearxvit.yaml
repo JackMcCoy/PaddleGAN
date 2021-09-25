@@ -9,22 +9,7 @@ model:
   generator_encode:
     name: Encoder
   generator_transformer:
-    name: LinearCrossViT
-    image_size: 128
-    num_classes: 1000
-    depth: 4
-    sm_dim: 256
-    sm_patch_size: 8
-    sm_enc_depth: 2
-    sm_enc_heads: 8
-    lg_dim: 768
-    lg_patch_size: 64
-    lg_enc_depth: 3
-    lg_enc_heads: 8
-    cross_attn_depth: 2
-    cross_attn_heads: 8
-    dropout: 0
-    emb_dropout: 0
+    name: VQGAN
   calc_style_emd_loss:
     name: CalcStyleEmdLoss
   calc_content_relt_loss:

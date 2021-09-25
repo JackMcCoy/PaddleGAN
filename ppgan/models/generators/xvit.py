@@ -228,7 +228,7 @@ class Attention(nn.Layer):
         if style is None:
             style=context
         if kv_include_self:
-            context = paddle.concat((x, style), axis = 1) # cross attention requires CLS token includes itself as key / value
+            style = paddle.concat((x, style), axis = 1) # cross attention requires CLS token includes itself as key / value
 
         qkv = (self.to_q(x), *self.to_kv(style).chunk(2, axis = -1))
         q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> b h n d', h = h), qkv)

@@ -433,6 +433,29 @@ class VectorQuantize(nn.Layer):
 
         return quantize, embed_ind, loss
 
+@GENERATORS.register()
+class PretrainedGenerator(nn.Layer):
+    def __init__(self, label):
+        super(PretrainedGenerator, self).__init__()
+
+        self.DownBlock = nn.Sequential(
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            (label+'_conv1', nn.Conv2D(6, 128, (3, 3))),
+            nn.ReLU(),
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            (label+'_conv2', nn.Conv2D(128, 128, (3, 3))),
+            nn.ReLU(),
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            (label+'_conv3', nn.Conv2D(128, 64, (3, 3))),
+            nn.ReLU(),
+            nn.Pad2D([1, 1, 1, 1], mode='reflect'),
+            (label+'conv4', nn.Conv2D(64, 64, (3, 3), stride=2)),
+            nn.ReLU()
+        )
+
+    def forward(self, input):
+        x = self.DownBlock(input)
+        return x
 
 @GENERATORS.register()
 class DecoderQuantized(nn.Layer):
